@@ -1,0 +1,1935 @@
+Plan for g2c program (new GENPRO --> netCDF converter)
+###################################################################
+A source files with a string of ############## indicates an area
+of code that ultimately needs attention.  This can be to add tests
+that are not now being done or adding new code to handle more
+options or cases.
+###################################################################
+
+
+Read header and set up all variables
+------------------------------------
+First example:  most recent GENPRO header format
+
+Information needed from the example header:
+/PROJECT= "3-278-RF03 HRT - WISPIT 19FEB93         "
+   - project number
+   - flight number
+   - project name
+/PRDATE = ("19","FEB","93")
+/COMENT= "            NCAR RAF MAGNETIC TAPE FORMATS                         ",
+/COMMENT= "            UW KING AIR      TAPE FORMATS                         ",
+/                    "      ...     ",
+/                    "      ...     ",
+/EXDATE = ("17","AUG","93")
+/EXTIME = ("17H","46M","46S")
+/MACHINE= "CRAY"
+/JOBID  = "CK0327      <-- note:  no trailing " in this case
+LOGBIT =    48608
+DATLOG =    1
+DATSIZ =    48640
+ORDVAR = TITLE
+LETVAR = "UNALTERED TAPE TIME (HOURS)             ", %FOR, HR
+                         .
+                         .
+                         .
+  Be aware of multiple PMS size cells, such as AFSP01-AFSP15, CFSP01-CFSP15,
+  AFSP201-AFSP215 and CFSP201-CFSP215 to combine into a rate=1 sps vector
+  variable.  The same is true for ACCFSPH and ACCFSPH2.  In this latter case,
+  perhaps one can use the unusual variable rate as an indicator; its format
+  will be a high-rate vector variable.
+                         .
+                         .
+                         .
+LETVAR = "RAF FSSP-100 ACCUM. RAW CNT(1-15)HIGH RT", %FOR, ACCFSPH2
+ORDVAR = UNITS, SAMPLE, RATE, BITS, FSTBIT, SKIP
+ LETVAR = " HR     ",     1,     1, 32,       1,     0, %FOR, HR
+                         .
+                         .
+                         .
+ LETVAR = " CNTS   ",   150,   150, 32,   43809,     0, %FOR, ACCFSPH2
+ ORDVAR = CONKEY, SCLKEY, TERM, FACTOR
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, HR
+                         .
+                         .
+                         .
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, ACCFSPH2
+ ENDHD
+
+
+Information not needed from the example header:
+/HDROPT
+/HDRLOG =   10
+/HDRSIZ =     6400
+/PRTIME = ("17H","24M","39S")     /PROJECT TIME
+/BEGSNP = (  17.000    ,  24.000    ,  39.000    ) <-- to be obtained from reading the actual data
+/ENDSNP = (  18.000    ,  29.000    ,  25.000    ) <-- to be obtained from reading the actual data
+
+
+Information to be put into the netCDF header's '// global attributes' section:
+                :Source = "NCAR Research Aviation Facility" ;
+                :Address = "P.O. Box 3000, Boulder, CO 80307-3000" ;
+                :Phone = "(303) 497-1030" ;
+                :Conventions = "NCAR-RAF conversion from GENPRO format" ;
+                :DateProcessed = "Aug 17 17:46 MDT 1993 on CRAY, Sequence No. CK0327" ;
+                :ProjectName = "WISPIT" ;
+                :Aircraft = "N312D" ;
+                :ProjectNumber = "278" ;
+                :FlightNumber = "RF03" ;
+                :FlightDate = " 2/19/1993 " ;
+                :TimeInterval = "17:24:39-18:29:25" ;
+                :Defaults = "none available";
+
+-------------------------------------------------------------------------------
+
+Software design:
+  Read and decode the GENPRO header
+   Assumption #1:  header is in ASCII (GENPRO 2), not CDC Display Code
+   Assumption #2:  header has 80 characters per line (set with a declaration
+                    rather than hard-wire in case change is needed)
+   Assumption #3:  input file consists of GENPRO header and data files
+                    combined into one file with COS-blocking removed
+   Assumption #4:  for now, assume only the latest NCAR GENPRO header
+                    format; future development will handle previous NCAR
+                    header formats and the University of Wyoming GENPRO
+                    format (Wyoming may be easy.)
+
+-----
+Start
+-----
+
+Read and interpret the command line
+Define and preset specifications (e.g., number of characters in one header
+  line)
+Open input file
+ Check for a valid GENPRO header format.
+  The first keyword should be BEGINHD (doesn't really matter).
+  There should be NO non-printing characters in any header line. (Warn)
+  Should the word GENPRO appear somewhere in the header???? (not necessarily)
+Read and decode header lines 80 characters at a time until the ENDHD keyword
+is found (Must get to the end of the header before reading data):
+ 1. Search for list of keywords at the begining of a line, possibly preceded
+  by SPACE and/or SLASH (/) characters, possibly followed by white space
+  and a delimiter consisting of a trailing equals sign (=) or comma (,).
+ 2. The keyword APPVAR will be followed by a (partial) list of GENPRO
+  variable names which shall be saved.  All APPVAR keyword lines will appear
+  together in a group.  (These names will be put into a structure which
+  has information about all the GENPRO variables and the parameters needed
+  to decode the variable's data.  When a new variable name is defined,
+  preset that variable's parameters to bogus values so I can tell later
+  whether the header has been fully decoded correctly.)
+ 3. The keyword ORDVAR will be followed on the same line by other keywords
+  which will be saved and used as parameter flags in the LETVAR statements
+  that follow it until another ORDVAR keyword line appears.
+ 4. For any LETVAR keyword line that does not end with a %FOR keyword
+  followed by a variable's name:  Any data on this line are assumed to
+  be global and will apply to all variables that have not had those
+  corresponding keyword parameters set.  This implies that one needs a way
+  to know whether a keyword parameter has been set for each variable.
+  This could get rather complex and involved.  The APPVAR keyword may
+  prove useful here, because it will be used to produce the master list of
+  variables before any other parameters are set.  One could then set all
+  the parameters for every variable to some "not set" condition, easing the
+  other tasks without the need for separate flags.  Fortunately, so far as
+  I know, GENPRO headers do not contain any global parameter data, so this
+  function should not be necessary.  (I will postpone it for now.)
+ 5. No header lines should contain non-printing characters.  Presence of a
+  non-printing character could mean that I am beginning to read the data
+  portion of the file.  If, at that point, my header information is
+  incomplete, I will notify the user and print the offending record.
+ 6. Preset the following global parameters, since these may not appear in
+  all GENPRO headers and are not needed for netCDF conversion:
+    EXDATE  = unk, unk, unk
+    EXTIME  = unk, unk, unk
+    JOBID   = "unknown"
+ 7. Before the data portion of a GENPRO file is read, I must make sure I
+  have all the needed information from the GENPRO header.  Therefore, a
+  multiple-bit flag will be used to check for the existence of this
+  information.  After each keyword has been decoded successfully, its
+  corresponding bit in the flag will be set.  After the header has been
+  read, the flag will be compared to a "successful" bit pattern to see if
+  conversion should continue.  Following are the required keywords.
+    PRDATE    <-- Some data sets may have a leading slash.
+                   Technically, I don't need this information.  I could
+                    fudge a bogus date just so conversion could continue.
+    COMMENT   <-- tells whether it is NCAR or Wyoming data
+                    Technically, I don't need this information.  I could
+                    assume NCAR data if it didn't appear (may not be wise.)
+    LOGBIT
+    DATLOG
+    DATSIZ
+    APPVAR
+    ORDVAR
+      TITLE   <--  Undesirable if omitted, but not necessary for processing
+      UNITS   <--  Undesirable if omitted, but not necessary for processing
+      SAMPLE  <--  Some data sets used this instead of RATE
+      RATE
+      BITS    <--  Most likely to be 32
+      FSTBIT
+      SKIP    <--  Most likely to be zero (0)
+      TERM    <--  No easy way to check this, since any number is valid
+      FACTOR
+      %FOR
+    LETVAR
+    ENDHD
+  Following are keywords with optional data.
+    PROJECT <-- For NCAR, has project number, flight number and segment
+                Issue warning if missing, since conversion can continue.
+    EXDATE  <-- Some data sets may have a leading slash or omit his parameter.
+    EXTIME  <-- Some data sets may have a leading slash or omit his parameter.
+    JOBID   <-- Some data sets may have a leading slash or omit his parameter.
+      CONKEY  <--  Most likely to be one (1); parameter not used.
+                    (U of Wyoming uses CONKEY = 0 to indicate IEEE format.)
+      SCLKEY  <--  Most likely to be two (2); parameter not used at present.
+                    All data will be scaled unless CONKEY = 0.  Activation of
+                    this parameter can be a future development.
+
+
+  Once all header information has been read, compare physical data record size
+  with logical data record size * logical data records per physical record.
+  One may also want to check other things for consistency.  For example, the
+  logical record size should be the same as the sum of all the variables'
+  rates.
+
+  To properly decode the data for each variable, I need its RATE (or SAMPLE),
+  FRSTBIT (fstpt), TERM and FACTOR.  Desired also are TITLE and UNITS.
+  To be rigorous for each variable, I should predefine BITS (bytes) = 32(4),
+  NAME = "No title", UNITS = "Unknown".
+  There is no easy way to check for valid values of TERM, so I will test
+  FACTOR instead; it should never be less than or equal to zero.
+
+  This implementation will not use the following GENPRO input parameters:
+  CONKEY, SCLKEY, and SKIP.  (Note:  University of Wyoming uses CONKEY = 0
+  to indicate IEEE format.)  To be rigorous, I should use CONKEY and SCLKEY
+  as they were designed.  That way I would stay out of trouble.  The only
+  challenge is to decode all the known CONKEY values.  For now, perhaps I
+  should assume that only two CONKEYS exist: 0 = IEEE and anything else =
+  32-bit integer.
+
+ 8. One glitch has to do with PMS-1D data.  In a GENPRO data set, the
+  variables for the 1sps per-bin accumulations and concentrations have
+  separate names, whereas, in netCDF the data are combined into a vector
+  variable with only one name.  Code should be written to handle this
+  special case, but it can be deferred for now.
+
+ 9. A future enhancement will be to allow the user to specify which subset
+  of input variables to output.  Another possibilty would be to create an
+  LRT data set from an HRT.
+
+10. I found an example of a corrupt GENPRO header (G815rf08.)  Variables
+  were not listed in the APPVAR section but did appear in the others.  I can
+  write code that will add a new variable when it is not found in the APPVAR
+  list.  I don't understand why the variables didn't appear in the APPVAR
+  list in the first place.  The GENPRO PDUD file had no problems.
+
+
+Process options
+---------------
+This function may be done after reading the header.  Future development
+options would include:  (not) printing a list of variables found in the
+header; (not) printing the GENPRO header as it is read; (not) printing
+warning messages which will not impede processing; batch mode operation;
+reading input commands from a file; reading output variable list from a
+file; etc.  I could also read certain environment variables for settings.
+
+Set up for data conversion and output
+-------------------------------------
+The netCDF file needs a time variable and a date.  The date, if available,
+will be found in the header and will, most likely, need conversion.  At
+first, search for HR, MIN and SEC.  If these variables are not found, search,
+in order, for PTIME then TPTIME and translate one of them to the needed
+format.  For University of Wyoming data, the time variables are `time' and
+`totalsec.'  For Hong Kong data, use TPTIME, not TIME or TSEC70.
+
+Open the netCDF file and write the netCDF header
+------------------------------------------------
+
+Read all the data and write netCDF output file
+----------------------------------------------
+To be safe, read one physical record of data at a time and parse it into
+logical records.  That will be safest, since fill data may appear at the
+end of a physical record.
+
+Find a way to make sure that I am really reading data records.  For now
+I can assume that the data record immediately follows the header and that
+the header adequately describes the binary data format.  (I suppose one
+could read the time in the first data record and compare it to the BEGSNP
+value in the header, but there is no guarantee that they will be the same,
+since the real start time could be later.)
+
+Decode and output one variable at a time.  If a decoded value is 99999.,
+it indicates a missing datum.  It should be changed to the netCDF
+MissingValue (-32767.).
+
+It may be wise to use Chris's structures for output data as much as possible.
+This could be a problem due to the limited number of rates that Chris can
+now handle.  However, his software should be able to handle any rate that
+our GENPRO files throw at him, so he may have to modify his code.
+
+Once data are in memory, it may also be wise to use Chris's NIMBUS functions
+to output the data to the netCDF file.  I may not have to alphabetize the
+output variable list myself.
+
+Check for a write error.
+
+Note that a NIMBUS output netCDF file has all variables in alphabetical order!
+It is unclear whether I will want to force that on the GENPRO data.
+
+Changes to existing code for compatibility:
+------------------------------------------
+printf for error messages:  change to fprintf(stderr, ...
+
+use fclose to close input file
+use ncclose(ncid) to close output file
+
+Possible problem areas in CreateNetCDF() in dap2cdf.c:
+-----------------------------------------------------
+Reliance on VarDB file (post GENPRO) -- may not be a problem
+Predefined rates
+Must define an aircraft (OK if I have project number)
+No place that I've seen for a project title
+In DAP files, time segments exist before output data are written; in GENPRO
+ files, I must read data to discover start and end times.
+
+
+Next step -- netCDF output
+--------------------------
+man page -- warn users about lack of time zone information and the assumed
+time zone of UTC.
+
+PMS-1D variables -- if I output them in the prescribed way, I need to create
+a standard output rate that may differ from the GENPRO input rate.  This
+means I should set up another array of output offset pointers.  I could
+compare variable names (e.g. CFSP01) to a known list as a detector for the
+low-rate PMS variables and have a new list for the blocked ones (e.g.,
+ACCFSPH).  I could also assume that any rates that are odd (viz., not 1, 5,
+10, 20, 25, 50, 250) are blocked PMS-1D variables.  Known examples are
+15, 21, 62, 64, 150, 210, 310, 620 and 640.
+
+I should create an array of output rates instead of using the hard-wired
+ones that Chris is using.
+
+To start this section, write a little function to find the number of
+different rates and to sort them into increasing size.
+
+Since I'm using the first time in a record as the start time instead of
+values in the GENPRO header, I need to create a start time record in the
+netCDF header and fill it with <space> characters before starting the
+processing, save the start and end times in memory then overwrite the
+<space>s in the header after processing has completed.
+
+Time in GENPRO files may not have HR, MIN and SEC.  All should have either
+PTIME or TPTIME (Except UWyoming).  The preferred order of variable use
+will be:
+  1.  HR, MIN, SEC
+  2.  PTIME
+  3.  TPTIME
+  4.  time  (U of Wyoming)
+  5.  totalsec  (U of Wyoming)
+NCAR/RAF requires HOUR, MINUTE and SECOND as output variables for its netCDF
+utilities to function properly.  These names do not appear in GENPRO files,
+so I will create them from (HR, MIN, SEC), PTIME or TPTIME (in that order).
+If HR, MIN and SEC exist, I will simply rename them to HOUR, MINUTE and
+SECOND.  I will use the first GENPRO time (one of the above) only for a
+start time; subsequent time will come from an incremented long int counter
+having time offset.  End time will be start time + offset.  A midnight
+transition should go from 23:59:50 to 0:00:00.  (I need a function to do the
+conversion from seconds after midnight to hhmmss.)
+
+To facilitate later changes, I should make use of (sizeof) and define an
+output data type that can be easily changed from float to double without
+having to make a bunch of changes elsewhere in the code.
+
+Another function would be to transform PMS-1D variables to create new names
+and rates when necessary (e.g., ACFSP01-ACFSP15 --> ? 16 and ACCFSPH @ 150
+--> rate 10 and Vector16) and adjust output pointers.  In these cases, I
+need to make a Vector16 variable out of the 15 cells and put MissingValue in
+the 1st position.
+
+netCDF:  One array for all output variable data.  Basically it's just like
+the GENPRO data except that I need base_time, time_offset, HOUR, MINUTE and
+SECOND as variables.  If HOUR, MINUTE and SECOND don't appear in the input,
+I must create them (rename HR, MIN and SEC, if present).  base_time and
+time_offset will be added as new variables at the beginning of the GENPRO
+variables list.  HOUR, MINUTE and SECOND will be added at the end, if
+necessary.
+
+I need to calculate the size of the output record and malloc space for it.
+
+I need an array of output starting indices for the netCDF output array.
+For now, I can just transfer the GENPRO ones and add the time indices to
+the end of them.  If code is added to choose a subset of the variable list,
+this must change.  In either case I will have to adjust them later when I
+vectorize the PMS-1D variables.  I need to add output indices for base_time
+and time_offset.  Also, I need to add output indices of HOUR, MINUTE and
+SECOND if they are created rather than renamed.  The best place to create
+all these variables is in time_var.c.  I cannot increment nvars, however,
+because it is used to read the GENPRO input data.  Perhaps a new variable,
+like ovars, should be created to handle the new time variables.  It can be
+set to equal nvars in read_hdr just before time_var is called.  (time_var
+is the last function called before read_hdr finishes.)
+
+The base_time value will be set to midnight on the flight date.  Since I
+don't know the time zone, I'll have to assume that it's UTC.  I'm not sure
+what that will do to the actual times shown for plotted data.  (It won't
+change them.)
+
+The first value of time_offset will be read from the official time in the
+first record (as seconds after midnight) and incremented from that point on.
+
+When I've read the first record, I must save the start time.  If I've
+created HOUR, MINUTE and SECOND, I must update those every second by
+incrementing the time_offset and converting it to h, m and s.  When I've
+read the last record, I must save the end time and insert the time interval
+into the netCDF header.
+
+I must create the function to_hms(sam,h,m,s) which converts seconds after
+midnight to hours, minutes and seconds.  It must be able to handle midnight
+transitions (just mod on 86400).
+
+To do:
+-----
+ 1. Write code to accumulate the size of the output record.  At this
+     point, I'm not sure whether to use some kind of flag to indicate
+     that a variable is to be output.  Don't forget to include the extra
+     variables created exclusively for the netCDF file.  The order of these
+     data will be:  base_time and time_offset and, if needed, HOUR, MINUTE
+     and SECOND.  The first two variables will always be present.  [Done.]
+ 2. Modify the time_var.c file to insert base_time and time_offset into the
+     output data stream.  <-- need to think about what's happening here:
+     Do I do this with the input data stream and set up the variables as
+     though they were read from the header?  Ultimately they may be easier
+     to handle that way (increment nvars to include the total number of
+     variables instead of just adding them invisibly at the end).
+     [It was easier to make them "invisible" at the end.]  [Done.]
+ 3. Write a function to convert seconds after midnight to hours, minutes
+     and seconds.  [Done.]
+ 4. Change appropriate parts of the code to use the NR_TYPE and NR_SIZE
+     definitions.  [Done.]
+ 5. Modify the CreateNetCDF.c file to suit this application.  This includes
+     special code to create the output rate definitions that will be used.
+     [Done.]
+ 6. Write the function to output the netCDF data.  [Done.]
+ 7. Get rid of the following warning messages in the named functions:
+     warning: comparison between pointer and integer
+     get_lparms
+     get_oskeys
+     get_proj
+     par_validate
+
+     warning: assignment makes integer from pointer without a cast
+     get_proj
+     read_hdr
+     [These are not necessary for successful program execution.]
+ 8. Change get_prd.c (and g2n.h) so flight date consists of 3 integers
+     instead of ASCII strings to represent date (e.g., 14 3 91 = 14 MAR 91).
+     [Done.]
+ 9. Change get_exd.c (and g2n.h) so process date consists of 3 integers
+     instead of ASCII strings to represent date (e.g., 14 3 91 = 14 MAR 91).
+     [Done.]
+10. Change get_ext.c (and g2n.h) so process time consists of 3 integers
+     instead of ASCII strings to represent time (e.g., 14 00 39 = 14:00:39).
+     [Done.]
+
+Except for 7), above tasks were completed prior to 9 November 1994.
+On 9 November 1994 I was able to write a complete netCDF output file from a
+GENPRO format input file.  The `ncdump' utility was able to read and plot
+the data.  One format problem occurred:  I had put base_time and time_offset
+variables at the end, but, as it turns out, RAF's utilities require them to
+be at the beginning.  I changed the program to make them first, and as of
+10 November 1994, the output netCDF files from the seven test cases had no
+problems.  Following is the shell script used to test the cases:
+-------------------------------------------------------------------------------
+#! /bin/csh -f
+if ($HOST == mistral) then
+  g2n $MIGS/G52347        $DATA_DIR/output1.cdf >&! $TEMP/out1
+  g2n $MIGS/G52868        $DATA_DIR/output2.cdf >&! $TEMP/out2
+  g2n $MIGS/G276rf09      $DATA_DIR/output3.cdf >&! $TEMP/out3
+  g2n $MIGS/G815rf08      $DATA_DIR/output4.cdf >&! $TEMP/out4
+  g2n $MIGS/G52862        $DATA_DIR/output5.cdf >&! $TEMP/out5
+  g2n $MIGS/G278rf03a     $DATA_DIR/output6.cdf >&! $TEMP/out6
+  g2n $MIGS/G722rf01      $DATA_DIR/output6.cdf >&! $TEMP/out7
+  g2n $MIGS/G256rf09      $DATA_DIR/output6.cdf >&! $TEMP/out8
+#  g2n /home/tmp/GN2UW8    $DATA_DIR/output7.cdf >&! $TEMP/out9
+#  g2n $MIGS/Gmar24.g      $DATA_DIR/output8.cdf >&! $TEMP/out10
+#  g2n $MIGS/GHong.940505  $DATA_DIR/output9.cdf >&! $TEMP/ou119
+else
+  echo This only runs on mistral.
+endif
+exit
+-------------------------------------------------------------------------------
+
+Ron Ruth  11 November 1994
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  17 November 1994
+Bug fix:  After decoding the JOBID string, put a NULL into the 8th position
+           of the source buffer, so it doesn't try to write beyond the `jobid'
+           variable, since it is only 8 characters long.                [Done.]
+           This may be Version 2.2?
+
+Bug found?:  If I detect (even incorrectly) that the GENPRO file contains
+ NCAR data, I try to decode the PROJECT line as if it were NCAR's without
+ testing any `strtok' function calls for a return value of the NULL byte.
+ This caused a segmentation fault on the Hong Kong test file.  Since even
+ an NCAR file may not have its PROJECT line formatted as I expect, I should
+ test these results with an alternative plan if I ever do detect the NULL
+ byte.  The easiest way to fix this is to have all the project information
+ values preset with default information at run time.  Then I just quit and
+ return.
+
+Glenn Gordon gave me an example file having UW's IEEE format data.  I have
+ created a new format for that and have successfully translated that data
+ to netCDF.  Except for the CONKEY values (of which I read only the first
+ one to decide on format), all other characteristics are virtually the same
+ as the standard GENPRO format.
+
+Al Rodi requested the ability to translate his Hong Kong project's GENPRO
+files to netCDF.  They had been translated to GENPRO from netCDF with some
+new added variables.  I need to create a "Hong Kong" format; then I can add
+the unique properties to the code.  The known differences are:
+  1. Embedded in the GENPRO's header COMMENT lines is a "Preliminary Data"
+      disclaimer which he would like put back into the netCDF file.  I need
+      to learn how to add a paragraph such as this to the netCDF output.
+      I would have to search the header for any line that says WARNING,
+      PRELIMINARY, preliminary, Preliminary, etc. and somehow transfer the
+      next _N_ lines to the netCDF file.
+  2. The TIME variable is in an "hhmmss" format instead of seconds after
+      midnight; the TSEC70 variable has UNIX time; the TPTIME variable
+      has seconds after midnight.  I need to figure out which of these
+      to use when setting up time for the netCDF file.
+  3. The PROJECT line has only <space> characters.
+
+This brings to mind a procedure for adding a new format to those available.
+First, set up a flag in the `g2n.h' file for the new format.
+Make changes to whatever functions are necessary from the following list:
+
+     function          possible change needed for new format type
+     -------------     --------------------------------------------------------
+     d_convert.c    -- how to convert input values
+     g2n.c          -- type of buffer to allocate (integer or IEEE)
+     get_comment.c  -- how to decode the COMMENT line(s) and determine format
+     get_ldrec.c    -- type of data to read (integer or IEEE)
+     get_lparms.c   -- detect CONKEY value, if needed
+     get_pdrec.c    -- type of data to read (integer or IEEE)
+     get_proj.c     -- how to decode the PROJECT line
+     read_hdr.c     -- decide whether last header record is completely read
+     time_var.c     -- detect which variables have reference time data
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  15 December 1994
+The code has always used RATE as the rate for a variable.  One of these data
+sets used SAMPLE as the variable's rate.  I need to either find a way to
+use the correct column or decide not to decode that foreign one.  If I were
+to be rigorous, SAMPLE is the correct one to use, based upon the GENPRO
+definition.  Most NCAR GENPRO output headers have set both SAMPLE and RATE
+to the same values, but the Wyoming headers don't.  [Done.]
+New version of program which fixes this problem is version 2.3, rev. 970227 RLR
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  20 December 1994
+I removed the following GENPRO test files from my migs directory:
+chinook/ron % mg
+/home/local/migs/ron
+chinook/ron % ls -l G*
+-rw-rw-r--  1 ron      42705232 Dec 15 09:24 G276rf09
+-rw-rw-r--  1 ron      23696480 Dec 15 09:24 G278rf03a
+-rw-rw-r--  1 ron       1613560 Dec 15 09:24 G52347
+-rw-rw-r--  1 ron      42116424 Dec 15 09:24 G52862
+-rw-rw-r--  1 ron      27852192 Dec 15 09:24 G52868
+-rw-rw-r--  1 ron      25734720 Dec 15 09:24 G815rf08
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Bug report #1:  (posted 4 April 1995)
+ The output netCDF file adds the dimension "1sps" for data with rate=1.  This
+ is unnecessary, and the WINDS software will not work with this arrangement.
+ For any rate=1 variable, just use the (Time) dimension.  [Done.]
+ Bug fixed on 4 April 1995 in the function CreateNetCDF.c.
+ New version of program which fixes this problem is 2.1 dated 950404  RLR
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+6 January 1996
+ Compiler reported a bunch of warnings having to do with the NULL variable
+ when used to mean the null character ('\0') as well as a few others where
+ assignments needed to have "casts."  The makefile was also changed to add
+ the new netCDF library allowing `g2n' to load.
+ New version of program is 2.2 dated 970106  RLR
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Bug report #2:  (Posted 31 January 1996)
+ Warnings from a compiler running on a DEC Alpha
+  courtesy of Paul Gluhosky, Yale University <gluhosky@stormy.geology.yale.edu>
+
+  Points out some changes for the first non-beta release:
+
+    /usr/lib/cmplrs/cc/cfe: Warning: read_hdr.c, line 81: & before array or
+    function: ignored
+                                           get_proj(&projline);
+                                           ---------^
+    My comment:  The "&" is not needed and should be removed.           [Done.]
+        (Fixed in version 2.3, rev. 970227 RLR)
+
+    /usr/lib/cmplrs/cc/cfe: Warning: get_ldrec.c, line 64: illegal combination of
+    pointer and integer
+                    return flag;
+                    ^
+    My comment:  I'm not sure what this complaint is.
+
+    /usr/lib/cmplrs/cc/cfe: Warning: Plow.c, line 49: illegal combination of
+    pointer and integer
+           while ((ig = get_ldrec()) != 0)
+           -----------^
+    My comment:  "ig" was changed to "i" in a later version of g2n.
+
+    /usr/lib/cmplrs/cc/cfe: Warning: g2n.c, line 130: illegal combination of
+    pointer and integer
+           d_buf = malloc((unsigned int)(datsiz/8));
+           ------^
+    My comment:  d_buf is typed integer pointer, and malloc returns a pointer,
+                 so I don't understand this warning.
+
+    /usr/lib/cmplrs/cc/cfe: Warning: g2n.c, line 151: illegal combination of
+    pointer and integer
+            g_buf = malloc(outsize);
+            ------^
+    My comment:  g_buf is typed integer pointer, and malloc returns a pointer,
+                 so I don't understand this warning.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Bug report #3:  (Posted  1 November 1996)
+ At present, g2n assumes that if CONKEY=0, data format will be 32-bit IEEE;
+ if CONKEY=1, g2n assumes that the data format will be 32-bit integers, but
+ I don't know if it is signed or unsigned; the CONKEY=2 case is undefined.
+ I believe, in any case, that the first CONKEY sets a flag applicable to all
+ variables, whereas, GENPRO, strictly speaking, can do a separate conversion
+ for each variable.
+
+ The GENPRO specification is the following:
+     CONKEY = 0  <--  Values of the dependent variable were written to the
+                       output in the internal floating-point format of the
+                       computer on which GENPRO executed.  Its bit length
+                       was determined by the computer, and the BITS directive
+                       was ignored.
+     CONKEY = 1  <--  Values of the dependent variable were written to the
+                       output using an unsigned, binary integer of the length
+                       specified by the BITS directive.
+     CONKEY = 2  <--  Values of the dependent variable were written to the
+                       output using a signed, 2's complement binary integer
+                       of the length specified by the BITS directive.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Bug report #5:  (Posted 5 December 1996)
+ g2n uses only a 2-digit year in the header field "FlightDate."  It needs to
+ be a 4-digit year.                    [Fixed in version 2.3, rev. 970227  RLR]
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Bug report #6:  (Posted 21 February 1997)
+ Some Wyoming data sets use the RATE parameter instead of the SAMPLE parameter
+ to indicate output rate.  This causes incorrect decoding of the data.
+                                       [Fixed in version 2.3, rev. 970227  RLR]
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Changes made for version 2.3, rev. 970227  RLR
+ 1.  In get_proj.c, added function TrimTrailingBlanks to remove the
+      unnecessary trailing <SPACE> characters at the end of the PROJECT line.
+      (This makes it better display on ncplot graphs.)
+ 2.  Changed read_hdr.c to test both the SAMPLE and RATE parameters then use
+      SAMPLE parameter values instead of RATE parameter values if SAMPLE was
+      used during GENPRO processing to define the variables' output rates.
+      (If SAMPLEs are to be used, overwrites all the RATE values with SAMPLE
+      values.)
+ 3.  In file read_hdr.c, removed the unnecessary & from both lines:
+         get_proj(&projline);
+ 4.  Moved the creation and sorting of the array of output rates from the
+      function get_lparms.c to the function read_hdr.c.  (necessary because
+      of code added for enhancement 2.)
+ 5.  In the function CreateNetCDF.c, changed all occurrences of GMT to UTC.
+ 6.  in the function CreateNetCDF.c, combined the "FlightType," "FlightNumber"
+      and "FlightSegment" netCDF attributes into just the "FlightNumber"
+      attribute.
+ 7.  In the function CreateNetCDF.c, changed the flight date year from two
+      digits to 4 digits (conforms to the current version of NIMBUS).
+ 8.  Changed the function d_convert.c to use the RATE parameters; it
+      previously used the SAMPLE parameters.
+ 9.  In the function par_validate.c, removed validity tests for RATE and
+      SAMPLE, since they are now checked in read_hdr.c
+10.  Updated the changes in the g2n man page (g2n.1).
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Extra Change made for version 2.3, rev. 970302  RLR
+ Incorporated use of GENPRO's SCLKEY parameter.  Rigorously SCLKEY can have
+   two legal values:  1 or 2.  In this implementation, I assume that the
+   SCLKEY value is 2 when it does not equal 1.  This errs on the safe side
+   in case the SCLKEY value is missing or has an illegal value.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Change for version 2.3.1, rev. 970804  RLR
+ Checked to see if legal time variables already existed in a Wyoming data
+   set before creating new time variables HOUR, MINUTE, SECOND.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+On 22 October 1997 Dan Breed successfully converted a GENPRO file created by
+ ACANAL, the RAP aircraft analysis program.  Its only limitation was a lack
+ of correct information for ProjectName, Aircraft, ProjectNumber and
+ FlightNumber.  The data appear to have been converted OK.  The header from
+ this data set is the file "G_ACANAL.hdr."
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+22 October 1997
+Changes to be made for version 2.4, rev. 15 Jan 1998  RLR
+1.  Transform GENPRO PMS-1D variables to RAF's netCDF format.
+2.  For the integer versions of GENPRO data, use the CONKEY values of 1 or 2
+     (unsigned or 2's complement 32-bit integer).  This is still a limited
+     form, since there are many other values that CONKEY can take.  However,
+     I expect that it should cover 99% of all GENPRO data.  The CONKEY = 0
+     check of the first variable is still made (in function get_lparms) to
+     decide whether or not the data format is Wyoming's IEEE floating-point;
+     if so, then g2n assumes that ALL the data are in that format, and SCLKEY,
+     TERM and FACTOR are ignored.  The new code for this revision is in the
+     file "nd_convert.c."   (not implemented yet)
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  17-18 November 1997
+Preliminary thoughts on adding PMS-1D conversions with the standard RAF netCDF
+ conventions to `g2n':
+1.  There are two types of GENPRO-II PMS-1D variables that `g2n' must handle.
+     The first (and most common) type has each channel of a PMS-1D probe as a
+     separate variable name; these variables must be combined into a single
+     variable with the appropriate sample rate and vector dimension.  The
+     second type has a single probe name with a GENPRO-II rate that mutiplies
+     the probe's sample rate by the number of channels.  For both types the
+     probe's sample rate and vector dimension must be determined and the data
+     rearranged, if necessary, for netCDF output.
+2.  When combining multiple variable names into one for later output, to avoid
+     a situation where `g2n' must keep track of the number of variable names
+     so its validity test doesn't fail (total number of GENPRO-II variables
+     won't equal the total number of netCDF output variables), it may be
+     better to leave this part of the code alone and add a "PMS-1D setup"
+     operation to do all this work before plowing through the data.
+3.  The total number of samples in the GENPRO-II input array will, in many
+     cases, need to be augmented, because the netCDF probe output arrays
+     have 16, 32 or 64 channels, while many GENPRO arrays have 15, 31 or 62
+     channels.  Rather than rewriting much of the input array, it would
+     probably be more practical to add a new PMS-1D variable to the end of
+     the data array into which the reformatted PMS-1D data would be written.
+4.  To my knowledge, the "first type" PMS-1D variables have always been
+     congiguous and in ascending order in a GENPRO-II data set.  However,
+     `g2n' should not make this assumption and, instead, should search
+     the variable list picking up individual indices and adjusting things
+     accordingly.
+5.   This situation implies using a flag for each variable, since `g2n' will
+     create a new PMS-1D variable for output and stuff the reformatted data
+     into it.  `g2n' would then turn off output for the original, source
+     variable(s).  This has the added advantage of laying the groundwork for
+     a user selecting a subset of the variable list for output.  The easiest
+     way to do this task may be to create an index array with pointers to the
+     output variables.  By playing with these pointers, one can control the
+     output variable list (and its order).  By setting a value negative, one
+     can turn a variable's output off.
+6.  `g2n' needs a reference table of variable name strings to find the various
+     PMS-1D variables within the GENPRO header.  (It may need to map these
+     names to valid NIMBUS PMS-1D variable names.)  The variable rates are
+     then used to determine both the sample rate and number of channels, as
+     well as any padding needed for the missing channel(s).  It would be nice
+     to read these names from a file, but then `g2n' would be more difficult
+     to maintain, since the file's location would have to be defined
+     somewhere.  I could set up a default table within `g2n' and, before using
+     it, look for an environment variable with such a file's name which `g2n'
+     could use to update/replace the default table if the file existed.  One
+     must internally dimension the array to hold all the anticipated values
+     and maintain a count of the number read.
+7.  Known "type one" PMS-1D variable names which can have rates of 1 sps,
+     5 sps or 10 sps (More names may exist.  I don't think more rates exist.):
+
+      GENPRO-II name    GENPRO-II title                            netCDF name
+     -----------------  -----------------------------------------  -------------
+     AASS01 - AASS15    ASAS RAW COUNT (CELLS 1-15)                AASAS (APCAS)
+     AFSP01 - AFSP15    FSSP RAW COUNT (CELLS 1-15)                AFSSP
+     AFSP201 - AFSP215  FSSP RAW COUNT (CELLS 1-15)                AFSSP2
+     AFS301 - AFS331    FSSP RAW COUNT (CELLS 1-31)                AF300
+     A20X01 - A20X15    200X RAW COUNT (CELLS 1-15)                A200X
+     A26X01 - A26X15    260X RAW COUNT (CELLS 1-15)                A260X
+     A20Y01 - A20Y15    200Y RAW COUNT (CELLS 1-15)                A200Y
+     CASS01 - CASS15    ASAS CORRECTED CONCENTRATION (CELLS 1-15)  CASAS (CPCAS)
+     CFSP01 - CFSP15    FSSP CORRECTED CONCENTRATION (CELLS 1-15)  CFSSP
+     CFSP201 - CFSP215  FSSP CORRECTED CONCENTRATION (CELLS 1-15)  CFSSP2
+     CFS301 - CFS331    FSSP CORRECTED CONCENTRATION (CELLS 1-31)  CF300
+     C20X01 - C20X15    200X CORRECTED CONCENTRATION (CELLS 1-15)  C200X
+     C26X01 - C26X15    260X CORRECTED CONCENTRATION (CELLS 1-15)  C260X
+     C20Y01 - C20Y15    200Y CORRECTED CONCENTRATION (CELLS 1-15)  C200Y
+
+8.  Known "type two" PMS-1D block variable names (More names may exist.) and
+     their rates:
+                                                         GENPRO-II
+    GENPRO-II                                              Rate
+      name     GENPRO-II Description                        sps   netCDF name
+    ---------  ------------------------------------------  ----  --------------
+     ACCFSPL   FSSP ACCUMULATED RAW COUNT(1-15, LOW  RT)     15  AFSSPL*
+     ACC260L   260X ACCUMULATED RAW COUNT (1-62)             62  A260XL
+     XACC260L  260X ACCUMULATED FIXED COUNT (1-62, LO RT)    62  XA260XL
+     XCON260L  260X PROBE CONCENTRATION (1-62)               62  XC260XL
+     ACC260L   260X ACCUMULATED RAW COUNT (1-64)             64  A260XL
+     XCON260L  260X PROBE CONCENTRATION (1-64)               64  XC260XL
+     ACCFSPH   FSSP RAW ACCUMULATION (SAMPLE RATE)           75  AFSSPH
+     ACCFSPH   FSSP RAW ACCUMULATION (SAMPLE RATE)          150  AFSSPH
+     ACCFSPH2  FSSP RAW ACCUMULATION (SAMPLE RATE)          150  AFSSP2H
+     ACCUMAS   PCAS RAW ACCUMULATION (SAMPLE RATE)          150  AACASH
+     ACC260H   260X ACCUMULATED RAW COUNT (1-62, HI RT)     310  A260XH
+     ACC260H   260X ACCUMULATED RAW COUNT (1-62, HI RT)     620  A260XH
+     ACC260H   260X ACCUMULATED RAW COUNT (1-64, HI RT)     640  A260XH
+     AFS300H   <-- probably never output                    310  AF300H
+     CFS300H   <-- probably never output                    310  CF300H
+     ACCUM3    <-- probably never output                     ?   AF300H
+
+   *  Note:  Above variable is redundant with AFSP01-AFSP15, so a
+              check needs to be made for this possible duplication.
+
+Thoughts on implemeting the above procedure:
+1.  g2n.h
+  Add global array "output_order," the output variable order.  This array
+   also allows `g2n' to delete variables (by omitting a variable's index
+   in this array).  Dimension should be "NVAR."
+  Add global variable "n_pms1d_probes," the number of PMS-1D probes to
+   process.
+  Add global array "pms1d_names" to hold the list of PMS-1D output names
+   to be used for this data set.  Dimension should be PMS1D_PROBE_MAX, at
+   least 6.
+  Add global array "pms1d_channel," a two-dimensioned array with probe #
+   and channel # indices pointing to the source data.
+2.  Add code everywhere needed to implement the "output_order" array.  (One
+   can test this before doing anything else.)
+3.  g2n.c, after line 154 (before modification):
+  Add the function "pms1d_setup" to detect PMS-1D variables and augment the
+   variable list accordingly.  At first, just handle the "type one" variables.
+   I will add code for the "type two" variables once the "type one" code is
+   debugged and working properly.
+    a.  Zero out the "pms1d_channel" array.  (Preset in g2n.h)
+    b.  Update internal reference table, if an external reference file
+         exists.  (Use an environment variable to get its full path name.)
+    c.  Search the GENPRO variable list for PMS-1D variables by comparing
+         the GENPRO names with those in the reference table:
+         - if a reference table probe name matches:
+            - if the name is new, add it to the output list and increment
+              "n_pms1d_probes," the number-of-probes counter;
+            - set the probe's index number;
+            - save appropriate probe info for later use;
+    d.  For each probe channel:
+          - save a channel's index in the appropriate place in the
+             "pms1d_channel" array (probe #, channel #);
+          - save the highest channel number yet detected for this probe;
+    e.  Finish up; for each probe:
+          - use the highest channel number to determine the number of output
+             channels (If only one channel, then reset everything for this
+             probe and ignore it.);
+          - set up a "zero" pointer for all channels that are missing.  (This
+             will be done automatically, since the array value for a channel
+             will equal zero if an index has not been stuffed into it.)
+          - create the new variable as a vector variable using the GENPRO
+             rate and the function-determined vector size.  Set up a "zero"
+             pointer for new channels that had to be created.  (Should the
+             "missing_value" be stuffed into the output?  What is now done
+             with the NIMBUS data?)
+          - set whatever pointers are necessary to alocate space and allow
+             subsequent functions to be able to stuff data into the data
+             array.
+    f.  Update the master netCDF output list.  This includes the total size
+         of the output array, the output order list array (deleting the
+         individual channel indices and adding the new probe indices).
+         The result of this is a correct "outsize" in `g2n.c.'
+4.  d_convert.c, after line 82 (before modification):
+  Add code to check for PMS-1D variables and stuff the appropriate data
+   into the buffer.
+    a. stuff data from individual probe channels into the appropriate
+        spot in the data array:
+        - if "n_pms1d_probes" > 0, there are probe data to move
+           - for each probe (i=1;i<n_pms1d_probes,i++)
+              ip = i-1;
+              - for each sample (is=0;is<Gpars[pms1d_index[ip]].rate;is++)
+                 - for each channel (ic=0;ic<pms1d_channel[ip,ic])
+                   (needed to thoroughly check out indexing here)
+                  - if integer,
+                     v = *(ig+Gpars[pms1d_channel[ip,ic]].fstpt+is);
+                         *(ig+Gpars[pms1d_index[i]].fstpt+is) = v
+                  - if IEEE,
+                     v = *(igf+Gpars[pms1d_channel[ip,ic]].fstpt+is);
+                         *(igf+Gpars[pms1d_index[i]].fstpt+is) = v
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  5 December 1997
+ 1. After talking with Chris about the philosophy of these changes, I agreed
+     that I should probably modify the Gpars struct to add things like an
+     output flag and other properties associated with the PMS-1D conversion.
+ 2. From Chris, here is the proposed new list of PMS attributes:
+     float A260X_OBR(Time, sps1, Vector64) ;
+       A260X_OBR:units = "cnts" ;
+       A260X_OBR:long_name = "260X Raw Accumulation" ;
+       A260X_OBR:missing_value = -32767.f ;
+       A260X_OBR:SampledRate = 10 ;
+       A260X_OBR:OutputRate = 1 ;
+       A260X_OBR:VectorLength = 63 ;
+       A260X_OBR:SerialNumber = "260X06" ;
+       A260X_OBR:FirstBin = 3 ;
+       A260X_OBR:LastBin = 62 ;
+       A260X_OBR:CellSizes = 0.f, 10.f, 20.f, 30.f, 40.f, 50.f, 60.f, 70.f, 80.f, 90.f, 100.f, 110.f, 120.f, 130.f, 140.f, 150.f, 160.f, 170.f, 180.f, 190.f, 200.f, 210.f, 220.f, 230.f, 240.f, 250.f, 260.f, 270.f, 280.f, 290.f, 300.f, 310.f, 320.f, 330.f, 340.f, 350.f, 360.f, 370.f, 380.f, 390.f, 400.f, 410.f, 420.f, 430.f, 440.f, 450.f, 460.f, 470.f, 480.f, 490.f, 500.f, 510.f, 520.f, 530.f, 540.f, 550.f, 560.f, 570.f, 580.f, 590.f, 600.f, 610.f, 620.f ;
+       A260X_OBR:nDiodes = 64 ;
+       A260X_OBR:Magnification = 20.f ;
+       A260X_OBR:ResponseTime = 0.35f ;
+       A260X_OBR:ArmDistance = 61.f ;
+       A260X_OBR:Density = 1.f ;
+       A260X_OBR:PLWfactor = 1.e-09f ;
+       A260X_OBR:DBZfactor = 1000.f ;
+     float AF300_LPO(Time, sps1, Vector32) ;
+       AF300_LPO:units = "cnts" ;
+       AF300_LPO:long_name = "FSSP-300 Raw Accumulation" ;
+       AF300_LPO:missing_value = -32767.f ;
+       AF300_LPO:SampledRate = 10 ;
+       AF300_LPO:OutputRate = 1 ;
+       AF300_LPO:VectorLength = 32 ;
+       AF300_LPO:SerialNumber = "FSSP305" ;
+       AF300_LPO:FirstBin = 1 ;
+       AF300_LPO:LastBin = 31 ;
+       AF300_LPO:CellSizes = 0.f, 0.325f, 0.375f, 0.425f, 0.475f, 0.525f, 0.575f, 0.625f, 0.675f, 0.75f, 0.85f, 0.95f, 1.1f, 1.3f, 1.55f, 1.85f, 2.25f, 2.75f, 3.25f, 3.75f, 4.25f, 4.75f, 5.5f, 6.5f, 7.5f, 8.5f, 9.5f, 11.f, 13.f, 15.f, 17.f, 19.f ;
+     float AFSSP_IBR(Time, sps1, Vector16) ;
+       AFSSP_IBR:units = "cnts" ;
+       AFSSP_IBR:long_name = "FSSP-100 Raw Accumulation" ;
+       AFSSP_IBR:missing_value = -32767.f ;
+       AFSSP_IBR:SampledRate = 10 ;
+       AFSSP_IBR:OutputRate = 1 ;
+       AFSSP_IBR:VectorLength = 16 ;
+       AFSSP_IBR:SerialNumber = "FSSP122" ;
+       AFSSP_IBR:FirstBin = 1 ;
+       AFSSP_IBR:LastBin = 15 ;
+       AFSSP_IBR:CellSizes = 0.f, 3.5f, 6.5f, 9.5f, 12.5f, 15.5f, 18.5f, 21.5f, 24.5f, 27.5f, 30.5f, 33.5f, 36.5f, 39.5f, 42.5f, 45.5f, 0.f, 3.f, 5.f, 7.f, 9.f, 11.f, 13.f, 15.f, 17.f, 19.f, 21.f, 23.f, 25.f, 27.f, 29.f, 31.f, 0.f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f, 8.5f, 9.5f, 10.5f, 11.5f, 12.5f, 13.5f, 14.5f, 15.5f, 0.f, 0.75f, 1.25f, 1.75f, 2.25f, 2.75f, 3.25f, 3.75f, 4.25f, 4.75f, 5.25f, 5.75f, 6.25f, 6.75f, 7.25f, 7.75f ;
+       AFSSP_IBR:DepthOfField = 2.81f ;
+       AFSSP_IBR:BeamDiameter = 0.19f ;
+       AFSSP_IBR:Density = 1.f ;
+       AFSSP_IBR:PLWfactor = 1.e-06f ;
+       AFSSP_IBR:DBZfactor = 1000000.f ;
+     float APCAS_RPC(Time, sps1, Vector16) ;
+       APCAS_RPC:units = "cnts" ;
+       APCAS_RPC:long_name = "PCAS Partical Spacing" ;
+       APCAS_RPC:missing_value = -32767.f ;
+       APCAS_RPC:SampledRate = 10 ;
+       APCAS_RPC:OutputRate = 1 ;
+       APCAS_RPC:VectorLength = 16 ;
+       APCAS_RPC:SerialNumber = "PCAS108" ;
+       APCAS_RPC:FirstBin = 1 ;
+       APCAS_RPC:LastBin = 15 ;
+       APCAS_RPC:CellSizes = 0.f, 0.11f, 0.13f, 0.155f, 0.185f, 0.225f, 0.275f, 0.35f, 0.45f, 0.6f, 0.8f, 1.05f, 1.35f, 1.75f, 2.25f, 2.75f ;
+One thing missing from this list is the cell size units (typically um).
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  10-12 December 1997
+1. The PMS-1D function should be added to the "read_hdr" function after
+  line number 354.
+2. After thinking about certain things for awhile, I'm not so sure that
+  adding a bunch of things to the Gpars struct would be worthwhile.  For one,
+  it will require a lot of extra storage space for parameters that will never
+  be used by most variables.  It makes sense to create a new PMS-1D struct
+  that will define what is required for the new variables that are created.
+3. It does make sense to keep a variable's output flag in the Gpars struct
+  as well as its number of netCDF dimensions.
+4. A new PMS-1D struct should include the following parameters:
+  a. number of bins (cells) (VectorLength)
+  a. first bin (cell) number
+  b. last bin (cell) number
+  c. data type (1 = standard, 2 = blocked)
+  d. array for mapping source and destination indices
+5. If things are done properly, it would make more sense to replace an
+  extant variable rather than create a new one.  This saves memory and
+  won't count against NVAR.  However, it will then not be possible to
+  output the original data (not that it will be needed).
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  15 December 1997
+First successful compile of test version of setup_pms1d.c.  It only searches
+for and prints the variables having the correct prefixes.  They need to be
+refined with the cell numbers, since the FSSP search also finds FSSP2 variables.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  16 December 1997  (Beethoven's birthday)
+By changing the order of search, I was able to find probe cells in their
+ascending order.  It takes a bit longer, since I am searching the entire
+variable list for each specific probe cell, but it greatly eases the
+definition of probes.  It made sense to associate each probe type with
+a maximum number of cells, so I made a struct to do that.  That speeds
+the search and makes it easier to define the index mapping.
+1.  For the first occurrence of a probe cell:
+  a.  if found
+    - set found flag
+    - increment probe counter
+    - transfer appropriate information
+      - reset name of first cell to be {pms1d_names[i] "_" i}
+         (I don't think we ever used more than 9 probes on one aircraft,
+          so I'm not going to worry about more than a one-digit number.)
+   b. - save the cell's index into the data array
+2.  For subsequent occurrences of a probe cell:
+   a. - save the cell's index into the data array
+   b. - save the cell number (for its maximum value)
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  17 December 1997
+Set up some new parameters to handle the addition of processed PMS-1D probe
+ data.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  18 December 1997
+Began to develop code to label the associated variables in the list.  (I only
+need to rename FSSP range to conform to the netCDF definitions.)
+-------------------------------------------------------------------------------
+Latest test cases:
+#! /bin/csh -f
+if ($HOST == mistral) then
+  g2n $MIGS/G52347 $DATA_DIR/output1.cdf >! t1file            (no PMS-1D data)
+  g2n $MIGS/G52868H $DATA_DIR/output2.cdf >! t2file
+  g2n $MIGS/G815Lrf08 $DATA_DIR/output3.cdf >! t3file
+  g2n $MIGS/G52862H $DATA_DIR/output4.cdf >! t4file
+  g2n $MIGS/G278Lrf03 $DATA_DIR/output5.cdf >! t5file
+# g2n $MIGS/G278Hrf03 $DATA_DIR/output6.cdf >! t6file   (low-rate PMS data only)
+else
+  echo This only runs on mistral.
+endif
+exit
+-------------------------------------------------------------------------------
+Steps to complete std PMS-1D probe setup:
+1. I've decided to add a new variable for each std probe.  I'll decide what
+  to do with the HRT probes later.  It is just easier to use an on/off flag
+  and have all the probe information consolidated in one place.
+2. Must transfer all pertinent information from probe cell 01 to the new
+  probe variable including its "rate."
+3. Must change "title" to apply to the probe, not just a cell.  It turns out
+  that RAF's convention for these probes is one of two forms:
+   a.  <probe name> RAW COUNT CELL <#>
+   b.  <probe name> CONCENTRATION CELL <#>
+  where <#> is the 2-digit cell number.
+  One can keep the first part (up to the word CELL) and change the last
+  part of the title to be "(per cell)" as is done with NIMBUS.
+4. After completing indiviual cell search for a probe, need to see how many
+  there are and whether cell position adjustments are needed.  For 15-cells,
+  the cell number should translate directly to netCDF position with position
+  zero set to zero (cell 0 = 0.).
+
+Steps to complete std PMS-1D probe processing:
+1. For Plowing through the data, I must add the output flag operation to the
+  normal output variables.
+2. I suppose again adding a separate section to the end of the operation makes
+  most sense to handle the PMS-1D stuff.  I may have to translate data on the
+  fly if the GENPRO order differs from netCDF.  (The setup portion needs to
+  determine everything so this operation runs efficiently.)
+#######  HaRP had 64 cell sizes for 260X
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  19 December 1997
+####### When reading in normal variables, some routine must preset the new
+struct parameters "output=1" and "dimens=1."
+
+Adding "(per cell)" to some probe titles makes it exceed 40 characters.
+(Perhaps I should just increase the maximum title size.)
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  22 December 1997
+I increased the "title" size to 80 characters.  (The maximum coming from GENPRO
+is 40, so I could have made it a bit less.)
+####### When adding PMS-1D variables at the end of the data stream, don't
+ forget to properly increment "datsiz" since it is used to allocate the
+ raw data buffer, and space is needed to move the data around.  (One may be
+ able to use the scratch buffer instead.)
+
+For most standard PMS-1D probes, the cells 1-15 will be put into the 0-14
+ indices.  When output, the values will need to be put into positions 1-15
+ with a zero value put into index 0.  (There are some 16-position GENPRO
+ output data sets that I must handle.)
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  23 December 1997
+I decided not to add new variables and, instead, will have a new Gpars array
+to hold the PMS-1D parameters.  After looking at the function CreateNetCDF,
+I'm not sure how to implement it unless I write the PMS-1D data separately.
+I'm also not sure how to implement the output on-off flag, since I'm not
+sure how CreateNetCDF does its work.  Investigate later.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  24 December 1997
+Removed some unneeded code from setup_pms1d.c, since "nvar" will not be
+ altered.  Added an extra_cells variable to handle the case when there need
+ to be more cells defined than exist in the standard data (e.g., normally
+ an FSSP has 15 cells defined, but 16 are required for netCDF output).
+Starting to modify  CreateNetCDF.c, Plow.c, d_convert.c
+Had to change Vector16Dim, Vector32Dim and Vector64Dim to be the dimensioned
+ variable DimVectorID.  This will also change definitions of probe cell sizes
+ to be an index into this array for defining vector dimension for a probe.
+Added blocked probe code to determine the rate and vector size (and add the
+ rate to the rate list, if necessary).
+Decided to create a new function (d_P_convert) to convert the PMS-1D data and
+ put them into the netCDF output buffer.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  29 December 1997
+Commands for developing and testing g2n
+    make
+    g2n $MIGS/G278Lrf03 G278Lrf03.cdf > & ! t5file
+    vi t5file
+    ncdhm G278Lrf03.cdf
+
+    vi g2n.c g2n.h
+    vi setup_pms1d.c CreateNetCDF.c
+    vi read_hdr.c Plow.c
+Now in process of debugging CreateNetCDF.c
+  latest error -> ncvardef: ncid 4: NC_UNLIMITED in the wrong index
+  which happens after all standard variables have been defined
+Problem was in setup_pms1d.c (incrementing "n_pms1d_probes" prematurely)
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  30 December 1997
+Problem with netCDF errors had to do with when "n_pms1d_probes" was
+ incremented.  I was doing it too soon, so some parameter values didn't
+ get put into the correct probe's space.
+I now must set the output flag for the standard variables to "on," since
+ it ignored all of them when it wrote the first header file.
+I am rewriting a portion of setup_pms1d.c to simplify the blocked-probe code.
+ It turns out that, when a blocked probe is found, everything can be set up
+ at once, since no per-cell variables are coming in the future.
+I seem to have defined all the information needed to process the PMS-1D data.
+I will now begin writing "d_P_convert.c."
+d_P_convert.c thoughts:
+1.  Need to check for probe type (1-std or 2-blocked)
+2.  Need to check probe cell offset
+3.  If offset, need to write zero or "missing_value" into cell zero
+4.  Need to use cell mapping to find individual std cells
+5.  The g_buf output array was mapped one-for-one to the input data array,
+     and won't allow variables to be dropped from output.  (Time indices are
+     also done this way.)  I, therefore, need to establish a new way to dump
+     stuff into the g_buf array with separate indexing.  This could be done
+     in the "CreateNetCDF" function by adding stuff at the end.
+6.  I put time_offset followed by base_time at the END of the GENPRO variable
+     list even though I defined them within netCDF first (in reverse order).
+7.  I guess I should add new "frstpt" pointers for PMS-1D variables at the end
+     of the input array and create space for them in the output array (g_buf).
+     (I'll be reading input data from the extant array and writing output data
+     into the g_buf array.)
+8.  I could create a special PMS-1D output buffer to hold all the data and
+     have the netCDF pointers point to it instead of messing with g_buf.
+     I could (in g2n.c) allocate the new buffer.  In setup_pms1d, I would
+     calculate the total buffer size needed to hold all the data (including
+     the extra cells).  This will require redifining some stuff in g2n.h,
+     but it should make things much simpler.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  31 December 1997
+1.  Wrote code for the p_buf array in routines:  setup_pms1d.c, g2n.c, g2n.h
+2.  When filling the PMS-1D output buffer with data, one must look for a
+     cell index of -1 and either make the output value the "missing_value or
+     zero.  (Check with Chris for proper value to use.)
+3.  Check t5file first (after making some serious changes).
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth   6 January 1998
+1.  t5file checked out OK.  Time to clean things up a little and develop
+     d_P_convert.c
+
+Present commands for developing and testing g2n
+    make
+    g2n $MIGS/G278Lrf03 G278Lrf03.cdf > & ! t5file
+    vi t5file
+    ncdhm G278Lrf03.cdf
+
+    vi g2n.c g2n.h
+    vi CreateNetCDF.c d_P_convert.c
+    vi setup_pms1d.c read_hdr.c Plow.c
+
+1.  Cleaned up some code in setup_pms1d.c and read_hdr.c
+2. a. For type 1 PMS-1D variables, I must check for cell offset first to
+       determine what gets put into cell 0.  After that I must determine where
+       to grab each cell value (using the cell_map) and where to stuff it,
+       being aware of a probe's rate.
+        source index = pms1d[n_pms1d_probes].cell_map[j]
+        value = *(ig + pms1d[n].cell_map[j] + (i-1));
+          where i = rate
+                j = cell position (0 to num_found_cells-1)
+   b. For type 2 PMS-1D variables, I also must check for cell offset first to
+       determine what gets put into cell 0.  After that I assume that the next
+       num_found_cells are contiguous and stuff "rate" cycles.
+3.  Each probe then will have a current source index and a current output
+     index.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth   7 January 1998
+1.  data_p is the array of pointers to the variables' output data buffers.
+     This entire buffer array is written out by one netCDF call.  To continue
+     using this arrangement, I must link the PMS-1D data buffer pointers
+     (p_buf) to these if I want to write converted data to the p_buff array
+     instead of the g_buf array.  (This is done in CreateNetCDF.c.)
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth   8 January 1998
+1.  Straigtened out the output indexing in CreateNetCDF.c.  I had to change
+     the "Extra_Time" indices from "i" to "j."  Since the data_p pointer
+     array index is always one more (i+1 in 2.3.1 version) and j gets
+     incremented on a line right after the assignment, I combined them
+     into one statement  (data_p[++j]).
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth   9 January 1998
+1.  get_lparms.c:  The calculation
+        Gpars[idx].fstpt = (lfstbit-1)/Gpars[idx].bits
+     should be done in a loop after the header has been read.  That way g2n
+     won't be fooled and give a bad message if the "BITS" value is decoded
+     in the header after the "FSTBIT" value.
+2.  Working on the function d_P_convert.c which stuffs data into the netCDF
+     output buffer.  Figuring out the indexing has been fun.  It's now time
+     to give it a try!  (compiler error.  Try again Monday.)
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  12 January 1998
+1.  First try was a segmentation fault--not surprising, since I'm working with
+     new indexing.  The strange part is that the failure occurs when writing
+     the base time to the netCDF file, not in any of the new code (but I may
+     have overwritten other areas of memory).  I suppose there could be a
+     problem with time indices conflicting with PMS-1D data.  (I also made
+     a change to time_var.c, so I should check it out, too.)
+2.  Printing out addresses:
+     from g2n:          ending p_buf address = 437324
+     from d_P_convert:  ending p_buf address = 437324
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  13 January 1998
+1.  It appears that I haven't really saved both the beginning GENPRO source
+     index and the starting netCDF output index.  I must think about this.
+     Actually, I saved the input index for blocked probes in cell_index[0],
+     but I was using Pgpars[n].fstpt to find the data.  That probably was the
+     ultimate cause of the segmentation fault.  (I'll find out.)
+2.  Segmentation fault occurs in `Plow.c' during call to `ncvarput1' of
+     "base_time" (about line #98).  :(
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  14 January 1998
+1.  Apparently there is no problem with `ncvarput1.'  Problem occurs in some
+     other section of the code and makes itself manifest here.
+2.  I found that, for some reason, the variable index of "time_offset" was
+     set in two places:  `time_var' (where it belongs) and `CreateNetCDF'
+     (where it does not).  This simple discovery did not fix the problem.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  15 January 1998
+1.  With the help of Chris Webster, I found the segmentation fault problem.
+     In `g2n.c' when allocating the space for p_buf, I forgot to multiply
+     the number of words needed by the "sizeof" the words (NR_SIZE).
+2.  To make it more compatible with the latest version of the RAF conventions,
+     I need to add more attributes to the PMS-1D variables than exists today.
+     (See recent NIMBUS output for examples.)
+     Ones I can easily add:
+       :Category = "PMS Probe" ;
+       :VectorLength = 16 ;
+       :FirstBin = 1 ;
+       :LastBin = 15 ;
+
+     Ones that I can add if I'm willing to use "default" values:
+       :CellSizes =
+       :CellSizeUnits = "micrometers" ;
+
+       A260X_OBR, AFSSP_IBR
+       :Density = 1.f ;
+       :PLWfactor = 1.e-06f ;
+       :DBZfactor = 1000000.f ;
+
+       AFSSP_IBR:DepthOfField = 2.81f ;
+       AFSSP_IBR:BeamDiameter = 0.19f ;
+
+       A260X_OBR:nDiodes = 64 ;
+       A260X_OBR:Magnification = 20.f ;
+       A260X_OBR:ResponseTime = 0.35f ;
+       A260X_OBR:ArmDistance = 61.f ;
+
+Curiously, these attributes only appear for raw counts, not concentrations.
+At the least, I would think the following attributes should also appear in
+the concentrations:  FirstBin, LastBin, CellSizes and CellSizeUnits.
+
+3.  Need to make a "change summary" file to briefly annotate each
+     version of this code.  (Don't forget "time_var.c.")
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  16 January 1998
+1.  I added some attributes which will probably fix the problem that `n2asc'
+     won't output all the cells for the PMS-1D data.  Test Tuesday?
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  20 January 1998
+1.  Added attributes indeed fixed the problem.  Output from `n2asc' now
+     includes all cells.  Now it's time to test a varied group of GENPRO
+     files:
+      G278Lrf03
+      G276Hrf09
+      G52347
+      G52862H
+      G52868H
+      G721Lrf02a
+      G815Lrf08
+    Some of these don't have PMS probe data, and I had to add a few more
+     probe variable names to the lists in g2n.h to convert some of them.
+     It would really be nice to have a file with all these so I don't have
+     to keep recompiling every time I find a new one.  (It needs to allocate
+     its own memory to save them.)
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  21 January 1998
+1.  Archived latest version (2.4) to MSS (source files only using tar's "FF"
+     option)
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  27 January 1998
+1.  When adding COS-block read ability, don't forget to add "-lncaru" to the
+     library list in the makefile.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth   4 February 1998
+1.  An ACANAL GENPRO file made `g2n' core dump, because I never checked for
+     a valid return from a "strstr" function.  I assumed a string would be
+     found and used it as an address for writing " (per cell)" over it.  If
+     the string isn't found, the return value is zero instead of a valid
+     address.  The core dump resulted from writing into address=0.
+2.  I fixed this problem, tested it with the offending GENPRO data file, and
+     quietly released the new version (except for Dan Breed who made me aware
+     of the problem).
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  27 February 1998
+1.  Working on modifications to read COS-block files directly.
+     New files:
+       newg2n.h           <-- add new variables
+       newGpOpen.c        <-- add Cray routines from "ncaru.a"
+       get_phrec.c        <-- new function to read physical header record
+       newget_hrec.c      <-- add code to read logical header record
+       newget_pdrec.c     <-- future development
+2.  Don't forget to modify the makefile.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth   2 April 1998
+Message from Qing Wang @ Naval Postgraduate School:
+ Bob Creasey Built `g2n' on an SGI machine there but had to make mods:
+  1. to "libraf" modules:  chost.c, cio.c, date.c, queue.c, util.c
+      (g2n does not use any of these modules.)
+  2. could not find "TrimTrailingBlanks" so removed it
+      (TrimTrailingBlanks was in "util.c" and is, to my knowledge, the
+       only "libraf" function used by g2n.)
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth   3 September 1998
+ COS-block development files:
+   newmakefile   --> makefile
+   newg2n.h      --> g2n.h
+   newGpOpen.c   --> GpOpen.c
+   newget_hrec.c --> get_hrec.c
+   get_phrec.c   --> get_phrec.c
+
+ Original files:
+   makefile   --> oldmakefile
+   g2n.h      --> oldg2n.h
+   GpOpen.c   --> oldGpOpen.c
+   get_hrec.c --> oldget_hrec.c
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  14 September 1998
+1.  COS-block development continuing.  I apparently was able to duplicate the
+  performance of the original version with the COS-block code added.  It
+  detected a stripped (non-COS-blocked) file and proceeded to convert it.
+  When a COS-blocked file was tried, a "Segmentation fault" occurred in
+  GpOpen.c at then line 55:
+    fwrite(h_buf, (rc * 8) + 8, 1, Gp_fp);
+  This was code extracted from Chris Webster's nimbus:adsIO.c and was not
+  needed for g2n, so I deleted it.
+2.  During the course of the day, I fixed bugs using "ddd" and was able to
+  read and decode the header file.  The specific example I am using for this
+  development is:  1993-278 WISPIT HRT RF02 (02/18/1993)
+                   TimeInterval = "17:29:00-19:29:59"
+                   MSS bitfile name:  /RAF/1993/278/HRT/RF02
+                   Local file name:  G278Hrf02
+3.  When time came to read the data, a "Segmentation fault" occurred, because
+  the COS-block code had not been written for it yet.
+4.  The files which need to be modified to do this work:
+   g2n.c
+   GpOpen.c    --> open GENPRO source file
+   get_hrec.c  --> read logical header record (80-column line)
+   get_phrec.c --> read physical header record
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Ron Ruth  15 September 1998
+1.  COS-block development continuing.  I added code to skip the COS-block
+  EOF and read the data file, again using "ddd" as a debug tool (very
+  effective).  I had success with the same source file (G278Hrf02).
+2.  The files modified to do this work:
+   get_ldrec.c    --> read logical data record
+   get_pdrec.c    --> read physical data record
+   CloseNetCDF.c  --> close any open files when processing is finished
+   cleanup.c      --> clean up after an abort
+3.  It now needs to be tested on a wide variety of GENPRO files, including
+  Wyoming's.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Changes made for version 2.5, rev. 15 Sep 1998  RLR
+1.  Added ability to read COS-blocked files (via transparent transfers from
+     the MSS)
+2.  In file get_lparms.c, added function TrimTrailingBlanks to remove the
+      unnecessary trailing <SPACE> characters from the "long_name" and
+      "units" attributes for all variables.  (GENPRO pads these to 40
+      and 8 characters, respectively.)
+3.  Updated change 1. in the g2n man page (g2n.1)
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Files used to test version 2.5, rev. 15 Sep 1998  RLR
+ (Script msgetgencos used to retrieve the bitfiles from the MSS)
+ G278Lrf03.cos   (/RAF/1993/278/LRT/RF03)
+ G276Hrf09.cos   (/RAF/1991/276/HRT/RF09)
+ G52862H.cos     (/RAF/1989/760/RF01A/HRT/G52862)
+ G52868H.cos     (/RAF/1989/760/RF04/HRT/G52868)
+ G721Lrf02a.cos  (/RAF/1986/721/RF02A/LRT/G52704)
+ G815Lrf08.cos   (/RAF/1991/815/LRT/RF08)
+ G52347.cos      (/RAF/TL0630/G52347)
+ G722Lrf01.cos   (/RAF/1992/722/LRT/RF01)
+ G256Lrf09b.cos  (/RAF/1985/256/RF09B/LRT/G55573)
+ G55778L.cos     (/RAF/1986/272/RF01/LRT/G55778)
+ GN2UW.cos       (/RAPDMG/WISP94/N2UW/INTEGER/CB/08FEB94)
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Bug report #7:  (Posted 16 September 1998)
+ The program `ncpp' does not recognize the PMS-1D variable names that g2n,
+ as presently configured, uses.  (The reason is that `ncpp' needs both
+ accumulations and concentrations to have the same name suffix.)
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+23 Sep 1998  RLR
+Thoughts regarding restructure of PMS-1D to be compatible with `ncpp:'
+-Design a struct to completely describe all a probe's variables.  g2n now
+  assigns a new probe number for each PMS-1D variable found.  However,
+  variables like accumulations and concentrations are really from the same
+  probe, so it makes sense to group them together with one probe name.  NIMBUS
+  does this by appending to the base name an <underscore> and alphabetic
+  code.  I can mimic this by giving the same probe number to all of the
+  related variables.)
+-The related variables include:
+    Accumulations (per cell)
+    Concentrations (per cell)
+    Accumulations (all cells)
+    Concentrations (all cells)
+    Mean Diameter
+    Dispersion
+    Liquid Water/Ice Content
+    Reflectivity Factor
+    Beam Fraction
+    (Calculated) Activity Fraction
+    Fast Resets
+    Total Strobes
+    Range
+-Probes that need to be handled:
+    200X
+    260X
+    300X
+    200Y
+    FSSP-100
+    FSSP-300
+    ASAS
+    PCAS
+-Specific GENPRO variable names to recognize the above probes:
+Measurement       FSSP-100      FSSP-300   200X         200Y       260X       300X       ASAS         PCAS
+----------------  ------------  ---------  -----------  ---------  ---------  ---------  -----------  ---------
+Accum. /cell      AFSP01-15     AFS301-31  A20X01-15    A20Y01-15  A26X01-62  A30X01-32  AASS01-15    APCS01-15
+                  AFSP201-15               ACCUMX01-15                                   ACCUMA01-15
+                  ACCUMF01-15
+                  ACCUMFS01-15
+Conc. /cell       CFSP01-15     CFS301-31  C20X01-15    C20Y01-15  C26X01-62  C30X01-32  CASS01-15    CPCS01-15
+                  CFSP201-15               CONCX01-15                                    CONCA01-15
+                  CONCF01-15                                                             CONCAS01-15
+                  CONCFS01-15
+Accum. All        SUM15F        SUM3       SUM15X       SUM15Y     XSUMX6                SUM15A
+                  SUM15F2                               ACCUMY2    SUMX6                 SUMA
+                                                                   SUM626
+Conc. All         CONCF         CONC3      CONCX        CONCY      XCONC6     CONC3      ACONC        CONCA
+                  CONCF2                   XCONC        CONCY2     CONC6                 CONCA
+                  FCONC                                            CONCX6
+Mean Diam.        DBARF         DBAR3      DBARX        DBARY      XDBAR6     DBAR3      ADBAR        DBARA
+                  DBARF2                   XDBAR                   DBAR6                 DBARA
+                  FDBAR
+Dispersion        DISPF         DISP3      DISPX        DISPY      XDISP6                ADISP        DISPA
+                  DISPF2                   XDISP                   DISP6                 DISPA
+                  FDISP
+Activity          FACT                                                                   TAACT        PACT
+                  FACT2                                                                  CAACT
+                  TFACT                                                                  AACT 
+LWC               PLWCF         PLWC3      PLWCX        PLWCY      XPLWC6                PLWCA
+                  PLWCF2                   XLWC                    PLWC6
+                  FLWC
+DBZ                                        DBZX         DBZY       XDBZ6
+                                           XDBZ                    DBZ6
+Beam Frac.        FBMFR
+                  FBMFR2
+Range (1-4)       FRANGE
+                  FRANGE2
+Fast Resets       FRESET
+                  FRESET2
+                  TFRESET
+Total Strobes     FSTROB
+                  FSTROB2
+                  TFSTROB
+Blocked Accum.    ACCFSPL       AFS300H                            ACC260L               ACCUMAS      ACCUM3
+                  ACCFSPH                                          ACC260H               ACCUMA
+                  ACCFSPH2                                         ACCUMX6L
+                  ACCUMFS                                          ACCUMX6
+                                                                   XACC260L
+Blocked Conc.     CONCFS        CFS300H                            CONCX6
+                                                                   XCON260L
+---------------------------------------------------------------------------------------------------------------
+U Wyoming variable names:
+/*  Wyoming has some, too, but not paired and without associated variables:
+ * "nfssp", "fssp",  16, 0,  * "FSSP velocity accepted cnts - channel 1 " to 15
+ *                           * "FSSP concentration (old) - channel 1    " to 15
+ * "nfssp", "fsspc", 16, 0,  * "FSSP velocity accepted cnts - channel 1 " to 15
+ *                           * "FSSP coincidence corrected conc-chan 1  " to 15
+ * "  ?  ", "oned",  16, 0,  * "1D-C concentration - 12.5 um            " to 15
+ * "  ?  ", "nszic", 20, 0,  * "2D-C ice <= 50 um                       " to 20
+ * "  ?  ", "nszip", 20, 0   * "2D-P ice <= 200 um                      " to 20
+ *   I can handle the last two if I define a new vector variable for 20
+ *    cells.  For the last three probe definitions, each cell has a size
+ *    range associated with it in the long_name field, and it would be nice
+ *    to create a netCDF attribute that includes them.  (Future development)
+ *   Above names came from MSS bitfile:  /RAPDMG/WISP94/N2UW/INTEGER/CB/08FEB94
+ */
+range "FSSP range select"
+nfssp01 "FSSP velocity accepted cnts - channel 1"  units = "#"
+fssp01 "FSSP concentration (old) - channel 1"
+fssp15 "FSSP concentration (old) - channel 15"  units = "#/cm3/um"
+fsspc01 "FSSP coincidence corrected conc-chan 1"  units = "#/cm3/um"
+fsspc15 "FSSP coincidence corrected conc-chan 15"  units = "#/cm3/um"
+oned01 "1D-C concentration - 12.5 um"  units = "#/liter"
+oned15 "1D-C concentration - 187.5 um"  units = "#/liter"
+nszic01 "2D-C ice <= 50 um"  units = "#"
+nszic20 "2D-C ice > 6000 um"  units = "#"
+nszip01 "2D-P ice <= 200 um"  units = "#"
+nszip20 "2D-P ice > 8000 um"  units = "#"
+---------------------------------------------------------------------------------------------------------------
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+29 Sep 1998  RLR
+-Design of mods to g2n's present PMS routine (setup_pms1d.c) for `ncpp'
+  compatibility (one probe ID includes all related variables)
+-By the time setup_pms1d.c is called, all the GENPRO variables have been read
+  from the header.
+-Present code does not differentiate between accumulations and concentrations
+  but treats each one as a unique, unrelated entity.
+-Since I am now going to group variables by probe, one approach would be to
+ a. search the name list for all "std" accumulations and, for each one found:
+ b. search for associated concentrations;
+ c. search for all the associated variables, like LWC; (I need to figure out
+   how to make the correct associations, e.g., FRESET, not FRESET2 for AFSP01.)
+ d. to the above found names would be added the unique probe ID (the
+   <underscore> and the probe's number);
+ e. conduct a final search for concentrations that do not have associated
+   accumulations (perhaps doing steps b. and c. again for each one found).
+-For now, ignore the blocked data (with regards to grouping), except as it
+  relates to conversion.  They need to have the proper structure.  (From what
+  I've been able to find so far, that would exclude relating three "blocked"
+  concentrations, CFS300H, XCON260L and CONCX6 to their respective
+  accumulations.)
+-Set up a new struct to include the probe number and its generic type name.
+  Added to that would be an index array into the variable list pointing to all
+  the other names.  The only reason for this array would be to add the probe's
+  number as a suffix to all the related names.  (This may preclude a need for
+  their existence, but I have to start somewhere.)
+-Need to design a routine to find all a probe's related variables and add the
+  probe's suffix to all their names.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+6 October 1998  RLR
+- Moved TrimTrailingBlanks function to a stand-alone file in this directory.
+   It removes g2n's dependency on libraf.  (It is not enough of a change,
+   however, to force a new revision number.)
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+8 October 1998  RLR
+- acquire, compile and load instructions needed for web site.
+-  The only "standard" header file needed is netcdf (other than "g2n.h").
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+15 December 1998  RLR
+-Revisit the `ncpp' compatibility issue:
+-As it turns out, it was easy to create the needed associations between
+  accumulations and concentrations.  I changed the "pms1d_std" struct to
+  pair them up.  Then, instead of using an icrementing counter to define
+  the probe suffixes, I used the probe definition's index.  I looped through
+  the variable list twice for each probe type: accumulations first then
+  concentrations.  If a matched pair was found, the suffixes for them would
+  be the same, since they appear in the struct together.  The code also finds
+  accumulations and concentrations separately without any dependence one to
+  the other (a distinct advantage).
+-I will add only an increment to the revision for this change (2.6), since
+  I hope to develop code to add appropriate suffixes to a probe's related
+  variables, like LWC.
+-Today's change only solved part of the problem.  It definitely creates
+  related variable names.  However, at this moment, `ncpp' doesn't recognize
+  any of GENPRO's PMS-1D variable names.  I'll have to negotiate with him to
+  see whether he can add them to his table, or if I instead will have to add
+  a name-mapping function to change the names so Chris doesn't have to alter
+  his code.  :(
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+16 December 1998  RLR
+-I will substitute netCDF standard names instead of propagating the GENPRO
+  names.  This will make it easier for Chris to key on probe types within
+  `ncpp' and allow minimal (if any) changes to his code.  Now each probe
+  definition also has a matching reference name which will be used.
+-After today's changes, program dies with a Segmentation Fault when composing
+  the new variable name.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+17 December 1998  RLR
+-Found the SF problem:  I had assigned a "char" where I should have used "int"
+  when defining an array of 2 characters.   I plan to test the code with a
+  bunch of files before releasing it.
+-Found a blocked name in the standard name list, so I copied it rather than
+  move it.  (I did rearrange the variable list to correspond with the order
+  found above in the long, wide list (starting at about line :1380.)
+-I need, at the minimum, now to add the FSSP range to the probe naming
+  convention (again using the NIMBUS standard naming convention).  Otherwise,
+  `ncpp' assumes range = 0.  (Most of the time that will be OK.)
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+18 December 1998  RLR
+-Added code to find all of a PMS-1D probe's associated variables and add the
+  appropriate suffix code to them.  Debugging now begins!
+-It works with a couple of files.  Time to check all of the examples.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+21 December 1998  RLR
+-Continue testing rev 2.6 of `g2n' with example files:
+  G256Lrf09b.cos   G52347.cos       G53275b.cos      G722Lrf01.cos
+  G276Hrf09.cos    G52862H.cos      G53784HRc.cos    G815Lrf08.cos
+  G278Hrf03.cos    G52868H.cos      G55778L.cos      GN2UW.cos
+-I realized that CONCF (FSSP concentration) appears in RAF GENPRO data sets
+  with two uses:  a total concentration averaged over all cells, and, on at
+  least one project, the blocked concentration over all 15 cells.  This
+  will cause a problem for the decoding, since, to handle all these, I need
+  to test for various "conditions."  The easiest way to fix it is to realize
+  that any blocked probe rate will be greater than 10 sps.  Add a test to
+  section 2 that requires a sample rate > 10.
+-The files G276Hrf09.cdf, G52862H.cdf and G53275b.cdf had one or more PMS-1D
+  probe data only in blocked form.  Therefore, the associated variable names
+  never got recognized for a suffix change.  To design around this deficiency,
+  all I have to do is duplicate the code for the blocked probes, because if a
+  standard probe used a name already, it would have the suffix and would not
+  match the original name.  I added the code to section 2.  Debug starts anew.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+22 December 1998  RLR
+-Found the coding errors that caused problems yesterday with finding the
+  Associated Variables for the blocked probes.  Then, by editing the PMS-1D
+  Associated Variable list in g2n.h, g2n was able to find all of them for the
+  test files.
+-For GENPRO files, the FSSP range was output with values between 1 and 4;
+  for ADS files, the values range between 0 and 3.  Code must be developed
+  to change the values; otherwise "ncpp" will not get the right values.  Also,
+  one file, G53275b.cdf has a 10sps FSSP, but FRNG is output at 1sps.  I don't
+  know how that will affect "ncpp."
+-I need to add the NOAA Twin Otter (N48RF) to the aircraft format list.  It
+  uses the UW integer format.  (There is a second NOAA Twin Otter, too, that
+  may be added in the future.)  Plane is now assigned in the file "get_proj.c."
+  The variable "G_Format," to which is assigned the aircraft type, is found in
+  the following files:
+    g2n.c
+    d_P_convert.c
+    d_convert.c
+    get_comment.c
+    get_ldrec.c
+    get_lparms.c  (no change required)
+    get_pdrec.c
+    get_proj.c
+    read_hdr.c    (no change required)
+    time_var.c
+    g2n.h
+      d_P_convert.x
+      g2n.x
+      read_hdr.x
+      old_g2n.h
+      new_d_convert.c
+      new_get_pdrec.c
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+23 December 1998  RLR
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-Added code to fix the FRNG value.  It was a simple change:  modify the "TERM"
+  value for FRNG by adding 1 to it (TERM + 1.)
+-Began modifications for the NOAA Twin Otter (N48RF).  I added a new format
+  type, changed the appropriate if tests in the files above and made the
+  "minor" modifications required.  Debug time!
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+28 December 1998  RLR
+-It turns out that I didn't add the new format type to the main driver.  After
+  doing that, program worked just fine.  I made a new release of version 2.6
+  to the ftp/pub/genpro directory.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+12 June 2000  RLR
+- I found another PMS-1D naming convention (used in project 1984-664 Lake Snow)
+   FS01-FS15 = PMS PROBE FSSP RAW COUNT CELL 01-15
+   CFSC01-CFSC15 = FSSP CORRECTED CONCENTRATION CELL01-CELL15
+   FCONC = FSSP PROBE CONCENTRATION
+   FLWC = FSSP LIQUID WATER CONTENT
+   FDBAR = FSSP MEAN DIAMETER
+   FDISP = FSSP DISPERSION (SIGMA/FDBAR)
+   FRANGE = FSSP RANGE (1=3-45 MICRONS)
+   FRESET = FSSP FAST RESETS
+   FSTROB = FSSP TOTAL STROBE
+   FBMFR = FSSP BEAM FRACTION (SUM15F/FSTROB)
+   YS01-YS15 = PMS PROBE 200Y RAW COUNT CELL 01-15
+   CYSC01-CYSC15 = Y200 CORRECTED CONCENTRATION CELL01-CELL15
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+9 March 2004  RLR
+- Files which don't seem to need alteration for Linux conversion (first glance)
+   CloseNetCDF.c
+   CreateNetCDF.c
+   CreateNetCDF.x
+   GpOpen.c
+   Plow.c
+   Plow.x
+   TrimTrailingBlanks.c
+   cleanup.c
+   g2n.c
+   g2n.x
+   get_comment.c
+   get_comment.x
+   get_datlog.c
+   get_datsiz.c
+   get_exd.c
+   get_ext.c
+   get_filenames.c
+   get_hrec.c
+   get_jobid.c
+   get_ldrec.c
+   get_lkey.c
+   get_logbit.c
+   get_lparms.c
+   get_names.c
+   get_oskeys.c
+   get_pdrec.c
+   new_get_pdrec.c
+   get_phrec.c
+   get_prd.c
+   get_proj.c
+   name_idx.c
+   nprint.c
+   par_preset.c
+   par_validate.c
+   read_hdr.c
+   read_hdr.x
+   old_setup_pms1d.c
+   setup_pms1d.c
+   setup_pms1d.x
+   time_var.c
+   to_hms.c
+- Files which may need alteration:
+   d_P_convert.c
+   d_P_convert.x
+   d_convert.c
+   new_d_convert.c
+- Unknowns:
+   Cray read routines
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+11 March 2004  RLR
+- After talking briefly with Chris Webster, he said he wrote a routine for
+   floating-point conversion:  ntohf.
+  He also mentioned a header file: portable.h which can be found here:
+   /export/local_lnx/include/raf/portable.h
+  Basically, nothing needs to be done with ASCII input, so reading the GENPRO
+   header parameters should be OK without alteration.  Also, netCDF is OK,
+   so nothing needs to done with ouptut.  What is important is to change
+   any place where one is reading integer and floating-point data from the
+   input file.  Therefore, I predict it will be fairly easy to handle, since
+   g2n only reads that type of data from the data records themselves.  For
+   normal GENPRO-II data, they are 32-bit integers; for UW data, they are
+   floating-point.
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+12 March 2004  RLR
+- The conversions needed for g2n are for long integer (ntohl) and
+   floating-point (ntohf).  Only two functions that needed to be changed
+   to handle the Linux implementation on Intel/AMD machines:  d_P_convert.c
+   and d_convert.c.
+- I also needed to edit the Makefile to handle the current system
+   configuration and to add the RAF library where Chris' ntohf is located.
+   Also netCDF now only needs one library call.
+- The following message was output as "make" completed:
+   "get_filenames.o(.text+0x38): In function `get_filenames':
+   /jnet/linux/proj/archives/g2n/get_filenames.c:38: the `gets' function is
+   dangerous and should not be used."
+   (See the URL:  http://c2.com/cgi/wiki?GetsIsDangerous)
+- Newly loaded g2n seems to work under Linux on vivaldi just fine!  I tested
+   it with the following GENPRO files:  G256Lrf09b, G276Hrf09. G278Hrf03,
+   G53784HRc, G52347a, G52862Ha, G52868Ha, G53784HRc, G53814Ha, G53815Ha,
+   G55778La, G722Lrf01, G815Lrf08, G876Hrf03a, G876Hrf03b, G876Hrf03c.
+   Yet to be tested is an example U of Wyoming file.
+- I will save the 2.6 version and upgrade the new Linux version to 2.7.
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+17 March 2004  RLR
+- Test example U of Wyoming data set (COS-blocked):
+   /RAPDMG/WISP94/N2UW/INTEGER/CB/08FEB94 --> GN2UW
+  Core dumped:
+  cray_close (cf=0x808f7e8) at cray.c:921
+  (gdb) step
+  Program received signal SIGSEGV, Segmentation fault.
+  0x4207492e in _int_free () from /lib/tls/libc.so.6
+  (gdb) 
+- Failed in the file cray.c, line 921, in the function: cray_close
+        .
+        .
+        .
+        cf_remove(cf);
+   -->  (void)free(cf);
+        return(n);
+- Chris suggested that, since this doesn't happen with the Solaris version,
+   one or more variables in the program may not be initialized.  (Solaris
+   resets variables to zero by default, but LINUX does not.)  Check through
+   the code and make sure all variables are properly initialized.
+- Files/variables that have not been initialized:
+   variable type:  struct _Gpars
+                   struct _PMS1D
+                   struct _PMS1D_type
+   g2n.h:
+     char progname[128];
+     char infile[128];
+     int Osklist[MAXOsk];
+     struct _Gpars Gpars[NVAR];
+     int Rates[NRATES];
+     struct _Gpars Pgpars[PMS1D_PROBE_MAX];
+     struct _PMS1D pms1d[PMS1D_PROBE_MAX];
+     int infd;
+     int DiskData;
+     char outfile[128];
+     int tbt;
+     int tof;
+     int time_index;
+     int ihour;
+     int iminute;
+     int isecond;
+     struct tm StartFlight;
+     struct tm EndFlight;
+     int baseTimeID;
+     int timeOffsetID;
+     int varid[NVAR];
+     int ndims;
+     int TimeDim;
+     int DimRateID[NRATES];
+     int DimVectorID[N_P_CELLS];
+     char buffer[NSCRATCH];
+   Plow.c:
+     struct tm gtime;
+   get_lparms.c:
+     char ltitle[80];
+     char lunits[12];
+     line 68:  strcpy(ltitle,p);  (needs length check of p <=80)
+     line 78:  strcpy(lunits,p);  (needs length check of p <=12)
+   read_hdr.c:
+     int ipt, itp;   <-- not used
+   setup_pms1d.c:
+     char srch_name[12];
+     line 62:  sprintf (srch_name, "%s%02d",pms1d_std[i].name[ii],jj);
+     above probably OK, since source is coming from within g2n.
+- Tried two other N2UW files from WISP94:
+   /RAPDMG/WISP94/N2UW/INTEGER/CB/25FEB94
+   /RAPDMG/WISP94/N2UW/INTEGER/CB/12MAR94
+   Both processed without error.  Perhaps the first example was flawed
+   somehow.  (It may be a short block at the end of file.)
+- Observation:  If one uses MIGS to strip COS-blocking bits from the
+   file, the conversion quits early.  Here is an example from the
+   25FEB94 file:
+     GN2UW_25FEB94 (stripped):
+      :TimeInterval = "19:49:48-22:25:26" ;
+    GN2UW_25FEB94.cos (COS-blocked):
+      :TimeInterval = "19:49:48-22:25:37" ;
+- Since I don't deal with N2UW data files, I'm not going to spend much
+   more time trying to analyze the one failure.  I'll just release the
+   current version and let people know that there may be sporadic early
+   aborts when converting some N2UW files (after all data have been
+   converted).
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+19 March 2004  RLR
+- Archived current version to SCD Mass Store:
+   /RUTH/g2n_rev_2.7.tar
+   /RUTH/g2n_rev_2.7.tar.dir
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+24 March 2004  RLR
+- Ran "splint" (original "lint" not found) on source code after changing
+  Makefile to run it.  After checking it produced 327 code warnings.  The
+  following files were change based on its output which was saved in the
+  file "splint_output.txt":
+   -rw-rw-r--    1 ruth     proj         1781 Mar 24 11:11 get_filenames.c
+   -rw-rw-r--    1 ruth     proj         6109 Mar 24 11:16 get_lparms.c
+   -rw-rw-r--    1 ruth     proj         1471 Mar 24 11:22 get_hrec.c
+   -rw-rw-r--    1 ruth     proj        11611 Mar 24 11:34 read_hdr.c
+   -rw-rw-r--    1 ruth     proj         1366 Mar 24 11:35 GpOpen.c
+   -rw-rw-r--    1 ruth     proj         8403 Mar 24 11:49 CreateNetCDF.c
+   -rw-rw-r--    1 ruth     proj        13968 Mar 24 11:54 setup_pms1d.c
+   -rw-rw-r--    1 ruth     proj         4620 Mar 24 11:55 d_P_convert.c
+   -rw-rw-r--    1 ruth     proj          803 Mar 24 12:01 to_hms.c
+   -rw-rw-r--    1 ruth     proj        25093 Mar 24 12:02 g2n.h
+- The above changes were "minor" and a tiny fraction of the errors and
+  warnings provided by "sprint."
+- I'll need to discuss with a C language expert whether to correct all of
+  the others.  Many have to do with using incompatible types together.  Some
+  variables rea used before definition (but I'm not sure how that can be).
+  Many complaints about sprintf and using snprintf instead.  Apparently I'm
+  not using the new Linux-compatiblity functions "ntohl" and "ntohf" correctly
+  even though they seem to work just fine.  Functions defined more than once.
+  Occasional "function X shadows outer declaration."  Variable exported but
+  not used.
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+31 March 2004  RLR
+- For the past few days I've been trying to eliminate many of the "splint"
+  warnings.  Since splint seems to know C++ and complains about some plain
+  C constructs, I've added a bunch of "ignore" options.  What I've concentrated
+  on most up to now is getting rid of mismatched variable types and
+  substituting "gets" commands with "fgets."  I haven't yet found a way
+  to substitute "sprintf" with "snprintf."
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+2 April 2004  RLR
+- Have been editing files to reduce the number of warnings coming from
+  splint.  I have added a number of "ignore" settings to the command to
+  eliminate the C++ messages that I cannot fix.  There still are a number
+  of warnings remaining, and, again, they probably are related to straight C.
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+7 April 2004  RLR
+- A few warnings refuse to go away despite "fixing" them.  Therefore, only
+  a couple remain (other than the C++ constructs mentioned above).
+- The primary warning involves direct comparisons (in "if" tests) of two
+  floating-point numbers, since their "representations are inexact."  One of
+  them is done to assure that I'm not dividing by zero, so it's OK.  The other
+  one is used to detect GENPRO's "missing data" (99999.), and I'm not sure how
+  to handle it.  The negative result is that these will be passed along rather
+  than being converted to the RAF convention's "missing value" -32767.
+- So at this point, in the Makefile's I added a bunch of arguments (16) to the
+  "splint" command to supress numerous warnings.
+- The Linux version of g2n still quit with a Segmentation fault after
+  finishing the translation (but before putting out the final completion
+  message to the terminal).  Therefore, I moved the CloseNetCDF function
+  from the Plow function to the main g2n.  This has the effect of reordering
+  the last two messages (records written and time interval)
+- Files used to test version 2.7.2, rev. 7 Apr 2004  RLR
+   G256Lrf09b        --  /RAF/1985/256/RF09B/LRT/G55573         (COS-blocked)
+   G276Hrf09         --  /RAF/1991/276/HRT/RF09                 (COS-blocked)
+   G278Hrf03         --  /RAF/1993/278/HRT/RF03                 (COS-blocked)
+   G52347a           --  /RAF/TL0630/G52347 (1983-783)          (COS-blocked)
+   G52862Ha          --  /RAF/1989/760/RF01A/HRT/G52862         (COS-blocked)
+   G52868Ha          --  /RAF/1989/760/RF04/HRT/G52868          (COS-blocked)
+   G53275a           --  /RAF/TL0091/G53275 (1985-830)          (COS-blocked)
+   G53784HRc         --  /RAF/1987/860/RF09A/HRT/RG53784        (COS-blocked)
+   G53814Ha          --  /RAF/1987/851/RF01/HRT/G53814          (COS-blocked)
+   G53815Ha          --  /RAF/1987/851/RF02/HRT/G53815          (COS-blocked)
+   G55239            --  /RAF/TL0878/G55239 (1984-263)          (COS-blocked)
+   G55241            --  /RAF/TL0878/G55241 (1984-263)          (COS-blocked)
+   G55573La          --  /RAF/1985/256/RF09B/LRT/G55573         (COS-blocked)
+   G55778La          --  /RAF/1986/272/RF01/LRT/G55778          (COS-blocked)
+   G722Lrf01         --  /RAF/1992/722/LRT/RF01                 (COS-blocked)
+   G815Lrf08         --  /RAF/1991/815/LRT/RF08                 (COS-blocked)
+   G876Hrf03a        --  /RAF/1990/876/HRT/RF03A                (COS-blocked)
+   G876Hrf03b        --  /RAF/1990/876/HRT/RF03B                (COS-blocked)
+   G876Hrf03c        --  /RAF/1990/876/HRT/RF03C                (COS-blocked)
+   GN2UW             --  /RAPDMG/WISP94/N2UW/INTEGER/CB/08FEB94 (stripped)
+   GN2UW.cos         --  /RAPDMG/WISP94/N2UW/INTEGER/CB/08FEB94 (COS-blocked)
+   GN2UW_12MAR94.cos --  /RAPDMG/WISP94/N2UW/INTEGER/CB/12MAR94 (COS-blocked)
+   GN2UW_25FEB94     --  /RAPDMG/WISP94/N2UW/INTEGER/CB/25FEB94 (stripped)
+   GN2UW_25FEB94.cos --  /RAPDMG/WISP94/N2UW/INTEGER/CB/25FEB94 (COS-blocked)
+   N312D_940505      --  /RAPDMG/LANTEX94/N312D/940505          (COS-blocked)
+- The test files for Linux (doit_l) and Solaris (doit_s) showed how slow
+  mistral is compared with vivaldi (although to be fair, the data disc is
+  directly connected to vivaldi so mistral has to use network data transfers).
+  vivaldi:  doit_l:  Tests began on Wed Apr  7 16:54:36 MDT 2004.
+            doit_l:  Tests ended on Wed Apr  7 16:58:02 MDT 2004.
+            doit_s:  Tests began on Wed Apr  7 16:58:12 MDT 2004.
+            doit_s:  Tests ended on Wed Apr  7 18:42:24 MDT 2004.
+- This version will be archived and released as 2.7.2.
+
+-------------------------------------------------------------------------------
+Future plans:
+-------------------------------------------------------------------------------
+ 1. Add ^C interrupt handling; if user types ^C, program will cleanly exit
+     and update the netCDF header with the data processed so far        [Done.]
+ 2. Change how PMS-1D variables are handled; detect PMS-1D variable names,
+     change them to the NIMBUS standard name(s) and reformat the output as
+     NIMBUS PMS-1D vector variable(s) at its (their) appropriate rate(s)
+     (For low-rate variables with specific names for each cell, this
+     requires significant change to the variable list and their parameters.
+     It may be possible to do this on the fly as the header is being read
+     and decoded, since all the cell variables for one PMS-1D probe are
+     grouped together in the GENPRO header.)  (Not done for UW files)   [Done.]
+ 2a.  Make certain variable names conform to NIMBUS netCDF conventions  [Done.]
+ 2b.  Add proper name and suffix to PMS-1D Associated Variable names    [Done.]
+ 3. Add ability to read COS-blocked files directly                      [Done.]
+ 4. Add NOAA Twin Otter N48RF to aircraft types                         [Done.]
+ 5. Add Linux compatibility [use "ntohl(value) everywhere a long integer
+     argument appears and ntohf(value) everywhere a floating-point number
+     appears                                                            [Done.]
+ 6. Add default output netCDF file path to be $DATA_DIR if relative file
+     path has been given
+ 7. Add ability to detect a `.nc' extension in the output netCDF file name,
+     and, if not present, to add it automatically
+ 8. Add ability to decode environment variables (including ~) used as part
+     of input and output file name when entered interactively
+ 9. Add ability to select a subset of the GENPRO variable list either
+     interactively or by reading a list of variables from a file
+10. Add ability to select a subset of the time period either interactively
+     or from a file
+11. Add command-line option flags, such as:
+     -b   batch mode (stdout goes to a file)
+     -i   print informational messages
+     -w   print warning messages
+     -f   print fatal messages
+     -H   print complete GENPRO header to stdout
+     -h   print partial GENPRO header to stdout
+     -v   print input variable list to stdout
+     -V   print output variable list to stdout
+12. Add ability to convert GENPRO-I files
+-------------------------------------------------------------------------------

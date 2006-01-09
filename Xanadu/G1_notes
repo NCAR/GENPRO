@@ -1,0 +1,91 @@
+GENPRO-I header is one long record at the beginning of a file.
+Subsequent data records are defined by the information in the header record.
+
+Below is the header-record character position for the data-record
+configuration information gleaned from a former tape-dump program.  At
+this point I assume, perhaps badly, that the logical record length is 100
+characters.  The 60-bit word length of the CDC-6600/7600 computer systems
+probably will affect the counts listed below, since I don't know how the
+header printout relates to the character positions in the actual file.
+Output from the tape dump reports 104 ASCII characters per logical header
+record.  My recollection is that CDC display code characters are 6 bits,
+so 10 of them fit in one 60-bit word.  (There is no lower-case alphabet.)
+This would imply that logical records would be some multiple of 10 characters.
+
+ Header
+ character
+ position
+ if 100 per
+ logical
+ record       description
+-----------   -----------------------------------------------------------------
+   1 -   50   Project information usually of the form
+              <SPACE>*nnn-ff<SPACE>p*<SPACE>ddmmmyy<SPACE>*hh/mm/ss<SPACE>*
+              where:
+                 <SPACE>*  -  any number of (including zero) SPACE characters
+                      nnn  -  project number
+                        -  -  hyphen (-) character
+                       ff  -  flight number
+                       p*  -  Project name (character string)
+                        /  -  forward slash (/) character
+                       hh  -  flight start hrs  \  (Data having this start
+                       mm  -  flight start mins  }  time may not necessarily
+                       ss  -  flight start secs /   be in this file.)
+  51 -   74   "FIRST TIME ON THIS FILE " (skip)
+  75 -   76   data start hrs (with leading <SPACE> if < 10) (i2)
+  77          <SPACE>
+  78 -   79   data start mins (with leading <SPACE> if < 10) (i2)
+  80          <SPACE>
+  81 -   82   data start secs (with leading <SPACE> if < 10) (i2)
+  83 -   89   <SPACE>*
+  90 -  129   "THIS FILE IS ALL OR PART OF TIME PERIOD "
+ 130 -  131   flight start hrs (with leading <SPACE> if < 10) (i2)
+ 132          <SPACE>
+ 133 -  134   flight start mins (with leading <SPACE> if < 10) (i2)
+ 135          <SPACE>
+ 136 -  137   flight start secs (with leading <SPACE> if < 10) (i2)
+ 138 -  141   " TO "
+ 142 -  143   flight end hrs (with leading <SPACE> if < 10) (i2)
+ 144          <SPACE>
+ 145 -  146   flight end mins (with leading <SPACE> if < 10) (i2)
+ 147          <SPACE>
+ 148 -  149   flight end secs (with leading <SPACE> if < 10) (i2)
+ 150 -  175   "  DESCRIPTION OF RECORD --" (skip)
+ 176 -  179   number of variables (parameters) (i5)
+ 180 -  245   " PARAMETERS WERE SAVED AT THEIR RESPECTIVE RATES.  THIS REPRESENTS" (skip)
+ 246 -  250   number of samples/cycle (i5)
+ 251 -  289   " SAMPLES/PROGRAM CYCLE WHERE A CYCLE IS" (skip)
+ 290 -  296   cycle time (f6.3)
+ 297 -  304   " SEC THE" (skip)
+ 305 -  307   cycles per physical record (i3)
+ 308 -  317   " CYCLES OF" (skip)
+ 318 -  322   number of samples/cycle (repeat) (i4)
+ 323 -  332   " SAMP/CYC =" (skip)
+ 333 -  337   number of samples/record (i5)
+ 338 -  359   " WERE THEN SCALED INTO" (skip)
+ 360 -  362   packed integer size (i3)
+ 363 -  386   " BIT INTEGERS AND PACKED" (skip)
+ 387 -  388   number of packed integers per word (i2)
+ 389 -  406   " SAMPLES/WORD INTO" (skip)
+ 407 -  410   number of words (i4)
+ 411 -  413   bits per word (i3)
+ 414 - 1016   boiler-plate character string I chose not to list (skip)
+
+Unknown number of <SPACE> characters between end of boiler-plate and beginning
+ of variable descriptions
+
+Next "n" logical records (one for each variable)
+1101?- 1104?  "  1)" (skip)
+1105?- 1108?  variable's rate (sps) (i4)
+1109?- 1113?  <SPACE>* (skip)
+1114?- 1156?  variable's long name
+1157?- 1166?  variables short name
+1167?- 1174?  variables units
+1175?- 1179?  "= (N/" (skip)
+1180?- 1186?  Scale factor (f7.1)
+1187?- 1188?  " -" (skip)
+1190?- 1196?  Offset (f7.1)
+1201?- end    repeat format for each variable
+
+Ron Ruth
+Fri Apr 16 16:16:09 MDT 2004

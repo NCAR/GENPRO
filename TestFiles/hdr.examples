@@ -1,0 +1,152 @@
+(Note:  All lines are padded to 80 characters, including ending newline)       
+Here are some example PROJECT lines:                                           
+  /PROJECT= "2-225-RF03 FIRE2-Cirrus KingAir 14NOV91 "                         
+  /PROJECT= "1-225-RF03 FIRE2-Cirrus KingAir 14NOV91 "                         
+  PROJECT = "783-8  AVSSP , COLAMOSCA , 20 JUL 83    "                         
+  /PROJECT= "760-RF01A  NELSON  21MAR89              "                         
+  /PROJECT= "760-RF04  NELSON  24MAR89               "                         
+  /PROJECT= "2-269-RF05 STORM-FEST 05FEB92           "                         
+  /PROJECT= "830-R5A DYCOMS  09AUG1985               "                         
+  /PROJECT= "1-815-RF08 TROP. CYCLONE INIT. 07AUG91  "                         
+  /PROJECT= "1-276-RF09 CaPE 24JUL91                 "                         
+  /PROJECT= "P266-R01 GALE (KING AIR) 16JAN1986      "                         
+  /PROJECT= "P867-R01 GALE (ELECTRA-HRT) 18JAN1986   "                         
+  /PROJECT= "P860-RF09 FIRE 16JUL 1987               "                         
+  /PROJECT= "272-R10 FIRE     28OCT1986              "                         
+  /PROJECT= "272-RF11 FIRE     30OCT1986             "                         
+  /PROJECT= "762-RF15  SPIN  26NOV90                 "                         
+  /PROJECT= "2-816-RF15B ASTEX/MAGE 22JUN92          "                         
+  /PROJECT= "1-276-RF18 CaPE 02AUG91                 "                         
+  /PROJECT= "2-269-RF20 STORM-FEST 25FEB92           "                         
+  /PROJECT= "3-817-RF20 TOGA-COARE 14JAN93           "                         
+  /PROJECT= "3-817-RF20 TOGA-COARE 14JAN93           "                         
+  /PROJECT= "3-817-RF20 TOGA-COARE 14JAN93           "                         
+  /PROJECT= "3-817-RF21 TOGA-COARE 16JAN93           "                         
+  /PROJECT= "2-269-RF30 STORM-FEST 09MAR92           "                         
+  /PROJECT= "2-269-RF31 STORM-FEST 09MAR92           "                         
+  /PROJECT= "3-299-RF35 NIMBUS Comparison 12MAR92    "                         
+ ENDHD                                                                         
+                                                                               
+Here are some example (first) COMMENT lines:                                   
+/COMMENT= "            NCAR RAF MAGNETIC TAPE FORMATS                        ",
+ COMMENT = "AVSSP , COLAMOSCA ,NO.783 FLIGHT-8  1983                          "
+/COMMENT= "            UW KING AIR      TAPE FORMATS                         ",
+/COMMENT= " N2UW ARCHIVE DATA - GENPRO FORMAT                                ",
+                                                                               
+Here are some example JOBID lines:                                             
+  /JOBID  = "IO0120                                  " /JOB IDENTIFICATION     
+  /JOBID  = "IO2172                                  " /JOB IDENTIFICATION     
+  /JOBID  = "SIO2368                                 " /JOB IDENTIFICATION     
+  /JOBID  = "CK6650                                " /JOB IDENTIFICATION       
+  /JOBID  = "CK3857                                " /JOB IDENTIFICATION       
+  /JOBID  = "SIO2368                                 " /JOB IDENTIFICATION     
+  /JOBID  = "CK2614                                " /JOB IDENTIFICATION       
+  /JOBID  = "IO6812                                  " /JOB IDENTIFICATION     
+  JOBID   = "IO9242                                  " /JOB IDENTIFICATION     
+  /JOBID  = "CK0308                                " /JOB IDENTIFICATION       
+  /JOBID  = "CK7181                                " /JOB IDENTIFICATION       
+  /JOBID  = "SIO1611                                 " /JOB IDENTIFICATION     
+  /JOBID  = "SIO9072                                 " /JOB IDENTIFICATION     
+  /JOBID  = "SIO6711                                 " /JOB IDENTIFICATION     
+  /JOBID  = "SP9022                                " /JOB IDENTIFICATION       
+  /JOBID  = "CK7089                                " /JOB IDENTIFICATION       
+  /JOBID  = "SP1290                                " /JOB IDENTIFICATION       
+  /JOBID  = "CK7277                                " /JOB IDENTIFICATION       
+  /JOBID  = "CK5807                                " /JOB IDENTIFICATION       
+  /JOBID  = "CK5807                                " /JOB IDENTIFICATION       
+  /JOBID  = "CK5807                                " /JOB IDENTIFICATION       
+  /JOBID  = "CK0883                                " /JOB IDENTIFICATION       
+  /JOBID  = "CK4105                                " /JOB IDENTIFICATION       
+  /JOBID  = "CK0854                                " /JOB IDENTIFICATION       
+  /JOBID  = "CK0834                                " /JOB IDENTIFICATION       
+                                                                               
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Decoding the needed header information from GENPRO header file lines.          
+ Good Luck!                                                                    
+                                                                               
+A real challenge is the file:  tdoutRF01.583 (GAMETAG 583A)                    
+                                                                               
+Note:  The lines below all have an extra leading <space> character.            
+                                                                               
+Here are some example PRDATE lines:                                            
+  /PRDATE = ("16","JAN","86")       /PROJECT DATE                              
+  /PRDATE = ("18","JAN","86")       /PROJECT DATE                              
+  /PRDATE = ("21","3  ","89")       /PROJECT DATE                              
+  /PRDATE = ("14","NOV","91")       /PROJECT DATE                              
+  /PRDATE = ("14","NOV","91")       /PROJECT DATE                              
+  /PRDATE = ("24","3  ","89")       /PROJECT DATE                              
+  /PRDATE = ("05","FEB","92")       /PROJECT DATE                              
+  /PRDATE = ("09","AUG","85")       /PROJECT DATE                              
+  PRDATE  = ("20","JUL","83")       /PROJECT DATE                              
+  /PRDATE = ("07","AUG","91")       /PROJECT DATE                              
+  /PRDATE = ("24","JUL","91")       /PROJECT DATE                              
+  /PRDATE = ("16","JUL","87")       /PROJECT DATE                              
+  /PRDATE = ("28","OCT","86")       /PROJECT DATE                              
+  /PRDATE = ("30","OCT","86")       /PROJECT DATE                              
+  /PRDATE = ("26","NOV","90")       /PROJECT DATE                              
+  /PRDATE = ("22","JUN","92")       /PROJECT DATE                              
+  /PRDATE = ("02","AUG","91")       /PROJECT DATE                              
+  /PRDATE = ("25","FEB","92")       /PROJECT DATE                              
+  /PRDATE = ("14","JAN","93")       /PROJECT DATE                              
+  /PRDATE = ("14","JAN","93")       /PROJECT DATE                              
+  /PRDATE = ("14","JAN","93")       /PROJECT DATE                              
+  /PRDATE = ("16","JAN","93")       /PROJECT DATE                              
+  /PRDATE = ("09","MAR","92")       /PROJECT DATE                              
+  /PRDATE = ("09","MAR","92")       /PROJECT DATE                              
+  /PRDATE = ("12","MAR","92")       /PROJECT DATE                              
+                                                                               
+Here are some example EXDATE lines:                                            
+  /EXDATE = ("01","JUL","86")       /EXECUTION DATE                            
+  /EXDATE = ("18","APR","86")       /EXECUTION DATE                            
+  /EXDATE = ("30","JAN","90")       /EXECUTION DATE                            
+  /EXDATE = ("29","DEC","93")       /EXECUTION DATE                            
+  /EXDATE = ("15","DEC","93")       /EXECUTION DATE                            
+  /EXDATE = ("09","FEB","90")       /EXECUTION DATE                            
+  /EXDATE = ("18","MAR","94")       /EXECUTION DATE                            
+  /EXDATE = ("26","11 ","85")       /EXECUTION DATE                            
+  EXDATE  = ("07","11 ","83")       /EXECUTION DATE                            
+  /EXDATE = ("26","MAR","92")       /EXECUTION DATE                            
+  /EXDATE = ("11","FEB","94")       /EXECUTION DATE                            
+  /EXDATE = ("07","DEC","88")       /EXECUTION DATE                            
+  /EXDATE = ("30","JAN","87")       /EXECUTION DATE                            
+  /EXDATE = ("17","APR","89")       /EXECUTION DATE                            
+  /EXDATE = ("26","JUN","91")       /EXECUTION DATE                            
+  /EXDATE = ("27","OCT","92")       /EXECUTION DATE                            
+  /EXDATE = ("17","JAN","92")       /EXECUTION DATE                            
+  /EXDATE = ("16","MAR","94")       /EXECUTION DATE                            
+  /EXDATE = ("22","JUN","93")       /EXECUTION DATE                            
+  /EXDATE = ("22","JUN","93")       /EXECUTION DATE                            
+  /EXDATE = ("22","JUN","93")       /EXECUTION DATE                            
+  /EXDATE = ("21","JUN","93")       /EXECUTION DATE                            
+  /EXDATE = ("11","MAR","94")       /EXECUTION DATE                            
+  /EXDATE = ("28","AUG","92")       /EXECUTION DATE                            
+  /EXDATE = ("22","SEP","93")       /EXECUTION DATE                            
+                                                                               
+Here are some example EXTIME lines:                                            
+  /EXTIME = ("09H","46M","57S")     /EXECUTION TIME                            
+  /EXTIME = ("01H","14M","54S")     /EXECUTION TIME                            
+  /EXTIME = ("12H","15M","02S")     /EXECUTION TIME                            
+  /EXTIME = ("11H","58M","54S")     /EXECUTION TIME                            
+  /EXTIME = ("11H","01M","48S")     /EXECUTION TIME                            
+  /EXTIME = ("12H","37M","36S")     /EXECUTION TIME                            
+  /EXTIME = ("13H","04M","20S")     /EXECUTION TIME                            
+  /EXTIME = ("20H","19M","07S")     /EXECUTION TIME                            
+  EXTIME  = ("11H","18M","42S")     /EXECUTION TIME                            
+  /EXTIME = ("21H","25M","47S")     /EXECUTION TIME                            
+  /EXTIME = ("12H","49M","43S")     /EXECUTION TIME                            
+  /EXTIME = ("12H","04M","48S")     /EXECUTION TIME                            
+  /EXTIME = ("19H","45M","45S")     /EXECUTION TIME                            
+  /EXTIME = ("13H","09M","08S")     /EXECUTION TIME                            
+  /EXTIME = ("08H","21M","06S")     /EXECUTION TIME                            
+  /EXTIME = ("17H","34M","16S")     /EXECUTION TIME                            
+  /EXTIME = ("00H","08M","11S")     /EXECUTION TIME                            
+  /EXTIME = ("13H","28M","41S")     /EXECUTION TIME                            
+  /EXTIME = ("16H","56M","25S")     /EXECUTION TIME                            
+  /EXTIME = ("16H","56M","25S")     /EXECUTION TIME                            
+  /EXTIME = ("16H","56M","25S")     /EXECUTION TIME                            
+  /EXTIME = ("19H","20M","43S")     /EXECUTION TIME                            
+  /EXTIME = ("15H","46M","11S")     /EXECUTION TIME                            
+  /EXTIME = ("09H","58M","32S")     /EXECUTION TIME                            
+  /EXTIME = ("20H","58M","16S")     /EXECUTION TIME                            
+                                                                               
+X                                                                              

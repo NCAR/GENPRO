@@ -1,0 +1,16 @@
+#! /bin/csh -f
+#mv CreateNetCDF.c CreateNetCDF.n
+#mv CreateNetCDF.x CreateNetCDF.c
+#mv Plow.c Plow.n
+#mv Plow.x Plow.c
+#mv d_P_convert.c d_P_convert.n
+#mv d_P_convert.x d_P_convert.c
+#mv g2n.c g2n.n
+#mv g2n.x g2n.c
+#mv read_hdr.c read_hdr.n
+#mv read_hdr.x read_hdr.c
+mv setup_pms1d.c setup_pms1d.n
+mv setup_pms1d.x setup_pms1d.c
+#touch CreateNetCDF.c Plow.c d_P_convert.c g2n.c read_hdr.c setup_pms1d.c
+touch setup_pms1d.c
+exit

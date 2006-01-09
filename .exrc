@@ -1,0 +1,9 @@
+set nows
+set nomesg
+set redraw
+set ic
+set sm
+set showmode
+set report=2
+set ts=4
+set ai

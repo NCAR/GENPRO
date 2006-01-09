@@ -1,0 +1,35 @@
+#! /bin/csh -f
+#  This script to be executed with data located in cwd -- RLR
+echo "${0}:  Tests began on `date`."
+/jnet/shared/proj/archives/g2n/g2n.RH9 G256Lrf09b G256Lrf09b.ncl272 >&! test_out_L_01
+/jnet/shared/proj/archives/g2n/g2n.RH9 G276Hrf09 G276Hrf09.ncl272 >&! test_out_L_02
+/jnet/shared/proj/archives/g2n/g2n.RH9 G278Hrf03 G278Hrf03.ncl272 >&! test_out_L_03
+/jnet/shared/proj/archives/g2n/g2n.RH9 G52347a G52347a.ncl272 >&! test_out_L_04
+/jnet/shared/proj/archives/g2n/g2n.RH9 G52862Ha G52862Ha.ncl272 >&! test_out_L_05
+/jnet/shared/proj/archives/g2n/g2n.RH9 G52868Ha G52868Ha.ncl272 >&! test_out_L_06
+/jnet/shared/proj/archives/g2n/g2n.RH9 G53275a G53275a.ncl272 >&! test_out_L_07
+/jnet/shared/proj/archives/g2n/g2n.RH9 G53784HRc G53784HRc.ncl272 >&! test_out_L_08
+/jnet/shared/proj/archives/g2n/g2n.RH9 G53814Ha G53814Ha.ncl272 >&! test_out_L_09
+/jnet/shared/proj/archives/g2n/g2n.RH9 G53815Ha G53815Ha.ncl272 >&! test_out_L_10
+/jnet/shared/proj/archives/g2n/g2n.RH9 G55239 G55239.ncl272 >&! test_out_L_11
+/jnet/shared/proj/archives/g2n/g2n.RH9 G55241 G55241.ncl272 >&! test_out_L_12
+/jnet/shared/proj/archives/g2n/g2n.RH9 G55573La G55573La.ncl272 >&! test_out_L_13
+/jnet/shared/proj/archives/g2n/g2n.RH9 G55778La G55778La.ncl272 >&! test_out_L_14
+/jnet/shared/proj/archives/g2n/g2n.RH9 G722Lrf01 G722Lrf01.ncl272 >&! test_out_L_15
+/jnet/shared/proj/archives/g2n/g2n.RH9 G815Lrf08 G815Lrf08.ncl272 >&! test_out_L_16
+/jnet/shared/proj/archives/g2n/g2n.RH9 G876Hrf03a G876Hrf03a.ncl272 >&! test_out_L_17
+/jnet/shared/proj/archives/g2n/g2n.RH9 G876Hrf03b G876Hrf03b.ncl272 >&! test_out_L_18
+/jnet/shared/proj/archives/g2n/g2n.RH9 G876Hrf03c G876Hrf03c.ncl272 >&! test_out_L_19
+/jnet/shared/proj/archives/g2n/g2n.RH9 GN2UW GN2UW.ncl272 >&! test_out_L_20
+/jnet/shared/proj/archives/g2n/g2n.RH9 GN2UW.cos GN2UW.cos.ncl272 >&! test_out_L_21
+/jnet/shared/proj/archives/g2n/g2n.RH9 GN2UW_12MAR94.cos GN2UW_12MAR94.cos.ncl272 >&! test_out_L_22
+/jnet/shared/proj/archives/g2n/g2n.RH9 GN2UW_25FEB94 GN2UW_25FEB94.ncl272 >&! test_out_L_23
+/jnet/shared/proj/archives/g2n/g2n.RH9 GN2UW_25FEB94.cos GN2UW_25FEB94.cos.ncl272 >&! test_out_L_24
+/jnet/shared/proj/archives/g2n/g2n.RH9 N312D_940505 N312D_940505.ncl272 >&! test_out_L_25
+#
+#  Note:  Known U Wyoming test data files on the MSS:
+#          /RAF/GENPRO/WYOMING/GHong.940505
+#          /RAF/GENPRO/WYOMING/Gmar24.g
+#
+echo "${0}:  Tests ended on `date`."
+exit

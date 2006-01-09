@@ -1,0 +1,289 @@
+ BEGINHD                          /GENPRO OUTPUT HEADER                        
+/HDROPT = (HEADER,NOSPAN,ASCII)   /HEADER RECORD OPTIONS                       
+/HDRLOG =   10                    /LOGICAL HEADER RECORDS PER PHYSICAL RECORD  
+/HDRSIZ =     6400                /PHYSICAL HEADER RECORD SIZE (BITS)          
+/PROJECT= "MEXICO 1996   "                                                     
+/PRDATE = ("13","AUG","96")       /PROJECT DATE                                
+/PRTIME = ("15H","14M","25S")     /PROJECT TIME                                
+/BEGSNP = (  00.000    ,  00.000    ,  0.0000    )                             
+/ENDSNP = (  24.000    ,  00.000    ,  00.000    )                             
+/COMMENT= "            NCAR     MAGNETIC TAPE FORMATS                        ",
+/         "  THE CALIBRATED MAGNETIC TAPES ARE PRODUCED BY THE NCAR ATD RAP  ",
+/         " GROUP, WITH DATA PROCESSING SOFTWARE WRITTEN BY ROBIN VAUGHAN.   ",
+/         " THE FORMAT IS THE SAME AS IS WRITTEN BY RAF WITH GENPRO-II.      ",
+/         " THE FORMAT OF THESE TAPES INCLUDES A HEADER FILE AND A DATA FILE ",
+/         " WHICH CORRESPONDS TO ALL OR PART OF A PARTICULAR AIRCRAFT FLIGHT ",
+/         " - HEADER FILE DESCRIPTION                                        ",
+/         " THE HEADER FILE DESCRIBING THE DATA FORMATS IS IN ASCII          ",
+/         " CHARACTER FORMAT, 80 CHARACTERS TO A LOGICAL RECORD AND 10       ",
+/         " LOGICAL RECORDS TO A PHYSICAL RECORD.                            ",
+/         " THE HEADER FILE IS DIVIDED INTO THE FOLLOWING FIVE SECTIONS:     ",
+/         " 1. THE GENERAL INFORMATION SECTION CONSISTS OF THREE PARTS:      ",
+/         "    A) THE TITLE LINE IS (BEGINHD).  THIS PART CONTAINS THE       ",
+/         "       INFORMATION PERTAINING TO HEADER FILE: HEADER RECORD OP-   ",
+/         "       TIONS(HDRDPT), LOGICAL HEADER RECORDS PER PHYSICAL RECORD  ",
+/         "       (HDRLOG), PHYSICAL HEADER RECORD SIZE IN BITS(HDRSIZ),     ",
+/         "       RESEARCH FLIGHT PROJECT TITLE(PROJECT), RESEARCH FLIGHT    ",
+/         "       DATE(PRDATE), RESEARCH FLIGHT TIME(PRTIME), BEGINNING TIME ",
+/         "       (BEGSNP), AND ENDING TIME(ENDSNP).                         ",
+/         "     B) THE TITLE LINE IS (COMMENT= NCAR RAF MAGNETIC TAPE        ",
+/         "        FORMATS).  THIS PART DESCRIBES THE DATA FORMAT OF         ",
+/         "        GENPRO-II GENERATED DATA SETS.                            ",
+/         "     C) THIS PART CONTAINS INFORMATION PERTAINING TO DATA SET     ",
+/         "        GENERATION AND THE DATA FILE: PRODUCTION JOB EXECUTION    ",
+/         "        DATE(EXDATE), EXECUTION TIME(EXTIME), COMPUTER USED FOR   ",
+/         "        THE JOB(MACHINE), JOB IDENTIFICATION(JOBID), MEDIA NUMBER ",
+/         "        (MEDIA), DATA RECORD OPTIONS(DATOPT), BITS PER LOGICAL    ",
+/         "        DATA RECORD(LOGBIT), LOGICAL DATA RECORDS PER PHYSICAL    ",
+/         "        RECORD(DATLOG) AND PHYSICAL DATA RECORD SIZE IN BITS      ",
+/         "        (DATSIZ).                                                 ",
+/         "  2. THE TITLE LINE OF THE VARIABLE NAME LIST SECTION IS          ",
+/         "     (/VARIABLE WRITTEN FOR THIS SNAPSHOT PERIOD).  VARIABLE      ",
+/         "     NAMES ARE LISTED ON THE FOLLOWING LINES THAT BEGIN WITH      ",
+/         "     (APPVAR=). THIS SECTION CONTAINS ALL THE VARIABLE NAMES THAT ",
+/         "     ARE ON THE DATA FILE.  A BRIEF DESCRIPTION OF EACH VARIABLE  ",
+/         "     IS GIVEN IN SECTION 3.                                       ",
+/         "  3. THE TITLE LINE OF THIS SECTION IS (ORDVAR  = TITLE).  EACH   ",
+/         "     LINE FOLLOWING WILL BEGIN WITH (LETVAR=) AND BE FOLLOWED BY  ",
+/         "     THE VARIABLE TITLE.  AT THE END OF THAT LINE, (%FOR,) IS     ",
+/         "     FOLLOWED BY THE VARIABLE NAME.                               ",
+/         "  4. THE TITLE LINE OF THIS SECTION IS (ORDVAR  = UNITS, SAMPLE,  ",
+/         "     RATE, BITS, FSTBIT, SKIP).  EACH LINE FOLLOWING WILL BEGIN   ",
+/         "     WITH (LETVAR =), AND BE FOLLOWED BY THE VARIABLE UNITS       ",
+/         "     (UNITS),SAMPLING RATE(SAMPLE), OUTPUT RATE(RATE), BIT        ",
+/         "     LENGTH OF EACH DATA VALUE(BITS), FIRST BIT LOCATION OF EACH  ",
+/         "     VARIABLE(FSTBIT) AND NUMBER OF BITS BETWEEN TWO SEQUENTIAL   ",
+/         "     DATA VALUES FOR THE SAME VARIABLE(SKIP).  AT THE END OF      ",
+/         "     THAT LINE, (%FOR,) IS FOLLOWED BY THE VARIABLE NAME.         ",
+/         "  5. THE TITLE LINE OF THIS SECTION IS (ORDVAR = CONKEY, SCLKEY,  ",
+/         "     TERM, FACTOR).  EACH LINE FOLLOWING WILL BEGIN WITH          ",
+/         "     (LETVAR =) AND BE FOLLOWED BY THE CONVERSION CODE USED BY    ",
+/         "     GENPRO(CONKEY), THE SCALING ALGORITHM SELECTION(SCLKEY),     ",
+/         "     THE VALUE OF THE SCALING TERM(TERM), AND THE SCALING FACTOR  ",
+/         "     (FACTOR).  AT THE END OF THAT LINE, (%FOR,) IS FOLLOWED BY   ",
+/         "     THE VARIABLE NAME.                                           ",
+/         " - DATA FILE DESCRIPTION                                          ",
+/         "   THE DATA FILE CONTAINS DATA VALUES OF VARIABLES OVER A         ",
+/         " SPECIFIED TIME PERIOD (FROM BEGSNP TO ENDSNP) OF A PROJECT       ",
+/         " PRODUCTION FLIGHT.  A GENPRO CYCLE INTERVAL OF DATA IS OUTPUT AS ",
+/         " A DATA LOGICAL RECORD, WHERE ONE GENPRO CYCLE INTERVAL IS 1      ",
+/         " SECOND(S) FOR THIS PROJECT.  BEFORE THE DATA ARE WRITTEN TO THE  ",
+/         " OUTPUT DESTINATION, EACH DATA VALUE IS SCALED AND TRUNCATED TO A ",
+/         " SPECIFIED NUMBER OF BINARY BITS ("BITS") AND THEN WRITTEN AS A   ",
+/         " POSITIVE INTEGER. (I.E. A "TERM" IS ADDED TO EACH VALUE OF       ",
+/         " VARIABLE AND THE RESULT IS MULTIPLED BY A "FACTOR".)             ",
+/         "   EACH VARIABLE IN THE DATA FILE HAS A CORRESPONDING "FSTBIT",   ",
+/         " "BITS","RATE","TERM", AND "FACTOR".  A GIVEN VARIABLE CAN BE     ",
+/         " CONVERTED FROM A PACKED INTEGER VALUE TO AN UNPACKED REAL VALUE  ",
+/         " BY FOLLOWING THIS PROCEDURE:                                     ",
+/         "       TAKE "BITS" NUMBER OF BITS STARTING AT "FSTBIT"            ",
+/         "       FROM THIS INTEGER VALUE DIVIDE BY THE "FACTOR"             ",
+/         "       AND THEN SUBTRACT THE BIAS "TERM" FROM THE RESULT.         ",
+/         "   IF THE VARIABLE HAS MORE THAN ONE SAMPLE PER GENPRO CYCLE      ",
+/         " INTERVAL IN A LOGICAL RECORD, THE PROCEDURE MUST BE REPEATED     ",
+/         " "RATE" TIMES IN A LOOP WHERE I=1 TO "RATE". THE STARTING BIT     ",
+/         " NUMBER FOR EACH SEPARATE ITERATION IS THEN:                      ",
+/         "       FSTBIT + BITS*(I-1)                                        ",
+/         "   IF ALL PACKED VALUES ARE UNPACKED AND PLACED IN AN ARRAY,      ",
+/         " THE FOLLOWING EQUATION MAY BE USED TO OBTAIN THE STARTING        ",
+/         " INDEX OF A GIVEN VARIABLE (IVAR) WITHIN THE UNPACKED ARRAY:      ",
+/         "       INDEX(IVAR) = ((FSTBIT(IVAR)-1)/BITS)+1                    " 
+/EXDATE = ("17","NOV","88")       /EXECUTION DATE                              
+/EXTIME = ("10H","23M","14S")     /EXECUTION TIME                               /MACHINE= "CRAY"                  /EXECUTION MACHINE                           
+/JOBID  = "SIO5004                                 " /JOB IDENTIFICATION       
+ MEDIA  =  1                      /MEDIA NUMBER                                
+ DATOPT = (AUTO,NOSPAN)           /DATA RECORD OPTIONS                         
+ LOGBIT =     1824                /BITS PER LOGICAL DATA RECORD                
+ DATLOG =   30                    /LOGICAL DATA RECORDS PER PHYSICAL RECORD    
+ DATSIZ =    54720                /PHYSICAL DATA RECORD SIZE (BITS)            
+/VARIABLES WRITTEN FOR THIS SNAPSHOT PERIOD                                    
+ APPVAR = DATE      , TPTIME    , PSF       , QCF       , ATF       , DPT      
+ APPVAR = VARIO     , PLWC      , VKMON     , LAT       , LON       , XDIST    
+ APPVAR = YDIST     , VTEMP     , VDPT      , GS        , GALT      , TRACK    
+ APPVAR = POSERR    , FLARE     , PALT      , VKSIG     , THF       , FRANGE   
+ APPVAR = CFSP01    , CFSP02    , CFSP03    , CFSP04    , CFSP05    , CFSP06   
+ APPVAR = CFSP07    , CFSP08    , CFSP09    , CFSP10    , CFSP11    , CFSP12   
+ APPVAR = CFSP13    , CFSP14    , CFSP15    , FLWC      , FCONC     , TAS      
+ APPVAR = SHADOR    , REFVOLT   , FSSP0     , FSTROB    , FACT      , FVAR     
+ APPVAR = THETA     , THETAE    , MR        , FRESET    , FDOF      , DBAR     
+ APPVAR = DSIG      , DISP      , DMVD      ,           ,           ,          
+ ORDVAR = TITLE                                                                
+ LETVAR = "Date                                    ", %FOR, DATE               
+ LETVAR = "Time                                    ", %FOR, TPTIME             
+ LETVAR = "StaticPressure                          ", %FOR, PSF                
+ LETVAR = "PitotPressure                           ", %FOR, QCF                
+ LETVAR = "Temperature (C)                         ", %FOR, ATF                
+ LETVAR = "DewPoint (C)                            ", %FOR, DPT                
+ LETVAR = "Variometer                              ", %FOR, VARIO              
+ LETVAR = "KingLWC                                 ", %FOR, PLWC               
+ LETVAR = "KingSlaveVolt                           ", %FOR, VKMON              
+ LETVAR = "Latitude                                ", %FOR, LAT                
+ LETVAR = "Longitude                               ", %FOR, LON                
+ LETVAR = "X Distance                              ", %FOR, XDIST              
+ LETVAR = "Y Distance                              ", %FOR, YDIST              
+ LETVAR = "Temp-voltage                            ", %FOR, VTEMP              
+ LETVAR = "Dewpoint-volt                           ", %FOR, VDPT               
+ LETVAR = "GroundSpeed                             ", %FOR, GS                 
+ LETVAR = "GPSaltitude                             ", %FOR, GALT               
+ LETVAR = "GroundTrackAngle                        ", %FOR, TRACK              
+ LETVAR = "GPSpositionerror                        ", %FOR, POSERR             
+ LETVAR = "FlareEject                              ", %FOR, FLARE              
+ LETVAR = "PressureAltitude                        ", %FOR, PALT               
+ LETVAR = "KingSignalVolt                          ", %FOR, VKSIG              
+ LETVAR = "TrueHeading                             ", %FOR, THF                
+ LETVAR = "FSSPrange (1-4)                         ", %FOR, FRANGE             
+ LETVAR = "FSSP Channel 1                          ", %FOR, CFSP01             
+ LETVAR = "FSSP Channel 2                          ", %FOR, CFSP02             
+ LETVAR = "FSSP Channel 3                          ", %FOR, CFSP03             
+ LETVAR = "FSSP Channel 4                          ", %FOR, CFSP04             
+ LETVAR = "FSSP Channel 5                          ", %FOR, CFSP05             
+ LETVAR = "FSSP Channel 6                          ", %FOR, CFSP06             
+ LETVAR = "FSSP Channel 7                          ", %FOR, CFSP07             
+ LETVAR = "FSSP Channel 8                          ", %FOR, CFSP08             
+ LETVAR = "FSSP Channel 9                          ", %FOR, CFSP09             
+ LETVAR = "FSSP Channel 10                         ", %FOR, CFSP10             
+ LETVAR = "FSSP Channel 11                         ", %FOR, CFSP11             
+ LETVAR = "FSSP Channel 12                         ", %FOR, CFSP12             
+ LETVAR = "FSSP Channel 13                         ", %FOR, CFSP13             
+ LETVAR = "FSSP Channel 14                         ", %FOR, CFSP14             
+ LETVAR = "FSSP Channel 15                         ", %FOR, CFSP15             
+ LETVAR = "FSSP LWC                                ", %FOR, FLWC               
+ LETVAR = "FSSP Total Concentration                ", %FOR, FCONC              
+ LETVAR = "True Air Speed                          ", %FOR, TAS                
+ LETVAR = "Shador                                  ", %FOR, SHADOR             
+ LETVAR = "FSSP ref volt (incorrect)               ", %FOR, REFVOLT            
+ LETVAR = "FSSP gated strobes                      ", %FOR, FSSP0              
+ LETVAR = "FSSP total strobes                      ", %FOR, FSTROB             
+ LETVAR = "FSSP activity                           ", %FOR, FACT               
+ LETVAR = "VelAcceptRatio                          ", %FOR, FVAR               
+ LETVAR = "PotentialTemp                           ", %FOR, THETA              
+ LETVAR = "EquivPotTemp                            ", %FOR, THETAE             
+ LETVAR = "Mixing Ratio                            ", %FOR, MR                 
+ LETVAR = "FSSP total resets                       ", %FOR, FRESET             
+ LETVAR = "Depth of Field ratio                    ", %FOR, FDOF               
+ LETVAR = "FSSP mean drop diameter                 ", %FOR, DBAR               
+ LETVAR = "FSSP standard deviation                 ", %FOR, DSIG               
+ LETVAR = "FSSP dispersion                         ", %FOR, DISP               
+ LETVAR = "FSSP mean vol drop diameter             ", %FOR, DMVD               
+ ORDVAR = UNITS, SAMPLE, RATE, BITS, FSTBIT, SKIP                              
+ LETVAR = "yymmdd  ",     1,     1, 32,       1,     0, %FOR, DATE             
+ LETVAR = "seconds ",     1,     1, 32,      33,     0, %FOR, TPTIME           
+ LETVAR = "mb      ",     1,     1, 32,      65,     0, %FOR, PSF              
+ LETVAR = "mb      ",     1,     1, 32,      97,     0, %FOR, QCF              
+ LETVAR = "deg C   ",     1,     1, 32,     129,     0, %FOR, ATF              
+ LETVAR = "deg C   ",     1,     1, 32,     161,     0, %FOR, DPT              
+ LETVAR = "volts   ",     1,     1, 32,     193,     0, %FOR, VARIO            
+ LETVAR = "g/m3    ",     1,     1, 32,     225,     0, %FOR, PLWC             
+ LETVAR = "volts   ",     1,     1, 32,     257,     0, %FOR, VKMON            
+ LETVAR = "deg     ",     1,     1, 32,     289,     0, %FOR, LAT              
+ LETVAR = "deg     ",     1,     1, 32,     321,     0, %FOR, LON              
+ LETVAR = "km      ",     1,     1, 32,     353,     0, %FOR, XDIST            
+ LETVAR = "km      ",     1,     1, 32,     385,     0, %FOR, YDIST            
+ LETVAR = "volts   ",     1,     1, 32,     417,     0, %FOR, VTEMP            
+ LETVAR = "volts   ",     1,     1, 32,     449,     0, %FOR, VDPT             
+ LETVAR = "m/s     ",     1,     1, 32,     481,     0, %FOR, GS               
+ LETVAR = "m       ",     1,     1, 32,     513,     0, %FOR, GALT             
+ LETVAR = "deg     ",     1,     1, 32,     545,     0, %FOR, TRACK            
+ LETVAR = "        ",     1,     1, 32,     577,     0, %FOR, POSERR           
+ LETVAR = "        ",     1,     1, 32,     609,     0, %FOR, FLARE            
+ LETVAR = "m-MSL   ",     1,     1, 32,     641,     0, %FOR, PALT             
+ LETVAR = "volts   ",     1,     1, 32,     673,     0, %FOR, VKSIG            
+ LETVAR = "deg     ",     1,     1, 32,     705,     0, %FOR, THF              
+ LETVAR = "        ",     1,     1, 32,     737,     0, %FOR, FRANGE           
+ LETVAR = "/cc     ",     1,     1, 32,     769,     0, %FOR, CFSP01           
+ LETVAR = "/cc     ",     1,     1, 32,     801,     0, %FOR, CFSP02           
+ LETVAR = "/cc     ",     1,     1, 32,     833,     0, %FOR, CFSP03           
+ LETVAR = "/cc     ",     1,     1, 32,     865,     0, %FOR, CFSP04           
+ LETVAR = "/cc     ",     1,     1, 32,     897,     0, %FOR, CFSP05           
+ LETVAR = "/cc     ",     1,     1, 32,     929,     0, %FOR, CFSP06           
+ LETVAR = "/cc     ",     1,     1, 32,     961,     0, %FOR, CFSP07           
+ LETVAR = "/cc     ",     1,     1, 32,     993,     0, %FOR, CFSP08           
+ LETVAR = "/cc     ",     1,     1, 32,    1025,     0, %FOR, CFSP09           
+ LETVAR = "/cc     ",     1,     1, 32,    1057,     0, %FOR, CFSP10           
+ LETVAR = "/cc     ",     1,     1, 32,    1089,     0, %FOR, CFSP11           
+ LETVAR = "/cc     ",     1,     1, 32,    1121,     0, %FOR, CFSP12           
+ LETVAR = "/cc     ",     1,     1, 32,    1153,     0, %FOR, CFSP13           
+ LETVAR = "/cc     ",     1,     1, 32,    1185,     0, %FOR, CFSP14           
+ LETVAR = "/cc     ",     1,     1, 32,    1217,     0, %FOR, CFSP15           
+ LETVAR = "g/m3    ",     1,     1, 32,    1249,     0, %FOR, FLWC             
+ LETVAR = "/cc     ",     1,     1, 32,    1281,     0, %FOR, FCONC            
+ LETVAR = "m/s     ",     1,     1, 32,    1313,     0, %FOR, TAS              
+ LETVAR = "/liter  ",     1,     1, 32,    1345,     0, %FOR, SHADOR           
+ LETVAR = "volts   ",     1,     1, 32,    1377,     0, %FOR, REFVOLT          
+ LETVAR = "counts  ",     1,     1, 32,    1409,     0, %FOR, FSSP0            
+ LETVAR = "counts  ",     1,     1, 32,    1441,     0, %FOR, FSTROB           
+ LETVAR = "        ",     1,     1, 32,    1473,     0, %FOR, FACT             
+ LETVAR = "        ",     1,     1, 32,    1505,     0, %FOR, FVAR             
+ LETVAR = "deg K   ",     1,     1, 32,    1537,     0, %FOR, THETA            
+ LETVAR = "deg K   ",     1,     1, 32,    1569,     0, %FOR, THETAE           
+ LETVAR = "g/kg    ",     1,     1, 32,    1601,     0, %FOR, MR               
+ LETVAR = "counts  ",     1,     1, 32,    1633,     0, %FOR, FRESET           
+ LETVAR = "        ",     1,     1, 32,    1665,     0, %FOR, FDOF             
+ LETVAR = "microns ",     1,     1, 32,    1697,     0, %FOR, DBAR             
+ LETVAR = "microns ",     1,     1, 32,    1729,     0, %FOR, DSIG             
+ LETVAR = "        ",     1,     1, 32,    1761,     0, %FOR, DISP             
+ LETVAR = "microns ",     1,     1, 32,    1793,     0, %FOR, DMVD             
+ ORDVAR = CONKEY, SCLKEY, TERM, FACTOR                                         
+ LETVAR =  1, 2,     0.0000    ,    1.0000    , %FOR, DATE                     
+ LETVAR =  1, 2,     0.0000    ,    1.0000    , %FOR, TPTIME                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, PSF                      
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, QCF                      
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, ATF                      
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, DPT                      
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, VARIO                    
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, PLWC                     
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, VKMON                    
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, LAT                      
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, LON                      
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, XDIST                    
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, YDIST                    
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, VTEMP                    
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, VDPT                     
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, GS                       
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, GALT                     
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, TRACK                    
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, POSERR                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, FLARE                    
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, PALT                     
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, VKSIG                    
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, THF                      
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, FRANGE                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, CFSP01                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, CFSP02                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, CFSP03                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, CFSP04                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, CFSP05                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, CFSP06                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, CFSP07                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, CFSP08                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, CFSP09                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, CFSP10                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, CFSP11                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, CFSP12                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, CFSP13                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, CFSP14                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, CFSP15                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, FLWC                     
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, FCONC                    
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, TAS                      
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, SHADOR                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, REFVOLT                  
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, FSSP0                    
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, FSTROB                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, FACT                     
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, FVAR                     
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, THETA                    
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, THETAE                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, MR                       
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, FRESET                   
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, FDOF                     
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, DBAR                     
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, DSIG                     
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, DISP                     
+ LETVAR =  1, 2,  1000.0000    , 1000.0000    , %FOR, DMVD                     
+ ENDHD                                                                         
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               

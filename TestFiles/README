@@ -1,0 +1,14 @@
+Explanation of files and directories in ../g2n/TestFiles/
+-------------------------------------------------------------------------------
+Last update by Ron Ruth:
+Mon Jan  9 13:41:11 MST 2006
+-------------------------------------------------------------------------------
+G278rf03a.hdr           --  Example header (1993-278 WISPIT    19FEB93)
+GN2UW8.hdr              --  Example header (U Wyoming WP4A     08FEB94)
+GUW970214.hdr           --  Example header (U Wyoming          14FEB97)
+G_674.hdr               --  Example header (1983-674 OPUS-II   13APR83)
+G_ACANAL.hdr            --  Example header (RAP MEXICO 1996    13AUG96)
+G_ACANAL_2.hdr          --  Example header (RAP MEXICO PARC-97 09JUL97)
+hdr.examples            --  Example parameter lines from GENPRO header files
+msls.genpro.n2uw        --  MSS directory list of N2UW WISP94 files
+test_file_list          --  MSS bitfile listing of GENPRO-II test data files

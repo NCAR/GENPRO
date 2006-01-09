@@ -1,0 +1,101 @@
+.na
+.nh
+.TH G2N 1 "17 March 2004" "Local Command"
+.SH NAME
+g2n \- GENPRO\-to\-netCDF conversion utility
+.SH SYNOPSIS
+.B g2n [GENPRO_file netCDF_file [time_flag]]
+.SH DESCRIPTION
+.B g2n 
+is a program to convert a GENPRO-II output data file to a netCDF file which
+conforms to the NCAR-RAF/nimbus conventions.  g2n accepts three optional
+input arguments:  the input and output file names and a time flag.  If only
+the input file name is provided on the command line, g2n will query the
+user for all the information.  If both file names are entered on the command
+line, environment variables, such as $MIGS can be used.  If g2n asks for them,
+one must enter relative or absolute path names.  The time flag, if set, will
+output (to stdout) a continuous update of the time being processed.  On the
+command line, any argument entered after the two file names tells g2n to
+output continuous time; otherwise g2n assumes that no time is to be output.
+.LP
+Using the <control-C> interrupt will stop the conversion and close the netCDF
+file with a partial time period.
+.LP
+The input GENPRO-II file can have the original header file and data file
+merged into one UNIX binary file, or it can be a COS-blocked file--the format
+used by GENPRO-II data sets archived on the SCD Mass Store System (MSS).
+.LP
+Local NCAR users only:  If retrieving a GENPRO-II bitfile from the MSS,
+one can use either of the RAF scripts "msget" or "msgetgen."  If using
+the standard MIGS "nrnet msget" command, you may specify either the local
+"df=tr" option (the default) or the local "df=bi" option (which will strip
+off the COS-blocking).
+.LP
+One known limitation with GENPRO-II data sets is the lack of time zone
+information.  g2n assumes that the data were taken using UTC.  Some data
+sets used local time, and other documentation may be required to obtain
+the actual times.
+.LP
+g2n converts all the data from all the variables in a GENPRO-II file to
+netCDF at their respective rates.  It can translate the three known NCAR RAF
+GENPRO-II formats that have been used since 1983.  g2n also can translate
+at least two known University of Wyoming GENPRO-II formats and one NOAA
+Twin Otter format.  Other GENPRO-II format variants may be added later.
+The present version of g2n is 2.7 (17 March 2004).
+.LP
+g2n now changes an original RAF GENPRO-II PMS-1D variable name (accumulation
+and concentration), if present, to one which conforms to the NIMBUS naming
+conventions.  (Unfortunately,the the PMS-1D plotting software, ncpp, needs
+an upgrade to recognize it).  g2n substitutes a standard prefix name and
+appends an index number suffix which mimics the currently-used probe-naming
+format.  g2n also adds only the probe's suffix to all of a probe's Associated
+Variable names (e.g., PLWCF).  (Any PMS-1D variable's long_name attribute is
+not changed.)
+.LP
+Special changes to some GENPRO-II variable descriptions are needed for an
+FSSP-100 probe so they conform to the current NIMBUS standards.  g2n
+substitutes a probe's Associated Variable name for range (e.g., FRANGE) with
+the standard name (FRNG).  And since GENPRO-II's range has values between
+1 and 4 while FRNG has values between 0 and 3, the scale factor for FRNG
+is now changed so g2n can decode the new values.
+.LP
+While g2n is running, output messages can be informational, a warning or
+fatal.  An example informational message tells the user how many GENPRO-II
+variables are in the data set.  Warnings usually point out inconsistencies
+while reading the header or non-critical, missing header information.
+Most fatal messages are caused by g2n's inability to read the GENPRO-II header
+correctly.  Only fatal messages will quit the program without translating
+the data.
+.PP
+.SH ASSUMPTIONS
+g2n assumes that only one time period exists in the GENPRO-II data set.
+If this is not the case, results are unpredictable.
+.LP
+g2n was written under Sun Solaris and, in March 2004, has been ported to
+Linux under Red Hat 9.  (It may also work with other versions).
+.PP
+.SH BUGS
+.PP
+Using <control-C> to quit the program can occasionally leave the output
+netCDF file unusable.
+.LP
+g2n has no `automatic' functions.  For example, g2n will not add a `.nc'
+extension to a netCDF output data file, nor will it put the output file
+in a predefined directory path using the $DATA_DIR environment variable.
+(Other RAF software packages can do this.)  The user must specify those
+attributes.
+.LP
+g2n may not correctly interpret PMS-1D variables according to the RAF
+standard NIMBUS netCDF conventions if their variable names have not been
+defined within the program.  (Name needs to be added to to struct "pms1d_std"
+in "g2n.h" and the program recompiled.)
+.LP
+g2n will not properly handle FSSP-100 range rescaling if the data file uses
+the Wyoming IEEE format variant.
+.LP
+g2n cannot properly decode PMS-1D variables in any of U Wyoming data sets.
+.LP
+GENPRO format variations not known to g2n may cause it to fail.  (For example,
+g2n cannot convert GENPRO-I data files.)
+.SH AUTHOR
+Ron Ruth, National Center for Atmospheric Research <ruth@ucar.edu>

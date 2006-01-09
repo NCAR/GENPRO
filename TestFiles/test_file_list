@@ -1,0 +1,57 @@
+GENPRO-II Test File list
+========================
+Last update by RLR:  Thu Apr  8 12:28:30 MDT 2004
+
+- Files used to test version 2.7.2, rev. 7 Apr 2004  RLR
+   G256Lrf09b        --  /RAF/1985/256/RF09B/LRT/G55573         (COS-blocked)
+   G276Hrf09         --  /RAF/1991/276/HRT/RF09                 (COS-blocked)
+   G278Hrf03         --  /RAF/1993/278/HRT/RF03                 (COS-blocked)
+   G52347a           --  /RAF/TL0630/G52347 (1983-783)          (COS-blocked)
+   G52862Ha          --  /RAF/1989/760/RF01A/HRT/G52862         (COS-blocked)
+   G52868Ha          --  /RAF/1989/760/RF04/HRT/G52868          (COS-blocked)
+   G53275a           --  /RAF/TL0091/G53275 (1985-830)          (COS-blocked)
+   G53784HRc         --  /RAF/1987/860/RF09A/HRT/RG53784        (COS-blocked)
+   G53814Ha          --  /RAF/1987/851/RF01/HRT/G53814          (COS-blocked)
+   G53815Ha          --  /RAF/1987/851/RF02/HRT/G53815          (COS-blocked)
+   G55239            --  /RAF/TL0878/G55239 (1984-263)          (COS-blocked)
+   G55241            --  /RAF/TL0878/G55241 (1984-263)          (COS-blocked)
+   G55573La          --  /RAF/1985/256/RF09B/LRT/G55573         (COS-blocked)
+   G55778La          --  /RAF/1986/272/RF01/LRT/G55778          (COS-blocked)
+   G722Lrf01         --  /RAF/1992/722/LRT/RF01                 (COS-blocked)
+   G815Lrf08         --  /RAF/1991/815/LRT/RF08                 (COS-blocked)
+   G876Hrf03a        --  /RAF/1990/876/HRT/RF03A                (COS-blocked)
+   G876Hrf03b        --  /RAF/1990/876/HRT/RF03B                (COS-blocked)
+   G876Hrf03c        --  /RAF/1990/876/HRT/RF03C                (COS-blocked)
+   GN2UW             --  /RAPDMG/WISP94/N2UW/INTEGER/CB/08FEB94 (stripped)
+   GN2UW.cos         --  /RAPDMG/WISP94/N2UW/INTEGER/CB/08FEB94 (COS-blocked)
+   GN2UW_12MAR94.cos --  /RAPDMG/WISP94/N2UW/INTEGER/CB/12MAR94 (COS-blocked)
+   GN2UW_25FEB94     --  /RAPDMG/WISP94/N2UW/INTEGER/CB/25FEB94 (stripped)
+   GN2UW_25FEB94.cos --  /RAPDMG/WISP94/N2UW/INTEGER/CB/25FEB94 (COS-blocked)
+   N312D_940505      --  /RAPDMG/LANTEX94/N312D/940505          (COS-blocked)
+
+
+NCAR format test files:
+-----------------------
+/RAF/1990/876/HRT/RF03A
+/RAF/1990/876/HRT/RF03B
+/RAF/1990/876/HRT/RF03C
+/RAF/1987/851/RF01/HRT/G53814
+/RAF/1987/851/RF02/HRT/G53815
+/RAF/TL0630/G52347
+/RAF/1989/760/RF04/HRT/G52868
+/RAF/1991/276/HRT/RF09
+/RAF/1991/815/LRT/RF08
+/RAF/1989/760/RF01A/HRT/G52862
+/RAF/1993/278/HRT/RF03
+/RAF/1992/722/LRT/RF01
+/RAF/1985/256/RF09B/LRT/G55573
+/RAF/TL0091/G53275
+/RAF/1987/860/RF09A/HRT/RG53784
+/RAF/1986/272/RF01/LRT/G55778
+
+N2UW format test files:
+-----------------------
+/RAPDMG/WISP94/N2UW/INTEGER/CB/08FEB94 -- caused Linux version to quit early
+/RAPDMG/WISP94/N2UW/INTEGER/CB/25FEB94
+/RAPDMG/WISP94/N2UW/INTEGER/CB/12MAR94
+

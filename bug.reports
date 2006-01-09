@@ -1,0 +1,107 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+See the file `g2n.notes' for design philosophy and all changes to the code,
+ including bug fixes.    Ronald L. Ruth  970227
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+(posted 4 April 1995)
+ The output netCDF file adds the dimension "1sps" for data with rate=1.  This
+ is unnecessary, and the WINDS software will not work with this arrangement.
+ For any rate=1 variable, just use the (Time) dimension.  [Done.]
+ Bug fixed on 4 April 1995 in the function CreateNetCDF.c. 
+ New version of program which fixes this problem is 2.1 dated 950404  RLR
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+(Posted 31 January 1996)
+ Warnings from a compiler running on a DEC Alpha
+  courtesy of Paul Gluhosky, Yale University <gluhosky@stormy.geology.yale.edu>
+
+  Points out some changes for the first non-beta release:
+
+    /usr/lib/cmplrs/cc/cfe: Warning: read_hdr.c, line 81: & before array or 
+    function: ignored
+                                            get_proj(&projline);
+                                            ---------^
+    My comment:  The "&" is not needed and should be removed.
+
+    /usr/lib/cmplrs/cc/cfe: Warning: get_ldrec.c, line 64: illegal combination
+    of pointer and integer
+                    return flag;
+                    ^
+    My comment:  I'm not sure what this complaint is.
+
+    /usr/lib/cmplrs/cc/cfe: Warning: Plow.c, line 49: illegal combination of
+    pointer and integer
+            while ((ig = get_ldrec()) != 0)
+            -----------^
+    My comment:  "ig" was changed to "i" in a later version of g2n.  
+
+    /usr/lib/cmplrs/cc/cfe: Warning: g2n.c, line 130: illegal combination of
+    pointer and integer
+            d_buf = malloc((unsigned int)(datsiz/8));
+            ------^
+    My comment:  d_buf is typed integer pointer, and malloc returns a pointer,
+                 so I don't understand this warning.
+
+    /usr/lib/cmplrs/cc/cfe: Warning: g2n.c, line 151: illegal combination of
+    pointer and integer
+            g_buf = malloc(outsize);
+            ------^
+    My comment:  g_buf is typed integer pointer, and malloc returns a pointer,
+                 so I don't understand this warning.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+(Posted  1 November 1996)
+ At present, g2n assumes that if CONKEY=0, data format will be 32-bit IEEE; 
+ if CONKEY=1, g2n assumes that the data format will be 32-bit integers, but
+ I don't know if it is signed or unsigned; the CONKEY=2 case is undefined.
+ I believe, in any case, that the first CONKEY sets a flag applicable to all
+ variables, whereas, GENPRO, strictly speaking, can do a separate conversion
+ for each variable.
+
+ The GENPRO specification is the following:
+     CONKEY = 0  <--  Values of the dependent variable were written to the
+                       output in the internal floating-point format of the
+                       computer on which GENPRO executed.  Its bit length
+                       was determined by the computer, and the BITS directive
+                       was ignored.
+     CONKEY = 1  <--  Values of the dependent variable were written to the
+                       output using an unsigned, binary integer of the length
+                       specified by the BITS directive.
+     CONKEY = 2  <--  Values of the dependent variable were written to the
+                       output using a signed, 2's complement binary integer
+                       of the length specified by the BITS directive.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+(Posted 25 November 1996)
+ g2n does not pass the units on many variables.  They end up with "none."
+ A specific example is Project 1990-876 HaRP FSSP reprocess RF14 (MSS
+ bitfile name:  /RAF/1990/876/HRT/FSSP/RF14).  Variables ALAT, ALON, ATB, etc.
+ have no defined units in the netCDF file.  Curiously, it does not affect ALL
+ the variables.
+  This was not a bug.  The data set did not contain the units!
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+(Posted 5 December 1996)
+ g2n uses only a 2-digit year in the header field "FlightDate."  It needs to be
+ a 4-digit year.
+  Fixed in version 2.3, 2 March 1997 by RLR
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+(Posted 21 February 1997)
+ Some Wyoming data sets use the RATE parameter instead of the SAMPLE parameter
+ to indicate output rate.  This causes incorrect decoding of the data.
+                                       [Fixed in version 2.3, rev. 970227  RLR]
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+(Posted 4 August 1997)
+ g2n fails with an error if a Wyoming data set already includes HOUR, MINUTE
+ and SECOND as variables.  (Present version doesn't check to see if valid
+ time variables exist before trying to create new ones.)
+                                 [Fixed in version 2.3.1, rev. 4 Aug 1997  RLR]
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+(Posted 16 September 1998)
+ The PMS-1D variable names created by g2n are not recognized by the analysis
+ program ncpp.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+(Posted 25 March 2004)
+ g2n segment faults on certain GENPRO-II files for some unexplained reason
+ after completing the translation while closing the input file but before
+ printing its final information messages  (The files all have been from the
+ RAP's SCD Mass Store archive and probably were created by non-RAF software.)
+ (Segment fault occurs in the "crayclose" function.  I moved code in the
+ program to output the final messages before it crashes.)
+                            [modified for version 2.7.2, rev 7 April 2004  RLR]
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

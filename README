@@ -1,0 +1,64 @@
+Explanation of files and directories in /jnet/shared/proj/archives/g2n
+-------------------------------------------------------------------------------
+Last update by Ron Ruth:
+Mon Jan  9 13:45:44 MST 2006
+-------------------------------------------------------------------------------
+CloseNetCDF.c           --  Finish up and close both GENPRO and netCDF files
+CreateNetCDF.c          --  Create netCDF file and set up its header
+CreateNetCDF.x          --  Create netCDF file and set up its header (debug version)
+GpOpen.c                --  Open GENPRO file
+Makefile                --  Make file for g2n
+PMS-1D.info             --  Definitions for PMS-1D conversion
+Plow.c                  --  Plow through the data and write netCDF output
+Plow.x                  --  Plow through the data and write netCDF output (debug version)
+README                  --  This file
+TestFiles/              --  Directory with files useful for testing code changes
+TrimTrailingBlanks.c    --  Remove trailing blanks from character string
+Xanadu/                 --  Directory with potential code for handling GENPRO-I files
+bug.reports             --  Bug report log file
+cleanup.c               --  Clean up and exit after a ^C was pressed or a fatal error occurs
+d_P_convert.c           --  Convert a PMS-1D variable's data
+d_P_convert.x           --  Convert a PMS-1D variable's data (debug version)
+d_convert.c             --  Convert a variable's data from raw to real value
+doit_l                  --  c-shell script to test linux g2n with a number of example data files
+doit_s                  --  c-shell script to test solaris g2n with a number of example data files
+g2n                     --  Executable version of GENPRO to netCDF converter (from last "make")
+g2n.1                   --  Man page for g2n
+g2n.c                   --  Main for g2n
+g2n.h                   --  Definitions (ala FORTRAN) for g2n.c
+g2n.notes               --  Development notes for g2n
+g2n.x                   --  Main for g2n which needs updating (debug version)
+g2n_man_page.html       --  HTML version of g2n's man page
+get_comment.c           --  Decode COMMENT to get data format
+get_comment.x           --  Decode COMMENT to get data format (debug version)
+get_datlog.c            --  Get DATLOG value (# logical records/physical record)
+get_datsiz.c            --  Get DATSIZ value (# bits in a physical record)
+get_exd.c               --  Decode EXDATE (Date data were processed by GENPRO)
+get_ext.c               --  Decode EXTIME (Time data were processed by GENPRO)
+get_filenames.c         --  Query user for input and output file names
+get_hrec.c              --  Read a logical GENPRO header record (80-char line)
+get_jobid.c             --  Get the JOBID (job serial number)
+get_ldrec.c             --  Read a logical GENPRO data record
+get_lkey.c              --  Get leading keyword from GENPRO header line
+get_logbit.c            --  Get LOGBIT value (# bits in a logical record)
+get_lparms.c            --  Decode LETVAR parameters on one GENPRO header line
+get_names.c             --  Get GENPRO variable name(s) on an APPVAR line
+get_oskeys.c            --  Get sub-keywords from GENPRO ORDVAR header line
+get_pdrec.c             --  Read a physical GENPRO data record
+get_phrec.c             --  Read a physical GENPRO header record
+get_prd.c               --  Decode PRDATE (Flight date)
+get_proj.c              --  Decode the PROJECT line (debug)
+move_back               --  Rename files from debug version to production
+move_verbose            --  Rename files from production version to debug
+name_idx.c              --  Get index of a GENPRO variable name
+nprint.c                --  Check a GENPRO header line for non-printing chars
+par_preset.c            --  Preset variable's parameters to known values
+par_validate.c          --  Verify all variables' critical parameters
+pms_struct              --  Struct for a PMS-1D probe
+probe_support_names     --  Probe support variable names
+read_hdr.c              --  Read and decode GENPRO header file
+read_hdr.x              --  Read and decode GENPRO header file (debug version)
+setup_pms1d.c           --  Search for PMS-1D data and set up new variable(s)
+setup_pms1d.x           --  Search for PMS-1D data and set up new var(s) (debug)
+time_var.c              --  Add/change time vars to comply with netCDF format
+to_hms.c                --  Calculate hr, min, sec from seconds after midnight

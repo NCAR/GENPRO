@@ -1,0 +1,37 @@
+/*  Space for variable names  */
+/*   dimensioned by number of unique probe types  */
+/*   dimensioned by number of probe names known for each type  */
+reference name[]
+acc_per_cell [,]
+con_per_cell [,]
+acc_all[]
+con_all[]
+m_diam[]
+disprsn[]
+actvty[]
+lwc[]
+dbz[]
+range[]
+beamfr[]
+fresets[]
+strobes[]
+
+
+/*  Struct for a PMS-1D probe (name and related variables)  */
+/*    (does not include "high-rate" probe data)  */
+int Probe_number
+char Reference name
+/*  variable indices for related measurements */
+accumulations (per cell)
+concentrations (per cell)
+accumulations (all)
+concentrations (all)
+mean diameter
+dispersion
+liquid water content
+reflectivity factor
+beam fraction
+activity
+fast resets
+total strobes
+range

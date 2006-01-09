@@ -1,0 +1,90 @@
+/*   Definitions for PMS-1D conversion  */
+/*  ----------------------------------  */
+
+/* standard PMS-1D variable definitions (add more, as necessary) */
+struct _PMS1D_type pms1d_std[N_PMS1D_STD_NAMES] =
+  {
+/*  name prefix  #cells  vector# */
+      "AASS",      16,      0,
+      "AFSP",      16,      0,
+      "AFS3",      32,      1,
+      "A20X",      16,      0,
+      "A30X",      32,      1,
+      "A26X",      64,      2,
+      "A20Y",      16,      0,
+      "AFSP2",     16,      0,
+      "APCS",      16,      0,
+      "CASS",      16,      0,
+      "CFSP",      16,      0,
+      "CFS3",      32,      1,
+      "C20X",      16,      0,
+      "C30X",      32,      1,
+      "C26X",      64,      2,
+      "C20Y",      16,      0,
+      "CFSP2",     16,      0,
+      "CPCS",      16,      0
+  };
+/*  Wyoming has a bunch of these, too:
+ * "nfssp",     16,      0,  * "FSSP velocity accepted cnts - channel 1 " to 15
+ * "fssp",      16,      0,  * "FSSP concentration (old) - channel 1    " to 15
+ * "fsspc",     16,      0,  * "FSSP coincidence corrected conc-chan 1  " to 15
+ * "oned",      16,      0,  * "1D-C concentration - 12.5 um            " to 15
+ * "nszic",     20,      0,  * "2D-C ice <= 50 um                       " to 20
+ * "nszip",     20,      0   * "2D-P ice <= 200 um                      " to 20
+ *   I can handle the last two if I define a new vector variable for 20
+ *    cells.  For the last three probe definitions, each cell has a size
+ *    range associated with it in the long_name field, and it would be nice
+ *    to create a netCDF attribute that includes them.  (Future development)
+ */
+
+/* high-rate PMS-1D variable definitions (add more, as necessary) */
+struct _PMS1D_type pms1d_hr[N_PMS1D_HR_NAMES] =
+  {
+/*       name    #cells  vector# */
+       "ACCFSPL",  16,      0,
+       "ACC260L",  64,      2,
+       "XACC260L", 64,      2,
+       "XCON260L", 64,      2,
+       "ACCUMX6",  64,      2,
+       "CONCX6",   64,      2,
+       "ACCFSPH",  16,      0,
+       "ACCUMAS",  16,      0,
+       "ACC260H",  64,      2,
+       "ACCFSPH2", 16,      0
+  };
+/*  It would be nice to update the GENPRO-II names defined above by
+ *   overwriting them with an extant file, if possible.  (One would need
+ *   to increase the values of N_PMS1D_STD_NAMES and N_PMS1D_HR_NAMES to
+ *   accomodate the added ones.)
+ */
+
+/*   Define parameters for a PMS-1D variable */
+struct _PMS1D
+{
+  int num_defined_cells;  /* number of defined channels (cells) */
+  int num_found_cells;    /* number of channels found (cells) */
+  int cell_offset;        /* offset probe's output data by one cell (YES, NO) */
+  int type;               /* probe type (1 = standard, 2 = high-rate) */
+  int vectorID;           /* vector index pointing to number of cells */
+  int cell_map[PMS1D_PROBE_CHANNEL_MAX];  /* PMS-1D cell index map (mainly
+ *        used by type 1 probes, but type 2 probes use the first one) */
+};
+
+/*   Define PMS-1D variable types for searching */
+struct _PMS1D_type
+{
+  char *name;    /* GENPRO-II PMS-1D variable name search prefix */
+  int cells;     /* number of cells for referenced variable */
+  int vectorID;  /* vector index (into DimVectorID array) with # of cells */
+};
+
+/*  Define parameters for PMS-1D conversion */
+# define N_P_CELLS       3  /* maximum number of unique PMS-1D cell arrays */
+# define N_PMS1D_STD_NAMES        18  /* number of std PMS-1D probe types */
+# define N_PMS1D_HR_NAMES         10  /* number of hr PMS-1D probe types */
+# define PMS1D_PROBE_MAX           9  /* maximum number of PMS-1D probes */
+# define PMS1D_PROBE_CHANNEL_MAX  64  /* maximum number of probe channels */
+/*  Note:  if these numbers change, also change "pms1d_channel" array below
+ *          to agree with the total PMS1D_PROBE_MAX * PMS1D_PROBE_CHANNEL_MAX.
+ */
+
