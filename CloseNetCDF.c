@@ -9,6 +9,7 @@
 /*  This version written by RLR to handle COS-blocked files */
 
 # include <stdio.h>
+# include <string.h>
 # include <time.h>
 # include <errno.h>
 

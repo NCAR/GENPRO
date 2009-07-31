@@ -5,6 +5,7 @@
 
 /*  This version written by RLR to handle COS-blocked files */
 
+# include <stdlib.h>
 # include <stdio.h>
 
 # include "g2n.h"

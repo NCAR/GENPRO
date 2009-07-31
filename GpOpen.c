@@ -8,6 +8,7 @@
 /* COPYRIGHT:  University Corporation for Atmospheric Research, 1994, 1998 */
 
 # include <stdio.h>
+# include <string.h>
 
 # include "g2n.h"
 

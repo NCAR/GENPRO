@@ -16,7 +16,7 @@
 
 # include <stdio.h>
 # include "g2n.h"
-# include "portable.h"
+/* # include "portable.h"  <-- cannot find file 20080123 RLR */
 
 void d_P_convert(int n)
 

@@ -3,6 +3,7 @@
 
 /* COPYRIGHT:  University Corporation for Atmospheric Research, 1994, 2004 */
 
+# include <stdlib.h>
 # include <stdio.h>
 # include <string.h>
 

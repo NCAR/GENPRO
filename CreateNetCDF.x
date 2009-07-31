@@ -6,6 +6,8 @@
 
 /*  COPYRIGHT:  University Corporation for Atmospheric Research, 1994, 1997 */
 
+# include <stdlib.h>
+# include <string.h>
 # include <stdio.h>
 # include <time.h>
 

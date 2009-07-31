@@ -76,7 +76,7 @@
 
 # include <stdio.h>
 # include "g2n.h"
-# include "portable.h"
+/* # include "portable.h"   <-- cannot find file  */
 
 void d_convert(int n)
 

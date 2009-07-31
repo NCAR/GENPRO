@@ -1,6 +1,7 @@
 #  Make file for g2n -- GENPRO to netCDF converter   RLR <19941114.1305>
 #                                                    rev <19980903.1545>
 #                                              Linux rev <20040318.1545>
+#                                              Linux rev <20070123.1000>
 #
 #  Note:  To create an executable version of this program, library files are
 #          required in addition to the files in this directory.  These include
@@ -19,14 +20,14 @@ CC=  gcc
 #DESTDIR=  /net/local_lnx/
 # Solaris
 #DESTDIR=  /usr/local/
-BINDIR=    bin
-MANDIR=    man/man1
-LIB_DIRS= -L${JLOCAL}/lib
-LIBS=    -lraf -Wl,-Bstatic -lnetcdf -Wl,-Bdynamic -lncaru
+BINDIR=    ${JLOCAL}/bin
+MANDIR=    {JLOCAL}/man/man1
+LIB_DIRS= -L${JLOCAL}/lib -L/scr/raf/cjw/bora_builds/raf/nimbus/lib
+LIBS=   -L${JLOCAL}/lib -lraf -lnetcdf -lncaru
 #LINTLIBS=  ${LIBS}
 LINTLIBS=  
 LOCAL_INC = ${JLOCAL}/include/
-INCLUDES=  -I${LOCAL_INC}
+INCLUDES=  -I$(JLOCAL)/include
 CFLAGS=    -g ${INCLUDES}
 #CFLAGS=    -O2 ${INCLUDES}
 
