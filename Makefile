@@ -22,14 +22,10 @@ CC=  gcc
 #DESTDIR=  /usr/local/
 BINDIR=    ${JLOCAL}/bin
 MANDIR=    {JLOCAL}/man/man1
-LIB_DIRS= -L${JLOCAL}/lib -L/scr/raf/cjw/bora_builds/raf/nimbus/lib
-LIBS=   -L${JLOCAL}/lib -lraf -lnetcdf -lncaru
-#LINTLIBS=  ${LIBS}
+LIBS=   -L. -lraf -lnetcdf -lncaru
 LINTLIBS=  
-LOCAL_INC = ${JLOCAL}/include/
 INCLUDES=  -I$(JLOCAL)/include
 CFLAGS=    -g ${INCLUDES}
-#CFLAGS=    -O2 ${INCLUDES}
 
 SRCS=  get_comment.c get_datlog.c get_datsiz.c get_exd.c get_ext.c \
     get_filenames.c get_jobid.c get_lkey.c get_logbit.c get_lparms.c \
