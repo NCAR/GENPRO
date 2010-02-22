@@ -24,7 +24,7 @@ BINDIR=    ${JLOCAL}/bin
 MANDIR=    {JLOCAL}/man/man1
 LIBS=   -L. -Wl,-Bstatic -lraf -lnetcdf -lncaru -Wl,-Bdynamic
 LINTLIBS=  
-INCLUDES=  -I$(JLOCAL)/include
+INCLUDES=  -I$(JLOCAL)/include -I/usr/include/netcdf
 CFLAGS=    -g ${INCLUDES}
 
 SRCS=  get_comment.c get_datlog.c get_datsiz.c get_exd.c get_ext.c \
