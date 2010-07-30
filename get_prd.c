@@ -40,7 +40,7 @@ void get_prd(char *line)
     }
     else
     {
-      for (j=0;j<11;j++)
+      for (j=0;j<=11;j++)
       {
         if (strcmp(p,mon[j]) == 0)
         {
@@ -55,4 +55,5 @@ void get_prd(char *line)
   {
     prdate[2] = atoi(p);
   }
+  printf ("get_prd:  Date = %d/%d/%d\n",prdate[1],prdate[0],prdate[2]);
 }
