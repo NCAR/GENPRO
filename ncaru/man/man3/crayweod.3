@@ -1,0 +1,56 @@
+.na
+.nh
+.TH crayweod 3  "04 May 1999" NCAR "Local Routine"
+.SH NAME
+crayweod  - Write a Cray EOD (End Of Data) mark to a Cray-Blocked file.
+.SH SYNOPSIS
+INTEGER CRAYWEOD
+.br
+\fIier\fR = CRAYWEOD(\fIifc\fR)
+.br
+INTEGER  \fIifc\fR
+.SH "C EXTENSION"
+.sp
+ier = crayweod(ifc)
+.br
+int    *ifc;
+.SH DESCRIPTION
+The 
+.B CRAYWEOD
+routine writes a Cray EOD (End Of Data) mark to a Cray-Blocked file. This
+routine is part of a family of routines which allow you to read and
+write Cray files from compute servers other than Cray machines.
+.PP
+This routine is only valid if the Cray file was opened for writing.
+.PP
+If called on a Cray unblocked file, this routine immediately returns
+with a error code.  There are no EOD marks in Cray unblocked files.
+.PP
+This routine has one argument:
+.TP 5
+.I ifc
+The integer return from a previously issed crayopen(3).
+.SH CAUTIONS
+There can be only one Cray EOD mark in a Cray-Blocked file. The 
+.B CRAYCLOSE 
+routine automatically adds a Cray EOD mark when closing a file.  It is
+highly suggested that you do use this routine; it is only provided for
+historical reasons.
+.SH IMPLEMENTATION
+To access this routine, you must include the following loader flags when
+building your program:
+.sp
+.ce
+-L /usr/local/lib -lncaru
+.SH "RETURN VALUES"
+.B CRAYWEOD
+returns a non-negative integer upon success,
+otherwise -1 is returned to indicate an error of some kind.
+.SH "SEE ALSO"
+crayopen(3), crayrew(3), craywrite(3), crayread(3), crayclose(3),
+crayweod(3)
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved
+

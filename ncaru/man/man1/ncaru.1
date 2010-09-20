@@ -1,0 +1,42 @@
+.na
+.nh
+.TH ncaru 1 "04 May 1999" NCAR "NCAR Local Routine"
+.SH NAME
+ncaru  - Introduction to library libncaru.a
+.SH DESCRIPTION
+This section describes the contents of the NCAR local library
+libncaru.a.  This library contains a number of Fortran routines you can
+use to read and write Cray blocked or unblocked files and perform
+numeric conversions from Cray format to IEEE format.  The library also
+contains some timing routines as well as the Cray packer routines.
+.PP
+The ncaru library is not threadsafe.  Ensure that any calls to this
+library only ocurr in a single threaded region.
+.PP
+The following is a alphabetical list of the routines available in this library:
+.sp
+.nf
+\fIName\fP       \fIAppears on Section\fP   \fIDescription\fP
+
+crayback   crayback(3)   Back up a record.
+crayblocks crayblocks(3) Set the number of blocks.
+crayclose  crayclose(3)  Close a Cray dataset.
+crayopen   crayopen(3)   Open or create a Cray dataset.
+crayread   crayread(3)   Read from a Cray dataset.
+crayrew    crayrew(3)    Rewinds a Cray dataset.
+crayweod   crayweod(3)   Write a Cray EOD mark in a Cray dataset.
+crayweof   crayweof(3)   Write a EOF mark in a Cray dataset.
+craywrite  craywrite(3)  Write data to a Cray dataset.
+ctodpf     ctodpf(3)     Converts Cray REAL to DOUBLE PRECISION
+ctospf     ctospf(3)     Converts Cray REAL to REAL.
+ctospi     ctospi(3)     Converts Cray INTEGER to INTEGER
+dptocf     dptocf(3)     Converts DOUBLE PRECISION to Cray REAL.
+sptocf     sptocf(3)     Converts 32bit REAL to Cray REAL 
+sptoci     sptoci(3)     Converts INTEGER to Cray INTEGER
+second     second(3)     Returns the elapsed user CPU time.
+wctime	   wctime(3)	 Returns the elapsed wall clock time.
+.fi
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved

@@ -1,0 +1,54 @@
+.na
+.nh
+.TH crayweof 3  "04 May 1999" NCAR "Local Routine"
+.SH NAME
+crayweof  - Write a Cray EOF (End Of File) mark to a Cray-Blocked file.
+.SH SYNOPSIS
+INTEGER CRAYWEOF
+.br
+\fIier\fR = CRAYWEOF(\fIifc\fR)
+.br
+INTEGER  \fIifc\fR
+.SH "C EXTENSION"
+ier = crayweof(ifc)
+.br
+int    *ifc;
+.SH DESCRIPTION
+The 
+.B CRAYWEOF
+routine writes a Cray EOF (End Of File) mark to a Cray-Blocked file. This
+routine is part of a family of routines which allow you to read and
+write Cray files from compute servers other than Cray machines.
+.PP
+It is not necessary for you call this
+routine unless you specifically want to create a Cray multi-file
+dataset.  The 
+.B CRAYCLOSE
+routine will automatically add a Cray EOF mark when closing the file.
+.PP
+If this routine is called on a Cray unblocked file, the routine
+immediately returns with an error.  There are no EOF marks in a Cray
+unblocked file.
+.PP
+This routine has one argument:
+.TP 5
+.I ifc
+The integer return from a previously issed crayopen(3).
+.SH IMPLEMENTATION
+To access this routine, you must include the following loader flags when
+building your program:
+.sp
+.ce
+-L /usr/local/lib -lncaru
+.SH "RETURN VALUES"
+.B CRAYWEOF
+returns a non-negative integer upon success,
+otherwise -1 is returned to indicate an error of some kind.
+.SH "SEE ALSO"
+crayopen(3), crayrew(3), craywrite(3), crayread(3), crayclose(3),
+crayeod(3)
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved
+

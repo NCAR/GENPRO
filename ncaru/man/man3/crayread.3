@@ -1,0 +1,181 @@
+.na
+.nh
+.TH crayread 3  "04 May 1999" NCAR "Local Routine"
+.SH NAME
+crayread  - Read data from a Cray file.
+.SH SYNOPSIS
+INTEGER CRAYREAD
+.br
+\fInwds\fR = \fBCRAYREAD\fR(\fIifc, loc, nwords, iconv\fR)
+.br
+INTEGER    \fIifc\fR
+.br
+(type)     \fIloc\fR
+.br
+INTEGER    \fInwords\fR
+.br
+INTEGER    \fIiconv\fR
+.SH "C EXTENSION"
+nwds = crayread(ifc, loc, nwords, iconv)
+.br
+int    *ifc;
+.br
+(type) loc;
+.br
+int    *nwords;
+.br
+int    *iconv;
+.SH DESCRIPTION
+The 
+.B CRAYREAD 
+routine is used to read data from a Cray-blocked or Cray-unblocked file.  
+This routine is
+part of a family of routines used to read and write Cray datasets from
+compute servers other than the Cray computers.
+.PP
+This routine can also convert data from a Cray format into a native
+format by setting the \fIiconv\fR argument.  This allows you to read 
+Cray data and have it automatically converted into the native format
+without having to call other numeric conversion routines.  
+.PP
+Note that for unblocked file reads, the number of Cray words read must
+be a multiple of 512-Cray words.  See the description of 
+.I nwords
+and 
+.I iconv
+below.
+.PP
+The arguments to 
+.B CRAYREAD
+are:
+.TP 7
+.I ifc
+The integer return from a previous crayopen(3).
+.TP
+.I loc
+The array where the data are stored.  The type of this array depends
+upon the data being read.  The array type can be INTEGER, REAL,
+CHARACTER, or DOUBLE PRECISION.
+.TP 7
+.I nwords
+The integer number of words to read into \fIloc\fR.  See the \fIiconv\fR
+description for more information.
+.TP 7
+.I iconv
+An integer specifying the numeric conversion.  If no conversion is
+performed (\fIiconv\fR = 0), the \fInwords\fR argument is measured 
+in Cray words.  For all other cases \fInwords\fR is measured in
+\fIloc\fR words.  
+\fIiconv\fR must be one of the following:
+.RS 7
+.TP 4
+0 -
+No conversion is performed. In this case the Cray data are returned
+exactly as they exist in the file.  Note that if \fIloc\fR points to 4
+byte words (32 bits), then \fIloc\fR must be dimensioned 2*\fInwords\fR
+long in order to hold all the Cray words.
+.TP 4
+1 -
+Data from the Cray-Blocked file are converted from Cray single precision
+floating point format (64 bit) into the local single precision (32 bit)
+floating point format.
+.TP 4
+2 - 
+Data from the Cray-Blocked file are converted from Cray single precision
+floating point format (64 bit) into the local double precision (64 bit) floating point
+format.  Note that if you are using this routine on a IBM RS6000, and
+you have compiled with the "-qautodbl=dblpad" option to xlf, you
+must use this setting instead of 1.
+.TP 4
+3 -
+Data from the Cray-Blocked file are converted from Cray 
+integer format (64 bit) into the local (32 bit) integer 
+format.
+.TP 4
+4 - 
+This setting is only useful on an IBM RS6000 machine where you have
+compiled your program using the "-qautodbl=dblpad" option to the xlf
+compiler.  Data from the Cray-Blocked file are converted from Cray 
+integer format (64 bit) into the local double padded (64 bit) integer
+format.  
+.SH EXAMPLES
+Read 100 Cray words with no conversion into the single precision (32bit)
+array "X":
+.sp
+.RS 8
+PARAMETER (NWORDS = 100)
+.br
+REAL  X(2*NWORDS)
+.br
+(...)
+.br
+NWDS = CRAYREAD(IFC, X, NWORDS, 0)
+.RE
+.PP
+Read 100 Cray words and convert from Cray floating point format to
+single precision floating point format.
+.sp
+.RS 8
+PARAMETER (NWORDS = 100)
+.br
+REAL  X(NWORDS)
+.br
+(...)
+.br
+NWDS = CRAYREAD(IFC, X, NWORDS, 1)
+.RE
+.SH NOTES
+This routine cannot be used to convert Cray double precision (128 bit)
+values.
+.PP
+.B crayread
+can only sucessfully convert single-type records.  If you have mixed
+type records, first read them into integer arrays with NO 
+conversion (ie: iconv == 0) , EQUIVILENCEd appropriately 
+with REAL arrays, then call the numeric conversion routines separately.
+Pay special attention to the dimensions recalling that a Cray word is 
+always 8 bytes long.
+.PP
+For blocked files,
+.B CRAYREAD 
+is record oriented.  For any record length requested, 
+.B CRAYREAD
+is always left positioned at the next record in the file.
+You can use this behavior to either skip records (read 1 word) or to
+read records of an unknown size by specifying a record length greater than
+the length of the actual record.
+.SH IMPLEMENTATION
+To access this routine, you must include the following loader flags when
+building your program:
+.sp
+.ce
+-L /usr/local/lib -lncaru
+.SH "RETURN VALUES"
+.B CRAYREAD
+returns the number of Cray words successfully read or:
+.TP 10 
+-2
+Invalid Cray blocked file structure encountered.
+.TP 10
+-4 
+An EOF (end-of-file) was encountered.  A subsequent 
+.B CRAYREAD
+will return -5 (EOD) if this is the last EOF in the dataset, otherwise, the
+first record of the next file will be read.
+.TP 10
+-5
+An EOD (eod-of-data) was encountered.  
+.TP 10
+-6
+An error occurred while reading the disk file.
+.TP 10
+-7
+An error occurred while reading a Cray unblocked file.
+.sp 4
+.SH "SEE ALSO"
+crayopen(3), crayrew(3), craywrite(3), crayclose(3), crayweod(3),
+crayeod(3)
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved

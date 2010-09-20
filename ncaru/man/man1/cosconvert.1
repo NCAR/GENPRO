@@ -1,0 +1,83 @@
+.na
+.TH cosconvert 1 "04 May 1999" NCAR "Local Command"
+.SH NAME
+cosconvert - Convert a COS-blocked, single-file dataset 
+.SH SYNOPSIS
+.B cosconvert 
+.B -b 
+|
+.B -c
+|
+.B -d
+|
+.B -x
+.I files
+.SH DESCRIPTION
+The 
+.B cosconvert 
+command performs one of severral different types of reformatting of 
+a Cray-blocked single-file dataset.
+.PP
+Upon exit, each file is overwritten with the converted data.
+.SH OPTIONS
+.B cosconvert 
+supports several different conversions.  One of the following must be
+specified on the command line:
+.TP 10
+.B -b
+Cray-blocked binary conversion.  This option specifies that the
+Cray-block control words are stripped from the file, leaving only pure
+binary data.
+.TP 10
+.B -c
+Cray-blocked character (with BFI) conversion.  This option specifies that
+Cray-block control words are stripped from the file, and each output
+record is terminated with a newline character.  This option creates a
+UNIX text file structure from a Cray-blocked character dataset.
+This option also expands BFI codes.  See the NOTES section below.
+.TP 10
+.B -d
+Cray-blocked character (without BFI) conversion.  This option specifies that
+Cray-block control words are stripped from the file, and each output
+record is terminated with a newline character.  This option creates a
+UNIX text file structure from a Cray-blocked character dataset.
+This option does not expand BFI codes.  See the NOTES section below.
+.TP 10
+.B -x
+Expand BFI only.  This option creates a Cray-blocked character file with
+the BFI codes expanded into blanks.
+.SH NOTES
+BFI stands for Blank Field Initiation.  The old Cray Operating System
+(COS) used BFI by default when a program created a formatted file.  If
+the formatted file contained 3 or more sequential blanks, a special 
+two-character code replaced the blanks to reduce the size of the file.
+.SH EXAMPLES
+Convert the single-file, COS-blocked dataset "abc" which
+contains binary data, into a pure binary file.
+.sp
+.ce
+cosconvert -b abc
+.PP
+Convert "d1" and "d2" to text files, and expand any compressed blanks.
+.sp
+.ce
+cosconvert -c d1 d2
+.PP
+Convert "xxx" to a text file, but don't expand compressed
+blanks.  This is rarely needed.
+.sp
+.ce
+cosconvert -d xxx
+.PP
+Keep "yyy" as a COS-blocked file, but expand any compressed
+blanks.  This is rarely needed.
+.sp
+.ce
+cosconvert -x yyy
+.SH "SEE ALSO"
+cosfile(1), cossplit(1) 
+.SH COPYRIGHT
+ (c) Copyright 1993 University Corporation for Atmospheric Research
+.br
+All Rights Reserved
+

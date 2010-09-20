@@ -1,0 +1,54 @@
+.na
+.nh
+.TH sptocf 3 "04 May 1999" NCAR "Local Routine"
+.SH NAME
+sptocf  -  Conversion to Cray floating point format
+.SH SYNOPSIS
+call sptocf(larray, carray, nwords)
+.sp
+real     larray(2*nwords), carray(nwords)
+.br
+integer  nwords
+.SH DESCRIPTION
+The 
+.B CTOSPF  
+routine converts 32bit IEEE floating point format words to Cray (64bit) 
+floating point.
+.PP
+The arguments are:
+.TP 8
+.B larray
+The input array containing the 32bit local words.  
+This array should have been dimensioned 2*\fInwords\fR long.
+.TP 8
+.B aarray
+The output Cray 64bit word array.  
+.TP 8
+.B nwords
+The number of Cray words to convert.
+.SH EXAMPLES
+The following converts 100 Cray words:
+.sp
+.RS 5
+PARAMETER (N=100)
+.br
+REAL      CRAY(N),  LOC(2*N)
+.br
+(...)
+.br
+CALL SPTOCF(LOC, CRAY, N)
+.br
+.RE
+.SH NOTES
+Do not use this routine with programs which have been compiled with the
+"-qautodbl=dblpad" option on the IBM RS6000 cluster compiler, rather,
+use the DPTOCF routine.
+.SH IMPLEMENTATION
+This routine is available in the
+"ncaru" local library. 
+.SH "SEE ALSO"
+ctospi(3), ctodpf(3), sptocf(3), sptoci(3), dptocf(3), ncaru(3)
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved

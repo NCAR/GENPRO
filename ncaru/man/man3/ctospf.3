@@ -1,0 +1,59 @@
+.na
+.nh
+.TH ctospf 3 "04 May 1999" NCAR "Local Routine"
+.SH NAME
+ctospf  -  Cray floating point to IEEE conversion
+.SH SYNOPSIS
+call ctospf(carray, larray, nwords)
+.sp
+real     carray(2*nwords), larray
+.br
+integer  nwords
+.SH DESCRIPTION
+The 
+.B CTOSPF  
+routine converts 64bit Cray floating point words to the local 32bit
+floating point format.  
+.PP
+The arguments are:
+.TP 8
+.B carray
+The input array containing the 64bit Cray words.  This array must have been
+previously dimensioned 2*nwords long.
+.TP 8
+.B larray
+The output 32bit word array containing the local representation.  
+.TP 8
+.B nwords
+The number of Cray words to convert.
+.SH EXAMPLES
+The following converts 100 Cray words:
+.sp
+.RS 5
+PARAMETER (N=100)
+.br
+REAL      CRAY(2*N),  LOC(n)
+.br
+(...)
+.br
+CALL CTOSPF(CRAY, LOC, N)
+.br
+.RE
+.SH NOTES
+Do not use this routine with programs which have been compiled with the
+"-qautodbl=dblpad" option on the IBM RS6000 cluster compiler, rather,
+use the CTODPF routine.
+.PP
+Any values in the input array that are too large to be represented in
+the native format are set to the largest number that can be
+represented with the correct sign.  Any values which are too small are
+set to 0.0 (zero).
+.SH IMPLEMENTATION
+This routine is available in the
+"ncaru" local library. 
+.SH "SEE ALSO"
+ctospi(3), ctodpf(3), sptocf(3), sptoci(3), dptocf(3), ncaru(3)
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved

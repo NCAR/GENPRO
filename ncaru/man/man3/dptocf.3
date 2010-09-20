@@ -1,0 +1,56 @@
+.na
+.nh
+.TH dptocf 3 "04 May 1999" NCAR "Local Routine"
+.SH NAME
+dptocf  -  Conversion from IEEE to Cray floating point format
+.SH SYNOPSIS
+call dptocf(larray, carray, nwords)
+.sp
+double precision   larray(nwords), carray(nwords)
+.br
+integer  nwords
+.SH DESCRIPTION
+The 
+.B CTOSPF  
+routine converts native 64bit floating point format words to Cray 64bit 
+floating point.
+.PP
+The arguments are:
+.TP 8
+.B larray
+The input array containing the local 64bit words.  
+.TP 8
+.B larray
+The output Cray 64bit word array.  
+.TP 8
+.B nwords
+The number of Cray words to convert.
+.SH EXAMPLES
+The following converts 100 Cray words:
+.sp
+.RS 5
+PARAMETER (N=100)
+.br
+DOUBLE PRECISION    CRAY(N),  LOC(N)
+.br
+(...)
+.br
+CALL DPTOCF(LOC, CRAY, N)
+.br
+.RE
+.SH NOTES
+This routine should be used instead of SPTOCF when using the
+"-qautodbl=dblpad" option to the IBM RS6000 compilers.
+.PP
+.SH IMPLEMENTATION
+This routine is available in the
+"ncaru" local library.  Be sure to add the following flags
+to the loader:
+.ce
+-L/usr/local/lib -lncaru
+.SH "SEE ALSO"
+ctospi(3), ctodpf(3), sptocf(3), sptoci(3)
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved

@@ -22,7 +22,7 @@ CC=  gcc
 #DESTDIR=  /usr/local/
 BINDIR=    ${JLOCAL}/bin
 MANDIR=    {JLOCAL}/man/man1
-LIBS=   -L. -Wl,-Bstatic -lraf -lnetcdf -lncaru -Wl,-Bdynamic
+LIBS=   -Llib -Wl,-Bstatic -lnetcdf -lncaru -Wl,-Bdynamic
 LINTLIBS=  
 INCLUDES=  -I$(JLOCAL)/include
 CFLAGS=    -g ${INCLUDES}
@@ -33,8 +33,7 @@ SRCS=  get_comment.c get_datlog.c get_datsiz.c get_exd.c get_ext.c \
     get_hrec.c get_phrec.c par_preset.c par_validate.c read_hdr.c \
     nprint.c GpOpen.c get_pdrec.c get_ldrec.c d_convert.c time_var.c \
     CreateNetCDF.c CloseNetCDF.c Plow.c to_hms.c cleanup.c \
-    setup_pms1d.c d_P_convert.c \
-    TrimTrailingBlanks.c \
+    setup_pms1d.c d_P_convert.c TrimTrailingBlanks.c portable.c \
     g2n.c
 
 HDRS=  g2n.h
@@ -45,8 +44,7 @@ OBJS=  get_comment.o get_datlog.o get_datsiz.o get_exd.o get_ext.o \
     get_hrec.o get_phrec.o par_preset.o par_validate.o read_hdr.o \
     nprint.o GpOpen.o get_pdrec.o get_ldrec.o d_convert.o time_var.o \
     CreateNetCDF.o CloseNetCDF.o Plow.o to_hms.o cleanup.o \
-    setup_pms1d.o d_P_convert.o \
-    TrimTrailingBlanks.o \
+    setup_pms1d.o d_P_convert.o TrimTrailingBlanks.o portable.o \
     g2n.o
 PROG=  g2n
 
@@ -56,6 +54,7 @@ PROG=  g2n
 
 ${PROG}: ${OBJS}
 	umask 2
+	cd ncaru/src; make
 #	${CC} ${CFLAGS} ${OBJS} ${LIBS} -o $@
 	${CC} ${CFLAGS} ${LIB_DIRS} ${OBJS} ${LIBS} -o $@
 

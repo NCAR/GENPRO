@@ -1,0 +1,55 @@
+.na
+.nh
+.TH crayclose 3  "04 May 1999" NCAR "Local Routine"
+.SH NAME
+crayclose  - Close a Cray-Blocked file.
+.SH SYNOPSIS
+INTEGER CRAYCLOSE
+.br
+\fIier\fR = \fBCRAYCLOSE\fR(\fIifc\fR)
+.br
+INTEGER  \fIifc\fR
+.SH "C EXTENSION"
+.sp
+ier = crayclose(ifc)
+.br
+int    *ifc;
+.SH DESCRIPTION
+The 
+.B CRAYCLOSE
+routine closes a Cray-Blocked file.  This routine is part of a family of
+routines which allow you to read and write Cray-Blocked file from
+compute servers other than the Cray machines.
+.PP
+If the file was opened for writing, then the internal buffers are
+written to the file, a Cray EOF (End Of File) mark and Cray EOD (End Of
+Data) mark are written, and the file is closed.
+.PP
+This routine has one argument:
+.TP 6
+.I ifc
+The integer return from a previously issed crayopen(3).
+.SH CAUTIONS
+This routine must be called prior to exiting your program.  If your
+program terminates without calling 
+.B CRAYCLOSE
+the Cray-Blocked file will not be formatted properly and will not be
+readable on Cray computer.
+.SH IMPLEMENTATION
+To access this routine, you must include the following loader flags when
+building your program:
+.sp
+.ce
+-L /usr/local/lib -lncaru
+.SH "RETURN VALUES"
+.B CRAYCLOSE
+returns a non-negative integer upon successful closing of the file,
+otherwise -1 is returned to indicate an error of some kind.
+.SH "SEE ALSO"
+crayopen(3), crayrew(3), craywrite(3), crayread(3), crayweod(3),
+crayeod(3)
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved
+

@@ -1,0 +1,79 @@
+.na
+.nh
+.TH crayblocks 3 "04 May 1999" NCAR "Local Routine"
+.SH NAME
+crayblocks  - Set the number of blocks for Cray blocked I/O
+.SH SYNOPSIS
+INTEGER crayblocks
+.br
+\fIier\fR = crayblocks(\fIsize\fR)
+.br
+INTEGER  \fIsize\fR
+.SH "C EXTENSION"
+ier = crayblocks(size)
+.br
+int    *size;
+.SH DESCRIPTION
+The 
+.B CRAYBLOCKS
+routine sets the number of 512 Cray-word blocks for an I/O buffer used
+during Cray blocked I/O. This
+routine is part of a family of routines which allow you to read and
+write Cray files from compute servers other than Cray machines.
+.PP
+During a 
+.B CRAYOPEN
+for blocked file I/O, a buffer is dynamically allocated.  This routine,
+.B CRAYBLOCKS\fR,
+can be used to set the number of 512 Cray-word (4096 byte) blocks for
+that buffer.  In general, the larger the buffer, the more efficient the
+I/O.  The number of blocks specified by this routine will be in effect until
+either the program ends, or another 
+.B CRAYBLOCKS 
+is executed.
+.PP
+The 
+.B CRAYBLOCKS
+routine must be executed prior to a CRAYOPEN 
+routine for the buffer to get sized as expected.
+.PP
+If this routine is not used, then 
+.B CRAYOPEN 
+will look for an environment variable named "CRAYBLOCKS" and
+take its value as the number of blocks to use in the buffer.  If this
+environment variable is not defined, then 
+.B CRAYOPEN 
+will allocate and use a buffer of 1 (one) block.
+.PP
+This routine has one argument:
+.TP 7
+.I size
+The positive integer number of blocks desired for the buffer(s).  
+.SH NOTES
+The actual buffer is allocated when a 
+.B CRAYOPEN 
+routine is executed.   This routine merely sets the number of blocks
+which will be allocated.
+.SH IMPLEMENTATION
+To access this routine, you must include the following loader flags when
+building your program:
+.sp
+.ce
+-L /usr/local/lib -lncaru
+.SH "RETURN VALUES"
+.B CRAYBLOCKS
+returns -1 (an error!) for values of 
+.I size
+less than, or equal to 0 (zero).  Otherwise 0 (zero) is returned.
+If -1 is returned, then a default size of 1 block will be used in
+subsequent 
+.B CRAYOPEN
+calls.
+.SH "SEE ALSO"
+crayopen(3), crayrew(3), craywrite(3), crayread(3), crayclose(3),
+crayeod(3)
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved
+

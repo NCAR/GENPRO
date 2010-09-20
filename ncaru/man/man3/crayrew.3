@@ -1,0 +1,50 @@
+.na
+.nh
+.TH CRAYREW 3  "04 May 1999" NCAR "Local Routine"
+.SH NAME
+crayrew   -  Rewind an open Cray-Blocked file.
+.SH SYNOPSIS
+INTEGER CRAYREW
+.br
+ier = \fBCRAYREW\fR(\fIifc\fR)
+.br
+INTEGER  \fIifc\fR
+.SH "C EXTENSION"
+ier = crayrew(ifc)
+.br
+int    *ifc;
+.SH DESCRIPTION
+The 
+.B CRAYREW
+routine rewinds a previously opened Cray-blocked or Cray unblocked file.  
+Any remaining blocks
+are flushed, and the file pointer is positioned at the beginning of the
+file. This routine is part of the family of routines which allow reading
+and writing of Cray-blocked files on various compute servers other than
+the Crays.
+.PP
+This routine has one argument:
+.TP 5
+\fIifc\fR
+The integer return from a previously issued crayopen(3).
+.SH EXAMPLES
+To rewind a previously opened Cray file:
+.sp
+.ce
+IER = CRAYREW(IFC)
+.SH IMPLEMENTATION
+To access this routine, you must include the following loader flags when
+building your program:
+.sp
+.ce
+-L /usr/local/lib -lncaru
+.SH "RETURN VALUES"
+If an error is encountered, 
+.B CRAYREW 
+returns -1, otherwise it returns 0 (zero).
+.SH "SEE ALSO"
+crayopen(3), crayread(3), craywrite(3), crayclose(3), crayweod(3), crayeod(3)
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved

@@ -1,0 +1,58 @@
+.na
+.TH cosfile 1 "04 May 1999" NCAR "Local Command"
+.SH NAME
+cosfile - Analyse a Cray-blocked dataset
+.SH SYNOPSIS
+.B cosfile 
+[
+.B -v 
+][
+.B -a
+]
+.I file
+.SH DESCRIPTION
+The 
+.B cosfile 
+command reports on the records and files contained in a Cray-blocked
+dataset.  
+.B cosfile 
+will also (by default) attempt to determine whether the file contains 
+ASCII or binary data and report the percentages of each.  The output is
+written to stdout.
+.SH OPTIONS
+The options to
+.B cosfile 
+are:
+.TP 10
+.B -v
+Allows you to request additional, detailed information about the record sizes.
+.TP 10
+.B -a
+Turns off the "type-of-file" analysis; this analysis
+attempts to determine which of three formats each file 
+is in:
+.sp
+.RS 15
+char (with compressed blanks) 
+.br
+char (without compressed blanks) 
+.br
+binary or mixed binary/char
+.RE
+.sp
+.RS 10
+Although we recommend that you allow the cosfile software to perform the
+"type-of-file" analysis, you might already know the types for your 'files'.
+If you do, then -a is a good option to use because this analysis is
+somewhat time-consuming.
+.RE
+.TP 10
+.I file
+A Cray-blocked dataset.  You must specify a dataset.
+.SH "SEE ALSO"
+cosconvert(1), cossplit(1) 
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved
+

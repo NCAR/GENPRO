@@ -1,0 +1,53 @@
+.na
+.nh
+.TH crayback 3 "04 May 1999" NCAR "Local Routine"
+.SH NAME
+crayback  - Backup one record on a Cray blocked file.
+.SH SYNOPSIS
+INTEGER crayback
+.br
+\fIier\fR = crayback(\fIifc\fR)
+.br
+INTEGER  \fIifc\fR
+.SH "C EXTENSION"
+ier = crayback(ifc)
+.br
+int    *ifc;
+.SH DESCRIPTION
+The 
+.B CRAYBACK
+routine backs up one record on a  Cray-Blocked file. This
+routine is part of a family of routines which allow you to read and
+write Cray files from compute servers other than Cray machines.
+.PP
+If the last operation to the file was a write (via CRAYWRITE), then the
+file is truncated to the last record written, then the record pointer is
+moved to the beginning of this record.  If the last operation was a
+read, the record pointer is moved back one record from the current
+record, the file is not truncated.
+.PP
+This routine has one argument:
+.TP 5
+.I ifc
+The integer return from a previously issed crayopen(3).
+.SH NOTES
+This routine cannot be used for Cray unblocked files.  They have no
+record structure.
+.SH IMPLEMENTATION
+To access this routine, you must include the following loader flags when
+building your program:
+.sp
+.ce
+-L /usr/local/lib -lncaru
+.SH "RETURN VALUES"
+.B CRAYBACK
+returns 0 (zero) if successful, 
+otherwise <0 is returned to indicate an error of some kind.
+.SH "SEE ALSO"
+crayopen(3), crayrew(3), craywrite(3), crayread(3), crayclose(3),
+crayeod(3)
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved
+
