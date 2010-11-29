@@ -47,6 +47,7 @@ get_oskeys.c            --  Get sub-keywords from GENPRO ORDVAR header line
 get_pdrec.c             --  Read a physical GENPRO data record
 get_phrec.c             --  Read a physical GENPRO header record
 get_prd.c               --  Decode PRDATE (Flight date)
+get_prt.c               --  Decode PRTIME (Flight start time)
 get_proj.c              --  Decode the PROJECT line (debug)
 move_back               --  Rename files from debug version to production
 move_verbose            --  Rename files from production version to debug

@@ -10,6 +10,7 @@
 /*   Version 2.4 Add PMS-1D conversion sections    Nov 1997 - Jan 1998  RLR */
 /*   Version 2.5 Add COS-block file read sections         Mar-Sep 1998  RLR */
 /*   Version 2.6 Add PMS-1D "ncpp" compatibilty               Dec 1998  RLR */
+/*   Add prtime to parse flight start time from header        Nov 2010  JAA */
 
 /*  ###################  <-- Search for this string to locate ??? areas */
 
@@ -54,6 +55,7 @@
 # define ORDVAR    2048 /*  11     yes               */
 # define LETVAR    4096 /*  12     yes               */
 # define ENDHD     8192 /*  13     yes               */
+# define PRTIME   16384 /*  14     yes               */
 
 /* index into master keyword list */
 # define TITLE        0
@@ -224,7 +226,7 @@ char infile[INSIZE];  /* GENPRO file name */
 /*   leading keywords #kw# */
 char *Keyword[] =  {"BEGINHD", "PROJECT", "PRDATE", "COMMENT", "EXDATE",
                     "EXTIME",  "JOBID",   "LOGBIT", "DATLOG",  "DATSIZ",
-                    "APPVAR",  "ORDVAR",  "LETVAR", "ENDHD",     NULL };
+                    "APPVAR",  "ORDVAR",  "LETVAR", "ENDHD", "PRTIME", NULL };
 
 unsigned int Kwfound = 0;          /* keywords found in the GENPRO header */
 unsigned int Kwcritical = 037600;  /* keywords needed for processing #kw# */
@@ -249,7 +251,11 @@ char ftype = 'R';                /* flight type (Research, Ferry, Test) */
 char segment = ' ';              /* segment letter (if any) */
 char project[44] = {"Unknown"};  /* project name and, possibly, flight date */
 int prdate[3] = {1,1,70};        /* project flight date (d,m,y) */
+int prtime[3] = {0,0,0};         /* project flight begin time (h,m,s) */
 /*  Note:  Flight times will come from the actual data records. */
+/*  Need prtime to compare to flight time and determine if file starts */
+/*  after midnight. (flight time < flight begin time => increment date */
+/*  by one day */
 int exdate[3] = {1,1,70};        /* process date (d,m,y) */
 int extime[3] = {0,0,0};         /* process time (h,m,s) */
 char jobid[8] = {"Unknown"};     /* process serial number */
@@ -478,6 +484,7 @@ extern char ftype;
 extern char segment;
 extern char project[];
 extern int prdate[];
+extern int prtime[];
 extern int exdate[];
 extern int extime[];
 extern char jobid[];

@@ -1,5 +1,8 @@
 /* void Plow(void)
  *  Plow through the data and write netCDF output */
+/* Modified Nov 29, 2010 Janine Aquino 
+    check for first record time before start time of flight and modify date
+    accordingly (assume midnight rollover)*/
 
 /* COPYRIGHT:  University Corporation for Atmospheric Research, 1994, 1997 */
 
@@ -36,36 +39,52 @@ void Plow(void)
   static int firstTime = TRUE;  /* Initialize, if true */
   static int err_cnt = 0;       /* netCDF error counter */
   static int RecordNumber = 0;  /* netCDF output record number */
+  static int DayIncrement = 0;  /* Number of days to increment date */
 
 /*
 
-             * * * * * * * * * * * * * * *
-            *                             *
-           *  Executable code starts here  *
-            *                             *
-             * * * * * * * * * * * * * * *
+	      * * * * * * * * * * * * * * *
+	     *                             *
+	    *  Executable code starts here  *
+	     *                             *
+	      * * * * * * * * * * * * * * *
  */
 /* Get a logical record. */
   while ((i = get_ldrec()) != NO)
   {
-/* Decode all the data in a logical record. */
-/*  (Note:  I'm doing each variable separately, so I can easily adapt the
- *           code later to do a subset of the variable list.
- *  decode standard GENPRO variables */
-    for (i=0;i<nvars;i++)
-    {
-/*  incorporate output flag (Version 2.4)  RLR 971223 */
-      if (Gpars[i].output == YES) d_convert(i);
-    }
-/*  decode PMS-1D variables (Version 2.4)  RLR 971224 */
-    for (i=0;i<n_pms1d_probes;i++)
-    {
-      if (Pgpars[i].output == YES) d_P_convert(i);
-    }
+    /* Decode all the data in a logical record. */
+    /*  (Note:  I'm doing each variable separately, so I can easily adapt the
+     *           code later to do a subset of the variable list.
+     *  decode standard GENPRO variables */
+	for (i=0;i<nvars;i++)
+	{
+    /*  incorporate output flag (Version 2.4)  RLR 971223 */
+	  if (Gpars[i].output == YES) d_convert(i);
+	}
+    /*  decode PMS-1D variables (Version 2.4)  RLR 971224 */
+	for (i=0;i<n_pms1d_probes;i++)
+	{
+	  if (Pgpars[i].output == YES) d_P_convert(i);
+	}
 
-/* Set up time variables the first time through. */
+    /* Set up time variables the first time through. */
     if (firstTime == TRUE)
     {
+    /*  Check if time of first record is before start time of flight */
+    /*  If it is, then assume midnight rollover and increment date one day */
+    if ((int)g_buf[Gpars[ihour].fstpt] < prtime[0])
+      {
+	  DayIncrement = 1;
+      } 
+      else if ((int)g_buf[Gpars[iminute].fstpt] < prtime[1])
+      {
+	  DayIncrement = 1;
+      }
+      else if ((int)g_buf[Gpars[isecond].fstpt] < prtime[2])
+      {
+	  DayIncrement = 1;
+      }
+      prdate[0] = prdate[0] + DayIncrement;
       firstTime = FALSE;
       StartFlight.tm_mday = prdate[0];
       StartFlight.tm_mon = prdate[1] - 1;
@@ -74,11 +93,14 @@ void Plow(void)
       StartFlight.tm_hour = 0;
       StartFlight.tm_min  = 0;
       StartFlight.tm_sec  = 0;
+
       BaseTime = mktime(&StartFlight);
       gt = gmtime(&BaseTime);
-      StartFlight.tm_hour += StartFlight.tm_hour - gt->tm_hour;
+      StartFlight.tm_hour = StartFlight.tm_hour - gt->tm_hour;
       BaseTime = mktime(&StartFlight);
+/*  Write date to netCDF file */
       (void)ncvarput1(ncid, baseTimeID, NULL, (void *)&BaseTime);
+/*  Extra_Times is set in .h file */
       if (Extra_Times == TRUE)
       {
 /*  Save initial time_offset. */

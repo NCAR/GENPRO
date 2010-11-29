@@ -3,6 +3,8 @@
 
 /* Original code written by Chris Webster for dap2cdf.c */
 /* Adapted for GENPRO to netCDF program by Ron Ruth    November 1994 */
+/* Modified to update start date if flight started aftermidnight Janine
+ *  Aquino November 2010 */
 
 /* COPYRIGHT:      University Corporation for Atmospheric Research, 1998 */
 
@@ -48,6 +50,9 @@ void CloseNetCDF(void)
     ncredef(ncid);
  */
   (void)ncattput(ncid,NC_GLOBAL,"TimeInterval",NC_CHAR,strlen(buffer)+1,(void *)buffer);
+  /* Update Start Date (in case it was modified by start time check) */
+  sprintf(buffer,"%02d/%02d/19%d",prdate[1],prdate[0],prdate[2]);
+  (void)ncattput(ncid,NC_GLOBAL,"FlightDate",NC_CHAR,strlen(buffer)+1,(void *)buffer);
 
 /* Echo time period, if requested */
   if (batch_flag == FALSE) printf ("%s:  Time Interval:  %s\n",progname,buffer);

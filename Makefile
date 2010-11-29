@@ -29,7 +29,7 @@ CFLAGS=    -g ${INCLUDES}
 
 SRCS=  get_comment.c get_datlog.c get_datsiz.c get_exd.c get_ext.c \
     get_filenames.c get_jobid.c get_lkey.c get_logbit.c get_lparms.c \
-    get_names.c get_oskeys.c get_prd.c get_proj.c name_idx.c \
+    get_names.c get_oskeys.c get_prd.c get_prt.c get_proj.c name_idx.c \
     get_hrec.c get_phrec.c par_preset.c par_validate.c read_hdr.c \
     nprint.c GpOpen.c get_pdrec.c get_ldrec.c d_convert.c time_var.c \
     CreateNetCDF.c CloseNetCDF.c Plow.c to_hms.c cleanup.c \
@@ -40,7 +40,7 @@ HDRS=  g2n.h
 
 OBJS=  get_comment.o get_datlog.o get_datsiz.o get_exd.o get_ext.o \
     get_filenames.o get_jobid.o get_lkey.o get_logbit.o get_lparms.o \
-    get_names.o get_oskeys.o get_prd.o get_proj.o name_idx.o  \
+    get_names.o get_oskeys.o get_prd.o get_prt.o get_proj.o name_idx.o  \
     get_hrec.o get_phrec.o par_preset.o par_validate.o read_hdr.o \
     nprint.o GpOpen.o get_pdrec.o get_ldrec.o d_convert.o time_var.o \
     CreateNetCDF.o CloseNetCDF.o Plow.o to_hms.o cleanup.o \

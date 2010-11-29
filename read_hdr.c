@@ -1,7 +1,12 @@
 /* int read_hdr(void)
  *  Read and decode needed parameters from a GENPRO header file */
+/* Modified November 29, 2010  Janine Aquino
+ *  added parsing of PRTIME (Flight Start Time) from header for use in
+ *  identifying flights that start after midnight of the date given in the
+ *  header and were thus being assigned the wrong date. */
 
-/* COPYRIGHT:  University Corporation for Atmospheric Research, 1994, 1997 */
+/* COPYRIGHT:  University Corporation for Atmospheric Research, 1994, 1997,
+ * 2010 */
 
 # include <stdio.h>
 # include <stdlib.h>
@@ -90,6 +95,12 @@ int read_hdr(void)
       {
         get_prd(lin);
         Kwfound = Kwfound | PRDATE;
+      }
+/*   Decode PRTIME */
+      else if (strcmp(ky,Keyword[14]) == 0)
+      {
+        get_prt(lin);
+        Kwfound = Kwfound | PRTIME;
       }
 /*   Decode COMMENT */
       else if (strcmp(ky,Keyword[3]) == 0)
