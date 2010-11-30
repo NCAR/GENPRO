@@ -72,15 +72,9 @@ void Plow(void)
     {
     /*  Check if time of first record is before start time of flight */
     /*  If it is, then assume midnight rollover and increment date one day */
-    if ((int)g_buf[Gpars[ihour].fstpt] < prtime[0])
-      {
-	  DayIncrement = 1;
-      } 
-      else if ((int)g_buf[Gpars[iminute].fstpt] < prtime[1])
-      {
-	  DayIncrement = 1;
-      }
-      else if ((int)g_buf[Gpars[isecond].fstpt] < prtime[2])
+      int prtime_Seconds = prtime[0]*60*60 + prtime[1]*60 + prtime[2];
+      int g_buf_Seconds = (int)g_buf[Gpars[ihour].fstpt]*60*60 + (int)g_buf[Gpars[iminute].fstpt]*60 + (int)g_buf[Gpars[isecond].fstpt];
+      if (g_buf_Seconds < prtime_Seconds)
       {
 	  DayIncrement = 1;
       }
