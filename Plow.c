@@ -74,11 +74,18 @@ void Plow(void)
     /*  If it is, then assume midnight rollover and increment date one day */
       int prtime_Seconds = prtime[0]*60*60 + prtime[1]*60 + prtime[2];
       int g_buf_Seconds = (int)g_buf[Gpars[ihour].fstpt]*60*60 + (int)g_buf[Gpars[iminute].fstpt]*60 + (int)g_buf[Gpars[isecond].fstpt];
-      if (g_buf_Seconds < prtime_Seconds)
+      if (g_buf_Seconds <  prtime_Seconds && strcmp(Gpars[ihour].title, "UNALTERED TAPE TIME") == 0)
       {
-	  DayIncrement = 1;
+         prdate[0] = prdate[0] + 1;
       }
-      prdate[0] = prdate[0] + DayIncrement;
+      else if (g_buf_Seconds != 0 && strcmp(Gpars[ihour].title, "TIME FROM TPTIME") == 0)
+      {
+         prdate[0] = prdate[0] + 1;
+      }
+      else if (strcmp(Gpars[ihour].title, "TIME FROM TPTIME") != 0 && strcmp(Gpars[ihour].title, "UNALTERED TAPE TIME") != 0)
+      {
+          printf("Unkown time type %s! Date incrementation will occour!\n");
+      } 
       firstTime = FALSE;
       StartFlight.tm_mday = prdate[0];
       StartFlight.tm_mon = prdate[1] - 1;
