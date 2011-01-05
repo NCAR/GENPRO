@@ -78,7 +78,7 @@ void Plow(void)
       {
          prdate[0] = prdate[0] + 1;
       }
-      else if (g_buf_Seconds != 0 && strcmp(Gpars[ihour].title, "TIME FROM TPTIME") == 0)
+      else if (g_buf_Seconds + prtime_Seconds >= 24*60*60 && strcmp(Gpars[ihour].title, "TIME FROM TPTIME") == 0)
       {
          prdate[0] = prdate[0] + 1;
       }
