@@ -125,7 +125,7 @@ void Plow(void)
 /*  Time offset. */
       g_buf[Gpars[tof].fstpt] += 1.0;
 /*  HOUR, MINUTE and SECOND, if necessary. */
-      if (Extra_Times == TRUE)
+      if (Extra_Times == TRUE || (g_buf[Gpars[ihour].fstpt] <= 0 && g_buf[Gpars[iminute].fstpt] <= 0 && g_buf[Gpars[isecond].fstpt] <= 0))
       {
         to_hms(&g_buf[Gpars[tof].fstpt],&g_buf[Gpars[ihour].fstpt],&g_buf[Gpars[iminute].fstpt],&g_buf[Gpars[isecond].fstpt]);
       }
@@ -150,10 +150,11 @@ void Plow(void)
     }
 /* Echo time to user, if requested. */
     if (echo_time == YES)
-      printf("%s:  Time:  %02d:%02d:%02d\r",progname,
+      printf("%s:  Time:  %02d:%02d:%02d   Seconds:  %d\n",progname,
        (int)g_buf[Gpars[ihour].fstpt],
        (int)g_buf[Gpars[iminute].fstpt],
-       (int)g_buf[Gpars[isecond].fstpt]);
+       (int)g_buf[Gpars[isecond].fstpt],
+       (int)g_buf[Gpars[tof].fstpt]);
     ++RecordNumber;
   }
   return;
