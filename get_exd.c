@@ -40,6 +40,7 @@ void get_exd(char *line)
     }
     else
     {
+      str_toupper(p);
       for (j=0;j<11;j++)
       {
         if (strcmp(p,mon[j]) == 0)
