@@ -124,8 +124,11 @@ void Plow(void)
     {
 /*  Time offset. */
       g_buf[Gpars[tof].fstpt] += 1.0;
-/*  HOUR, MINUTE and SECOND, if necessary. */
-      if (Extra_Times == TRUE || (g_buf[Gpars[ihour].fstpt] <= 0 && g_buf[Gpars[iminute].fstpt] <= 0 && g_buf[Gpars[isecond].fstpt] <= 0))
+/*  HOUR, MINUTE and SECOND from second counter, if necessary (ie. no RAW_TAPE_TIME or an invalid time). */
+      if (Extra_Times == TRUE //RAW_TAPE_TIME was unavailable
+		|| (g_buf[Gpars[ihour].fstpt] + g_buf[Gpars[iminute].fstpt] + g_buf[Gpars[isecond].fstpt]) <= 0 //HMS are all 0
+		|| g_buf[Gpars[ihour].fstpt] < 0 || g_buf[Gpars[iminute].fstpt] < 0 || g_buf[Gpars[isecond].fstpt] < 0//HMS are impossible (negative)
+		|| g_buf[Gpars[ihour].fstpt] > 24 || g_buf[Gpars[iminute].fstpt] > 60 || g_buf[Gpars[isecond].fstpt] > 60) //HMS are impossible (too large)
       {
         to_hms(&g_buf[Gpars[tof].fstpt],&g_buf[Gpars[ihour].fstpt],&g_buf[Gpars[iminute].fstpt],&g_buf[Gpars[isecond].fstpt]);
       }
