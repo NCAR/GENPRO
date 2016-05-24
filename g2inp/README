@@ -1,3 +1,5 @@
+The software in this directory were obtained from Al Cooper in January of 2015.
+
 In this version, the header file size is specified in file.com and
 the directory for the output files is in slus.prm; the program must
 be recompiled to change these characteristics.  Use header file
