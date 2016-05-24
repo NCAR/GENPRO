@@ -1,0 +1,41 @@
+Notes from Dan Nagle <dnagle@ucar.edu>
+April 2016
+
+I changed fixed format to free format with Michael Metcalf's convert
+program.
+(Available own yellowstone after 'module load ftools')
+
+This compiles with gfortran (GNU Fortran (GCC) 6.0.0 20160317
+(experimental))
+
+Changes to the code are marked by !dln. I believe these repairs are low-risk, but that doesn't mean I understand everything.
+
+Please Note That I Have Not Tested This!
+
+Change report
+-------------
+
+198-203 repair declarations to replace array(1) declarations with array(*)
+and declare unit
+
+208-213 repair nonstandard ccB notation with modern o'cc' notation
+
+222-225 repair nonstandard buffer in statement with standard read statement
+
+252-253 repair nonstandard decode statement with standard read statement
+
+263-267 repair nonstandard decode statement with standard read statement
+
+281-283 repair type breaking call to rdrec0
+
+307-308 repair munged format statement
+
+372-378 repair declarations to replace array(1) declarations with array(*)
+and declare unit
+
+399- 404 repair nonstandard buffer in statement with standard read statement
+
+467-476 repair nonstandard buffer in statement with standard read statement
+
+493-494 repair missing / at end of data statement
+
