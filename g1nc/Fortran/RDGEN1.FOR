@@ -1,486 +1,519 @@
-      SUBROUTINE RDDATA (INUNIT,T1,T2,NRECRDS,NPARMS,INDEX,ARRAY,NHDR,
-     1 IFLAG,M,N,NST)
-C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C                                                                      C
-C        THIS SUBROUTINE IS TO BE USED IN CONJUNCTION WITH SUBROUTINES C
-C        RDHDR, AND RDREC0.  THIS ROUTINE ACTS AS A DRIVER FOR THE     C
-C        OTHERS, ACCEPTING A START AND FINISH TIME AND A MAXIMUM NUMBERC
-C        OF RECORDS TO BE RETURNED.  THESE RECORDS CONSIST ONLY OF     C
-C        SELECTED PARAMETERS, GIVEN BY THE VALUES OF THE ARRAY INDEX.  C
-C                                                                      C
-C        ENTRY RDDAT2 ALLOWS MORE RECORDS TO BE READ FROM THE FILE     C
-C        WITHOUT TRYING TO READ A HEADER RECORD.                       C
-C                                                                      C
-C                                                                      C
-C        THE CALL IS                                                   C
-C             CALL RDDATA (INUNIT,T1,T2,NRECRDS,NPARMS,INDEX,ARRAY,    C
-C                          NHDR,IFLAG)                                 C
-C        INUNIT    -  LOGICAL UNIT TAPE IS MOUNTED ON                  C
-C        T1        -  START TIME FOR SAMPLING.                         C
-C        T2        -  END TIME OF SAMPLING PERIOD.                     C
-C        NRECRDS   -  MAXIMUM NUMBER OF RECORDS TO BE RETURNED.  IF YOUC
-C                     WANT ALL THE RECORDS BETWEEN T1 AND T2, BE SURE  C
-C                     NRECRDS >= (T2-T1)/CYCTIME +1.                   C
-C                     ON RETURN, NRECRDS HOLDS THE NUMBER OF RECORDS   C
-C                     ACTUALLY RETURNED.                               C
-C        NPARMS    -  NUMBER OF PARAMETERS TO BE RETURNED FOR EACH     C
-C                     RECORD.                                          C
-C        INDEX     -  ARRAY CONTAINING THE LOCATIONS OF THE PARAMETERS C
-C                     WITHIN A RECORD TO BE RETURNED.  THESE NEED BE   C
-C                     IN NO SPECIAL ORDER.                             C
-C        ARRAY     -  THE ARRAY TO CONTAIN THE RETURNED VALUES.  IT IS C
-C                     A TWO-DIMENSIONAL ARRAY. WITH THE FIRST INDEX    C
-C                     REFERRING TO RECORD NUMBER, AND THE SECOND TO    C
-C                     PARAMETER NUMBER (NOT LOCATION).                 C
-C        NHDR      -  GIVES THE NUMBER OF PHYSICAL RECORDS IN THE HEADER
-C        IFLAG     -  AS INPUT, CONTROLS THE PRINTING OF THE HEADER    C
-C                     INFORMATION.  IF IFLAG = 1, THE PRINTING WILL BE C
-C                     SUPPRESSED.                                      C
-C                     AS OUTPUT, IT INDICATES THE COMPLETION CODE.     C
-C                     IFLAG=0, NORMAL RETURN, WITH T2 LIMITING SEARCH. C
-C                     IFLAG=1, NORMAL RETURN, NRECRDS LIMITING SEARCH  C
-C                     IFLAG=2, T1 AND T2 HAVE INVALID TIMES.           C
-C                     IFLAG=3, NRECRDS OR NPARMS IS < ZERO.            C
-C                     IFLAG=4, EOF WAS REACHED ON A HEADER READ.       C
-C                     IFLAG=5, UNRECOVERABLE PARITY ERROR OCCURRED.    C
-C                     IFLAG=6, EOF WAS REACHED DURING DATA READ.       C
-C                     IFLAG=7, CATASTROPHIC ERRORS HAVE OCCURRED IN    C
-C                              EXECUTION.                              C
-C        M         -  FIRST DIMENSION OF INPUT ARRAY "ARRAY"           C
-C        N         -  SECOND DIMENSION OF INPUT ARRAY "ARRAY"          C
-C        NST       -  RECORDS WILL BE STORED IN "ARRAY" BEGINNING AT   C
-C                     ARRAY(NST,1).                                    C
-C                                                                      C
-C        WRITTEN BY GEORGE LEHMANN, JR.                                C
-C                   OCTOBER,1976                                       C
-C                                                                      C
-C        MODIFIED TO RUN ON THE CRAY-1 BY MIKE DANIELS                 C
-C                   JANUARY, 1983                                      C
-C                                                                      C
-C                                                                      C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C
-      DIMENSION INDEX(NPARMS),ARRAY(M,N),IRATE(100),
-     C  SCALE(100),BIAS(100),INARRAY(1500),DATARAY(1500)
-      DATA  ISWCH /0/
-      IF(T2.LE.T1) GO TO 900
-      IF (NRECRDS.LE.0.OR.NPARMS.LE.0) GO TO 910
-      IF (ISWCH.EQ.1) GO TO 100
-      ISWCH = 1
-C
-C        PROCESS HEADER INFORMATION
-C
-      CALL RDHDR (INUNIT,IRATE,SCALE,BIAS,NP,NPER,CTIME,NR,NW,INARRAY,
-     C NHDR,IFLAG)
-      IFLAG=IFLAG+1
-      GO TO (100,920,930,90),IFLAG
-   90 WRITE (6,91) INUNIT
-C
-C        THIS ENTRY POINT ALLOWS READING DATA WITHOUT FIRST READING
-C        THE HEADER
-C
-      ENTRY RDDAT2
-  100 N=NST-1
-      T0=T1-FLOAT(NR)*CTIME
-C
-C        SEARCH FOR THE RIGHT RECORDS
-C
-  110 IFLAG=1
-  120 CALL RDREC (INUNIT,IRATE,SCALE,BIAS,NP,NPER,NR,DATARAY,INARRAY,
-     C IFLAG)
-      IF (IFLAG.EQ.0) GO TO 200
-      IFLAG=IFLAG-89
-      GO TO (940,950,950,930,190), IFLAG
-  190 WRITE (6,91) INUNIT
-  200 IF (DATARAY(1).LT.T0) GO TO 110
-      IF (DATARAY(1).LT.T1) GO TO 120
-      IF (DATARAY(1).GT.T2) GO TO 800
-C
-C        MOVE PARAMETERS INTO NEW ARRAY ELEMENT
-C
-      N=N+1
-      DO 300 J=1,NPARMS
-      K=INDEX(J)
-  300 ARRAY(N,J)=DATARAY(K)
-      IF (N.GE.NRECRDS) GO TO 810
-      GO TO 120
-C
-C        FINISH UP AND RETURN
-C
-  800 NRECRDS=N
-      IFLAG=0
-      RETURN
-  810 NRECRDS=N
-      IFLAG=1
-      RETURN
-C
-  900 IFLAG=2
-      WRITE (6,905)
-      RETURN
-C
-  910 IFLAG=3
-      WRITE (6,915)
-      RETURN
-C
-  920 IFLAG=4
-      ISWCH = 0
-      NRECRDS=N
-      WRITE (6,925)
-      RETURN
-C
-  930  IFLAG=5
-      WRITE (6,935)
-      RETURN
-C
-  940 IFLAG=6
-      ISWCH = 0
-      NRECRDS=N
-      WRITE (6,945)
-      RETURN
-C
-  950 IFLAG=7
-      WRITE (6,955)
-      RETURN
-C
-   91 FORMAT ("0RECOVERABLE PARITY ERROR OCCURRED ON UNIT ",I2)
-  905 FORMAT ("-  >>>ERROR<<<  INVALID VALUES FOR TIMES T1 AND T2")
-  915 FORMAT ("-  >>>ERROR<<<  NUMBER OF RECORDS OR NUMBER OF PARAMETERS
-     C REQUESTED IS NON-POSITIVE NUMBER")
-  925 FORMAT ("-  END OF VOLUME")
-  935 FORMAT ("-  >>>ERROR<<<  PARITY ERROR OCCURRED DURING TAPE READ")
-  945 FORMAT ("-  END OF FILE")
-  955 FORMAT ("-  >>>>>ERROR<<<<< CATASTROPHIC ERROR HAS OCCURRED")
-      END
-C
-      SUBROUTINE RDHDR   (INUNIT,IRATE,SCALE,BIAS,NPARMS,NPERCYC,
-     C  CYCTIME,NREC,NWORDS,INARRAY,NHDR,IFLAG)
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C                                                                      C
-C                                                                      C
-C        THIS SUBROUTINE READS A HEADER BLOCK, PRINTS THE INFORMATION  C
-C        CONTAINED IN THAT BLOCK, DECODES AND RETURNS CERTAIN PARAMETERS
-C        TO THE CALLING PROGRAM.                                       C
-C                                                                      C
-C        THE CALL IS                                                   C
-C            CALL RDHDR   (INUNIT,IRATE,SCALE,BIAS,NPARMS,NPERCYC,     C
-C                           CYCTIME,NREC,NWORDS,INARRAY,IFLAG)         C
-C        INUNIT    -  LOGICAL UNIT NUMBER OF THE TAPE USED             C
-C        IRATE     -  ARRAY TO CONTAIN RETURNED VALUES OF SAMPLING RATEC
-C        SCALE     -  ARRAY TO CONTAIN RETURNED VALUES FOR RESCALING   C
-C                     THE DATA.                                        C
-C        BIAS      -  ARRAY TO CONTAIN THE RETURNED VALUES FOR         C
-C                     CORRECTING THE DATA OFFSET.                      C
-C        NPARMS    -  RETURNS THE NUMBER OF PARAMETERS PER LOGICAL REC C
-C        NPERCYC   -  RETURNS THE NUMBER OF PARAMETERS TAKEN PER CYCLE C
-C        CYCTIME   -  RETURNS THE CYCLE TIME USED                      C
-C        NREC      -  RETURNS THE NUMBER OF LOGICAL RECORDS PER PHYSICAL
-C                     RECORD                                           C
-C        NWORDS    -  RETURNS THE NUMBER OF WORDS OF MEMORY OCCUPIED   C
-C                     BY A PHYSICAL RECORD                             C
-C        INARRAY   -  WORKING ARRAY FOR THE SUBROUTINE, MUST BE AT     C
-C                     LEAST 1500 WORDS.                                C
-C        NHDR      -  GIVES NUMBER OF PHYSICAL RECORDS IN THE HEADER   C
-C        IFLAG     -  AS INPUT, SUPPRESSES PRINT IF IFLAG=1            C
-C                  -  AS OUTPUT, RETURNS COMPLETION CODE AS FOLLOWS    C
-C                     IFLAG=0 INDICATES NORMAL RETURN                  C
-C                     IFLAG=1 INDICATES EOF SENSED DURING OPERATION    C
-C                     IFLAG=2 INDICATES UNRECOVERABLE PARITY ERROR     C
-C                             OCCURED DURING OPERATION.                C
-C                     IFLAG=3 INDICATES RECOVERABLE PARITY ERROR WAS   C
-C                             DETECTED.                                C
-C                                                                      C
-C        WRITTEN BY GEORGE LEHMANN, JR.                                C
-C                   OCTOBER,1976                                       C
-C                                                                      C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C
-      DIMENSION IRATE(1),SCALE(1),BIAS(1),INARRAY(1),LABEL(7)
-      INTEGER ASCII(64),WKARRAY(16000),FLG
-      COMMON /TPCORR/ ICORR1
-      COMMON /LOCATN/ LOCAT(500)
-      LOGICAL ICORR1
-      DATA ASCII/72B,101B,102B,103B,104B,105B,106B,107B,110B,111B,112B,
-     +113B,114B,115B,116B,117B,120B,121B,122B,123B,124B,125B,126B,127B,
-     +130B,131B,132B,60B,61B,62B,63B,64B,65B,66B,67B,70B,71B,53B,55B,
-     +52B,57B,50B,51B,44B,75B,40B,54B,56B,43B,133B,135B,45B,42B,137B,
-     +41B,46B,47B,77B,74B,76B,100B,134B,136B,73B/
-      NPARITY=0
-      IF (IFLAG.EQ.0) WRITE(6,11)
-C
-C        FETCH THE HEADER RECORDS FROM TAPE
-C
-      IST = 1
-      ICORR1 = NHDR.EQ.3
-      DO 100 I=1,NHDR
-    7 BUFFER IN (INUNIT,1)(INARRAY(IST),INARRAY(1500))
-   10 IF (UNIT(INUNIT)) 20,991,15
-   15 IF(NPARITY.NE.0) GO TO 995
-      WRITE (6,996)
-      NPARITY=1
-      BACKSPACE INUNIT
-      GO TO 7
-   20 ILEN=LENGTH(INUNIT)
-  100 IST=IST+ILEN
-      ITER=INT((IST-1)*64/6)+1
-      CALL GBYTES(INARRAY,WKARRAY,0,6,0,ITER)
-      DO 102 J1=1,ITER
-      IF (WKARRAY(J1).GT.63) THEN
-         WKARRAY(J1)=ASCII(45)
-      ELSE
-         WKARRAY(J1)=ASCII(WKARRAY(J1)+1)
-      ENDIF
-102   CONTINUE
-      CALL SBYTES(INARRAY,WKARRAY,0,8,0,ITER)
-      IF(IFLAG.EQ.0) WRITE (6,150) (INARRAY(K),K=1,138)
-C
-C        READ RECORD DESCRIPTOR INFORMATION
-C
-C      DECODE (121,170,INARRAY(23)) NPARMS,NPERCYC,CYCTIME
-C  170 FORMAT (I3,67X,I4,40X,F5.3)
-      read(INARRAY(23), '(I3,67X,I4,40X,F5.3)') NPARMS,NPERCYC,CYCTIME
-      DECODE (107,180,INARRAY(39)) NREC,NTOTAL,NWORDS
-C
-C        READ AND PRINT THE REMAINDER OF THE HEADER
-C
-      IF (IFLAG.EQ.0) WRITE (6,195)
-      FLG=0
-      ID=138
-      LOC=1
-      DO 200 I=1,NPARMS
-      IF (FLG.EQ.0) THEN
-         DECODE (100,210,INARRAY(ID)) J,IRATE(I),LABEL,SCALE(I),BIAS(I)
-      ELSE
-         DECODE (96,215,INARRAY(ID+1)) J,IRATE(I),LABEL,SCALE(I),BIAS(I)
-      ENDIF
-      IF (I.EQ.1) GO TO 190
-      LOC=LOC+IRATE(I-1)
-  190 IF(IFLAG.EQ.0) WRITE (6,220) J,LOC,IRATE(I),LABEL,SCALE(I),BIAS(I)
-      LOCAT(I)=LOC
-      IF (FLG.EQ.0) THEN
-         ID=ID+12
-         FLG=1
-      ELSE
-         ID=ID+13
-         FLG=0
-      ENDIF
-  200 CONTINUE
-  202 CALL RDREC0 (INUNIT,IRATE,SCALE,BIAS,NPARMS,NPERCYC,NREC,INARRAY,
-     C INARRAY,IFLAG)
-      IFLAG=0
-      IF(NPARITY.NE.0) IFLAG=3
-      RETURN
-C
-C        ERROR MESSAGES
-C
-  991 WRITE (6,992)
-      IFLAG=1
-      RETURN
-C
-  995 WRITE (6,996)
-      IFLAG=2
-      RETURN
-C
-   11 FORMAT ("1")
-  150 FORMAT (10(1X,14A8,/))
-  180 FORMAT (1X,I2,26X,I4,70X,I3)
-  195 FORMAT (/," ITEM   LOCATION   RATE",17X,"DESCRIPTION",20X,"NAME",
-     C4X,"UNITS",18X,"SCALE",12X,"BIAS",/)
-  210 FORMAT (4X,I3,1X,I4,5X,7A8,10X,F7.1,3X,F7.1)
-  215 FORMAT (I3,1X,I4,5X,7A8,10X,F7.1,3X,F7.1)
-  220 FORMAT ((1X,I3,*)*,I8,I9,5X,7A8,17X,F9.2,5X,F9.2)
-  992 FORMAT ("-  >>>ERROR<<<  EOF SENSED ON HEADER READ")
-  996 FORMAT ("-  >>>ERROR<<<  PARITY ERROR SENSED ON HEADER READ")
-      END
-C
-      SUBROUTINE RDREC0  (INUNIT,IRATE,SCALE,BIAS,NPARMS,NPERCYC,NREC,
-     C  ARRAY,INARRAY,IFLAG)
-C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C                                                                      C
-C        THIS SUBROUTINE IS USED TO FETCH LOGICAL RECORDS FROM TAPE.   C
-C        IT HAS TWO MODES OF OPERATION, GOVERNED BY PARAMETER IFLAG.   C
-C        IN SCROLL MODE, THE NEXT SEQUENTIAL LOGICAL RECORD IS         C
-C        RETURNED.  IN SELECT MODE, LOGICAL RECORD N IS RETURNED.      C
-C        IF THE LOGICAL RECORD REQUESTED COMES BEFORE THE CURRENT      C
-C        RECORD POINTER, THE NEXT PHYSICAL RECORD IS READ TO OBTAIN    C
-C        THE CORRECT LOGICAL RECORD.                                   C
-C                                                                      C
-C        A CALL TO RDREC0 INITIALIZES THE POINTER AND ENABLES THE READ C
-C        OPERATION.  THIS CALL IS NORMALLY MADE BY SUBROUTINE RDHDR.   C
-C        ENTRY POINT RDREC IS THE CALL USED TO READ A LOGICAL RECORD.  C
-C                                                                      C
-C        THE CALL IS                                                   C
-C          CALL RDREC (INUNIT,IRATE,SCALE,BIAS,NPARMS,NPERCYC,NREC,    C
-C                      ARRAY,INARRAY,IFLAG                             C
-C                                                                      C
-C        INUNIT    -  THE NUMBER OF THE LOGICAL UNIT THE TAPE IS MOUNTED
-C                     ON                                               C
-C        IRATE     -  THE ARRAY CONTAINING THE SAMPLE RATES FOR THE    C
-C                     PARAMETERS (RETURNED FROM RDHDR)                 C
-C        SCALE     -  THE ARRAY CONTAINING THE SCALING FACTORS FOR THE C
-C                     PARAMETERS (RETURNED FROM RDHDR)                 C
-C        BIAS      -  THE ARRAY CONTAINING THE OFFSET VALUES FOR THE   C
-C                     PARAMETERS (RETURNED FROM RDHDR)                 C
-C        NPARMS    -  NUMBER OF PARAMETERS TO BE FOUND IN A LOGICAL    C
-C                     RECORD                                           C
-C        NPERCYC   -  TOTAL NUMBER OF DATA ITEMS PER LOGICAL RECORD    C
-C        NREC      -  NUMBER OF LOGICAL RECORDS PER PHYSICAL RECORD    C
-C        ARRAY     -  REAL ARRAY IN WHICH THE PROPERLY BIASED AND      C
-C                     SCALED DATA ITEMS WILL BE RETURNED               C
-C        INARRAY   -  WORKING ARRAY FOR PHYSICAL RECORD STORAGE.  MUST C
-C                     BE AT LEAST 1500 WORDS LONG.                     C
-C        IFLAG     -  AS INPUT, CONTROLS THE MODE OF OPERATION AND THE C
-C                     LOGICAL RECORD TO BE RETURNED                    C
-C                     IFLAG=0 SELECTS SCROLL MODE                      C
-C                     IFLAG=1,2,...,NPARMS SELECTS SELECT MODE, WITH   C
-C                     THE VALUE OF IFLAG CHOOSING THE LOGICAL RECORD   C
-C                     TO BE RETURNED.  IFLAG<0 OR IFLAG>NPARMS WILL    C
-C                     PRODUCE AN ERROR MESSAGE.                        C
-C                     AS OUTPUT, IFLAG INDICATE THE COMPLETION CODE    C
-C                     IFLAG=0  INDICATES NORMAL COMPLETION             C
-C                     IFLAG=90 INDICATES EOF WAS ENCOUNTERED           C
-C                     IFLAG=91 INDICATES AN INVALID VALUE FOR IFLAG    C
-C                     IFLAG=92 INDICATES THE SUBROUTINE WAS DISABLED   C
-C                     IFLAG=93 INDICATES AN UNRECOVERABLE PARITY ERROR C
-C                              OCCURRED.                               C
-C                     IFLAG=94 INDICATES A RECOVERABLE PARITY ERROR    C
-C                              OCCURRED.                               C
-C                                                                      C
-C        WRITTEN BY GEORGE LEHMANN, JR.                                C
-C                   OCTOBER,1976                                       C
-C                                                                      C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C
-      DIMENSION IRATE(1),SCALE(1),BIAS(1),ARRAY(1),INARRAY(1)
-      COMMON /TPCORR/ RHOTDC
-      LOGICAL RHOTDC
-      DATA RHOTDC /.TRUE./
-      INTEGER ENABLE
-      DATA ENABLE /1/
-      LOGREC=NREC+1
-      ENABLE=0
-      ITEMS=NPERCYC*NREC
-      RETURN
-C
-C        BEGIN NORMAL READ SEQUENCE
-C
-      ENTRY RDREC(INUNIT,IRATE,SCALE,BIAS,NPARMS,NPERCYC,NREC,ARRAY,
-     +            INARRAY,IFLAG)
-C
-      NPARITY=0
-      IF (IFLAG.GT.NREC) GO TO 970
-      IF (IFLAG.LT.0) GO TO 960
-      IF (ENABLE.NE.0) GO TO 980
+      subroutine rddata (inunit,t1,t2,nrecrds,nparms,index,array,nhdr,  &
+     & iflag,m,n,nst)
+!
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!                                                                      c
+!        this subroutine is to be used in conjunction with subroutines c
+!        rdhdr, and rdrec0.  this routine acts as a driver for the     c
+!        others, accepting a start and finish time and a maximum numberc
+!        of records to be returned.  these records consist only of     c
+!        selected parameters, given by the values of the array index.  c
+!                                                                      c
+!        entry rddat2 allows more records to be read from the file     c
+!        without trying to read a header record.                       c
+!                                                                      c
+!                                                                      c
+!        the call is                                                   c
+!             call rddata (inunit,t1,t2,nrecrds,nparms,index,array,    c
+!                          nhdr,iflag)                                 c
+!        inunit    -  logical unit tape is mounted on                  c
+!        t1        -  start time for sampling.                         c
+!        t2        -  end time of sampling period.                     c
+!        nrecrds   -  maximum number of records to be returned.  if youc
+!                     want all the records between t1 and t2, be sure  c
+!                     nrecrds >= (t2-t1)/cyctime +1.                   c
+!                     on return, nrecrds holds the number of records   c
+!                     actually returned.                               c
+!        nparms    -  number of parameters to be returned for each     c
+!                     record.                                          c
+!        index     -  array containing the locations of the parameters c
+!                     within a record to be returned.  these need be   c
+!                     in no special order.                             c
+!        array     -  the array to contain the returned values.  it is c
+!                     a two-dimensional array. with the first index    c
+!                     referring to record number, and the second to    c
+!                     parameter number (not location).                 c
+!        nhdr      -  gives the number of physical records in the header
+!        iflag     -  as input, controls the printing of the header    c
+!                     information.  if iflag = 1, the printing will be c
+!                     suppressed.                                      c
+!                     as output, it indicates the completion code.     c
+!                     iflag=0, normal return, with t2 limiting search. c
+!                     iflag=1, normal return, nrecrds limiting search  c
+!                     iflag=2, t1 and t2 have invalid times.           c
+!                     iflag=3, nrecrds or nparms is < zero.            c
+!                     iflag=4, eof was reached on a header read.       c
+!                     iflag=5, unrecoverable parity error occurred.    c
+!                     iflag=6, eof was reached during data read.       c
+!                     iflag=7, catastrophic errors have occurred in    c
+!                              execution.                              c
+!        m         -  first dimension of input array "array"           c
+!        n         -  second dimension of input array "array"          c
+!        nst       -  records will be stored in "array" beginning at   c
+!                     array(nst,1).                                    c
+!                                                                      c
+!        written by george lehmann, jr.                                c
+!                   october,1976                                       c
+!                                                                      c
+!        modified to run on the cray-1 by mike daniels                 c
+!                   january, 1983                                      c
+!                                                                      c
+!                                                                      c
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!
+      dimension index(nparms),array(m,n),irate(100),                    &
+     &  scale(100),bias(100),inarray(1500),dataray(1500)
+      data  iswch /0/
+      if(t2.le.t1) go to 900
+      if (nrecrds.le.0.or.nparms.le.0) go to 910
+      if (iswch.eq.1) go to 100
+      iswch = 1
+!
+!        process header information
+!
+      call rdhdr (inunit,irate,scale,bias,np,nper,ctime,nr,nw,inarray,  &
+     & nhdr,iflag)
+      iflag=iflag+1
+      go to (100,920,930,90),iflag
+   90 write (6,91) inunit
+!
+!        this entry point allows reading data without first reading
+!        the header
+!
+      entry rddat2
+  100 n=nst-1
+      t0=t1-float(nr)*ctime
+!
+!        search for the right records
+!
+  110 iflag=1
+  120 call rdrec (inunit,irate,scale,bias,np,nper,nr,dataray,inarray,   &
+     & iflag)
+      if (iflag.eq.0) go to 200
+      iflag=iflag-89
+      go to (940,950,950,930,190), iflag
+  190 write (6,91) inunit
+  200 if (dataray(1).lt.t0) go to 110
+      if (dataray(1).lt.t1) go to 120
+      if (dataray(1).gt.t2) go to 800
+!
+!        move parameters into new array element
+!
+      n=n+1
+      do 300 j=1,nparms
+      k=index(j)
+  300 array(n,j)=dataray(k)
+      if (n.ge.nrecrds) go to 810
+      go to 120
+!
+!        finish up and return
+!
+  800 nrecrds=n
+      iflag=0
+      return
+  810 nrecrds=n
+      iflag=1
+      return
+!
+  900 iflag=2
+      write (6,905)
+      return
+!
+  910 iflag=3
+      write (6,915)
+      return
+!
+  920 iflag=4
+      iswch = 0
+      nrecrds=n
+      write (6,925)
+      return
+!
+  930  iflag=5
+      write (6,935)
+      return
+!
+  940 iflag=6
+      iswch = 0
+      nrecrds=n
+      write (6,945)
+      return
+!
+  950 iflag=7
+      write (6,955)
+      return
+!
+   91 format ("0recoverable parity error occurred on unit ",i2)
+  905 format ("-  >>>error<<<  invalid values for times t1 and t2")
+  915 format ("-  >>>error<<<  number of records or number of parameters&
+     & requested is non-positive number")
+  925 format ("-  end of volume")
+  935 format ("-  >>>error<<<  parity error occurred during tape read")
+  945 format ("-  end of file")
+  955 format ("-  >>>>>error<<<<< catastrophic error has occurred")
+      end
+!
+      subroutine rdhdr   (inunit,irate,scale,bias,nparms,npercyc,       &
+     &  cyctime,nrec,nwords,inarray,nhdr,iflag)
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!                                                                      c
+!                                                                      c
+!        this subroutine reads a header block, prints the information  c
+!        contained in that block, decodes and returns certain parameters
+!        to the calling program.                                       c
+!                                                                      c
+!        the call is                                                   c
+!            call rdhdr   (inunit,irate,scale,bias,nparms,npercyc,     c
+!                           cyctime,nrec,nwords,inarray,iflag)         c
+!        inunit    -  logical unit number of the tape used             c
+!        irate     -  array to contain returned values of sampling ratec
+!        scale     -  array to contain returned values for rescaling   c
+!                     the data.                                        c
+!        bias      -  array to contain the returned values for         c
+!                     correcting the data offset.                      c
+!        nparms    -  returns the number of parameters per logical rec c
+!        npercyc   -  returns the number of parameters taken per cycle c
+!        cyctime   -  returns the cycle time used                      c
+!        nrec      -  returns the number of logical records per physical
+!                     record                                           c
+!        nwords    -  returns the number of words of memory occupied   c
+!                     by a physical record                             c
+!        inarray   -  working array for the subroutine, must be at     c
+!                     least 1500 words.                                c
+!        nhdr      -  gives number of physical records in the header   c
+!        iflag     -  as input, suppresses print if iflag=1            c
+!                  -  as output, returns completion code as follows    c
+!                     iflag=0 indicates normal return                  c
+!                     iflag=1 indicates eof sensed during operation    c
+!                     iflag=2 indicates unrecoverable parity error     c
+!                             occured during operation.                c
+!                     iflag=3 indicates recoverable parity error was   c
+!                             detected.                                c
+!                                                                      c
+!        written by george lehmann, jr.                                c
+!                   october,1976                                       c
+!                                                                      c
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!
+!dln      dimension irate(1),scale(1),bias(1),inarray(1),label(7)
+!dln fix array( 1) with assumed size array
+      dimension irate(*),scale(*),bias(*),inarray(*),label(7)
+!dln added unit to integer declaration
+      integer ascii(64),wkarray(16000),flg, unit
+!dln need type real array for call to rdhdr
+      dimension array( 1500)
+      common /tpcorr/ icorr1
+      common /locatn/ locat(500)
+      logical icorr1
+!dln convert ccB to o'cc'
+      data ascii/o'72',o'101',o'102',o'103',o'104',o'105',o'106',o'107',&
+     &o'110',o'111',o'112',o'113',o'114',o'115',o'116',o'117',o'120',   &
+     &o'121',o'122',o'123',o'124',o'125',o'126',o'127',o'130',o'131',   &
+     &o'132',o'60',o'61',o'62',o'63',o'64',o'65',o'66',o'67',o'70',     &
+     &o'71',o'53',o'55',o'52',o'57',o'50',o'51',o'44',o'75',o'40',o'54',&
+     &o'56',o'43',o'133',o'135',o'45',o'42',o'137',o'41',o'46',o'47',   &
+     &o'77',o'74',o'76',o'100',o'134',o'136',o'73'/
+      nparity=0
+      if (iflag.eq.0) write(6,11)
+!
+!        fetch the header records from tape
+!
+      ist = 1
+      icorr1 = nhdr.eq.3
+      do 100 i=1,nhdr
+!dln    7 buffer in (inunit,1)(inarray(ist),inarray(1500))
+    7 continue
+      read( unit= inunit, iostat= unit) inarray( 1: 1500)
+!dln   10 if (unit(inunit)) 20,991,15
+   10 continue
+      if( unit ) 20, 991, 15
+   15 if(nparity.ne.0) go to 995
+      write (6,996)
+      nparity=1
+      backspace inunit
+      go to 7
+   20 ilen=length(inunit)
+  100 ist=ist+ilen
+      iter=int((ist-1)*64/6)+1
+      call gbytes(inarray,wkarray,0,6,0,iter)
+      do 102 j1=1,iter
+      if (wkarray(j1).gt.63) then
+         wkarray(j1)=ascii(45)
+      else
+         wkarray(j1)=ascii(wkarray(j1)+1)
+      endif
+  102 end do
+      call sbytes(inarray,wkarray,0,8,0,iter)
+      if(iflag.eq.0) write (6,150) (inarray(k),k=1,138)
+!
+!        read record descriptor information
+!
+!      decode (121,170,inarray(23)) nparms,npercyc,cyctime
+!  170 format (i3,67x,i4,40x,f5.3)
+      read(inarray(23), '(i3,67x,i4,40x,f5.3)') nparms,npercyc,cyctime
+!dln      decode (107,180,inarray(39)) nrec,ntotal,nwords
+      read( inarray( 39), '(1x,i2,26x,i4,70x,i3)') nparms,npercyc,cyctime
+!
+!        read and print the remainder of the header
+!
+      if (iflag.eq.0) write (6,195)
+      flg=0
+      id=138
+      loc=1
+      do 200 i=1,nparms
+      if (flg.eq.0) then
+!dln         decode (100,210,inarray(id)) j,irate(i),label,scale(i),bias(i)
+         read( inarray( id), '(4x,i3,1x,i4,5x,7a8,10x,f7.1,3x,f7.1)')   &
+     &        j,irate(i),label,scale(i),bias(i)
+      else
+!dln         decode (96,215,inarray(id+1)) j,irate(i),label,scale(i),bias(i)
+         read( inarray( id+1), '(i3,1x,i4,5x,7a8,10x,f7.1,3x,f7.1)')    &
+     &        j,irate(i),label,scale(i),bias(i)
+      endif
+      if (i.eq.1) go to 190
+      loc=loc+irate(i-1)
+  190 if(iflag.eq.0) write (6,220) j,loc,irate(i),label,scale(i),bias(i)
+      locat(i)=loc
+      if (flg.eq.0) then
+         id=id+12
+         flg=1
+      else
+         id=id+13
+         flg=0
+      endif
+  200 end do
+!dln  202 call rdrec0 (inunit,irate,scale,bias,nparms,npercyc,nrec,inarray, &
+!dln     & inarray,iflag)
+!dln call with correct type of work array
+  202 call rdrec0 (inunit,irate,scale,bias,nparms,npercyc,nrec,array,   &
+     &inarray,iflag)
+      iflag=0
+      if(nparity.ne.0) iflag=3
+      return
+!
+!        error messages
+!
+  991 write (6,992)
+      iflag=1
+      return
+!
+  995 write (6,996)
+      iflag=2
+      return
+!
+   11 format ("1")
+  150 format (10(1x,14a8,/))
+  180 format (1x,i2,26x,i4,70x,i3)
+  195 format (/," item   location   rate",17x,"description",20x,"name", &
+     &4x,"units",18x,"scale",12x,"bias",/)
+  210 format (4x,i3,1x,i4,5x,7a8,10x,f7.1,3x,f7.1)
+  215 format (i3,1x,i4,5x,7a8,10x,f7.1,3x,f7.1)
+!dln  220 format ((1x,i3,*)*,i8,i9,5x,7a8,17x,f9.2,5x,f9.2)
+  220 format (1x,i3,i8,i9,5x,7a8,17x,f9.2,5x,f9.2)
+  992 format ("-  >>>error<<<  eof sensed on header read")
+  996 format ("-  >>>error<<<  parity error sensed on header read")
+      end
+!
+      subroutine rdrec0  (inunit,irate,scale,bias,nparms,npercyc,nrec,  &
+     &  array,inarray,iflag)
+!
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!                                                                      c
+!        this subroutine is used to fetch logical records from tape.   c
+!        it has two modes of operation, governed by parameter iflag.   c
+!        in scroll mode, the next sequential logical record is         c
+!        returned.  in select mode, logical record n is returned.      c
+!        if the logical record requested comes before the current      c
+!        record pointer, the next physical record is read to obtain    c
+!        the correct logical record.                                   c
+!                                                                      c
+!        a call to rdrec0 initializes the pointer and enables the read c
+!        operation.  this call is normally made by subroutine rdhdr.   c
+!        entry point rdrec is the call used to read a logical record.  c
+!                                                                      c
+!        the call is                                                   c
+!          call rdrec (inunit,irate,scale,bias,nparms,npercyc,nrec,    c
+!                      array,inarray,iflag                             c
+!                                                                      c
+!        inunit    -  the number of the logical unit the tape is mounted
+!                     on                                               c
+!        irate     -  the array containing the sample rates for the    c
+!                     parameters (returned from rdhdr)                 c
+!        scale     -  the array containing the scaling factors for the c
+!                     parameters (returned from rdhdr)                 c
+!        bias      -  the array containing the offset values for the   c
+!                     parameters (returned from rdhdr)                 c
+!        nparms    -  number of parameters to be found in a logical    c
+!                     record                                           c
+!        npercyc   -  total number of data items per logical record    c
+!        nrec      -  number of logical records per physical record    c
+!        array     -  real array in which the properly biased and      c
+!                     scaled data items will be returned               c
+!        inarray   -  working array for physical record storage.  must c
+!                     be at least 1500 words long.                     c
+!        iflag     -  as input, controls the mode of operation and the c
+!                     logical record to be returned                    c
+!                     iflag=0 selects scroll mode                      c
+!                     iflag=1,2,...,nparms selects select mode, with   c
+!                     the value of iflag choosing the logical record   c
+!                     to be returned.  iflag<0 or iflag>nparms will    c
+!                     produce an error message.                        c
+!                     as output, iflag indicate the completion code    c
+!                     iflag=0  indicates normal completion             c
+!                     iflag=90 indicates eof was encountered           c
+!                     iflag=91 indicates an invalid value for iflag    c
+!                     iflag=92 indicates the subroutine was disabled   c
+!                     iflag=93 indicates an unrecoverable parity error c
+!                              occurred.                               c
+!                     iflag=94 indicates a recoverable parity error    c
+!                              occurred.                               c
+!                                                                      c
+!        written by george lehmann, jr.                                c
+!                   october,1976                                       c
+!                                                                      c
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!
+!dln      dimension irate(1),scale(1),bias(1),array(1),inarray(1)
+!dln fix array( 1) with assumed size array
+      dimension irate(*),scale(*),bias(*),array(*),inarray(*)
+      common /tpcorr/ rhotdc
+      logical rhotdc
+      data rhotdc /.true./
+      integer enable, unit
+      data enable /1/
+      logrec=nrec+1
+      enable=0
+      items=npercyc*nrec
+      return
+!
+!        begin normal read sequence
+!
+      entry rdrec(inunit,irate,scale,bias,nparms,npercyc,nrec,array,    &
+     &            inarray,iflag)
+!
+      nparity=0
+      if (iflag.gt.nrec) go to 970
+      if (iflag.lt.0) go to 960
+      if (enable.ne.0) go to 980
 
-      IF (LOGREC.LE.NREC.AND.IFLAG.EQ.0.OR.IFLAG.GT.LOGREC) GO TO 100
-C
-C        READ IN NEW PHYSICAL RECORD
-C
-    5 BUFFER IN (INUNIT,1)(INARRAY(1001),INARRAY(1500))
-   10 IF (UNIT(INUNIT)) 20,950,990
-   20 LOGREC=1
-      NLENG=LENGTH(INUNIT)
-      IF (IFLAG.NE.0) LOGREC=IFLAG
-      CALL GBYTES (INARRAY(1001),INARRAY(1),0,20,0,ITEMS)
-  100 ISTART=(LOGREC-1)*NPERCYC
-      ISET=1
-      DO 200 J=1,NPARMS
-      J2=IRATE(J)
-      DO 200 K=1,J2
-      ARRAY(ISET)=FLOAT(INARRAY(ISTART+ISET))/SCALE(J)-BIAS(J)
-  200 ISET=ISET+1
-      IF (RHOTDC) ARRAY(7)=ARRAY(7)*(ARRAY(6)+273.16)/(ARRAY(4)+273.16)
-      LOGREC=LOGREC+1
-      IFLAG=0
-      IF (NPARITY.NE.0) IFLAG=94
-      RETURN
-C
-C        ERROR MESSAGES
-C
-  960 IFLAG=91
-      WRITE (6,961)
-      RETURN
-C
-  950 IFLAG=90
-      ENABLE=1
-      RETURN
-C
-  970 IFLAG=91
-      WRITE (6,971)
-      RETURN
-C
-  980 IFLAG=92
-      WRITE (6,981)
-      RETURN
-C
-  990 WRITE (6,991) INUNIT
-      IF (NPARITY.NE.0) GO TO 992
-      BACKSPACE INUNIT
-      NPARITY=1
-      GO TO 5
-  992 IFLAG=93
-      RETURN
-C
-  961 FORMAT ("-  >>>ERROR<<<  VALUE OF IFLAG IS NEGATIVE")
-  971 FORMAT ("-  >>>ERROR<<<  LOGICAL RECORD NUMBER REQUESTED EXCEEDS A
-     C VAILABLE NUMBER OF RECORDS")
-  981 FORMAT ("-  >>>ERROR<<<  DATA RECORD REQUESTED BEFORE HEADER RECORD
-     & HAS BEEN READ")
-  991 FORMAT ("-  >>>ERROR<<<  PARITY ERROR ENCOUNTERED DURING READ OPER
-     C ATION ON UNIT ",I2)
-      END
-C
-      SUBROUTINE SKIPBLK (INUNIT,N)
-C
-C        THIS ROUTINE SKIPS THE NEXT N RECORDS ON THE TAPE MOUNTED
-C        ON LOGICAL UNIT INUNIT
-C
-C        ON RETURN, N INDICATES THE COMPLETION STATUS
-C          N = 1   NORMAL RETURN
-C          N = 2   EOF DETECTED
-C          N = 3   PARITY ERROR DETECTED
-C
-      DIMENSION I(1)
-      IF (N.EQ.0) N=1
-      DO 20 J=1,N
-      BUFFER IN (INUNIT,1) (I,I)
-   10 IF (UNIT(INUNIT)) 20,200,300
-   20 CONTINUE
-      N=1
-      RETURN
-  200 N=2
-      RETURN
-  300 N=3
-      RETURN
-      END
-C
-      SUBROUTINE SKIPFILE(IUN,N)
-      DO 10 I=1,N
-10    CALL SKFILE(IUN)
-      RETURN
-      END
-C
-      FUNCTION IEVNT(E)
-      DATA N4,N3,N2 /3584,498,56
-      I=E
-      I4=I/N4
-      I3=(I-I4*N4)/N3
-      I2=(I-I4*N4-I3*N3)/N2
-      I1=I-I4*N4-I3*N3-I2*N2
-      IF (I4.GT.0) I4=1000
-      IF (I3.GT.0) I3=100
-      IF (I2.GT.0) I2=10
-      IF (I1.GT.0) I1=1
-      IEVNT=I4+I3+I2+I1
-      RETURN
-      END
-C
-      FUNCTION ITME (T)
-      I=T
-      IH=I/3600
-      IM=(I-IH*3600)/60
-      IS=I-IH*3600-IM*60
-      ITME=IS+IM*100+IH*10000
-      RETURN
-      END
+      if (logrec.le.nrec.and.iflag.eq.0.or.iflag.gt.logrec) go to 100
+!
+!        read in new physical record
+!
+!dln    5 buffer in (inunit,1)(inarray(1001),inarray(1500))
+    5 continue
+      read( inunit, iostat= unit) inarray( 1001: 1500)
+!dln   10 if (unit(inunit)) 20,950,990
+   10 continue
+      if (unit) 20,950,990
+   20 logrec=1
+      nleng=length(inunit)
+      if (iflag.ne.0) logrec=iflag
+      call gbytes (inarray(1001),inarray(1),0,20,0,items)
+  100 istart=(logrec-1)*npercyc
+      iset=1
+      do 200 j=1,nparms
+      j2=irate(j)
+      do 200 k=1,j2
+      array(iset)=float(inarray(istart+iset))/scale(j)-bias(j)
+  200 iset=iset+1
+      if (rhotdc) array(7)=array(7)*(array(6)+273.16)/(array(4)+273.16)
+      logrec=logrec+1
+      iflag=0
+      if (nparity.ne.0) iflag=94
+      return
+!
+!        error messages
+!
+  960 iflag=91
+      write (6,961)
+      return
+!
+  950 iflag=90
+      enable=1
+      return
+!
+  970 iflag=91
+      write (6,971)
+      return
+!
+  980 iflag=92
+      write (6,981)
+      return
+!
+  990 write (6,991) inunit
+      if (nparity.ne.0) go to 992
+      backspace inunit
+      nparity=1
+      go to 5
+  992 iflag=93
+      return
+!
+  961 format ("-  >>>error<<<  value of iflag is negative")
+  971 format ("-  >>>error<<<  logical record number requested exceeds a&
+     & vailable number of records")
+  981 format ("-  >>>error<<<  data record requested before header recor&
+     & has been read")
+  991 format ("-  >>>error<<<  parity error encountered during read oper&
+     & ation on unit ",i2)
+      end
+!
+      subroutine skipblk (inunit,n)
+!
+!        this routine skips the next n records on the tape mounted
+!        on logical unit inunit
+!
+!        on return, n indicates the completion status
+!          n = 1   normal return
+!          n = 2   eof detected
+!          n = 3   parity error detected
+!
+!dln add integer declaration for unit
+      integer :: unit
+      dimension i(1)
+      if (n.eq.0) n=1
+      do 20 j=1,n
+!      buffer in (inunit,1) (i,i)
+      read( inunit, iostat= unit) i
+!dln   10 if (unit(inunit)) 20,200,300
+   10 continue
+      if( unit ) 20,200,300
+   20 end do
+      n=1
+      return
+  200 n=2
+      return
+  300 n=3
+      return
+      end
+!
+      subroutine skipfile(iun,n)
+      do 10 i=1,n
+   10 call skfile(iun)
+      return
+      end
+!
+      function ievnt(e)
+!dln add / to end of data statement
+      data n4,n3,n2 /3584,498,56/
+      i=e
+      i4=i/n4
+      i3=(i-i4*n4)/n3
+      i2=(i-i4*n4-i3*n3)/n2
+      i1=i-i4*n4-i3*n3-i2*n2
+      if (i4.gt.0) i4=1000
+      if (i3.gt.0) i3=100
+      if (i2.gt.0) i2=10
+      if (i1.gt.0) i1=1
+      ievnt=i4+i3+i2+i1
+      return
+      end
+!
+      function itme (t)
+      i=t
+      ih=i/3600
+      im=(i-ih*3600)/60
+      is=i-ih*3600-im*60
+      itme=is+im*100+ih*10000
+      return
+      end
