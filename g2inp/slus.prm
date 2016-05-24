@@ -1,0 +1,63 @@
+
+C  Parameter block for DAP available devices       MDD/RLR <880309.1615>
+C 
+C
+      INTEGER LUTI, LUTO, LUBIT, LUSPR, LUNPR, LUTP0, LUTP1, LUTP2
+      INTEGER LUTP3, LUTGD, LUHC, LUTV, LUDIAG
+C 
+C    Terminal Input 
+      PARAMETER (LUTI=5)
+C    Terminal Output
+      PARAMETER (LUTO=6)
+C    Bit Bucket
+      PARAMETER (LUBIT=1)
+C    Spooled Printer (7 at RAF)
+      PARAMETER (LUSPR=6) 
+C    Non-spooled Printer (4 at RAF)
+      PARAMETER (LUNPR=6) 
+C    Tape Drive Unit 0
+      PARAMETER (LUTP0=8) 
+C    Tape Drive Unit 1
+      PARAMETER (LUTP1=9) 
+C    Tape Drive Unit 2
+      PARAMETER (LUTP2=10)
+C    Tape Drive Unit 3
+      PARAMETER (LUTP3=11)
+C    Terminal Graphics Device 
+      PARAMETER (LUTGD=19)
+C    Laser Printer (old hard-copy printer)
+      PARAMETER (LUHC=20) 
+C    Television Screen
+      PARAMETER (LUTV=21) 
+C    Diagnostic Output Device (debug only)
+      PARAMETER (LUDIAG=0)
+C 
+C    D.A.P. Data Files Directory 
+      CHARACTER*80 DAPDTA
+      PARAMETER (DAPDTA='/mmmtmp/cooper/data/') 
+C    Mag Tape Unit 0 Special File Name
+      CHARACTER*9 MT0SFN
+      PARAMETER (MT0SFN='/dev/rmt0')
+C    Mag Tape Unit 1 Special File Name 
+      CHARACTER*9 MT1SFN
+      PARAMETER (MT1SFN='/dev/rmt1')
+C    Mag Tape Unit 0 Special File Name
+      CHARACTER*9 HMT0SFN
+      PARAMETER (HMT0SFN='/dev/rmt8')
+C    Mag Tape Unit 1 Special File Name 
+      CHARACTER*9 HMT1SFN
+      PARAMETER (HMT1SFN='/dev/rmt9')
+
+C    Exabyte Unit 0 Special File Name, aspen.mmm.ucar.edu:
+      CHARACTER*9 EX0SFN
+      PARAMETER (EX0SFN='/dev/rst0')
+
+C    Exabyte Unit 1 Special File Name, aspen.mmm.ucar.edu:
+      CHARACTER*9 EX1SFN
+      PARAMETER (EX1SFN='/dev/rst0')
+C    
+C    Bit bucket Special File Name
+      CHARACTER*9 BITBKT
+      PARAMETER (BITBKT='/dev/null')
+C
+C

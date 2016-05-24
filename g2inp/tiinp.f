@@ -1,0 +1,121 @@
+      SUBROUTINE TIINP(ITMOUT,NTMOUT,LUIN,LUOUT,LUDUP,ERRIN,ERROUT) 
+C*      Copyright University Corporation for Atmospheric Research, 1995   *
+      INCLUDE 'slus.prm'
+C 
+C***** INCLUDE FILE STUFF TO GET INPUT TIME SEGMENTS *****
+C 
+C***** NUMBER AND ARRAY OF OUTPUT TIME SEGMENTS ***** 
+      CHARACTER*80 CMDBUF 
+      CHARACTER*2 PDEV
+      INTEGER ERRIN,ERROUT
+      DIMENSION ITMOUT(6,50)
+C     INTEGER*2 NTMOUT,ITMOUT(6,50)
+C 
+C*****  ISTRNG=RAW INPUT DATA 
+      DIMENSION ISTRNG(6),IT(12) 
+C 
+C***** WRITE OUT THE INPUT TIME SEGMENTS *****
+  10  CONTINUE
+C 
+C***** WRITE OUT DEFINED TIMES *****
+      IF (LUOUT.NE.0) WRITE(LUOUT,995)
+ 995  FORMAT(/" Defined time segments:")
+      DO 20 J=1,NTMOUT
+      CALL TUNPK(IT,ITMOUT(1,J))
+      J1=J/10 
+      J2=J-J1*10
+      IF (LUOUT.NE.0) WRITE(LUOUT,998) J1,J2,(IT(K),K=1,12) 
+ 998  FORMAT(1X,2I1,2(1X,6I1))
+ 20   CONTINUE
+C 
+C**** WRITE OUT USERS CHOICES ***** 
+      IF (LUOUT.NE.0) WRITE(LUOUT,999)
+ 999  FORMAT(//' To change a segment, enter its number and new times'/
+     1 ' To delete an segment, enter its number then [r]'/
+     2 ' To terminate time segment entry, enter [r] (or zeros for NN)'/ 
+     3 " To list to printer, enter 'LI' [r]"/,1X,78('-')/) 
+ 30   CONTINUE
+      IF (LUOUT.NE.0) WRITE(LUOUT,994)
+ 994  FORMAT(' Enter times under the proper field'/ 
+     1 '  N START   END '/ 
+     2 ' NN HHMMSS HHMMSS')
+C 
+C***** READ THE USERS RESPONSE ****** 
+      READ(LUIN,'(A)',ERR=200,END=200,IOSTAT=ERRIN) CMDBUF
+      IF (LUDUP.NE.0) WRITE(LUDUP,'(A)',ERR=200,IOSTAT=ERROUT) CMDBUF 
+      READ(CMDBUF,997) PDEV,(ISTRNG(J),J=1,6) 
+ 997  FORMAT(A2,1X,3I2,1X,3I2)
+C 
+C***** RETURN MEANS TO END SUBROUTINE ******
+      DO 52 I=1,80,2
+      IF (CMDBUF(I:I+1).NE.'  ') GOTO 55
+   52 CONTINUE
+      RETURN
+   55 IF (CMDBUF(1:2).EQ.'LI') GOTO 70
+      IF (CMDBUF(1:2).EQ.'  ') THEN 
+         INTRVL=51
+       ELSE 
+         READ(CMDBUF,57,ERR=50,END=50) INTRVL 
+   57    FORMAT(I2) 
+      END IF
+C 
+C**** TIGHT PACK THE TIMES INTO THE ARRAY ***** 
+ 40   CONTINUE
+      IF(INTRVL.EQ.0) RETURN
+      IF(INTRVL.LE.NTMOUT) GOTO 60
+      INTRVL = NTMOUT+1 
+C 
+C**** NOW CHECK FOR VALID TIMES ***** 
+ 60   CONTINUE
+      BTIM=ISTRNG(1)*3600.+ISTRNG(2)*60.+ISTRNG(3)
+      ETIM=ISTRNG(4)*3600.+ISTRNG(5)*60.+ISTRNG(6)
+      IF((BTIM+ETIM).EQ.0.0) GOTO 80
+      IF(BTIM.GT.ETIM) GOTO 50
+      DO 65 J=1,6 
+ 65   ITMOUT(J,INTRVL)=ISTRNG(J)
+      IF(INTRVL.GT.NTMOUT) NTMOUT=INTRVL
+      GO TO 10
+C 
+C***** COME HERE ON AN INVALID INPUT *****
+ 50   CONTINUE
+      IF (LUOUT.NE.0) WRITE(LUOUT,996)
+ 996  FORMAT(' An incorrect entry has been encountered') 
+      GO TO 30
+C 
+C***** PRINT THE TIME LISTING ON THE LINEPRINTER *****
+ 70   CONTINUE
+      WRITE(LUNPR,995)
+      DO 75 J=1,NTMOUT
+      CALL TUNPK(IT,ITMOUT(1,J))
+      J1=J/10 
+      J2=J-J1*10
+      WRITE(LUNPR,998) J1,J2,(IT(I),I=1,12) 
+ 75   CONTINUE
+c     CALL SENDPR(LUNPR)
+      GOTO 10 
+C 
+C***** DELETE A TIME HERE ***** 
+ 80   CONTINUE
+      IF(INTRVL.GT.NTMOUT) GOTO 50
+      DO 85 I=INTRVL,NTMOUT 
+      DO 85 J=1,6 
+      ITMOUT(J,I) = ITMOUT(J,I+1) 
+ 85   CONTINUE
+      NTMOUT = NTMOUT-1 
+      GOTO 10 
+  200 RETURN
+      END 
+C 
+C 
+C 
+      SUBROUTINE TUNPK(IT,ITIME)
+C 
+C     THIS SUBROUTINE WILL UNPACK ITIME INTO IT FOR SUBROUTINE CMDTI
+C 
+      DIMENSION IT(1),ITIME(1)
+C     INTEGER*2 ITIME(1) 
+      DO 10 I=1,12,2
+      IT(I)=ITIME(INT(I/2)+1)/10
+   10 IT(I+1)=ITIME(INT(I/2)+1)-IT(I)*10
+      RETURN
+      END 

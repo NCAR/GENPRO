@@ -1,0 +1,30 @@
+Explanation of files and directories
+------------------------------------
+GENPRO.header - Template for GENPRO output header
+README    -  This file
+astex/    -  Directory of files for processing project 2-816 ASTEX/MAGE
+cape/     -  Directory of files for processing project 1-276 CaPE
+cepex/    -  Directory of files for processing project 3-819 CEPEX
+coare/    -  Directory of files for processing project 3-817 TOGA/COARE
+fest/     -  Directory of files for processing project 2-269 STORM-FEST
+fib/      -  Directory of files for staging project 2-280 Fires in Brazil
+firek/    -  Directory of files for processing project 2-225 FIRE II Cirrus
+fires/    -  Directory of files for processing project 2-722 FIRE II Cirrus
+fssperr   -  Explanation of recent FSSP errors in GENPRO output data sets
+harp/     -  Directory of files for processing project 0-876 HaRP H-R (Cooper)
+harp_f/   -  Directory of files for processing project 0-876 HaRP FSSP reprocess
+hl_projects.tar.dir.Z - compressed tar listing of project directory
+lake_snow - Directory of files associated with restaging some old #664 data
+mf/       -  Directory of files for processing project 3-226 Momentum Flux
+mrf/      -  Directory of files for generating 25 sps NIMBUS test data (2-269)
+pr241/    -  Directory of files for processing project 1-241 PAIR
+pr256/    -  Directory of files for processing RAF Test project
+pr815/    -  Directory of files for processing project 1-815 TexMex
+rose/     -  Directory of files for processing project 2-249 ROSE/AIR II
+sk2/      -  Directory of files for processing project 3-770 Smith/Kok
+smtkk/    -  Directory of files for processing project 1-739 Chemical Layering
+test503/  -  Directory of files for testing Cray FORTRAN-77 version 5.03
+test80/   -  Directory of files for testing UNICOS 8.0
+wis/      -  Directory of files for processing project 3-278 WISPIT
+
+rev.  Ron Ruth  14 March 1995

@@ -1,0 +1,20 @@
+Explanation of files and directories
+------------------------------------
+Cray/           -  Directory of GENPRO-related files for SCD's Cray computers
+IBM4381/        -  Various files from SCD's now-retired IBM4381 (our primary
+                    GENPRO-processing computer before UNIX)
+celia/          -  Directory with some of Celia Chen's old files
+misc/           -  Directory having miscellaneous files and directories
+                    Example:  a subdirectory with software for generating
+                     triangular-weight filter coefficients for GENPRO's FILTER
+projects/       -  Directory of recent and active GENPRO project-processing
+                    files 
+unix/           -  Directory of GENPRO-related files for UNIX machines (e.g.,
+                    the Masscomp and Sun computers)
+
+NOTE:  Copyright notices were added to *.f files (except files in the
+        calib.old subdirectory) on 26 January 1993.  It may also be
+        prudent to add notices to *.if, *.IF, *.F and the 'calib.old'
+        files.
+
+rev.  Ron Ruth  10 March 1995

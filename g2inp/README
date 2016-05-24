@@ -1,0 +1,7 @@
+In this version, the header file size is specified in file.com and
+the directory for the output files is in slus.prm; the program must
+be recompiled to change these characteristics.  Use header file
+size determined by NVARSZ = 300 for early format, =1000 for present
+format.  The number of variables expected in the GENPRO format is
+also specified in g2inp (1000).  The output directory is determined
+by DAPDTA in slus.prm

@@ -1,0 +1,48 @@
+Explanation of files in the MSS directory:  /RAF/GENPRO/JUL1995
+
+In an attempt to reduce disk space on the Jeffco computer system, "dead"
+files (associated with recent GENPRO project production processing as
+well as GENPRO reference files) have been `tar'red and stashed here.
+   Cray/
+   IBM4381/
+   README
+   STRUCTURE
+   celia/
+   misc/
+   projects/
+     GENPRO.header
+     README
+     astex/
+     cape/
+     cepex/
+     coare/
+     fest/
+     fib/
+     firek/
+     fires/
+     fssperr
+     harp/
+     harp_f/
+     hl_projects.tar.dir.Z
+     lake_snow/
+     mf/
+     mrf/
+     pr241/
+     pr256/
+     pr815/
+     rose/
+     sk2/
+     smtkk/
+     test503/
+     test80/
+     wis/
+   unix/
+
+tar files were made for all the subdirectories in `/home/local/genpro'
+except the `projects' subdirectory.  Separate tar files were made for each
+of the subdirectories of `projects.'
+
+  26 July 1995
+Ron Ruth       RAF Data Manager     NCAR/ATD/RDP&RAF     Voice: (303)497-1084
+<ron@raf.atd.ucar.edu>                                   Fax: (303)497-1092
+<ruth@ncar.ucar.edu>
