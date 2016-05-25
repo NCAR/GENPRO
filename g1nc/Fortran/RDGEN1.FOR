@@ -438,29 +438,3 @@
   991 FORMAT ("-  >>>ERROR<<<  PARITY ERROR ENCOUNTERED DURING READ OPER&
      & ATION ON UNIT ",I2)
       END
-!
-      SUBROUTINE SKIPBLK (INUNIT,N)
-!
-!        THIS ROUTINE SKIPS THE NEXT N RECORDS ON THE TAPE MOUNTED
-!        ON LOGICAL UNIT INUNIT
-!
-!        ON RETURN, N INDICATES THE COMPLETION STATUS
-!          N = 1   NORMAL RETURN
-!          N = 2   EOF DETECTED
-!          N = 3   PARITY ERROR DETECTED
-!
-      INTEGER :: status
-      DIMENSION I(1)
-      IF (N.EQ.0) N=1
-      DO 20 J=1,N
-      READ( INUNIT, IOSTAT= status) I
-   10 CONTINUE
-      IF( status ) 20,200,300
-   20 END DO
-      N=1
-      RETURN
-  200 N=2
-      RETURN
-  300 N=3
-      RETURN
-      END
