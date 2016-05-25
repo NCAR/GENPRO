@@ -465,33 +465,3 @@
   300 N=3
       RETURN
       END
-!
-      SUBROUTINE SKIPFILE(IUN,N)
-      DO 10 I=1,N
-   10 CALL SKFILE(IUN)
-      RETURN
-      END
-!
-      FUNCTION IEVNT(E)
-      DATA N4,N3,N2 /3584,498,56/
-      I=E
-      I4=I/N4
-      I3=(I-I4*N4)/N3
-      I2=(I-I4*N4-I3*N3)/N2
-      I1=I-I4*N4-I3*N3-I2*N2
-      IF (I4.GT.0) I4=1000
-      IF (I3.GT.0) I3=100
-      IF (I2.GT.0) I2=10
-      IF (I1.GT.0) I1=1
-      IEVNT=I4+I3+I2+I1
-      RETURN
-      END
-!
-      FUNCTION ITME (T)
-      I=T
-      IH=I/3600
-      IM=(I-IH*3600)/60
-      IS=I-IH*3600-IM*60
-      ITME=IS+IM*100+IH*10000
-      RETURN
-      END
