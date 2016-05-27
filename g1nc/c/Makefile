@@ -4,7 +4,7 @@ CXX = g++
 CXXFLAGS = -g -Wall
 
 C_TARGETS = hist
-CXX_TARGETS = convert
+CXX_TARGETS = genpro2nc
 
 LIBS = -lnetcdf
 
