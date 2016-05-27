@@ -11,12 +11,19 @@
 
 #include "gbytes.cpp"
 
-#define HEADER_SIZE 10000
-#define DECOMP_SIZE HEADER_SIZE*8/6
-#define LINE_LENGTH 100
-
 // Rounds up division.
 #define DIV_CEIL(n,d) (((n)-1)/(d)+1)
+
+#define LINE_LENGTH 100
+#define HEADER_LINES 11
+
+#define GET_COMP_HEADER_SIZE(l) (DIV_CEIL((l)*LINE_LENGTH*6,8))
+#define GET_DECOMP_HEADER_SIZE(l) ((l)*LINE_LENGTH)
+
+// The size of the header, in bytes, when compressed (i.e., when encoded).
+#define COMP_HEADER_SIZE GET_COMP_HEADER_SIZE(HEADER_LINES)
+#define DECOMP_HEADER_SIZE GET_DECOMP_HEADER_SIZE(HEADER_LINES)
+#define PARAMETER_HEADER_START COMP_HEADER_SIZE
 
 enum {
 	kFalse = 0,
@@ -44,6 +51,8 @@ typedef struct {
 	int ncDimId;      /** Handle to the NetCDF dimension for this array. */
 } Parameter;
 
+int read_header_chunk(FILE *fp, uint8_t **in_buffer, char **header_decomp, int numLines);
+
 int main(int argc, char **argv)
 {
 	int status;
@@ -53,17 +62,12 @@ int main(int argc, char **argv)
 	int cmode = NC_NOCLOBBER;
 	FILE *fp;
 	char *inFileName, *outFileName;
-	uint8_t header[HEADER_SIZE];
-	int data_decomp[HEADER_SIZE*8/20];
-	char header_decomp[HEADER_SIZE*8/6];
+	uint8_t *in_buffer = NULL;
+	int *data_decomp = NULL;
+	char *header_decomp = NULL;
 	int i, j, k;
 	int start, curCycle;
 	Parameter *params = NULL;
-	char ascii[65 /* add one for the null terminator */] =
-		":"
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		"0123456789"
-		"+-*/()$= ,.#[]%\"_!&'?<>@\\^;";
 	int numParameters, numPerCycle;
 	float cycleTime;
 
@@ -83,29 +87,37 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	if (fread(header, sizeof(uint8_t), HEADER_SIZE, fp) != HEADER_SIZE) {
-		fprintf(stderr, "Error: failed to read header.\n");
+	if (!read_header_chunk(fp, &in_buffer, &header_decomp, HEADER_LINES)) {
+		fclose(fp);
 		exit(1);
 	}
-
-	// Extract 6 bit fields from this
-	gbytes<uint8_t,char>(header, header_decomp, 0, 6, 0, DECOMP_SIZE);
-
-	for (i = 0; i < DECOMP_SIZE; i++) {
-		header_decomp[i] = ascii[(int) header_decomp[i]];
-	}
-	header_decomp[DECOMP_SIZE] = '\0';
 
 	sscanf(header_decomp+175, "%3d", &numParameters);
 	sscanf(header_decomp+246, "%4d", &numPerCycle);
 	sscanf(header_decomp+290, "%f", &cycleTime);
 
 	if (!(params = (Parameter*) malloc(sizeof(Parameter)*numParameters))) {
+		free(in_buffer);
+		free(header_decomp);
+		fclose(fp);
 		goto mallocfail;
 	}
 	memset(params, 0, sizeof(Parameter)*numParameters);
 
-#define PARAMETER(i) header_decomp+100*(i+11)
+	/* Now that we know precisely how many parameters there are, we can
+	 * decompress the parameter description text.
+	 */
+	fseek(fp, COMP_HEADER_SIZE, SEEK_SET);
+	if (!read_header_chunk(fp, &in_buffer, &header_decomp, numParameters)) {
+		fclose(fp);
+		exit(1);
+	}
+
+	/*
+	 * Parse parameters' parameters.
+	 */
+
+#define PARAMETER(i) (header_decomp+LINE_LENGTH*(i))
 
 	for (i = 0; i < numParameters; i++) {
 		sscanf(PARAMETER(i)+4, "%d", &(params[i].rate));
@@ -113,7 +125,13 @@ int main(int argc, char **argv)
 		sscanf(PARAMETER(i)+90, "%f", &(params[i].bias));
 		j = strchr(PARAMETER(i)+56, ' ') - (PARAMETER(i)+56);
 		if (!(params[i].label = (char*) malloc(sizeof(char)*(j+1)))) {
-			// TODO: free previous allocations
+			for (j = 0; j < i; j++) {
+				if (params[i].label) free(params[i].label);
+				if (params[i].desc) free(params[i].desc);
+				fclose(fp);
+				free(in_buffer);
+				free(header_decomp);
+			}
 			goto mallocfail;
 		}
 		strncpy(params[i].label, PARAMETER(i)+56, j);
@@ -127,17 +145,21 @@ int main(int argc, char **argv)
 		j++;
 		// Copy the description
 		if (!(params[i].desc = (char*) malloc(sizeof(char)*(j+1)))) {
-			// TODO: free previous allocations
+			for (j = 0; j < i; j++) {
+				if (params[i].label) free(params[i].label);
+				if (params[i].desc) free(params[i].desc);
+				fclose(fp);
+				free(in_buffer);
+				free(header_decomp);
+			}
 			goto mallocfail;
 		}
 		strncpy(params[i].desc, PARAMETER(i)+13, j);
 		params[i].descLen = j;
 	}
 
-	for (i = 0; i < 100*(11+numParameters); i += LINE_LENGTH) {
-		fwrite(header_decomp+i, sizeof(char), LINE_LENGTH, stdout);
-		fputc('\n', stdout);
-	}
+	free(header_decomp);
+	header_decomp = NULL;
 
 	/*
 	 * Determine how many records there are by doing some math.
@@ -145,7 +167,7 @@ int main(int argc, char **argv)
 	fseek(fp, 0L, SEEK_END);
 
 	// Offset to the start of data.
-	dataStart = DIV_CEIL((11+numParameters)*100*6,64)*8;
+	dataStart = DIV_CEIL((HEADER_LINES+numParameters)*LINE_LENGTH*6,64)*8;
 
 	// Amount of data to read in with each fread(). (I.e., the amount of data
 	// in one cycle's worth of samples.)
@@ -161,6 +183,13 @@ int main(int argc, char **argv)
 	 * Get data from the file.
 	 */
 
+	if (!(in_buffer = (uint8_t*) realloc(in_buffer, sizeof(uint8_t)*cycleLength))) {
+		goto mallocfail;
+	}
+	if (!(data_decomp = (int*) realloc(data_decomp, sizeof(int)*numPerCycle))) {
+		goto mallocfail;
+	}
+
 	// Allocate arrays
 	for (i = 0; i < numParameters; i++) {
 		if (params[i].isUnused) continue;
@@ -168,8 +197,7 @@ int main(int argc, char **argv)
 		if (!(params[i].values =
 		      (float*) malloc(sizeof(float)*params[i].numValues)))
 		{
-			fprintf(stderr, "Error: Memory allocation failed, aborting.\n");
-			exit(1);
+			goto mallocfail;
 		}
 	}
 
@@ -177,8 +205,8 @@ int main(int argc, char **argv)
 	fseek(fp, dataStart, SEEK_SET);
 	curCycle = 0; // Which cycle are we reading?
 	do {
-		fread(header, sizeof(uint8_t), cycleLength, fp);
-		gbytes<uint8_t,int>(header, data_decomp, 0, 20, 0, numPerCycle);
+		fread(in_buffer, sizeof(uint8_t), cycleLength, fp);
+		gbytes<uint8_t,int>(in_buffer, data_decomp, 0, 20, 0, numPerCycle);
 		k = 0;
 		for (i = 0; i < numParameters; i++) {
 			if (params[i].isUnused) {
@@ -192,6 +220,10 @@ int main(int argc, char **argv)
 		}
 		curCycle++;
 	} while (!feof(fp));
+
+	free(in_buffer); in_buffer = NULL;
+	free(data_decomp); data_decomp = NULL;
+	fclose(fp);
 
 	// Restore original values by scaling/biasing.
 	for (i = 0; i < numParameters; i++) {
@@ -263,6 +295,8 @@ int main(int argc, char **argv)
 		}
 	}
 
+	nc_close(ncid);
+
 	// Clean up.
 	for (i = 0; i < numParameters; i++) {
 		if (params[i].values) {
@@ -274,8 +308,6 @@ int main(int argc, char **argv)
 	}
 	free(params);
 
-	nc_close(ncid);
-
 	return 0;
 
 mallocfail:
@@ -284,5 +316,51 @@ mallocfail:
 
 ncerr:
 	fprintf(stderr, "Error string was: %s\n", nc_strerror(status));
+	return 1;
+}
+
+int read_header_chunk(FILE *fp, uint8_t **in_buffer, char **header_decomp, int numLines)
+{
+	size_t i;
+	size_t compSize = GET_COMP_HEADER_SIZE(numLines);
+	size_t decompSize = GET_DECOMP_HEADER_SIZE(numLines);
+	char ascii[65 /* add one for the null terminator */] =
+		":"
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"0123456789"
+		"+-*/()$= ,.#[]%\"_!&'?<>@\\^;";
+
+	if (!(*in_buffer = (uint8_t*) realloc(*in_buffer,
+	                                      sizeof(uint8_t)*compSize)))
+	{
+		return 0;
+	}
+
+	if (fread(*in_buffer, sizeof(uint8_t), compSize, fp) != compSize) {
+		fprintf(stderr, "Error: failed to read header.\n");
+		free(in_buffer);
+		return 0;
+	}
+
+	if (!(*header_decomp = (char*) realloc(*header_decomp,
+	                                       sizeof(char)*(decompSize+1))))
+	{
+		free(in_buffer);
+		return 0;
+	}
+
+	// Decompress the header.
+	gbytes<uint8_t,char>(*in_buffer, *header_decomp, 0, 6, 0, decompSize);
+
+	for (i = 0; i < decompSize; i++) {
+		(*header_decomp)[i] = ascii[(int) (*header_decomp)[i]];
+	}
+	(*header_decomp)[decompSize] = '\0';
+
+	for (i = 0; i < decompSize; i += LINE_LENGTH) {
+		fwrite((*header_decomp)+i, sizeof(char), LINE_LENGTH, stdout);
+		fputc('\n', stdout);
+	}
+
 	return 1;
 }
