@@ -31,6 +31,9 @@ typedef struct {
 	float bias;       /** Offset to be applied to reconstruct original
 	                      parameter values. */
 	char *label;      /** The label associated with this parameter. */
+	char *desc;       /** Description text associated with this parameter. */
+	size_t descLen;   /** Length of description text, not including the null
+	                      terminator. */
 	int ncVar;        /** The NetCDF variable ID corresponding to this
 	                      parameter. */
 	float *values;    /** A pointer to an array of values for this
@@ -148,11 +151,18 @@ int main(int argc, char **argv)
 		params[i].label[j] = '\0';
 		// Skip unused parameters
 		if (strcmp(params[i].label, "UNUSED") == 0) {
-			//numParameters--;
-			//free(params[i].label);
-			//i--;
 			params[i].isUnused = kTrue;
 		}
+		// Compute the length of the description text.
+		for (j = 42; *(PARAMETER(i)+13+j) == ' '; j--) {}
+		j++;
+		// Copy the description
+		if (!(params[i].desc = (char*) malloc(sizeof(char)*(j+1)))) {
+			// TODO: free previous allocations
+			goto mallocfail;
+		}
+		strncpy(params[i].desc, PARAMETER(i)+13, j);
+		params[i].descLen = j;
 	}
 
 	for (i = 0; i < 100*(11+numParameters); i += LINE_LENGTH) {
@@ -251,8 +261,16 @@ int main(int argc, char **argv)
 			goto ncerr;
 		}
 
-		if ((status = nc_put_att_int(ncid, params[i].ncVar, "SAMPLE_RATE", NC_INT,
-		                             1, &(params[i].rate))) != NC_NOERR)
+		if ((status = nc_put_att_text(ncid, params[i].ncVar, "DESCRIPTION",
+		                              params[i].descLen,
+		                              params[i].desc)) != NC_NOERR)
+		{
+			goto ncerr;
+		}
+
+		if ((status = nc_put_att_int(ncid, params[i].ncVar, "SAMPLE_RATE",
+		                             NC_INT, 1,
+		                             &(params[i].rate))) != NC_NOERR)
 		{
 			goto ncerr;
 		}
