@@ -3,11 +3,12 @@ CFLAGS = -g -Wall
 CXX = g++
 CXXFLAGS = -g -Wall
 
-C_TARGETS = convert hist
+C_TARGETS = hist
+CXX_TARGETS = convert convert2
 
 OBJS = gbytes.o
 
-all: $(C_TARGETS) convert2
+all: $(C_TARGETS) $(CXX_TARGETS)
 
 $(TARGETS): % : %.c
 	$(CC) $(CFLAGS) $< -o $@
@@ -15,5 +16,5 @@ $(TARGETS): % : %.c
 $(OBJS): %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
-convert2 : % : %.cpp
+$(CXX_TARGETS) : % : %.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@
