@@ -38,15 +38,18 @@ typedef struct {
 	size_t numValues; /** Total number of samples recorded. This is the length
 	                      of the `values' array. */
 	char isUnused;    /** Indicates if the variable is unused. */
+	int ncDimId;      /** Handle to the NetCDF dimension for this array. */
 } Parameter;
 
 int main(int argc, char **argv)
 {
+	int status;
+	int ncid; /* Handle on the NetCDF file */
 	size_t cycleLength, dataStart, numRecords;
 	char name[100];
 	int cmode = NC_NOCLOBBER;
 	FILE *fp;
-	char *fn;
+	char *inFileName, *outFileName;
 	uint32_t buf[3];
 	uint8_t header[HEADER_SIZE];
 	int data_decomp[HEADER_SIZE*8/20];
@@ -62,15 +65,19 @@ int main(int argc, char **argv)
 	int numParameters, numPerCycle;
 	float cycleTime;
 
-	if (argc != 2) {
-		fprintf(stderr, "Error: Require exactly one argument.\n");
+	if (argc != 3) {
+		fprintf(stderr, "Error: Require exactly two arguments.\n");
+		printf("Usage:\n"
+		       "\n"
+		       "    convert INFILE OUTFILE\n");
 		exit(1);
 	}
 
-	fn = argv[1];
+	inFileName = argv[1];
+	outFileName = argv[2];
 
-	if (!(fp = fopen(fn, "r"))) {
-		fprintf(stderr, "Error: Failed to open \"%s\" for reading.\n", fn);
+	if (!(fp = fopen(inFileName, "r"))) {
+		fprintf(stderr, "Error: Failed to open \"%s\" for reading.\n", inFileName);
 		exit(1);
 	}
 
@@ -207,9 +214,88 @@ int main(int argc, char **argv)
 		curCycle++;
 	} while (!feof(fp));
 
+	// Restore original values by scaling/biasing.
+	for (i = 0; i < numParameters; i++) {
+		if (params[i].isUnused) continue;
+		for (j = 0; j < (int) params[i].numValues; j++) {
+			params[i].values[j] = ((float) params[i].values[j])/params[i].scale -
+			                      params[i].bias;
+		}
+	}
+
+	/*
+	 * Save the data to NetCDF.
+	 */
+
+	if ((status = nc_create(outFileName, cmode, &ncid)) != NC_NOERR) {
+		fprintf(stderr, "Fatal: failed to create NetCDF file.\n");
+		goto ncerr;
+	}
+
+	// Define dimensions and variables.
+	for (i = 0; i < numParameters; i++) {
+		if (params[i].isUnused) continue;
+		sprintf(name, "%s_LENGTH", params[i].label);
+		if ((status = nc_def_dim(ncid, name, params[i].numValues,
+		                         &(params[i].ncDimId))) != NC_NOERR)
+		{
+			fprintf(stderr, "Fatal: failed to define dimension for %s\n",
+			        params[i].label);
+			goto ncerr;
+		}
+		if ((status = nc_def_var(ncid, params[i].label, NC_FLOAT, 1L,
+		                         &(params[i].ncDimId),
+		                         &(params[i].ncVar))) != NC_NOERR)
+		{
+			fprintf(stderr, "NetCDF variable definition failed, aborting.\n");
+			goto ncerr;
+		}
+
+		if ((status = nc_put_att_int(ncid, params[i].ncVar, "SAMPLE_RATE", NC_INT,
+		                             1, &(params[i].rate))) != NC_NOERR)
+		{
+			goto ncerr;
+		}
+
+	}
+
+	if ((status = nc_put_att_float(ncid, NC_GLOBAL, "cycle_time", NC_FLOAT, 1,
+	                               &cycleTime)) != NC_NOERR)
+	{
+		goto ncerr;
+	}
+
+	nc_enddef(ncid);
+
+	for (i = 0; i < numParameters; i++) {
+		if (params[i].isUnused) continue;
+		if (nc_put_var_float(ncid, params[i].ncVar,
+		                     params[i].values) != NC_NOERR)
+		{
+			exit(1);
+		}
+	}
+
+	// Clean up.
+	for (i = 0; i < numParameters; i++) {
+		if (params[i].values) {
+			free(params[i].values);
+		}
+		if (params[i].label) {
+			free(params[i].label);
+		}
+	}
+	free(params);
+
+	nc_close(ncid);
+
 	return 0;
 
 mallocfail:
 	fprintf(stderr, "Memory allocation failed, aborting.\n");
+	return 1;
+
+ncerr:
+	fprintf(stderr, "Error string was: %s\n", nc_strerror(status));
 	return 1;
 }

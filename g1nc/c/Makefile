@@ -6,6 +6,8 @@ CXXFLAGS = -g -Wall
 C_TARGETS = hist
 CXX_TARGETS = convert convert2
 
+LIBS = -lnetcdf
+
 OBJS = gbytes.o
 
 all: $(C_TARGETS) $(CXX_TARGETS)
@@ -17,4 +19,4 @@ $(OBJS): %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
 $(CXX_TARGETS) : % : %.cpp
-	$(CXX) $(CXXFLAGS) $< -o $@
+	$(CXX) $(CXXFLAGS) $(LIBS) $< -o $@
