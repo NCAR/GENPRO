@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 {
 	int status;
 	int ncid; /* Handle on the NetCDF file */
-	size_t cycleLength, dataStart, numRecords;
+	size_t cycleLength, dataStart, numRecords, amtRead;
 	char name[100];
 	int cmode = NC_NOCLOBBER;
 	FILE *fp;
@@ -205,7 +205,12 @@ int main(int argc, char **argv)
 	fseek(fp, dataStart, SEEK_SET);
 	curCycle = 0; // Which cycle are we reading?
 	do {
-		fread(in_buffer, sizeof(uint8_t), cycleLength, fp);
+		amtRead = fread(in_buffer, sizeof(uint8_t), cycleLength, fp);
+		if (amtRead < cycleLength) {
+			fprintf(stderr, "Warning: premature EOF encountered while reading"
+			        " data\n");
+			break;
+		}
 		gbytes<uint8_t,int>(in_buffer, data_decomp, 0, 20, 0, numPerCycle);
 		k = 0;
 		for (i = 0; i < numParameters; i++) {
