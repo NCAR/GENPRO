@@ -55,6 +55,11 @@ typedef struct {
 } Parameter;
 
 int read_header_chunk(FILE *fp, uint8_t **in_buffer, char **header_decomp, int numLines);
+int get_text(char *const in_buf,
+             const int offset,
+             const int maxLength,
+             char **out_buf,
+             size_t *const out_length);
 
 int main(int argc, char **argv)
 {
@@ -126,36 +131,32 @@ int main(int argc, char **argv)
 		sscanf(PARAMETER(i)+4, "%d", &(params[i].rate));
 		sscanf(PARAMETER(i)+80, "%f", &(params[i].scale));
 		sscanf(PARAMETER(i)+90, "%f", &(params[i].bias));
-		j = strchr(PARAMETER(i)+56, ' ') - (PARAMETER(i)+56);
-		if (!(params[i].label = (char*) malloc(sizeof(char)*(j+1)))) {
+
+		// Get the parameter (variable) name.
+		if (!get_text(header_decomp, LINE_LENGTH*i+56, 9,
+		              &(params[i].label), NULL))
+		{
 			goto param_malloc_fail;
 		}
-		strncpy(params[i].label, PARAMETER(i)+56, j);
-		params[i].label[j] = '\0';
+
 		// Skip unused parameters
 		if (strcmp(params[i].label, "UNUSED") == 0) {
 			params[i].isUnused = kTrue;
 		}
-		// Compute the length of the description text.
-		for (j = 42; *(PARAMETER(i)+13+j) == ' '; j--) {}
-		j++;
-		// Copy the description
-		if (!(params[i].desc = (char*) malloc(sizeof(char)*(j+1)))) {
+
+		// Get the description text.
+		if (!get_text(header_decomp, LINE_LENGTH*i+13, 42,
+		              &(params[i].desc), &(params[i].descLen)))
+		{
 			goto param_malloc_fail;
 		}
-		strncpy(params[i].desc, PARAMETER(i)+13, j);
-		params[i].desc[j] = '\0';
-		params[i].descLen = j;
-		// Compute the length of the units text.
-		for (j = 7; *(PARAMETER(i)+66+j) == ' ' && j > -1; j--) {}
-		j++;
-		// Copy the units text
-		if (!(params[i].units = (char*) malloc(sizeof(char)*(j+1)))) {
+
+		// Get the units text.
+		if (!get_text(header_decomp, LINE_LENGTH*i+66, 7,
+		              &(params[i].desc), &(params[i].descLen)))
+		{
 			goto param_malloc_fail;
 		}
-		strncpy(params[i].units, PARAMETER(i)+66, j);
-		params[i].units[j] = '\0';
-		params[i].unitsLen = j;
 	}
 
 	free(header_decomp);
@@ -386,5 +387,24 @@ int read_header_chunk(FILE *fp, uint8_t **in_buffer, char **header_decomp, int n
 		fputc('\n', stdout);
 	}
 
+	return 1;
+}
+
+int get_text(char *const in_buf,
+             const int offset,
+             const int maxLength,
+             char **out_buf,
+             size_t *const out_length)
+{
+	int i;
+
+	for (i = maxLength; in_buf[offset+i] == ' ' && i > -1; i--) {}
+	i++;
+	if (!(*out_buf = (char*) malloc(sizeof(char)*(i+1)))) {
+		return 0;
+	}
+	strncpy(*out_buf, in_buf+offset, i);
+	(*out_buf)[i] = '\0';
+	if (out_length) *out_length = i;
 	return 1;
 }
