@@ -41,6 +41,9 @@ typedef struct {
 	char *desc;       /** Description text associated with this parameter. */
 	size_t descLen;   /** Length of description text, not including the null
 	                      terminator. */
+	char *units;      /** Units text associated with this parameter. */
+	size_t unitsLen;  /** Length of units text, not including the null
+	                      terminator. */
 	int ncVar;        /** The NetCDF variable ID corresponding to this
 	                      parameter. */
 	float *values;    /** A pointer to an array of values for this
@@ -125,14 +128,7 @@ int main(int argc, char **argv)
 		sscanf(PARAMETER(i)+90, "%f", &(params[i].bias));
 		j = strchr(PARAMETER(i)+56, ' ') - (PARAMETER(i)+56);
 		if (!(params[i].label = (char*) malloc(sizeof(char)*(j+1)))) {
-			for (j = 0; j < i; j++) {
-				if (params[i].label) free(params[i].label);
-				if (params[i].desc) free(params[i].desc);
-				fclose(fp);
-				free(in_buffer);
-				free(header_decomp);
-			}
-			goto mallocfail;
+			goto param_malloc_fail;
 		}
 		strncpy(params[i].label, PARAMETER(i)+56, j);
 		params[i].label[j] = '\0';
@@ -145,17 +141,21 @@ int main(int argc, char **argv)
 		j++;
 		// Copy the description
 		if (!(params[i].desc = (char*) malloc(sizeof(char)*(j+1)))) {
-			for (j = 0; j < i; j++) {
-				if (params[i].label) free(params[i].label);
-				if (params[i].desc) free(params[i].desc);
-				fclose(fp);
-				free(in_buffer);
-				free(header_decomp);
-			}
-			goto mallocfail;
+			goto param_malloc_fail;
 		}
 		strncpy(params[i].desc, PARAMETER(i)+13, j);
+		params[i].desc[j] = '\0';
 		params[i].descLen = j;
+		// Compute the length of the units text.
+		for (j = 7; *(PARAMETER(i)+66+j) == ' ' && j > -1; j--) {}
+		j++;
+		// Copy the units text
+		if (!(params[i].units = (char*) malloc(sizeof(char)*(j+1)))) {
+			goto param_malloc_fail;
+		}
+		strncpy(params[i].units, PARAMETER(i)+66, j);
+		params[i].units[j] = '\0';
+		params[i].unitsLen = j;
 	}
 
 	free(header_decomp);
@@ -274,6 +274,13 @@ int main(int argc, char **argv)
 			goto ncerr;
 		}
 
+		if ((status = nc_put_att_text(ncid, params[i].ncVar, "UNITS",
+		                              params[i].unitsLen,
+		                              params[i].units)) != NC_NOERR)
+		{
+			goto ncerr;
+		}
+
 		if ((status = nc_put_att_int(ncid, params[i].ncVar, "SAMPLE_RATE",
 		                             NC_INT, 1,
 		                             &(params[i].rate))) != NC_NOERR)
@@ -304,16 +311,26 @@ int main(int argc, char **argv)
 
 	// Clean up.
 	for (i = 0; i < numParameters; i++) {
-		if (params[i].values) {
-			free(params[i].values);
-		}
-		if (params[i].label) {
-			free(params[i].label);
-		}
+		if (params[i].values) free(params[i].values);
+		if (params[i].label) free(params[i].label);
+		if (params[i].desc) free(params[i].desc);
+		if (params[i].units) free(params[i].units);
 	}
 	free(params);
 
 	return 0;
+
+param_malloc_fail: // Memory allocation failed while reading parameter info
+	for (j = 0; j < i; j++) {
+		if (params[i].label) free(params[i].label);
+				if (params[i].desc) free(params[i].desc);
+		if (params[i].units) free(params[i].units);
+	}
+	fclose(fp);
+	if (in_buffer) free(in_buffer);
+	if (header_decomp) free(header_decomp);
+	free(params);
+	// fall through
 
 mallocfail:
 	fprintf(stderr, "Memory allocation failed, aborting.\n");
