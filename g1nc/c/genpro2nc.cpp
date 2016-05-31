@@ -78,6 +78,8 @@ int main(int argc, char **argv)
 	Parameter *params = NULL;
 	int numParameters, numPerCycle;
 	float cycleTime;
+	char *fileDesc;     /* File description text. */
+	size_t fileDescLen; /* Length of the file description text. */
 
 	if (argc != 3) {
 		fprintf(stderr, "Error: Require exactly two arguments.\n");
@@ -98,6 +100,12 @@ int main(int argc, char **argv)
 	if (!read_header_chunk(fp, &in_buffer, &header_decomp, HEADER_LINES)) {
 		fclose(fp);
 		exit(1);
+	}
+
+	// Get the file description.
+	if (!get_text(header_decomp, 0, 23, &fileDesc, &fileDescLen)) {
+		// TODO: cleanup
+		return 1;
 	}
 
 	sscanf(header_decomp+175, "%3d", &numParameters);
@@ -293,7 +301,13 @@ int main(int argc, char **argv)
 
 	}
 
-	if ((status = nc_put_att_float(ncid, NC_GLOBAL, "cycle_time", NC_FLOAT, 1,
+	if ((status = nc_put_att_text(ncid, NC_GLOBAL, "DESCRIPTION",
+	                              fileDescLen, fileDesc)) != NC_NOERR)
+	{
+		goto ncerr;
+	}
+
+	if ((status = nc_put_att_float(ncid, NC_GLOBAL, "CYCLE_TIME", NC_FLOAT, 1,
 	                               &cycleTime)) != NC_NOERR)
 	{
 		goto ncerr;
