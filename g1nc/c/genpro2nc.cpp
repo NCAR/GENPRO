@@ -54,6 +54,24 @@ typedef struct {
 	int ncDimId;      /** Handle to the NetCDF dimension for this array. */
 } Parameter;
 
+typedef struct {
+	size_t blockLength; /** The size, in 8-bit bytes, of a block. */
+	size_t dataStart;   /** The offset to the start of the data. */
+	size_t numBlocks;   /** The number of blocks in a file. */
+	Parameter *params;  /** Parameters (variables) contained in this file. */
+	int numParameters;  /** The number of parameters. */
+	int samplesPerCycle;    /** The number of samples per cycle. */
+	int cyclesPerBlock; /** The number of cycles found in each block. */
+	float cycleTime;    /** Period between batches of samples. */
+	char *fileDesc;     /** File description text. */
+	size_t fileDescLen; /** Length of the file description text. */
+} GP1File;
+
+int gp1_read(GP1File *const gp, FILE *fp);
+int gp1_write_nc(GP1File const*const gp,
+                 char const*const outFileName,
+                 int cmode);
+void gp1_free(GP1File *const gp);
 int read_header_chunk(FILE *fp, uint8_t **in_buffer, char **header_decomp, int numLines);
 int get_text(char *const in_buf,
              const int offset,
@@ -63,23 +81,10 @@ int get_text(char *const in_buf,
 
 int main(int argc, char **argv)
 {
-	int status;
-	int ncid; /* Handle on the NetCDF file */
-	size_t blockLength, dataStart, numRecords, amtRead;
-	char name[100];
 	int cmode = NC_NOCLOBBER;
 	FILE *fp;
 	char *inFileName, *outFileName;
-	uint8_t *in_buffer = NULL;
-	int *data_decomp = NULL;
-	char *header_decomp = NULL;
-	int i, j, k, m;
-	int start, curCycle;
-	Parameter *params = NULL;
-	int numParameters, numPerCycle, cyclesPerBlock;
-	float cycleTime;
-	char *fileDesc;     /* File description text. */
-	size_t fileDescLen; /* Length of the file description text. */
+	GP1File gp;
 
 	if (argc != 3) {
 		fprintf(stderr, "Error: Require exactly two arguments.\n");
@@ -97,35 +102,61 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
+	memset(&gp, 0, sizeof(GP1File));
+
+	if (!gp1_read(&gp, fp)) return 1;
+
+	fclose(fp);
+
+	if (!gp1_write_nc(&gp, outFileName, cmode)) return 1;
+
+	gp1_free(&gp);
+
+	return 0;
+}
+
+/**
+ * Reads a GENPRO-1 file.
+ *
+ * @param gp
+ * @param fp
+ */
+int gp1_read(GP1File *const gp, FILE *fp)
+{
+	size_t amtRead;
+	uint8_t *in_buffer = NULL;
+	int *data_decomp = NULL;
+	char *header_decomp = NULL;
+	int i, j, k, m;
+	int start, curCycle;
+
 	if (!read_header_chunk(fp, &in_buffer, &header_decomp, HEADER_LINES)) {
-		fclose(fp);
-		exit(1);
+		return 0;
 	}
 
 	// Get the file description.
-	if (!get_text(header_decomp, 0, 23, &fileDesc, &fileDescLen)) {
-		// TODO: cleanup
-		return 1;
+	if (!get_text(header_decomp, 0, 23, &(gp->fileDesc), &(gp->fileDescLen))) {
+		return 0;
 	}
 
-	sscanf(header_decomp+175, "%3d", &numParameters);
-	sscanf(header_decomp+246, "%4d", &numPerCycle);
-	sscanf(header_decomp+290, "%f", &cycleTime);
-	sscanf(header_decomp+304, "%d", &cyclesPerBlock);
+	sscanf(header_decomp+175, "%3d", &(gp->numParameters));
+	sscanf(header_decomp+246, "%4d", &(gp->samplesPerCycle));
+	sscanf(header_decomp+290, "%f", &(gp->cycleTime));
+	sscanf(header_decomp+304, "%d", &(gp->cyclesPerBlock));
 
-	if (!(params = (Parameter*) malloc(sizeof(Parameter)*numParameters))) {
+	if (!(gp->params = (Parameter*) malloc(sizeof(Parameter)*gp->numParameters))) {
 		free(in_buffer);
 		free(header_decomp);
 		fclose(fp);
 		goto mallocfail;
 	}
-	memset(params, 0, sizeof(Parameter)*numParameters);
+	memset(gp->params, 0, sizeof(Parameter)*gp->numParameters);
 
 	/* Now that we know precisely how many parameters there are, we can
 	 * decompress the parameter description text.
 	 */
 	fseek(fp, COMP_HEADER_SIZE, SEEK_SET);
-	if (!read_header_chunk(fp, &in_buffer, &header_decomp, numParameters)) {
+	if (!read_header_chunk(fp, &in_buffer, &header_decomp, gp->numParameters)) {
 		fclose(fp);
 		exit(1);
 	}
@@ -136,33 +167,33 @@ int main(int argc, char **argv)
 
 #define PARAMETER(i) (header_decomp+LINE_LENGTH*(i))
 
-	for (i = 0; i < numParameters; i++) {
-		sscanf(PARAMETER(i)+4, "%d", &(params[i].rate));
-		sscanf(PARAMETER(i)+80, "%f", &(params[i].scale));
-		sscanf(PARAMETER(i)+90, "%f", &(params[i].bias));
+	for (i = 0; i < gp->numParameters; i++) {
+		sscanf(PARAMETER(i)+4, "%d", &(gp->params[i].rate));
+		sscanf(PARAMETER(i)+80, "%f", &(gp->params[i].scale));
+		sscanf(PARAMETER(i)+90, "%f", &(gp->params[i].bias));
 
 		// Get the parameter (variable) name.
 		if (!get_text(header_decomp, LINE_LENGTH*i+56, 9,
-		              &(params[i].label), NULL))
+		              &(gp->params[i].label), NULL))
 		{
 			goto param_malloc_fail;
 		}
 
 		// Skip unused parameters
-		if (strcmp(params[i].label, "UNUSED") == 0) {
-			params[i].isUnused = kTrue;
+		if (strcmp(gp->params[i].label, "UNUSED") == 0) {
+			gp->params[i].isUnused = kTrue;
 		}
 
 		// Get the description text.
 		if (!get_text(header_decomp, LINE_LENGTH*i+13, 42,
-		              &(params[i].desc), &(params[i].descLen)))
+		              &(gp->params[i].desc), &(gp->params[i].descLen)))
 		{
 			goto param_malloc_fail;
 		}
 
 		// Get the units text.
 		if (!get_text(header_decomp, LINE_LENGTH*i+66, 7,
-		              &(params[i].units), &(params[i].unitsLen)))
+		              &(gp->params[i].units), &(gp->params[i].unitsLen)))
 		{
 			goto param_malloc_fail;
 		}
@@ -177,71 +208,71 @@ int main(int argc, char **argv)
 	fseek(fp, 0L, SEEK_END);
 
 	// Offset to the start of data.
-	dataStart = DIV_CEIL((HEADER_LINES+numParameters)*LINE_LENGTH*6,64)*8;
+	gp->dataStart = DIV_CEIL((HEADER_LINES+gp->numParameters)*LINE_LENGTH*6,64)*8;
 
 	// Amount of data to read in with each fread(). (I.e., the amount of data
 	// in one cycle's worth of samples.)
-	blockLength = DIV_CEIL(cyclesPerBlock*numPerCycle*20/*bits per value*/,64) *
+	gp->blockLength = DIV_CEIL(gp->cyclesPerBlock*gp->samplesPerCycle*20/*bits per value*/,64) *
 	             8 /*bytes per 64-bit word*/;
 
-	// It would seem that if cyclesPerBlock*numPerCycle*20%64 == 0 (i.e., the
+	// It would seem that if cyclesPerBlock*samplesPerCycle*20%64 == 0 (i.e., the
 	// amount of space needed for a block is exactly divisible by 64 such that
 	// the data would run right up to the edge with no zero padding), a word
 	// of zero padding is added. (So every block is separated by 8 zero bytes.)
-	if (cyclesPerBlock*numPerCycle*20/*bits per value*/ % 64 == 0) {
-		blockLength += 8;
+	if (gp->cyclesPerBlock*gp->samplesPerCycle*20/*bits per value*/ % 64 == 0) {
+		gp->blockLength += 8;
 	}
 
 	// Number of records in the file.
-	numRecords = DIV_CEIL(ftell(fp) - dataStart, blockLength);
+	gp->numBlocks = DIV_CEIL(ftell(fp) - gp->dataStart, gp->blockLength);
 
-	assert((size_t) ftell(fp) == numRecords*blockLength+dataStart);
+	assert((size_t) ftell(fp) == gp->numBlocks*gp->blockLength+gp->dataStart);
 
 	/*
 	 * Get data from the file.
 	 */
 
-	if (!(in_buffer = (uint8_t*) realloc(in_buffer, sizeof(uint8_t)*blockLength))) {
+	if (!(in_buffer = (uint8_t*) realloc(in_buffer, sizeof(uint8_t)*gp->blockLength))) {
 		goto mallocfail;
 	}
-	if (!(data_decomp = (int*) realloc(data_decomp, sizeof(int)*cyclesPerBlock*numPerCycle))) {
+	if (!(data_decomp = (int*) realloc(data_decomp, sizeof(int)*gp->cyclesPerBlock*gp->samplesPerCycle))) {
 		goto mallocfail;
 	}
 
 	// Allocate arrays
-	for (i = 0; i < numParameters; i++) {
-		if (params[i].isUnused) continue;
-		params[i].numValues = params[i].rate * numRecords * cyclesPerBlock;
-		if (!(params[i].values =
-		      (float*) malloc(sizeof(float)*params[i].numValues)))
+	for (i = 0; i < gp->numParameters; i++) {
+		if (gp->params[i].isUnused) continue;
+		gp->params[i].numValues = gp->params[i].rate * gp->numBlocks * gp->cyclesPerBlock;
+		if (!(gp->params[i].values =
+		      (float*) malloc(sizeof(float)*gp->params[i].numValues)))
 		{
 			goto mallocfail;
 		}
 	}
 
 	// Next, read out the records
-	fseek(fp, dataStart, SEEK_SET);
+	fseek(fp, gp->dataStart, SEEK_SET);
 	curCycle = 0; // Which cycle are we reading?
 	do {
-		amtRead = fread(in_buffer, sizeof(uint8_t), blockLength, fp);
-		if (amtRead < blockLength) {
+		amtRead = fread(in_buffer, sizeof(uint8_t), gp->blockLength, fp);
+		if (amtRead < gp->blockLength) {
 			if (amtRead > 0) {
 				fprintf(stderr, "Warning: premature EOF encountered while "
 				        "reading data\n");
 			}
 			break;
 		}
-		gbytes<uint8_t,int>(in_buffer, data_decomp, 0, 20, 0, cyclesPerBlock*numPerCycle);
+		gbytes<uint8_t,int>(in_buffer, data_decomp, 0, 20, 0, gp->cyclesPerBlock*gp->samplesPerCycle);
 		k = 0; // Index into data_decomp
-		for (m = 0; m < cyclesPerBlock; m++) {
-			for (i = 0; i < numParameters; i++) {
-				if (params[i].isUnused) {
-					k += params[i].rate;
+		for (m = 0; m < gp->cyclesPerBlock; m++) {
+			for (i = 0; i < gp->numParameters; i++) {
+				if (gp->params[i].isUnused) {
+					k += gp->params[i].rate;
 					continue;
 				}
-				start = params[i].rate*curCycle;
-				for (j = 0; j < params[i].rate; j++) {
-					params[i].values[start+j] = data_decomp[k++];
+				start = gp->params[i].rate*curCycle;
+				for (j = 0; j < gp->params[i].rate; j++) {
+					gp->params[i].values[start+j] = data_decomp[k++];
 				}
 			}
 			curCycle++;
@@ -250,20 +281,48 @@ int main(int argc, char **argv)
 
 	free(in_buffer); in_buffer = NULL;
 	free(data_decomp); data_decomp = NULL;
-	fclose(fp);
 
 	// Restore original values by scaling/biasing.
-	for (i = 0; i < numParameters; i++) {
-		if (params[i].isUnused) continue;
-		for (j = 0; j < (int) params[i].numValues; j++) {
-			params[i].values[j] = ((float) params[i].values[j])/params[i].scale -
-			                      params[i].bias;
+	for (i = 0; i < gp->numParameters; i++) {
+		if (gp->params[i].isUnused) continue;
+		for (j = 0; j < (int) gp->params[i].numValues; j++) {
+			gp->params[i].values[j] = ((float) gp->params[i].values[j])/
+			                          gp->params[i].scale -
+			                          gp->params[i].bias;
 		}
 	}
 
-	/*
-	 * Save the data to NetCDF.
-	 */
+	return 1;
+
+param_malloc_fail: // Memory allocation failed while reading parameter info
+	for (j = 0; j < i; j++) {
+		if (gp->params[i].label) free(gp->params[i].label);
+		if (gp->params[i].desc)  free(gp->params[i].desc);
+		if (gp->params[i].units) free(gp->params[i].units);
+	}
+	fclose(fp);
+	if (in_buffer) free(in_buffer);
+	if (header_decomp) free(header_decomp);
+	free(gp->params);
+	gp->params = NULL;
+	// fall through
+
+mallocfail:
+	fprintf(stderr, "Memory allocation failed, aborting.\n");
+	return 1;
+}
+
+/*
+ * Saves a GENPRO-1 file to NetCDF.
+ */
+int gp1_write_nc(GP1File const*const gp,
+                 char const*const outFileName,
+                 int cmode)
+{
+	int ncid; /* Handle on the NetCDF file */
+	char name[100];
+	int status;
+	int i;
 
 	if ((status = nc_create(outFileName, cmode, &ncid)) != NC_NOERR) {
 		fprintf(stderr, "Fatal: failed to create NetCDF file.\n");
@@ -271,41 +330,41 @@ int main(int argc, char **argv)
 	}
 
 	// Define dimensions and variables.
-	for (i = 0; i < numParameters; i++) {
-		if (params[i].isUnused) continue;
-		sprintf(name, "%s_LENGTH", params[i].label);
-		if ((status = nc_def_dim(ncid, name, params[i].numValues,
-		                         &(params[i].ncDimId))) != NC_NOERR)
+	for (i = 0; i < gp->numParameters; i++) {
+		if (gp->params[i].isUnused) continue;
+		sprintf(name, "%s_LENGTH", gp->params[i].label);
+		if ((status = nc_def_dim(ncid, name, gp->params[i].numValues,
+		                         &(gp->params[i].ncDimId))) != NC_NOERR)
 		{
 			fprintf(stderr, "Fatal: failed to define dimension for %s\n",
-			        params[i].label);
+			        gp->params[i].label);
 			goto ncerr;
 		}
-		if ((status = nc_def_var(ncid, params[i].label, NC_FLOAT, 1L,
-		                         &(params[i].ncDimId),
-		                         &(params[i].ncVar))) != NC_NOERR)
+		if ((status = nc_def_var(ncid, gp->params[i].label, NC_FLOAT, 1L,
+		                         &(gp->params[i].ncDimId),
+		                         &(gp->params[i].ncVar))) != NC_NOERR)
 		{
 			fprintf(stderr, "NetCDF variable definition failed, aborting.\n");
 			goto ncerr;
 		}
 
-		if ((status = nc_put_att_text(ncid, params[i].ncVar, "DESCRIPTION",
-		                              params[i].descLen,
-		                              params[i].desc)) != NC_NOERR)
+		if ((status = nc_put_att_text(ncid, gp->params[i].ncVar, "DESCRIPTION",
+		                              gp->params[i].descLen,
+		                              gp->params[i].desc)) != NC_NOERR)
 		{
 			goto ncerr;
 		}
 
-		if ((status = nc_put_att_text(ncid, params[i].ncVar, "UNITS",
-		                              params[i].unitsLen,
-		                              params[i].units)) != NC_NOERR)
+		if ((status = nc_put_att_text(ncid, gp->params[i].ncVar, "UNITS",
+		                              gp->params[i].unitsLen,
+		                              gp->params[i].units)) != NC_NOERR)
 		{
 			goto ncerr;
 		}
 
-		if ((status = nc_put_att_int(ncid, params[i].ncVar, "SAMPLE_RATE",
+		if ((status = nc_put_att_int(ncid, gp->params[i].ncVar, "SAMPLE_RATE",
 		                             NC_INT, 1,
-		                             &(params[i].rate))) != NC_NOERR)
+		                             &(gp->params[i].rate))) != NC_NOERR)
 		{
 			goto ncerr;
 		}
@@ -313,64 +372,53 @@ int main(int argc, char **argv)
 	}
 
 	if ((status = nc_put_att_text(ncid, NC_GLOBAL, "DESCRIPTION",
-	                              fileDescLen, fileDesc)) != NC_NOERR)
+	                              gp->fileDescLen, gp->fileDesc)) != NC_NOERR)
 	{
 		goto ncerr;
 	}
 
 	if ((status = nc_put_att_float(ncid, NC_GLOBAL, "CYCLE_TIME", NC_FLOAT, 1,
-	                               &cycleTime)) != NC_NOERR)
+	                               &gp->cycleTime)) != NC_NOERR)
 	{
 		goto ncerr;
 	}
 
 	nc_enddef(ncid);
 
-	for (i = 0; i < numParameters; i++) {
-		if (params[i].isUnused) continue;
-		if (nc_put_var_float(ncid, params[i].ncVar,
-		                     params[i].values) != NC_NOERR)
+	for (i = 0; i < gp->numParameters; i++) {
+		if (gp->params[i].isUnused) continue;
+		if (nc_put_var_float(ncid, gp->params[i].ncVar,
+		                     gp->params[i].values) != NC_NOERR)
 		{
-			exit(1);
+			return 0;
 		}
 	}
 
 	nc_close(ncid);
 
-	if (fileDesc) { free(fileDesc); fileDesc = NULL; }
-
-	// Clean up.
-	for (i = 0; i < numParameters; i++) {
-		if (params[i].values) { free(params[i].values); params[i].values = NULL; }
-		if (params[i].label)  { free(params[i].label);  params[i].label  = NULL; }
-		if (params[i].desc)   { free(params[i].desc);   params[i].desc   = NULL; }
-		if (params[i].units)  { free(params[i].units);  params[i].units  = NULL; }
-	}
-	free(params);
-	params = NULL;
-
-	return 0;
-
-param_malloc_fail: // Memory allocation failed while reading parameter info
-	for (j = 0; j < i; j++) {
-		if (params[i].label) free(params[i].label);
-				if (params[i].desc) free(params[i].desc);
-		if (params[i].units) free(params[i].units);
-	}
-	fclose(fp);
-	if (in_buffer) free(in_buffer);
-	if (header_decomp) free(header_decomp);
-	free(params);
-	// fall through
-
-mallocfail:
-	fprintf(stderr, "Memory allocation failed, aborting.\n");
 	return 1;
 
 ncerr:
 	fprintf(stderr, "Error string was: %s\n", nc_strerror(status));
-	return 1;
+	return 0;
 }
+
+void gp1_free(GP1File *const gp)
+{
+	int i;
+
+	if (gp->fileDesc) { free(gp->fileDesc); gp->fileDesc = NULL; }
+
+	for (i = 0; i < gp->numParameters; i++) {
+		if (gp->params[i].values) { free(gp->params[i].values); gp->params[i].values = NULL; }
+		if (gp->params[i].label)  { free(gp->params[i].label);  gp->params[i].label  = NULL; }
+		if (gp->params[i].desc)   { free(gp->params[i].desc);   gp->params[i].desc   = NULL; }
+		if (gp->params[i].units)  { free(gp->params[i].units);  gp->params[i].units  = NULL; }
+	}
+	free(gp->params);
+	gp->params = NULL;
+}
+
 
 int read_header_chunk(FILE *fp, uint8_t **in_buffer, char **header_decomp, int numLines)
 {
