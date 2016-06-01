@@ -78,6 +78,9 @@ int get_text(char *const in_buf,
              const int maxLength,
              char **out_buf,
              size_t *const out_length);
+int gp1_write_nc(GP1File const*const gp,
+                 char const*const outFileName,
+                 int cmode);
 
 int main(int argc, char **argv)
 {
