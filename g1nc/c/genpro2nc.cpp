@@ -312,6 +312,40 @@ mallocfail:
 	return 1;
 }
 
+typedef struct {
+	char *name;
+	char *value;
+} NCTextAttr;
+
+NCTextAttr globalAttrs[] = {
+#define GLOBAL_ATTR_CREATION_DATE 0
+	/* 0 */ { (char*) "date_created" },
+#if 0
+#define GLOBAL_ATTR_LAT 1
+	/* 1 */ { (char*) "latitude_coordinate" },
+#define GLOBAL_ATTR_LON 2
+	/* 2 */ { (char*) "longitude_coordinate" },
+#endif
+
+// Global attributes with predetermined values
+	{
+		(char*) "institution",
+		(char*) "NCAR Research Aviation Facility"
+	}, {
+		(char*) "Address",
+		(char*) "P.O. Box 3000, Boulder, CO 80307-3000"
+	}, {
+		(char*) "creator_url",
+		(char*) "http://www.eol.ucar.edu"
+	}, {
+		(char*) "Conventions",
+		(char*) "NCAR-RAF/nimbus"
+	}, {
+		(char*) "ConventionsURL",
+		(char*) "http://www.eol.ucar.edu/raf/Software/netCDF.html"
+	}
+};
+
 /*
  * Saves a GENPRO-1 file to NetCDF.
  */
@@ -323,6 +357,7 @@ int gp1_write_nc(GP1File const*const gp,
 	char name[100];
 	int status;
 	int i;
+	time_t t;
 
 	if ((status = nc_create(outFileName, cmode, &ncid)) != NC_NOERR) {
 		fprintf(stderr, "Fatal: failed to create NetCDF file.\n");
@@ -368,7 +403,19 @@ int gp1_write_nc(GP1File const*const gp,
 		{
 			goto ncerr;
 		}
+	}
 
+
+	time(&t);
+	globalAttrs[GLOBAL_ATTR_CREATION_DATE].value = ctime(&t);
+
+	for (i = 0; i < (int) (sizeof(globalAttrs)/sizeof(NCTextAttr)); i++) {
+		if ((status = nc_put_att_text(ncid, NC_GLOBAL, globalAttrs[i].name,
+		                              strlen(globalAttrs[i].value),
+		                              globalAttrs[i].value)) != NC_NOERR)
+		{
+			goto ncerr;
+		}
 	}
 
 	if ((status = nc_put_att_text(ncid, NC_GLOBAL, "DESCRIPTION",
