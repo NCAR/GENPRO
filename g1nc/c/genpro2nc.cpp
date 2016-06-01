@@ -348,21 +348,21 @@ int gp1_write_nc(GP1File const*const gp,
 			goto ncerr;
 		}
 
-		if ((status = nc_put_att_text(ncid, gp->params[i].ncVar, "DESCRIPTION",
+		if ((status = nc_put_att_text(ncid, gp->params[i].ncVar, "long_name",
 		                              gp->params[i].descLen,
 		                              gp->params[i].desc)) != NC_NOERR)
 		{
 			goto ncerr;
 		}
 
-		if ((status = nc_put_att_text(ncid, gp->params[i].ncVar, "UNITS",
+		if ((status = nc_put_att_text(ncid, gp->params[i].ncVar, "units",
 		                              gp->params[i].unitsLen,
 		                              gp->params[i].units)) != NC_NOERR)
 		{
 			goto ncerr;
 		}
 
-		if ((status = nc_put_att_int(ncid, gp->params[i].ncVar, "SAMPLE_RATE",
+		if ((status = nc_put_att_int(ncid, gp->params[i].ncVar, "SampledRate",
 		                             NC_INT, 1,
 		                             &(gp->params[i].rate))) != NC_NOERR)
 		{
