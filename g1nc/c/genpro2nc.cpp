@@ -8,6 +8,7 @@
 #include <string.h>
 #include <assert.h>
 #include <netcdf.h>
+#include <time.h>
 
 #include "gbytes.cpp"
 
