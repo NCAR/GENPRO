@@ -161,7 +161,7 @@ int main(int argc, char **argv)
 
 		// Get the units text.
 		if (!get_text(header_decomp, LINE_LENGTH*i+66, 7,
-		              &(params[i].desc), &(params[i].descLen)))
+		              &(params[i].units), &(params[i].unitsLen)))
 		{
 			goto param_malloc_fail;
 		}
