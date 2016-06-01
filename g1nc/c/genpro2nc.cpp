@@ -326,14 +326,17 @@ int main(int argc, char **argv)
 
 	nc_close(ncid);
 
+	if (fileDesc) { free(fileDesc); fileDesc = NULL; }
+
 	// Clean up.
 	for (i = 0; i < numParameters; i++) {
-		if (params[i].values) free(params[i].values);
-		if (params[i].label) free(params[i].label);
-		if (params[i].desc) free(params[i].desc);
-		if (params[i].units) free(params[i].units);
+		if (params[i].values) { free(params[i].values); params[i].values = NULL; }
+		if (params[i].label)  { free(params[i].label);  params[i].label  = NULL; }
+		if (params[i].desc)   { free(params[i].desc);   params[i].desc   = NULL; }
+		if (params[i].units)  { free(params[i].units);  params[i].units  = NULL; }
 	}
 	free(params);
+	params = NULL;
 
 	return 0;
 
