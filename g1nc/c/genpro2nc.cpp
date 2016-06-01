@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 {
 	int status;
 	int ncid; /* Handle on the NetCDF file */
-	size_t cycleLength, dataStart, numRecords, amtRead;
+	size_t blockLength, dataStart, numRecords, amtRead;
 	char name[100];
 	int cmode = NC_NOCLOBBER;
 	FILE *fp;
@@ -73,10 +73,10 @@ int main(int argc, char **argv)
 	uint8_t *in_buffer = NULL;
 	int *data_decomp = NULL;
 	char *header_decomp = NULL;
-	int i, j, k;
+	int i, j, k, m;
 	int start, curCycle;
 	Parameter *params = NULL;
-	int numParameters, numPerCycle;
+	int numParameters, numPerCycle, cyclesPerBlock;
 	float cycleTime;
 	char *fileDesc;     /* File description text. */
 	size_t fileDescLen; /* Length of the file description text. */
@@ -111,6 +111,7 @@ int main(int argc, char **argv)
 	sscanf(header_decomp+175, "%3d", &numParameters);
 	sscanf(header_decomp+246, "%4d", &numPerCycle);
 	sscanf(header_decomp+290, "%f", &cycleTime);
+	sscanf(header_decomp+304, "%d", &cyclesPerBlock);
 
 	if (!(params = (Parameter*) malloc(sizeof(Parameter)*numParameters))) {
 		free(in_buffer);
@@ -180,29 +181,37 @@ int main(int argc, char **argv)
 
 	// Amount of data to read in with each fread(). (I.e., the amount of data
 	// in one cycle's worth of samples.)
-	cycleLength = DIV_CEIL(numPerCycle*20/*bits per value*/,64) *
+	blockLength = DIV_CEIL(cyclesPerBlock*numPerCycle*20/*bits per value*/,64) *
 	             8 /*bytes per 64-bit word*/;
 
-	// Number of records in the file.
-	numRecords = DIV_CEIL(ftell(fp) - dataStart, cycleLength);
+	// It would seem that if cyclesPerBlock*numPerCycle*20%64 == 0 (i.e., the
+	// amount of space needed for a block is exactly divisible by 64 such that
+	// the data would run right up to the edge with no zero padding), a word
+	// of zero padding is added. (So every block is separated by 8 zero bytes.)
+	if (cyclesPerBlock*numPerCycle*20/*bits per value*/ % 64 == 0) {
+		blockLength += 8;
+	}
 
-	assert((size_t) ftell(fp) == numRecords*cycleLength+dataStart);
+	// Number of records in the file.
+	numRecords = DIV_CEIL(ftell(fp) - dataStart, blockLength);
+
+	assert((size_t) ftell(fp) == numRecords*blockLength+dataStart);
 
 	/*
 	 * Get data from the file.
 	 */
 
-	if (!(in_buffer = (uint8_t*) realloc(in_buffer, sizeof(uint8_t)*cycleLength))) {
+	if (!(in_buffer = (uint8_t*) realloc(in_buffer, sizeof(uint8_t)*blockLength))) {
 		goto mallocfail;
 	}
-	if (!(data_decomp = (int*) realloc(data_decomp, sizeof(int)*numPerCycle))) {
+	if (!(data_decomp = (int*) realloc(data_decomp, sizeof(int)*cyclesPerBlock*numPerCycle))) {
 		goto mallocfail;
 	}
 
 	// Allocate arrays
 	for (i = 0; i < numParameters; i++) {
 		if (params[i].isUnused) continue;
-		params[i].numValues = params[i].rate * numRecords;
+		params[i].numValues = params[i].rate * numRecords * cyclesPerBlock;
 		if (!(params[i].values =
 		      (float*) malloc(sizeof(float)*params[i].numValues)))
 		{
@@ -214,27 +223,29 @@ int main(int argc, char **argv)
 	fseek(fp, dataStart, SEEK_SET);
 	curCycle = 0; // Which cycle are we reading?
 	do {
-		amtRead = fread(in_buffer, sizeof(uint8_t), cycleLength, fp);
-		if (amtRead < cycleLength) {
+		amtRead = fread(in_buffer, sizeof(uint8_t), blockLength, fp);
+		if (amtRead < blockLength) {
 			if (amtRead > 0) {
 				fprintf(stderr, "Warning: premature EOF encountered while "
 				        "reading data\n");
 			}
 			break;
 		}
-		gbytes<uint8_t,int>(in_buffer, data_decomp, 0, 20, 0, numPerCycle);
-		k = 0;
-		for (i = 0; i < numParameters; i++) {
-			if (params[i].isUnused) {
-				k += params[i].rate;
-				continue;
+		gbytes<uint8_t,int>(in_buffer, data_decomp, 0, 20, 0, cyclesPerBlock*numPerCycle);
+		k = 0; // Index into data_decomp
+		for (m = 0; m < cyclesPerBlock; m++) {
+			for (i = 0; i < numParameters; i++) {
+				if (params[i].isUnused) {
+					k += params[i].rate;
+					continue;
+				}
+				start = params[i].rate*curCycle;
+				for (j = 0; j < params[i].rate; j++) {
+					params[i].values[start+j] = data_decomp[k++];
+				}
 			}
-			start = params[i].rate*curCycle;
-			for (j = 0; j < params[i].rate; j++) {
-				params[i].values[start+j] = data_decomp[k++];
-			}
+			curCycle++;
 		}
-		curCycle++;
 	} while (!feof(fp));
 
 	free(in_buffer); in_buffer = NULL;
