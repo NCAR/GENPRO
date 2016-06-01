@@ -82,6 +82,7 @@ int get_text(char *const in_buf,
 int gp1_write_nc(GP1File const*const gp,
                  char const*const outFileName,
                  int cmode);
+int *get_unique_sample_rates(GP1File const*const gp, int *numUnique, int **lookupTable);
 
 int main(int argc, char **argv)
 {
@@ -316,6 +317,56 @@ mallocfail:
 	return 1;
 }
 
+int compare_rates(const void *a, const void *b)
+{
+	if (*((int*) a) < *((int*) b)) return -1;
+	else if (*((int*) a) == *((int*) b)) return 0;
+	else return 1;
+}
+
+int *get_unique_sample_rates(GP1File const*const gp, int *numUnique, int **lookupTable)
+{
+	int i, j;
+	int *redundantRates;
+	int *rates;
+	int numUsed;
+
+	// Sort sampling rates
+	for (i = 0, numUsed = 0; i < gp->numParameters; i++) {
+		if (!gp->params[i].isUnused) numUsed++;
+	}
+	if (!(rates = (int*) malloc(sizeof(int)*4*numUsed))) {
+		return NULL;
+	}
+	if (!(*lookupTable = (int*) malloc(sizeof(int)*gp->numParameters))) {
+		free(rates);
+		return NULL;
+	}
+	redundantRates = rates+numUsed;
+	for (i = 0, j = 0; i < gp->numParameters; i++) {
+		if (!gp->params[i].isUnused) {
+			redundantRates[j] = gp->params[i].rate;
+			redundantRates[j+1] = i;
+			j += 2;
+		}
+	}
+	qsort(redundantRates, numUsed, 2*sizeof(int), compare_rates);
+
+	// Remove redundant sampling rates
+	(*lookupTable)[redundantRates[1]] = 0;
+	rates[0] = redundantRates[0];
+	for (i = 1, j = 0; i < numUsed; i++) {
+		if (redundantRates[2*(i-1)] != redundantRates[2*i]) {
+			rates[++j] = redundantRates[2*i];
+		}
+		(*lookupTable)[redundantRates[2*i+1]] = j;
+	}
+	// j now contains how many unique rates we have
+	*numUnique = j+1;
+
+	return rates;
+}
+
 typedef struct {
 	char *name;
 	char *value;
@@ -361,26 +412,65 @@ int gp1_write_nc(GP1File const*const gp,
 	char name[100];
 	int status;
 	int i;
+	int timeDimId;
+	int numUniqueRates;
+	int *uniqueRates;
+	int *rateDimIds;
+	int *lookupTable;
+	int dimIds[2];
+	long numDims;
 	time_t t;
+	size_t start[2] = { 0, 0 };
+	size_t count[2];
 
 	if ((status = nc_create(outFileName, cmode, &ncid)) != NC_NOERR) {
 		fprintf(stderr, "Fatal: failed to create NetCDF file.\n");
 		goto ncerr;
 	}
 
-	// Define dimensions and variables.
-	for (i = 0; i < gp->numParameters; i++) {
-		if (gp->params[i].isUnused) continue;
-		sprintf(name, "%s_LENGTH", gp->params[i].label);
-		if ((status = nc_def_dim(ncid, name, gp->params[i].numValues,
-		                         &(gp->params[i].ncDimId))) != NC_NOERR)
+	if ((status = nc_def_dim(ncid, "Time", NC_UNLIMITED, &timeDimId)) != NC_NOERR) {
+		goto ncerr;
+	}
+	dimIds[0] = timeDimId;
+
+	if (!(uniqueRates = get_unique_sample_rates(gp, &numUniqueRates, &lookupTable))) {
+		nc_close(ncid);
+		return 0;
+	}
+
+	if (!(rateDimIds = (int*) malloc(sizeof(int) * numUniqueRates))) {
+		free(uniqueRates);
+		nc_close(ncid);
+		return 0;
+	}
+
+	for (i = 0; i < numUniqueRates; i++) {
+		// We don't need to define a dimension for a sample rate of 1.
+		if (uniqueRates[i] == 1) continue;
+
+		sprintf(name, "sps%d", uniqueRates[i]);
+		if ((status = nc_def_dim(ncid, name, uniqueRates[i],
+		                         rateDimIds+i)) != NC_NOERR)
 		{
 			fprintf(stderr, "Fatal: failed to define dimension for %s\n",
 			        gp->params[i].label);
 			goto ncerr;
 		}
-		if ((status = nc_def_var(ncid, gp->params[i].label, NC_FLOAT, 1L,
-		                         &(gp->params[i].ncDimId),
+	}
+
+	// Define dimensions and variables.
+	for (i = 0; i < gp->numParameters; i++) {
+		if (gp->params[i].isUnused) continue;
+
+		if (gp->params[i].rate == 1) {
+			numDims = 1L;
+		} else {
+			numDims = 2L;
+			dimIds[1] = rateDimIds[lookupTable[i]];
+		}
+
+		if ((status = nc_def_var(ncid, gp->params[i].label, NC_FLOAT, numDims,
+		                         dimIds,
 		                         &(gp->params[i].ncVar))) != NC_NOERR)
 		{
 			fprintf(stderr, "NetCDF variable definition failed, aborting.\n");
@@ -409,6 +499,8 @@ int gp1_write_nc(GP1File const*const gp,
 		}
 	}
 
+	free(uniqueRates);
+	free(lookupTable);
 
 	time(&t);
 	globalAttrs[GLOBAL_ATTR_CREATION_DATE].value = ctime(&t);
@@ -436,12 +528,14 @@ int gp1_write_nc(GP1File const*const gp,
 
 	nc_enddef(ncid);
 
+	count[0] = gp->numBlocks * gp->cyclesPerBlock;
 	for (i = 0; i < gp->numParameters; i++) {
 		if (gp->params[i].isUnused) continue;
-		if (nc_put_var_float(ncid, gp->params[i].ncVar,
+		count[1] = gp->params[i].rate;
+		if (nc_put_vara_float(ncid, gp->params[i].ncVar, start, count,
 		                     gp->params[i].values) != NC_NOERR)
 		{
-			return 0;
+			goto ncerr;
 		}
 	}
 
