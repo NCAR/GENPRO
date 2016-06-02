@@ -9,8 +9,11 @@
 #include <assert.h>
 #include <netcdf.h>
 #include <time.h>
+#include <regex.h>
 
 #include "gbytes.cpp"
+#include "gpfile.hpp"
+#include "rules.hpp"
 
 // Rounds up division.
 #define DIV_CEIL(n,d) (((n)-1)/(d)+1)
@@ -31,43 +34,6 @@ enum {
 	kTrue = 1
 };
 
-typedef struct {
-	int rate;         /** Sample rate in samples per "program cycle" (which can
-	                      vary). */
-	float scale;      /** Scale to be applied to reconstruct original parameter
-	                      values. */
-	float bias;       /** Offset to be applied to reconstruct original
-	                      parameter values. */
-	char *label;      /** The label associated with this parameter. */
-	char *desc;       /** Description text associated with this parameter. */
-	size_t descLen;   /** Length of description text, not including the null
-	                      terminator. */
-	char *units;      /** Units text associated with this parameter. */
-	size_t unitsLen;  /** Length of units text, not including the null
-	                      terminator. */
-	int ncVar;        /** The NetCDF variable ID corresponding to this
-	                      parameter. */
-	float *values;    /** A pointer to an array of values for this
-	                      parameter. */
-	size_t numValues; /** Total number of samples recorded. This is the length
-	                      of the `values' array. */
-	char isUnused;    /** Indicates if the variable is unused. */
-	int ncDimId;      /** Handle to the NetCDF dimension for this array. */
-} Parameter;
-
-typedef struct {
-	size_t blockLength; /** The size, in 8-bit bytes, of a block. */
-	size_t dataStart;   /** The offset to the start of the data. */
-	size_t numBlocks;   /** The number of blocks in a file. */
-	Parameter *params;  /** Parameters (variables) contained in this file. */
-	int numParameters;  /** The number of parameters. */
-	int samplesPerCycle;    /** The number of samples per cycle. */
-	int cyclesPerBlock; /** The number of cycles found in each block. */
-	float cycleTime;    /** Period between batches of samples. */
-	char *fileDesc;     /** File description text. */
-	size_t fileDescLen; /** Length of the file description text. */
-} GP1File;
-
 int gp1_read(GP1File *const gp, FILE *fp);
 int gp1_write_nc(GP1File const*const gp,
                  char const*const outFileName,
@@ -82,7 +48,10 @@ int get_text(char *const in_buf,
 int gp1_write_nc(GP1File const*const gp,
                  char const*const outFileName,
                  int cmode);
+int gp1_addAttrs(int ncid, Parameter *param);
 int *get_unique_sample_rates(GP1File const*const gp, int *numUnique, int **lookupTable);
+
+extern Rule rules[];
 
 int main(int argc, char **argv)
 {
@@ -112,6 +81,8 @@ int main(int argc, char **argv)
 	if (!gp1_read(&gp, fp)) return 1;
 
 	fclose(fp);
+
+	rule_applyAll(rules, 1, &gp);
 
 	if (!gp1_write_nc(&gp, outFileName, cmode)) return 1;
 
@@ -497,6 +468,9 @@ int gp1_write_nc(GP1File const*const gp,
 		{
 			goto ncerr;
 		}
+
+		// Arbitrary attributes which may have been added by the rule set.
+		gp1_addAttrs(ncid, gp->params+i);
 	}
 
 	free(uniqueRates);
@@ -544,6 +518,48 @@ int gp1_write_nc(GP1File const*const gp,
 	return 1;
 
 ncerr:
+	fprintf(stderr, "Error string was: %s\n", nc_strerror(status));
+	return 0;
+}
+
+/**
+ * Adds attributes which have been added by a rule set to a variable in the
+ * NetCDF output.
+ * @param ncid Handle to the NetCDF output file, as returned by nc_open().
+ * @param param
+ * @return 1 on success, 0 on failure
+ */
+int gp1_addAttrs(int ncid, Parameter *param)
+{
+	int i;
+	int status;
+	Attribute *attr;
+
+	for (i = 0; i < param->numAttrs; i++) {
+		attr = param->attrs+i;
+		switch (attr->type) {
+			case kAttrTypeText:
+				if ((status = nc_put_att_text(ncid, param->ncVar, attr->name,
+				                              strlen((char*) attr->data),
+				                              (char*) attr->data)) != NC_NOERR)
+				{
+					goto put_fail;
+				}
+				break;
+			case kAttrTypeFloat:
+				if ((status = nc_put_att_float(ncid, param->ncVar, attr->name,
+				                               NC_FLOAT, 1,
+				                               (float*) attr->data)) != NC_NOERR)
+				{
+					goto put_fail;
+				}
+				break;
+			// TODO: implement others
+		}
+	}
+	return 1;
+
+put_fail:
 	fprintf(stderr, "Error string was: %s\n", nc_strerror(status));
 	return 0;
 }
