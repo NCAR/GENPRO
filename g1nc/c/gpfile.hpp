@@ -52,4 +52,8 @@ typedef struct {
 	float cycleTime;    /** Period between batches of samples. */
 	char *fileDesc;     /** File description text. */
 	size_t fileDescLen; /** Length of the file description text. */
+
+// From rules
+	Attribute *attrs;
+	int numAttrs;
 } GP1File;

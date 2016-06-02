@@ -39,7 +39,100 @@ RuleApplicatorData changeTimeRuleApplicators[] = {
 	{ rule_addAttr, &time_standard_name }
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
+
+Attribute institutionGlobalAttr = {
+	(char*) "institution",
+	kAttrTypeText,
+	(char*) "NCAR Research Aviation Facility"
+};
+
+RuleApplicatorData addGlobalAttrInstitutionRuleApplicators[] = {
+	{ rule_addGlobalAttr, &institutionGlobalAttr }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+Attribute addressGlobalAttr = {
+	(char*) "Address",
+	kAttrTypeText,
+	(char*) "P.O. Box 3000, Boulder, CO 80307-3000"
+};
+
+RuleApplicatorData addGlobalAttrAddressRuleApplicators[] = {
+	{ rule_addGlobalAttr, &addressGlobalAttr }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+Attribute creatorURLGlobalAttr = {
+	(char*) "creator_url",
+	kAttrTypeText,
+	(char*) "http://www.eol.ucar.edu"
+};
+
+RuleApplicatorData addGlobalAttrCreatorURLRuleApplicators[] = {
+	{ rule_addGlobalAttr, &creatorURLGlobalAttr }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+Attribute conventionsGlobalAttr = {
+	(char*) "ConventionsURL",
+	kAttrTypeText,
+	(char*) "NCAR-RAF/nimbus"
+};
+
+RuleApplicatorData addGlobalAttrConventionsRuleApplicators[] = {
+	{ rule_addGlobalAttr, &conventionsGlobalAttr }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+Attribute conventionsURLGlobalAttr = {
+	(char*) "ConventionsURL",
+	kAttrTypeText,
+	(char*) "http://www.eol.ucar.edu/raf/Software/netCDF.html"
+};
+
+RuleApplicatorData addGlobalAttrConventionsURLRuleApplicators[] = {
+	{ rule_addGlobalAttr, &conventionsURLGlobalAttr }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 Rule rules[] = {
+	// Add a global attribute "institution"
+	{
+		NULL,
+		rule_alwaysApplyGlobal,
+		addGlobalAttrInstitutionRuleApplicators, 1
+	},
+	// Add a global attribute "Address"
+	{
+		NULL,
+		rule_alwaysApplyGlobal,
+		addGlobalAttrAddressRuleApplicators, 1
+	},
+	// Add a global attribute "creator_url"
+	{
+		NULL,
+		rule_alwaysApplyGlobal,
+		addGlobalAttrCreatorURLRuleApplicators, 1
+	},
+	// Add a global attribute "Conventions"
+	{
+		NULL,
+		rule_alwaysApplyGlobal,
+		addGlobalAttrConventionsRuleApplicators, 1
+	},
+	// Add a global attribute "ConventionsURL"
+	{
+		NULL,
+		rule_alwaysApplyGlobal,
+		addGlobalAttrConventionsURLRuleApplicators, 1
+	},
 	// Change a variable named TIME
 	{
 		&changeTimeRule,
@@ -62,7 +155,7 @@ int set_str(char **dest, size_t *len, char *src)
 	return 1;
 }
 
-int rule_setDesc(void *applicatorData, void *extData)
+int rule_setDesc(void *applicatorData, void *extData, GP1File *const gp)
 {
 	Parameter *const param = (Parameter*) extData;
 	char *const newDesc = (char*) applicatorData;
@@ -71,7 +164,7 @@ int rule_setDesc(void *applicatorData, void *extData)
 	return 1;
 }
 
-int rule_setVariableName(void *applicatorData, void *extData)
+int rule_setVariableName(void *applicatorData, void *extData, GP1File *const gp)
 {
 	Parameter *const param = (Parameter*) extData;
 	char *const newName = (char*) applicatorData;
@@ -85,12 +178,31 @@ char *rule_getVariableName(Parameter *const param)
 	return param->label;
 }
 
-int rule_addAttr(void *applicatorData, void *extData)
+/**
+ * Adds a global attribute.
+ */
+int rule_addGlobalAttr(void *applicatorData, void *extData, GP1File *const gp)
+{
+	Attribute *attr = (Attribute*) applicatorData;
+
+	if (!(gp->attrs = (Attribute*) realloc(gp->attrs, sizeof(Attribute)*(++gp->numAttrs)))) {
+		return 0;
+	}
+
+	memcpy(gp->attrs+(gp->numAttrs-1), attr, sizeof(Attribute));
+
+	return 1;
+}
+
+/**
+ * Adds an attribute to a particular parameter (variable).
+ */
+int rule_addAttr(void *applicatorData, void *extData, GP1File *const gp)
 {
 	Attribute *attr = (Attribute*) applicatorData;
 	Parameter *const param = (Parameter*) extData;
 
-	if (!(param->attrs = (Attribute*) realloc(param->attrs, ++param->numAttrs))) {
+	if (!(param->attrs = (Attribute*) realloc(param->attrs, sizeof(Attribute)*(++param->numAttrs)))) {
 		return 0;
 	}
 
@@ -114,12 +226,12 @@ int rule_applyAll(Rule const*const rules, size_t numRules, GP1File *const gp)
 /**
  * Applies individual rules. Called after a match was found.
  */
-int rule_apply(Rule const*const rule, void *data)
+int rule_apply(Rule const*const rule, void *data, GP1File *const gp)
 {
 	int i;
 
 	for (i = 0; i < rule->numApplicators; i++) {
-		if (!rule->applicators[i].apply(rule->applicators[i].data, data)) {
+		if (!rule->applicators[i].apply(rule->applicators[i].data, data, gp)) {
 			return 0;
 		}
 	}
@@ -146,10 +258,20 @@ int rule_paramRegexChange(Rule const*const rule, GP1File *const gp)
 	for (i = 0; i < gp->numParameters; i++) {
 		if (!regexec(&(data->matchRe), data->getText(gp->params+i), 1, &match, 0)) {
 			// ^ (regexec returns 0 on success)
-			rule_apply(rule, gp->params+i);
+			rule_apply(rule, gp->params+i, gp);
 			return 1;
 		}
 	}
 
 	return 0;
+}
+
+/**
+ * Always applies the rule. Does not iterate over parameters.
+ */
+int rule_alwaysApplyGlobal(Rule const*const rule, GP1File *const gp)
+{
+	rule_apply(rule, NULL, gp);
+
+	return 1;
 }
