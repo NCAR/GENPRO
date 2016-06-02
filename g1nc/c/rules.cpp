@@ -259,11 +259,11 @@ int rule_paramRegexChange(Rule const*const rule, GP1File *const gp)
 		if (!regexec(&(data->matchRe), data->getText(gp->params+i), 1, &match, 0)) {
 			// ^ (regexec returns 0 on success)
 			rule_apply(rule, gp->params+i, gp);
-			return 1;
+			return 0;
 		}
 	}
 
-	return 0;
+	return 1;
 }
 
 /**
