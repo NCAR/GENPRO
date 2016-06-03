@@ -14,10 +14,11 @@
 #include "rules.hpp"
 
 ParamRegexChangeRule changeTimeRule = {
-	/* .matchReStr        = */ (char*) "time",
+	/* .matchReStr        = */ (char*) "^time$",
 	/* .didCompileMatchRe = */ 0,
 	/* .matchReFlags      = */ REG_ICASE,
-	/* .getText           = */ rule_getVariableName
+	/* .getText           = */ rule_getVariableName,
+	/* .invert            = */ 0
 };
 
 Attribute strptime_format = {
@@ -52,7 +53,8 @@ ParamRegexChangeRule ALAT_renameRule = {
 	/* .matchReStr        = */ (char*) "^alat$",
 	/* .didCompileMatchRe = */ 0,
 	/* .matchReFlags      = */ REG_ICASE,
-	/* .getText           = */ rule_getVariableName
+	/* .getText           = */ rule_getVariableName,
+	/* .invert            = */ 0
 };
 
 Attribute ALAT_standard_name = {
@@ -76,7 +78,6 @@ RuleApplicatorData ALAT_renameRuleApplicators[] = {
 //	{ rule_setDesc, (char*) "" },
 	{ rule_addAttr, &ALAT_standard_name },
 	{ rule_addGlobalMinMax, (char*) "geospatial_lat_%s" },
-	{ rule_addMinMaxAttr, (char*) "actual_range" },
 	{ rule_addAttr, &ALAT_valid_range_attr }
 };
 
@@ -86,7 +87,8 @@ ParamRegexChangeRule ALON_renameRule = {
 	/* .matchReStr        = */ (char*) "^along$",
 	/* .didCompileMatchRe = */ 0,
 	/* .matchReFlags      = */ REG_ICASE,
-	/* .getText           = */ rule_getVariableName
+	/* .getText           = */ rule_getVariableName,
+	/* .invert            = */ 0
 };
 
 Attribute ALON_standard_name = {
@@ -110,12 +112,24 @@ RuleApplicatorData ALON_renameRuleApplicators[] = {
 //	{ rule_setDesc, (char*) "" },
 	{ rule_addAttr, &ALON_standard_name },
 	{ rule_addGlobalMinMax, (char*) "geospatial_lon_%s" },
-	{ rule_addMinMaxAttr, (char*) "actual_range" },
 	{ rule_addAttr, &ALON_valid_range_attr }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
+ParamRegexChangeRule actualRangeRule = {
+	/* .matchReStr        = */ (char*) "^time$",
+	/* .didCompileMatchRe = */ 0,
+	/* .matchReFlags      = */ REG_ICASE,
+	/* .getText           = */ rule_getVariableName,
+	/* .invert            = */ 1
+};
+
+RuleApplicatorData actualRangeRuleApplicators[] = {
+	{ rule_addMinMaxAttr, (char*) "actual_range" }
+};
+
+///////////////////////////////////////////////////////////////////////////////
 
 Attribute institutionGlobalAttr = {
 	(char*) "institution",
@@ -219,13 +233,19 @@ Rule rules[] = {
 	{
 		&ALAT_renameRule,
 		rule_paramRegexChange,
-		ALAT_renameRuleApplicators, 7
+		ALAT_renameRuleApplicators, 6
 	},
 	// Change "ALON" ("RAW INS LONGITUDE") into "LON"
 	{
 		&ALON_renameRule,
 		rule_paramRegexChange,
-		ALON_renameRuleApplicators, 7
+		ALON_renameRuleApplicators, 6
+	},
+	// Add "actual_range" to every variable *except* time
+	{
+		&actualRangeRule,
+		rule_paramRegexChange,
+		actualRangeRuleApplicators, 1
 	}
 };
 
@@ -411,6 +431,7 @@ int rule_apply(Rule const*const rule, void *data, GP1File *const gp)
 int rule_paramRegexChange(Rule const*const rule, GP1File *const gp)
 {
 	int i;
+	int doesntMatch;
 	regmatch_t match;
 	ParamRegexChangeRule *data = (ParamRegexChangeRule*) rule->data;
 
@@ -420,9 +441,11 @@ int rule_paramRegexChange(Rule const*const rule, GP1File *const gp)
 	}
 
 	for (i = 0; i < gp->numParameters; i++) {
-		if (!regexec(&(data->matchRe), data->getText(gp->params+i), 1, &match, 0)) {
-			// ^ (regexec returns 0 on success)
-			return rule_apply(rule, gp->params+i, gp);
+		if (gp->params[i].isUnused) continue;
+		doesntMatch = regexec(&(data->matchRe), data->getText(gp->params+i), 1, &match, 0);
+		// ^ (regexec returns 0 on success)
+		if ((doesntMatch && data->invert) || (!doesntMatch && !data->invert)) {
+			if (!rule_apply(rule, gp->params+i, gp)) return 0;
 		}
 	}
 
