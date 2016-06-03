@@ -30,6 +30,7 @@ typedef struct {
 	int didCompileMatchRe;
 	int matchReFlags;
 	char* (*getText)(Parameter *const param);
+	int invert;
 	regex_t matchRe;
 } ParamRegexChangeRule;
 
