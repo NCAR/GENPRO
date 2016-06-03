@@ -375,7 +375,9 @@ int rule_addGlobalAttr(void *applicatorData, void *extData, GP1File *const gp)
 {
 	Attribute *attr = (Attribute*) applicatorData;
 
-	if (!(gp->attrs = (Attribute*) realloc(gp->attrs, sizeof(Attribute)*(++gp->numAttrs)))) {
+	if (!(gp->attrs = (Attribute*)
+	      realloc(gp->attrs, sizeof(Attribute)*(++gp->numAttrs))))
+	{
 		return 0;
 	}
 
@@ -392,7 +394,9 @@ int rule_addAttr(void *applicatorData, void *extData, GP1File *const gp)
 	Attribute *attr = (Attribute*) applicatorData;
 	Parameter *const param = (Parameter*) extData;
 
-	if (!(param->attrs = (Attribute*) realloc(param->attrs, sizeof(Attribute)*(++param->numAttrs)))) {
+	if (!(param->attrs = (Attribute*)
+	      realloc(param->attrs, sizeof(Attribute)*(++param->numAttrs))))
+	{
 		return 0;
 	}
 
@@ -455,7 +459,8 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 	if (!regexec(&matchRe, gp->fileDesc, 4, match, REG_EXTENDED)) {
 		regfree(&matchRe);
 		// use timeUnits as a temporary buffer
-		strncpy(timeUnits, gp->fileDesc+match[1].rm_so, match[1].rm_eo-match[1].rm_so);
+		strncpy(timeUnits, gp->fileDesc+match[1].rm_so,
+		        match[1].rm_eo-match[1].rm_so);
 		day = atoi(timeUnits);
 		for (i = 0; i < 12; i++) {
 			if (!strncmp(monthNames[i].name, gp->fileDesc+match[2].rm_so, 3)) {
@@ -466,13 +471,15 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 		assert(found);
 		month = i+1;
 		// use timeUnits as a temporary buffer
-		strncpy(timeUnits, gp->fileDesc+match[3].rm_so, match[3].rm_eo-match[3].rm_so);
+		strncpy(timeUnits, gp->fileDesc+match[3].rm_so,
+		        match[3].rm_eo-match[3].rm_so);
 		year = 1900 + atoi(timeUnits);
 	} else {
 		fprintf(stderr, "rule_setTimeUnits: warning: couldn't find date\n");
 	}
 
-	snprintf(timeUnits, BUF_SIZE, "seconds since %4d-%02d-%02d 00:00:00 +0000", year, month, day);
+	snprintf(timeUnits, BUF_SIZE, "seconds since %4d-%02d-%02d 00:00:00 +0000",
+	         year, month, day);
 
 	if (!rule_setUnits(timeUnits, param, gp)) return 0;
 
@@ -499,12 +506,15 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 
 	// note that we assume time to be monotonically increasing (it should be)
 	get_hms(param->values[0], &startH, &startM, &startS);
-	snprintf(timeCoverageStart, BUF_SIZE, "%4d-%02d-%02dT%02d:%02d:%02d +0000", year, month, day, startH, startM, startS);
+	snprintf(timeCoverageStart, BUF_SIZE, "%4d-%02d-%02dT%02d:%02d:%02d +0000",
+	         year, month, day, startH, startM, startS);
 
 	get_hms(param->values[param->numValues-1], &endH, &endM, &endS);
-	snprintf(timeCoverageEnd, BUF_SIZE, "%4d-%02d-%02dT%02d:%02d:%02d +0000", year, month, day, endH, endM, endS);
+	snprintf(timeCoverageEnd, BUF_SIZE, "%4d-%02d-%02dT%02d:%02d:%02d +0000",
+	         year, month, day, endH, endM, endS);
 
-	snprintf(timeIntervalValue, BUF_SIZE, "%02d:%02d:%02d-%02d:%02d:%02d", startH, startM, startS, endH, endM, endS);
+	snprintf(timeIntervalValue, BUF_SIZE, "%02d:%02d:%02d-%02d:%02d:%02d",
+	         startH, startM, startS, endH, endM, endS);
 
 	return rule_addGlobalAttr(&start, NULL, gp) &&
 	       rule_addGlobalAttr(&end, NULL, gp) &&
@@ -558,7 +568,8 @@ int rule_paramRegexChange(Rule const*const rule, GP1File *const gp)
 
 	for (i = 0; i < gp->numParameters; i++) {
 		if (gp->params[i].isUnused) continue;
-		doesntMatch = regexec(&(data->matchRe), data->getText(gp->params+i), 1, &match, 0);
+		doesntMatch = regexec(&(data->matchRe), data->getText(gp->params+i),
+		                      1, &match, 0);
 		// ^ (regexec returns 0 on success)
 		if ((doesntMatch && data->invert) || (!doesntMatch && !data->invert)) {
 			if (!rule_apply(rule, gp->params+i, gp)) return 0;
