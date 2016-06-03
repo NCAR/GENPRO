@@ -253,6 +253,8 @@ Rule rules[] = {
 	}
 };
 
+static void get_hms(int value, int *const h, int *const m, int *const s);
+
 int set_str(char **dest, size_t *len, char *src)
 {
 	size_t newLen = strlen(src);
@@ -399,6 +401,14 @@ int rule_addAttr(void *applicatorData, void *extData, GP1File *const gp)
 	return 1;
 }
 
+static void get_hms(int value, int *const h, int *const m, int *const s)
+{
+	*s = value % 60;
+	value /= 60;
+	*m = value % 60;
+	*h = value / 60;
+}
+
 int rule_setPreferredType(void *applicatorData, void *extData, GP1File *const gp)
 {
 	// g++ won't let us cast from void* to int in one go, so we have to resort
@@ -411,7 +421,11 @@ int rule_setPreferredType(void *applicatorData, void *extData, GP1File *const gp
 	return 1;
 }
 
+static char time_coverage_start[] = "time_coverage_start";
+static char time_coverage_end[]   = "time_coverage_end";
 static char timeUnits[BUF_SIZE];
+static char timeCoverageStart[BUF_SIZE];
+static char timeCoverageEnd[BUF_SIZE];
 int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 {
 	Parameter *const param = (Parameter*) extData;
@@ -420,6 +434,7 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 	regex_t matchRe;
 	int found = 0;
 	int i;
+	int hour, min, sec;
 	const char matchReStr[] =
 		"\\([0-9]\\{1,2\\}\\) \\{0,1\\}"
 		"\\(JAN\\|FEB\\|MAR\\|APR\\|MAY\\|JUN\\|JUL\\|AUG\\|SEP\\|OCT\\|NOV\\|DEC\\)"
@@ -436,6 +451,7 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 
 	assert(!regcomp(&matchRe, matchReStr, REG_ICASE));
 	if (!regexec(&matchRe, gp->fileDesc, 4, match, REG_EXTENDED)) {
+		regfree(&matchRe);
 		// use timeUnits as a temporary buffer
 		strncpy(timeUnits, gp->fileDesc+match[1].rm_so, match[1].rm_eo-match[1].rm_so);
 		day = atoi(timeUnits);
@@ -456,7 +472,29 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 
 	snprintf(timeUnits, BUF_SIZE, "seconds since %4d-%02d-%02d 00:00:00 +0000", year, month, day);
 
-	return rule_setUnits(timeUnits, param, gp);
+	if (!rule_setUnits(timeUnits, param, gp)) return 0;
+
+	Attribute start = {
+		time_coverage_start,
+		kAttrTypeText,
+		timeCoverageStart
+	};
+
+	Attribute end = {
+		time_coverage_end,
+		kAttrTypeText,
+		timeCoverageEnd
+	};
+
+	// note that we assume time to be monotonically increasing (it should be)
+	get_hms(param->values[0], &hour, &min, &sec);
+	snprintf(timeCoverageStart, BUF_SIZE, "%4d-%02d-%02dT%02d:%02d:%02d +0000", year, month, day, hour, min, sec);
+
+	get_hms(param->values[param->numValues-1], &hour, &min, &sec);
+	snprintf(timeCoverageEnd, BUF_SIZE, "%4d-%02d-%02dT%02d:%02d:%02d +0000", year, month, day, hour, min, sec);
+
+	return rule_addGlobalAttr(&start, NULL, gp) &&
+	       rule_addGlobalAttr(&end, NULL, gp);
 }
 
 int rule_applyAll(Rule const*const rules, size_t numRules, GP1File *const gp)
