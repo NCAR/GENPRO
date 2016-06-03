@@ -37,7 +37,8 @@ RuleApplicatorData changeTimeRuleApplicators[] = {
 	{ rule_setVariableName, (char*) "Time" },
 	{ rule_addAttr, &strptime_format },
 	{ rule_setDesc, (char*) "time of measurement" },
-	{ rule_addAttr, &time_standard_name }
+	{ rule_addAttr, &time_standard_name },
+	{ rule_setTimeUnits, NULL }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -227,7 +228,7 @@ Rule rules[] = {
 		&changeTimeRule,
 		rule_paramRegexChange,
 		changeTimeRuleApplicators,
-		/* .numApplicators = */ 4
+		/* .numApplicators = */ 5
 	},
 	// Change "ALAT" ("RAW INS LATITUDE") into "LAT"
 	{
@@ -393,6 +394,54 @@ int rule_addAttr(void *applicatorData, void *extData, GP1File *const gp)
 	memcpy(param->attrs+(param->numAttrs-1), attr, sizeof(Attribute));
 
 	return 1;
+}
+
+static char timeUnits[BUF_SIZE];
+int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
+{
+	Parameter *const param = (Parameter*) extData;
+	int year, month, day;
+	regmatch_t match[4];
+	regex_t matchRe;
+	int found = 0;
+	int i;
+	const char matchReStr[] =
+		"\\([0-9]\\{1,2\\}\\) \\{0,1\\}"
+		"\\(JAN\\|FEB\\|MAR\\|APR\\|MAY\\|JUN\\|JUL\\|AUG\\|SEP\\|OCT\\|NOV\\|DEC\\)"
+		" \\{0,1\\}\\([0-9]\\{2\\}\\)";
+
+	struct {
+		char *name;
+	} monthNames[] = {
+		{ (char*) "JAN" }, { (char*) "FEB" }, { (char*) "MAR" },
+		{ (char*) "APR" }, { (char*) "MAY" }, { (char*) "JUN" },
+		{ (char*) "JUL" }, { (char*) "AUG" }, { (char*) "SEP" },
+		{ (char*) "OCT" }, { (char*) "NOV" }, { (char*) "DEC" }
+	};
+
+	assert(!regcomp(&matchRe, matchReStr, REG_ICASE));
+	if (!regexec(&matchRe, gp->fileDesc, 4, match, REG_EXTENDED)) {
+		// use timeUnits as a temporary buffer
+		strncpy(timeUnits, gp->fileDesc+match[1].rm_so, match[1].rm_eo-match[1].rm_so);
+		day = atoi(timeUnits);
+		for (i = 0; i < 12; i++) {
+			if (!strncmp(monthNames[i].name, gp->fileDesc+match[2].rm_so, 3)) {
+				found = 1;
+				break;
+			}
+		}
+		assert(found);
+		month = i+1;
+		// use timeUnits as a temporary buffer
+		strncpy(timeUnits, gp->fileDesc+match[3].rm_so, match[3].rm_eo-match[3].rm_so);
+		year = 1900 + atoi(timeUnits);
+	} else {
+		fprintf(stderr, "rule_setTimeUnits: warning: couldn't find date\n");
+	}
+
+	snprintf(timeUnits, BUF_SIZE, "seconds since %4d-%02d-%02d 00:00:00 +0000", year, month, day);
+
+	return rule_setUnits(timeUnits, param, gp);
 }
 
 int rule_applyAll(Rule const*const rules, size_t numRules, GP1File *const gp)

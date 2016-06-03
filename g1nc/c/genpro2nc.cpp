@@ -8,7 +8,6 @@
 #include <string.h>
 #include <assert.h>
 #include <netcdf.h>
-#include <time.h>
 #include <regex.h>
 
 #include "gbytes.cpp"
@@ -111,7 +110,7 @@ int gp1_read(GP1File *const gp, FILE *fp)
 	}
 
 	// Get the file description.
-	if (!get_text(header_decomp, 0, 23, &(gp->fileDesc), &(gp->fileDescLen))) {
+	if (!get_text(header_decomp, 0, 31, &(gp->fileDesc), &(gp->fileDescLen))) {
 		return 0;
 	}
 
