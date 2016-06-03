@@ -146,11 +146,12 @@ int set_str(char **dest, size_t *len, char *src)
 {
 	size_t newLen = strlen(src);
 	if (!((len && newLen <= *len) || newLen <= strlen(*dest))) {
-		if (!(*dest = (char*) malloc(sizeof(char)*newLen))) {
+		if (!(*dest = (char*) malloc(sizeof(char)*(newLen+1)))) {
 			return 0;
 		}
 	}
 	strncpy(*dest, src, newLen);
+	(*dest)[newLen] = '\0';
 	if (len) *len = newLen;
 	return 1;
 }
