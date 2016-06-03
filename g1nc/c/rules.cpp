@@ -141,23 +141,11 @@ Attribute institutionGlobalAttr = {
 	(char*) "NCAR Research Aviation Facility"
 };
 
-RuleApplicatorData addGlobalAttrInstitutionRuleApplicators[] = {
-	{ rule_addGlobalAttr, &institutionGlobalAttr }
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 Attribute addressGlobalAttr = {
 	(char*) "Address",
 	kAttrTypeText,
 	(char*) "P.O. Box 3000, Boulder, CO 80307-3000"
 };
-
-RuleApplicatorData addGlobalAttrAddressRuleApplicators[] = {
-	{ rule_addGlobalAttr, &addressGlobalAttr }
-};
-
-///////////////////////////////////////////////////////////////////////////////
 
 Attribute creatorURLGlobalAttr = {
 	(char*) "creator_url",
@@ -165,23 +153,11 @@ Attribute creatorURLGlobalAttr = {
 	(char*) "http://www.eol.ucar.edu"
 };
 
-RuleApplicatorData addGlobalAttrCreatorURLRuleApplicators[] = {
-	{ rule_addGlobalAttr, &creatorURLGlobalAttr }
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 Attribute conventionsGlobalAttr = {
 	(char*) "ConventionsURL",
 	kAttrTypeText,
 	(char*) "NCAR-RAF/nimbus"
 };
-
-RuleApplicatorData addGlobalAttrConventionsRuleApplicators[] = {
-	{ rule_addGlobalAttr, &conventionsGlobalAttr }
-};
-
-///////////////////////////////////////////////////////////////////////////////
 
 Attribute conventionsURLGlobalAttr = {
 	(char*) "ConventionsURL",
@@ -189,42 +165,22 @@ Attribute conventionsURLGlobalAttr = {
 	(char*) "http://www.eol.ucar.edu/raf/Software/netCDF.html"
 };
 
-RuleApplicatorData addGlobalAttrConventionsURLRuleApplicators[] = {
+RuleApplicatorData constantGlobalAttrs[] = {
+	{ rule_addGlobalAttr, &institutionGlobalAttr },
+	{ rule_addGlobalAttr, &addressGlobalAttr },
+	{ rule_addGlobalAttr, &creatorURLGlobalAttr },
+	{ rule_addGlobalAttr, &conventionsGlobalAttr },
 	{ rule_addGlobalAttr, &conventionsURLGlobalAttr }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 Rule rules[] = {
-	// Add a global attribute "institution"
+	// Add global attributes which should always be present
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
-		addGlobalAttrInstitutionRuleApplicators, 1
-	},
-	// Add a global attribute "Address"
-	{
-		NULL,
-		rule_alwaysApplyGlobal,
-		addGlobalAttrAddressRuleApplicators, 1
-	},
-	// Add a global attribute "creator_url"
-	{
-		NULL,
-		rule_alwaysApplyGlobal,
-		addGlobalAttrCreatorURLRuleApplicators, 1
-	},
-	// Add a global attribute "Conventions"
-	{
-		NULL,
-		rule_alwaysApplyGlobal,
-		addGlobalAttrConventionsRuleApplicators, 1
-	},
-	// Add a global attribute "ConventionsURL"
-	{
-		NULL,
-		rule_alwaysApplyGlobal,
-		addGlobalAttrConventionsURLRuleApplicators, 1
+		constantGlobalAttrs, 5
 	},
 	// Change a variable named TIME
 	{
