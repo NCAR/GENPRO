@@ -30,8 +30,9 @@ typedef struct {
 	                      terminator. */
 	int ncVar;        /** The NetCDF variable ID corresponding to this
 	                      parameter. */
-	float *values;    /** A pointer to an array of values for this
-	                      parameter. */
+	int preferredType; /** Preferred output type. */
+	int *values;      /** A pointer to an array of raw (i.e., unscaled and
+	                      unbiased) values for this parameter. */
 	size_t numValues; /** Total number of samples recorded. This is the length
 	                      of the `values' array. */
 	char isUnused;    /** Indicates if the variable is unused. */

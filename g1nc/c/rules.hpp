@@ -50,6 +50,7 @@ int rule_addGlobalAttr(void *applicatorData, void *extData, GP1File *const gp);
 int rule_addGlobalMinMax(void *applicatorData, void *extData, GP1File *const gp);
 int rule_addMinMaxAttr(void *applicatorData, void *extData, GP1File *const gp);
 int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp);
+int rule_setPreferredType(void *applicatorData, void *extData, GP1File *const gp);
 
 //
 // Rules

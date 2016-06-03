@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <regex.h>
+#include <netcdf.h>
 #include "gpfile.hpp"
 #include "rules.hpp"
 
@@ -38,7 +39,8 @@ RuleApplicatorData changeTimeRuleApplicators[] = {
 	{ rule_addAttr, &strptime_format },
 	{ rule_setDesc, (char*) "time of measurement" },
 	{ rule_addAttr, &time_standard_name },
-	{ rule_setTimeUnits, NULL }
+	{ rule_setTimeUnits, NULL },
+	{ rule_setPreferredType, (void*) NC_INT }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -127,7 +129,8 @@ ParamRegexChangeRule actualRangeRule = {
 };
 
 RuleApplicatorData actualRangeRuleApplicators[] = {
-	{ rule_addMinMaxAttr, (char*) "actual_range" }
+	{ rule_addMinMaxAttr, (char*) "actual_range" },
+	{ rule_setPreferredType, (void*) NC_FLOAT }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -228,7 +231,7 @@ Rule rules[] = {
 		&changeTimeRule,
 		rule_paramRegexChange,
 		changeTimeRuleApplicators,
-		/* .numApplicators = */ 5
+		/* .numApplicators = */ 6
 	},
 	// Change "ALAT" ("RAW INS LATITUDE") into "LAT"
 	{
@@ -246,7 +249,7 @@ Rule rules[] = {
 	{
 		&actualRangeRule,
 		rule_paramRegexChange,
-		actualRangeRuleApplicators, 1
+		actualRangeRuleApplicators, 2
 	}
 };
 
@@ -392,6 +395,18 @@ int rule_addAttr(void *applicatorData, void *extData, GP1File *const gp)
 	}
 
 	memcpy(param->attrs+(param->numAttrs-1), attr, sizeof(Attribute));
+
+	return 1;
+}
+
+int rule_setPreferredType(void *applicatorData, void *extData, GP1File *const gp)
+{
+	// g++ won't let us cast from void* to int in one go, so we have to resort
+	// to this nonsense
+	int preferredType = (int) ((long) applicatorData);
+	Parameter *const param = (Parameter*) extData;
+
+	param->preferredType = preferredType;
 
 	return 1;
 }

@@ -28,6 +28,8 @@
 #define DECOMP_HEADER_SIZE GET_DECOMP_HEADER_SIZE(HEADER_LINES)
 #define PARAMETER_HEADER_START COMP_HEADER_SIZE
 
+#define max(a,b) ((a) > (b) ? (a) : (b))
+
 enum {
 	kFalse = 0,
 	kTrue = 1
@@ -219,7 +221,7 @@ int gp1_read(GP1File *const gp, FILE *fp)
 		if (gp->params[i].isUnused) continue;
 		gp->params[i].numValues = gp->params[i].rate * gp->numBlocks * gp->cyclesPerBlock;
 		if (!(gp->params[i].values =
-		      (float*) malloc(sizeof(float)*gp->params[i].numValues)))
+		      (int*) malloc(sizeof(int)*gp->params[i].numValues)))
 		{
 			goto mallocfail;
 		}
@@ -256,16 +258,6 @@ int gp1_read(GP1File *const gp, FILE *fp)
 
 	free(in_buffer); in_buffer = NULL;
 	free(data_decomp); data_decomp = NULL;
-
-	// Restore original values by scaling/biasing.
-	for (i = 0; i < gp->numParameters; i++) {
-		if (gp->params[i].isUnused) continue;
-		for (j = 0; j < (int) gp->params[i].numValues; j++) {
-			gp->params[i].values[j] = ((float) gp->params[i].values[j])/
-			                          gp->params[i].scale -
-			                          gp->params[i].bias;
-		}
-	}
 
 	return 1;
 
@@ -347,7 +339,7 @@ int gp1_write_nc(GP1File const*const gp,
 	int ncid; /* Handle on the NetCDF file */
 	char name[100];
 	int status;
-	int i;
+	int i, j;
 	int timeDimId;
 	int numUniqueRates;
 	int *uniqueRates;
@@ -357,6 +349,8 @@ int gp1_write_nc(GP1File const*const gp,
 	long numDims;
 	size_t start[2] = { 0, 0 };
 	size_t count[2];
+	void *values;
+	size_t maxNumValues;
 
 	if ((status = nc_create(outFileName, cmode, &ncid)) != NC_NOERR) {
 		fprintf(stderr, "Fatal: failed to create NetCDF file.\n");
@@ -404,8 +398,9 @@ int gp1_write_nc(GP1File const*const gp,
 			dimIds[1] = rateDimIds[lookupTable[i]];
 		}
 
-		if ((status = nc_def_var(ncid, gp->params[i].label, NC_FLOAT, numDims,
-		                         dimIds,
+		if ((status = nc_def_var(ncid, gp->params[i].label,
+		                         gp->params[i].preferredType,
+		                         numDims, dimIds,
 		                         &(gp->params[i].ncVar))) != NC_NOERR)
 		{
 			fprintf(stderr, "NetCDF variable definition failed, aborting.\n");
@@ -440,9 +435,7 @@ int gp1_write_nc(GP1File const*const gp,
 	// Add global attributes which may have been added by the rule set.
 	gp1_addAttrs(ncid, NC_GLOBAL, gp->attrs, gp->numAttrs);
 
-	free(uniqueRates);
 	free(lookupTable);
-
 
 	if ((status = nc_put_att_text(ncid, NC_GLOBAL, "DESCRIPTION",
 	                              gp->fileDescLen, gp->fileDesc)) != NC_NOERR)
@@ -458,16 +451,51 @@ int gp1_write_nc(GP1File const*const gp,
 
 	nc_enddef(ncid);
 
+
+	// Restore original values by scaling/biasing.
+
+	// Allocate an array big enough to hold the largest array
+	maxNumValues = uniqueRates[numUniqueRates-1]*gp->numBlocks*gp->cyclesPerBlock;
+	if (!(values = malloc(max(sizeof(float),sizeof(int))*maxNumValues))) {
+		return 0;
+	}
+
 	count[0] = gp->numBlocks * gp->cyclesPerBlock;
 	for (i = 0; i < gp->numParameters; i++) {
 		if (gp->params[i].isUnused) continue;
 		count[1] = gp->params[i].rate;
-		if (nc_put_vara_float(ncid, gp->params[i].ncVar, start, count,
-		                     gp->params[i].values) != NC_NOERR)
-		{
-			goto ncerr;
+
+		switch (gp->params[i].preferredType) {
+			case NC_FLOAT:
+				for (j = 0; j < (int) gp->params[i].numValues; j++) {
+					((float*) values)[j] = ((float) gp->params[i].values[j])/
+					                       gp->params[i].scale -
+					                       gp->params[i].bias;
+				}
+				if (nc_put_vara_float(ncid, gp->params[i].ncVar, start, count,
+				                      (float*) values) != NC_NOERR)
+				{
+					goto ncerr;
+				}
+				break;
+
+			case NC_INT:
+				for (j = 0; j < (int) gp->params[i].numValues; j++) {
+					((int*) values)[j] = gp->params[i].values[j]/
+					                     gp->params[i].scale -
+					                     gp->params[i].bias;
+				}
+				if (nc_put_vara_int(ncid, gp->params[i].ncVar, start, count,
+				                    (int*) values) != NC_NOERR)
+				{
+					goto ncerr;
+				}
+				break;
 		}
 	}
+
+	free(values);
+	free(uniqueRates);
 
 	nc_close(ncid);
 
