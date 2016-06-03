@@ -11,6 +11,7 @@ typedef struct {
 	char *name;
 	AttrType type;
 	void *data;
+	size_t len; /** Not used for kAttrTypeText. */
 } Attribute;
 
 typedef struct {

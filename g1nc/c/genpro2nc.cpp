@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 
 	fclose(fp);
 
-	rule_applyAll(rules, 1, &gp);
+	rule_applyAll(rules, 8, &gp);
 
 	if (!gp1_write_nc(&gp, outFileName, cmode)) return 1;
 
@@ -504,7 +504,7 @@ int gp1_addAttrs(int ncid, int ncVar, Attribute *attrs, int numAttrs)
 				break;
 			case kAttrTypeFloat:
 				if ((status = nc_put_att_float(ncid, ncVar, attr->name,
-				                               NC_FLOAT, 1,
+				                               NC_FLOAT, attr->len,
 				                               (float*) attr->data)) != NC_NOERR)
 				{
 					goto put_fail;

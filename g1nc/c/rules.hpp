@@ -41,10 +41,13 @@ int rule_applyAll(Rule const*const rules, size_t numRules, GP1File *const gp);
 //
 // Applicators
 //
+int rule_setUnits(void *applicatorData, void *extData, GP1File *const gp);
 int rule_setDesc(void *applicatorData, void *extData, GP1File *const gp);
 int rule_setVariableName(void *applicatorData, void *extData, GP1File *const gp);
 int rule_addAttr(void *applicatorData, void *extData, GP1File *const gp);
 int rule_addGlobalAttr(void *applicatorData, void *extData, GP1File *const gp);
+int rule_addGlobalMinMax(void *applicatorData, void *extData, GP1File *const gp);
+int rule_addMinMaxAttr(void *applicatorData, void *extData, GP1File *const gp);
 
 //
 // Rules

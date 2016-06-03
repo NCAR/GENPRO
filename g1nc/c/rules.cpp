@@ -41,6 +41,81 @@ RuleApplicatorData changeTimeRuleApplicators[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// Also used by ALAT rules
+Attribute position_category = {
+	(char*) "Category",
+	kAttrTypeText,
+	(char*) "Position"
+};
+
+ParamRegexChangeRule ALAT_renameRule = {
+	/* .matchReStr        = */ (char*) "^alat$",
+	/* .didCompileMatchRe = */ 0,
+	/* .matchReFlags      = */ REG_ICASE,
+	/* .getText           = */ rule_getVariableName
+};
+
+Attribute ALAT_standard_name = {
+	(char*) "standard_name",
+	kAttrTypeText,
+	(char*) "latitude"
+};
+
+float ALAT_valid_range[2] = { -90.0f, 90.0f };
+
+Attribute ALAT_valid_range_attr = {
+	(char*) "valid_range",
+	kAttrTypeFloat,
+	ALAT_valid_range, 2
+};
+
+RuleApplicatorData ALAT_renameRuleApplicators[] = {
+	{ rule_setVariableName, (char*) "LAT" },
+	{ rule_addAttr, &position_category, },
+	{ rule_setUnits, (char*) "degree_N" },
+//	{ rule_setDesc, (char*) "" },
+	{ rule_addAttr, &ALAT_standard_name },
+	{ rule_addGlobalMinMax, (char*) "geospatial_lat_%s" },
+	{ rule_addMinMaxAttr, (char*) "actual_range" },
+	{ rule_addAttr, &ALAT_valid_range_attr }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+ParamRegexChangeRule ALON_renameRule = {
+	/* .matchReStr        = */ (char*) "^along$",
+	/* .didCompileMatchRe = */ 0,
+	/* .matchReFlags      = */ REG_ICASE,
+	/* .getText           = */ rule_getVariableName
+};
+
+Attribute ALON_standard_name = {
+	(char*) "standard_name",
+	kAttrTypeText,
+	(char*) "longitude"
+};
+
+float ALON_valid_range[2] = { -180.0f, 180.0f };
+
+Attribute ALON_valid_range_attr = {
+	(char*) "valid_range",
+	kAttrTypeFloat,
+	ALON_valid_range, 2
+};
+
+RuleApplicatorData ALON_renameRuleApplicators[] = {
+	{ rule_setVariableName, (char*) "LON" },
+	{ rule_addAttr, &position_category, },
+	{ rule_setUnits, (char*) "degree_E" },
+//	{ rule_setDesc, (char*) "" },
+	{ rule_addAttr, &ALON_standard_name },
+	{ rule_addGlobalMinMax, (char*) "geospatial_lon_%s" },
+	{ rule_addMinMaxAttr, (char*) "actual_range" },
+	{ rule_addAttr, &ALON_valid_range_attr }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 
 Attribute institutionGlobalAttr = {
 	(char*) "institution",
@@ -139,6 +214,18 @@ Rule rules[] = {
 		rule_paramRegexChange,
 		changeTimeRuleApplicators,
 		/* .numApplicators = */ 4
+	},
+	// Change "ALAT" ("RAW INS LATITUDE") into "LAT"
+	{
+		&ALAT_renameRule,
+		rule_paramRegexChange,
+		ALAT_renameRuleApplicators, 7
+	},
+	// Change "ALON" ("RAW INS LONGITUDE") into "LON"
+	{
+		&ALON_renameRule,
+		rule_paramRegexChange,
+		ALON_renameRuleApplicators, 7
 	}
 };
 
@@ -153,6 +240,15 @@ int set_str(char **dest, size_t *len, char *src)
 	strncpy(*dest, src, newLen);
 	(*dest)[newLen] = '\0';
 	if (len) *len = newLen;
+	return 1;
+}
+
+int rule_setUnits(void *applicatorData, void *extData, GP1File *const gp)
+{
+	Parameter *const param = (Parameter*) extData;
+	char *const newUnits = (char*) applicatorData;
+
+	set_str(&(param->units), &(param->unitsLen), newUnits);
 	return 1;
 }
 
@@ -177,6 +273,73 @@ int rule_setVariableName(void *applicatorData, void *extData, GP1File *const gp)
 char *rule_getVariableName(Parameter *const param)
 {
 	return param->label;
+}
+
+/**
+ * Adds an attribute to a variable containing its min and max values.
+ */
+#define BUF_SIZE 100
+int rule_addMinMaxAttr(void *applicatorData, void *extData, GP1File *const gp)
+{
+	Parameter *const param = (Parameter*) extData;
+	char *const name = (char*) applicatorData;
+	float *minmax;
+	size_t i;
+
+	if (!(minmax = (float*) malloc(sizeof(float)*2))) return 0;
+
+	// Compute min/max values
+	minmax[0] = minmax[1] = param->values[0];
+	for (i = 0; i < param->numValues; i++) {
+		if (minmax[0] > param->values[i]) {
+			minmax[0] = param->values[i];
+		}
+		if (minmax[0] < param->values[i]) {
+			minmax[0] = param->values[i];
+		}
+	}
+
+	Attribute attr = { name, kAttrTypeFloat, minmax, 2 };
+
+	return rule_addAttr(&attr, param, gp);
+}
+/**
+ * Adds global attributes for the min and max of a variable.
+ */
+#define BUF_SIZE 100
+int rule_addGlobalMinMax(void *applicatorData, void *extData, GP1File *const gp)
+{
+	Parameter *const param = (Parameter*) extData;
+	char *const formatStr = (char*) applicatorData;
+	char *minName, *maxName;
+	float *min, *max;
+	size_t i;
+
+	if (!(minName = (char*) malloc(sizeof(char)*BUF_SIZE))) return 0;
+	if (!(maxName = (char*) malloc(sizeof(char)*BUF_SIZE))) return 0;
+
+	if (!(min = (float*) malloc(sizeof(float)))) return 0;
+	if (!(max = (float*) malloc(sizeof(float)))) return 0;
+
+	snprintf(minName, BUF_SIZE, formatStr, "min");
+	snprintf(maxName, BUF_SIZE, formatStr, "max");
+
+	// Compute min/max values
+	*min = *max = param->values[0];
+	for (i = 0; i < param->numValues; i++) {
+		if (*min > param->values[i]) {
+			*min = param->values[i];
+		}
+		if (*max < param->values[i]) {
+			*max = param->values[i];
+		}
+	}
+
+	Attribute minAttr = { minName, kAttrTypeFloat, min, 1 };
+	Attribute maxAttr = { maxName, kAttrTypeFloat, max, 1 };
+
+	return rule_addGlobalAttr(&minAttr, NULL, gp) &&
+	       rule_addGlobalAttr(&maxAttr, NULL, gp);
 }
 
 /**
