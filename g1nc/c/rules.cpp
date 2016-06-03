@@ -421,11 +421,13 @@ int rule_setPreferredType(void *applicatorData, void *extData, GP1File *const gp
 	return 1;
 }
 
+static char time_interval[] = "TimeInterval";
 static char time_coverage_start[] = "time_coverage_start";
 static char time_coverage_end[]   = "time_coverage_end";
 static char timeUnits[BUF_SIZE];
 static char timeCoverageStart[BUF_SIZE];
 static char timeCoverageEnd[BUF_SIZE];
+static char timeIntervalValue[BUF_SIZE];
 int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 {
 	Parameter *const param = (Parameter*) extData;
@@ -434,7 +436,7 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 	regex_t matchRe;
 	int found = 0;
 	int i;
-	int hour, min, sec;
+	int startH, startM, startS, endH, endM, endS;
 	const char matchReStr[] =
 		"\\([0-9]\\{1,2\\}\\) \\{0,1\\}"
 		"\\(JAN\\|FEB\\|MAR\\|APR\\|MAY\\|JUN\\|JUL\\|AUG\\|SEP\\|OCT\\|NOV\\|DEC\\)"
@@ -486,15 +488,27 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 		timeCoverageEnd
 	};
 
-	// note that we assume time to be monotonically increasing (it should be)
-	get_hms(param->values[0], &hour, &min, &sec);
-	snprintf(timeCoverageStart, BUF_SIZE, "%4d-%02d-%02dT%02d:%02d:%02d +0000", year, month, day, hour, min, sec);
+	// This is what ncplot uses to determine the number of seconds of data
+	// in the file (in GetTimeInterval() in dataIO.c). If we don't define this,
+	// ncplot will crash due to division by zero.
+	Attribute timeInterval = {
+		time_interval,
+		kAttrTypeText,
+		timeIntervalValue
+	};
 
-	get_hms(param->values[param->numValues-1], &hour, &min, &sec);
-	snprintf(timeCoverageEnd, BUF_SIZE, "%4d-%02d-%02dT%02d:%02d:%02d +0000", year, month, day, hour, min, sec);
+	// note that we assume time to be monotonically increasing (it should be)
+	get_hms(param->values[0], &startH, &startM, &startS);
+	snprintf(timeCoverageStart, BUF_SIZE, "%4d-%02d-%02dT%02d:%02d:%02d +0000", year, month, day, startH, startM, startS);
+
+	get_hms(param->values[param->numValues-1], &endH, &endM, &endS);
+	snprintf(timeCoverageEnd, BUF_SIZE, "%4d-%02d-%02dT%02d:%02d:%02d +0000", year, month, day, endH, endM, endS);
+
+	snprintf(timeIntervalValue, BUF_SIZE, "%02d:%02d:%02d-%02d:%02d:%02d", startH, startM, startS, endH, endM, endS);
 
 	return rule_addGlobalAttr(&start, NULL, gp) &&
-	       rule_addGlobalAttr(&end, NULL, gp);
+	       rule_addGlobalAttr(&end, NULL, gp) &&
+	       rule_addGlobalAttr(&timeInterval, NULL, gp);
 }
 
 int rule_applyAll(Rule const*const rules, size_t numRules, GP1File *const gp)
