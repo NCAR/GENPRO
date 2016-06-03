@@ -258,8 +258,7 @@ int rule_paramRegexChange(Rule const*const rule, GP1File *const gp)
 	for (i = 0; i < gp->numParameters; i++) {
 		if (!regexec(&(data->matchRe), data->getText(gp->params+i), 1, &match, 0)) {
 			// ^ (regexec returns 0 on success)
-			rule_apply(rule, gp->params+i, gp);
-			return 0;
+			return rule_apply(rule, gp->params+i, gp);
 		}
 	}
 
