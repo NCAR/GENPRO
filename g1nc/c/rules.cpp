@@ -14,10 +14,10 @@
 #include "rules.hpp"
 
 ParamRegexChangeRule changeTimeRule = {
-	/* .matchReStr = */ (char*) "time",
+	/* .matchReStr        = */ (char*) "time",
 	/* .didCompileMatchRe = */ 0,
-	/* .matchReFlags = */ REG_ICASE,
-	rule_getVariableName
+	/* .matchReFlags      = */ REG_ICASE,
+	/* .getText           = */ rule_getVariableName
 };
 
 Attribute strptime_format = {
