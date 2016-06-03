@@ -170,7 +170,8 @@ RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_addGlobalAttr, &addressGlobalAttr },
 	{ rule_addGlobalAttr, &creatorURLGlobalAttr },
 	{ rule_addGlobalAttr, &conventionsGlobalAttr },
-	{ rule_addGlobalAttr, &conventionsURLGlobalAttr }
+	{ rule_addGlobalAttr, &conventionsURLGlobalAttr },
+	{ rule_setFlightInfo, NULL }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -180,7 +181,7 @@ Rule rules[] = {
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
-		constantGlobalAttrs, 5
+		constantGlobalAttrs, 6
 	},
 	// Change a variable named TIME
 	{
@@ -475,6 +476,53 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 	return rule_addGlobalAttr(&start, NULL, gp) &&
 	       rule_addGlobalAttr(&end, NULL, gp) &&
 	       rule_addGlobalAttr(&timeInterval, NULL, gp);
+}
+
+// From http://www.eol.ucar.edu/node/906
+//
+// 1 = N130AR, C-130Q Hercules
+// 2 = N312D, B200T KingAir (one N2UW, Wyoming KingAir project in 1985)
+// 3 = Naval Research Lab (NRL) P-3
+// 4 = N304D, QueenAir, A-80
+// 5 = N677F, Gulfstream V (from 2005)
+// 5 = N595KR, L-188 Electra (1973 through 1977)
+// 6 = N306D, QueenAir, B-80
+// 7 = N307D, Sabreliner, Model 60
+// 8 = N308D, L-188 Electra (1978 through 2000)
+// 9 = N9929J, Schweitzer 2-32 Sailplane
+static struct {
+	char* name;
+} flightPlatforms[] = {
+	{ (char*) "N130AR" },
+	{ (char*) "N312D" },
+	{ (char*) "Naval Research Lab (NRL) P-3"  },
+	{ (char*) "N304D" },
+	{ (char*) "N677F" },
+	{ (char*) "N595KR" },
+	{ (char*) "N306D" },
+	{ (char*) "N307D" },
+	{ (char*) "N308D" },
+	{ (char*) "N9929J" }
+};
+static char flight_platform[] = "Platform";
+int rule_setFlightInfo(void *applicatorData, void *extData, GP1File *const gp)
+{
+	// FIXME: we're making a lot of assumptions here...
+	// should probably at least trim leading whitespace
+	int platformNum = gp->fileDesc[0];
+	if (platformNum < '1' || platformNum > '9') {
+		fprintf(stderr, "rule_setFlightInfo: warning: invalid flight number\n");
+		return 0;
+	}
+	platformNum -= '1';
+
+	Attribute platform = {
+		flight_platform,
+		kAttrTypeText,
+		flightPlatforms[platformNum].name
+	};
+
+	return rule_addGlobalAttr(&platform, NULL, gp);
 }
 
 int rule_applyAll(Rule const*const rules, size_t numRules, GP1File *const gp)
