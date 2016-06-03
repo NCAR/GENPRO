@@ -4,7 +4,8 @@
 
 typedef enum {
 	kAttrTypeText,
-	kAttrTypeFloat
+	kAttrTypeFloat,
+	kAttrTypeInt
 } AttrType;
 
 typedef struct {

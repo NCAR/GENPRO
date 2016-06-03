@@ -421,13 +421,6 @@ int gp1_write_nc(GP1File const*const gp,
 			goto ncerr;
 		}
 
-		if ((status = nc_put_att_int(ncid, gp->params[i].ncVar, "SampledRate",
-		                             NC_INT, 1,
-		                             &(gp->params[i].rate))) != NC_NOERR)
-		{
-			goto ncerr;
-		}
-
 		// Arbitrary attributes which may have been added by the rule set.
 		gp1_addAttrs(ncid, gp->params[i].ncVar, gp->params[i].attrs, gp->params[i].numAttrs);
 	}

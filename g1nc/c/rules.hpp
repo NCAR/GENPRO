@@ -52,6 +52,7 @@ int rule_addMinMaxAttr(void *applicatorData, void *extData, GP1File *const gp);
 int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp);
 int rule_setPreferredType(void *applicatorData, void *extData, GP1File *const gp);
 int rule_setFlightInfo(void *applicatorData, void *extData, GP1File *const gp);
+int rule_addSampleRate(void *applicatorData, void *extData, GP1File *const gp);
 
 //
 // Rules

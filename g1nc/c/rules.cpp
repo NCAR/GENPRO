@@ -130,7 +130,8 @@ ParamRegexChangeRule actualRangeRule = {
 
 RuleApplicatorData actualRangeRuleApplicators[] = {
 	{ rule_addMinMaxAttr, (char*) "actual_range" },
-	{ rule_setPreferredType, (void*) NC_FLOAT }
+	{ rule_setPreferredType, (void*) NC_FLOAT },
+	{ rule_addSampleRate, NULL }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -206,7 +207,7 @@ Rule rules[] = {
 	{
 		&actualRangeRule,
 		rule_paramRegexChange,
-		actualRangeRuleApplicators, 2
+		actualRangeRuleApplicators, 3
 	}
 };
 
@@ -523,6 +524,25 @@ int rule_setFlightInfo(void *applicatorData, void *extData, GP1File *const gp)
 	};
 
 	return rule_addGlobalAttr(&platform, NULL, gp);
+}
+
+static char SampledRate[] = "SampledRate";
+int rule_addSampleRate(void *applicatorData, void *extData, GP1File *const gp)
+{
+	Parameter *const param = (Parameter*) extData;
+	int *rate;
+
+	if (!(rate = (int*) malloc(sizeof(int)))) return 0;
+
+	*rate = param->rate;
+
+	Attribute sampleRate = {
+		SampledRate,
+		kAttrTypeInt,
+		rate, 1
+	};
+
+	return rule_addAttr(&sampleRate, param, gp);
 }
 
 int rule_applyAll(Rule const*const rules, size_t numRules, GP1File *const gp)
