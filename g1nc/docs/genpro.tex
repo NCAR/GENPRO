@@ -41,18 +41,14 @@ The GENPRO-1 file format is a binary file format for storing arbitrary observati
 
 \section{Header}
 
-All GENPRO-1 files begin with a plain-text header text header using a 6-bit
-word size and custom encoding. The header contains no newline characters. Each
-line in the header (in both parts) is 100 characters (100 6-bit words) long.
-The header is divided into two parts: the first part is 11 lines long and
-contains:
+All GENPRO-1 files begin with a plain-text header text header using a 6-bit word size and custom encoding. The header contains no newline characters. The header is divided into two parts: the first part is 1100 (6-bit) characters long and contains:
 \begin{itemize}
 	\item The number of parameters contained in the file.
 	\item The cycle period.
 	\item The word size used for data.
 \end{itemize}
 
-All of these values in this part of the header are at fixed offsets from the start of the file. Some of these offsets are listed in tbl.~\ref{Tbl.HeaderOffsets}.
+Note that there does not appear to be an ideal line width to display this portion of the header. All of these values in this part of the header are at fixed offsets from the start of the file. Some of these offsets are listed in tbl.~\ref{Tbl.HeaderOffsets}.
 
 \begin{table}[H]
 \centering
@@ -61,7 +57,7 @@ All of these values in this part of the header are at fixed offsets from the sta
 \begin{tabular}{lrrrl}
 Attribute                         & Start & End & Length & C format string \\
 \hline
-File description                  & 0     & 22  & 23     & \\
+File description                  & 0     & 31  & 32     & N/A \\
 Date                              & 24    & 30  & 7      & \texttt{"\%d\%3s\%2d"} \\
 Number of parameters              & 175   &     &        & \texttt{"\%3d"} \\
 Total number of samples per cycle & 246   &     &        & \texttt{"\%4d"} \\
@@ -299,92 +295,49 @@ Dec & Hex & Oct & Hex & Dec & Oct & Character \\
 
 \section{Data section}
 
+The data section consists of one or more \textit{blocks} aligned to 64-bit word boundaries. Each block is, in turn, comprised of one or more \textit{cycles}. Each cycle contains one or more set of \textit{parameter values}. Each set of parameter values contains one or more values; the number of values contained in each set is determined by the (relative) sample rate of each parameter.
+
 The offset, in multiples of 8-bit bytes, from the start of the file to the data section is computed as
 \[
-	8 \left \lceil \dfrac{100\times(11+N)\times6}{64} \right \rceil \mathrm{,}
+	\text{offset}_\text{data} = 8 \left \lceil \dfrac{100\times(11+N)\times6}{64} \right \rceil \mathrm{,}
 \]
 
-\noindent where \(N\) is the number of parameters in the file; i.e., the offset is in multiples of 64-bit words (owing to the Cray-1's 64-bit word size). For example, for the PHOENIX-78 dataset, \(N = 67\), so the data section begins at the offset
+\noindent where \(N\) is the number of parameters in the file; i.e., the offset is in multiples of 64-bit words (presumably owing to the Cray-1's 64-bit word size). For example, for the PHOENIX-78 dataset, \(N = 67\), so the data section begins at the offset
 \[
-	8 \left \lceil \dfrac{100\times(11+67)\times 6}{64} \right \rceil = 5856 \mathrm{.}
+	\text{offset}_\text{data} = 8 \left \lceil \dfrac{100\times(11+67)\times 6}{64} \right \rceil = 5856 \mathrm{.}
 \]
 
-The stride between successive sets of sample data, in multiples of 8-bit bytes, is
+The stride between blocks, in multiples of 8-bit bytes, is
 \[
-	8 \left \lceil \dfrac{M}{64} \right \rceil \mathrm{,}
+	\text{stride} = 8 \left \lceil \dfrac{\text{cycles per block} \times \text{samples per cycle}}{64} \right \rceil \mathrm{,}
 \]
 
-\noindent where \(M\) is the number of samples per cycle, as indicated in the header; \(M\) is given by
+\noindent \textbf{unless} the product \((\text{cycles per block} \times \text{samples per cycle})\) is evenly divisible by \(64\), in which case the stride becomes
 \[
-	M = \sum_{i=0}^{N} R_i \mathrm{,}
+	\text{stride} = 8 \left \lceil \dfrac{\text{cycles per block} \times \text{samples per cycle}}{64} \right \rceil + 1 \mathrm{.}
+\]
+
+\noindent I.e., in this scenario (and in this scenario only), an extra zero 64-bit word is added as padding between consecutive blocks. Both the number of samples per cycle and the number of cycles per block are specified in the header. The number of samples per cycle may also be computed as:
+\[
+	\text{samples per cycle} = \sum_{i=0}^{N} (\text{sample rate for parameter }i) \mathrm{,}
 \]
 
 \noindent where \(N\) is again the number of parameters, and \(R_i\) is the sample rate for the \(i\)th parameter. For the example dataset, there are \(6\) parameters with a sample rate of \(1\) (parameters \(1\) through \(6\)), and \(61\) parameters which have a sample rate of \(20\) (parameters \(7\) through \(67\)), so
 \[
-	M = 6 \times 1 + 61 \times 20 = 1226 \mathrm{.}
+	\text{samples per cycle} = 6 \times 1 + 61 \times 20 = 1226 \mathrm{.}
 \]
 
-\noindent Note that this equals the ``samples/program cycle" figure given in the header. It is important to note, if it was not already evident, that the stride between successive sets of sample data may be longer than the size of the sets of sample data; i.e., there may be zero padding separating subsequent sets of sample data. For this reason, it is easiest to read in whole 64-bit words at a time, then use \texttt{gbytes} to decode the data. Likewise, the data section may also be separated from the plain-text header by some amount of zero padding; for this reason, it is easiest to read the data section by seeking to the start of the data section relative to the start of the file, then reading one cycle's worth of data at a time until end-of-file (EOF) is reached.
+\noindent Note that this equals the ``samples/program cycle" figure given in the header.
+
+Recall that each block is aligned to 64-bit word boundaries, but individual cycle and parameter values are not necessarily. For this reason, it is easiest to read entire blocks at time, then use \texttt{gbytes} to decode the data. Likewise, the data section may also be separated from the plain-text header by some amount of zero padding; for this reason, it is easiest to read the data section by seeking to the start of the data section relative to the start of the file, then reading one cycle's worth of data at a time until end-of-file (EOF) is reached.
 
 Within each cycle of data, each parameter appears in order, such that if a parameter has a sample rate (in multiples of the cycle frequency) greater than \(1\), then there will appear that many instances of data for that parameter. E.g., if parameter~1 has a sample rate of~\(2\), parameter~2 has a sample rate of \(1\), and parameter~3 has a sample rate of~\(5\), one would see two parameter~1 values followed by one parameter~2 value, and followed up by five parameter~3 values. This organization of the data is illustrated in fig.~\ref{Fig.DataOrganization}.
 
 \begin{figure}[H]
 	\centering
-	\begin{tikzpicture}
-	\node (table) [inner sep=0pt] {
-		\begin{tabular}{@{}|c|c|c|c|c|c|c|c|c|c|c|c|c|c|@{}}
-			\hline
-				\multicolumn{14}{|c|}{Cycle \(1\)} \\
-			\hline
-				\multicolumn{4}{|c|}{Parameter \(1\)} &
-				\multicolumn{4}{|c|}{Parameter \(2\)} &
-				\multirow{2}{*}{\(\cdots\)} &
-				\multicolumn{4}{|c|}{Parameter \(N\)} &
-				\multirow{2}{*}{Padding} \\
-			\cline{1-8}
-			\cline{10-13}
-				0 & 1 & \(\cdots\) & \(R_1\) &
-				0 & 1 & \(\cdots\) & \(R_2\) & &
-				0 & 1 & \(\cdots\) & \(R_N\) & \\
-			\hline
-			\multicolumn{8}{c}{\raisebox{1em}{}} \\
-			\hline
-				\multicolumn{14}{|c|}{Cycle \(2\)} \\
-			\hline
-				\multicolumn{4}{|c|}{Parameter \(1\)} &
-				\multicolumn{4}{|c|}{Parameter \(2\)} &
-				\multirow{2}{*}{\(\cdots\)} &
-				\multicolumn{4}{|c|}{Parameter \(N\)} &
-				\multirow{2}{*}{Padding} \\
-			\cline{1-8}
-			\cline{10-13}
-				0 & 1 & \(\cdots\) & \(R_1\) &
-				0 & 1 & \(\cdots\) & \(R_2\) & &
-				0 & 1 & \(\cdots\) & \(R_N\) & \\
-			\hline
-			\multicolumn{14}{c}{\(\vdots\)} \\
-			\hline
-				\multicolumn{14}{|c|}{Cycle \(N_r\)} \\
-			\hline
-				\multicolumn{4}{|c|}{Parameter \(1\)} &
-				\multicolumn{4}{|c|}{Parameter \(2\)} &
-				\multirow{2}{*}{\(\cdots\)} &
-				\multicolumn{4}{|c|}{Parameter \(N\)} &
-				\multirow{2}{*}{Padding} \\
-			\cline{1-8}
-			\cline{10-13}
-				0 & 1 & \(\cdots\) & \(R_1\) &
-				0 & 1 & \(\cdots\) & \(R_2\) & &
-				0 & 1 & \(\cdots\) & \(R_N\) & \\
-			\hline
-		\end{tabular}};
-		\foreach \i/\corner in {1/south west, 2/south east}
-			\draw (table.\corner) ++(down:3pt) -- ++(down:0.3cm)
-			      coordinate (p\i) -- ++(down:0.2cm);
-		\draw [<->] (p1) -- (p2)
-		      node [midway,anchor=north] {Multiples of 64 bits};
-	\end{tikzpicture}
-	\caption{Data organization.}
+	\includegraphics[width=\textwidth]{figures/dataorg/dataorg.pdf}
+	\caption{Data organization. \(N_B\) is the number of blocks contained in
+	         the file.}
 	\label{Fig.DataOrganization}
 \end{figure}
 
@@ -457,20 +410,82 @@ $ genpro2nc G50222C.bin G50222C.nc
 
 \subsection{Output}
 
-\texttt{genpro2nc} generates a dimension for every variable in the file, named in the form \texttt{\textit{VARIABLE}\_LENGTH}, where \texttt{\textit{VARIABLE}} is the name of the variable. There are two global attributes:
+\texttt{genpro2nc} generates an unlimited dimension, \texttt{Time}, which is the first dimension used by every array that is generated in the file. A number of global attributes are added (see sec.~\ref{Sec.Extending} information on changing these):
 \begin{itemize}
-	\item \texttt{CYCLE\_TIME} -- the fundamental sampling period. Sample rates
-	      for individual parameters are expressed as multiples of the sampling
-	      frequency corresponding to this period.
-	\item \texttt{DESCRIPTION} -- the description text found in the input
-	      GENPRO-1 file.
+%	\item \texttt{CYCLE\_TIME} -- the fundamental sampling period. Sample rates
+%	      for individual parameters are expressed as multiples of the sampling
+%	      frequency corresponding to this period.
+%	\item \texttt{DESCRIPTION} -- the description text found in the input
+%	      GENPRO-1 file.
+	\item \texttt{institution} -- Set to ``NCAR Research Aviation Facility".
+	\item \texttt{Address}
+	\item \texttt{creator\_url} -- 
+	\item \texttt{ConventionsURL} --
+	\item \texttt{Platform} --
+	\item \texttt{time\_coverage\_start}, \texttt{time\_coverage\_end} -- 
+	\item \texttt{TimeInterval} -- 
+	\item \texttt{geospatial\_lat\_min}, \texttt{geospatial\_lat\_max}, \texttt{geospatial\_lon\_min}, \texttt{geospatial\_lon\_max} -- 
 \end{itemize}
 
 Every variable has three attributes:
 \begin{itemize}
-	\item \texttt{DESCRIPTION} -- a human readable description of the variable,
-	\item \texttt{UNITS} -- the units of the variable, and
-	\item \texttt{SAMPLE\_RATE} -- the sampling frequency for this parameter in multiples of the cycle frequency.
+	\item \texttt{long\_name} -- a human readable description of the variable,
+	\item \texttt{units} -- the units of the variable, and
+%	\item \texttt{SAMPLE\_RATE} -- the sampling frequency for this parameter in multiples of the cycle frequency.
 \end{itemize}
+
+Every variable (except \texttt{Time}) also have these attributes:
+\begin{itemize}
+	\item \texttt{SampledRate} -- The sample rate of the array.
+	\item \texttt{actual\_range} -- A vector of two floating point values indicating the minimum and maximum values found in the array.
+\end{itemize}
+
+Variables which are sampled at a rate higher than the cycle rate of the source GENPRO-I file are stored as two-dimensional arrays; the first dimension is, as always, \texttt{Time}, and the second dimension indicates the sample rate of the variable and is named of the form \texttt{sps\#} (e.g., \texttt{sps5}).
+
+\section{Extending \& Modifying the Converter} \label{Sec.Extending}
+
+\texttt{genpro2nc} works in three steps:
+\begin{enumerate}
+	\item Read the GENPRO-1 data without altering it in any way (\texttt{gp1\_read()}).
+	\item Apply \textit{rules} to alter how the data will be output (\texttt{rule\_applyAll()}).
+	\item Write the file to NetCDF (\texttt{gp1\_write\_nc()}).
+\end{enumerate}
+
+There should be no need to modify either \texttt{gp1\_read} or \texttt{gp1\_write\_nc}. Instead, one should be able to accomplish any desired change in the output by editing the rules defined in \texttt{rules.cpp}. These rules are contained in the \texttt{rules} array, which is an array of \texttt{Rule} structures.
+
+For example, if one wanted to add a constant (i.e., unchanging, fixed) global attribute to the output, one would first define the attribute:
+\begin{lstlisting}[language=c]
+Attribute creatorGlobalAttr = {
+	(char*) "creator",                    /* name */
+	kAttrTypeText,                        /* type */
+	(char*) "Your Organization Name Here" /* value */
+};
+\end{lstlisting}
+
+Next, we define an array of \textit{applicator data}. Each entry in the array (of type \texttt{RuleApplicatorData}) contains an \textit{applicator} (a callback which effects some change on the output) and data that will be passed the applicator as an argument. To add a constant global attribute, we will use the \texttt{rule\_addGlobalAttr} applicator, which requires an \texttt{Attribute} as an argument:
+
+\begin{lstlisting}[language=c]
+RuleApplicatorData creatorGlobalAttrApplicatorData[] = {
+    { rule_addGlobalAttr, &creatorGlobalAttr }
+};
+\end{lstlisting}
+
+(Note that this must be declared as an array even if there is only one attribute.)
+
+Finally, this rule would need to be added to the global \texttt{rules} array:
+\begin{lstlisting}[language=c]
+Rule rules[] = {
+    // Add global attributes which should always be present
+    {
+        NULL,
+        rule_alwaysApplyGlobal,
+        creatorGlobalAttrApplicatorData, 1 /* number of applicators */
+    },
+    // Other rules follow
+    // ...
+};
+\end{lstlisting}
+
+We used the \texttt{rule\_alwaysApplyGlobal} rule, which always executes its applicators once for the entire file.
 
 \end{document}
