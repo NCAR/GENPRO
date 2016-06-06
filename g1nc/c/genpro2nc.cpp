@@ -530,6 +530,14 @@ int gp1_addAttrs(int ncid, int ncVar, Attribute *attrs, int numAttrs)
 					goto put_fail;
 				}
 				break;
+			case kAttrTypeInt:
+				if ((status = nc_put_att_int(ncid, ncVar, attr->name,
+				                             NC_INT, attr->len,
+				                             (int*) attr->data)) != NC_NOERR)
+				{
+					goto put_fail;
+				}
+				break;
 			// TODO: implement others
 		}
 	}
