@@ -268,20 +268,24 @@ int rule_addMinMaxAttr(void *applicatorData, void *extData, GP1File *const gp)
 	Parameter *const param = (Parameter*) extData;
 	char *const name = (char*) applicatorData;
 	float *minmax;
+	int minmax_i[2];
 	size_t i;
 
 	if (!(minmax = (float*) malloc(sizeof(float)*2))) return 0;
 
 	// Compute min/max values
-	minmax[0] = minmax[1] = param->values[0];
+	minmax_i[0] = minmax_i[1] = param->values[0];
 	for (i = 0; i < param->numValues; i++) {
-		if (minmax[0] > param->values[i]) {
-			minmax[0] = param->values[i];
+		if (minmax_i[0] > param->values[i]) {
+			minmax_i[0] = param->values[i];
 		}
-		if (minmax[0] < param->values[i]) {
-			minmax[0] = param->values[i];
+		if (minmax_i[0] < param->values[i]) {
+			minmax_i[0] = param->values[i];
 		}
 	}
+
+	minmax[0] = ((float) minmax_i[0])/param->scale - param->bias;
+	minmax[1] = ((float) minmax_i[1])/param->scale - param->bias;
 
 	Attribute attr = { name, kAttrTypeFloat, minmax, 2 };
 
@@ -297,6 +301,7 @@ int rule_addGlobalMinMax(void *applicatorData, void *extData, GP1File *const gp)
 	char *const formatStr = (char*) applicatorData;
 	char *minName, *maxName;
 	float *min, *max;
+	int min_i, max_i;
 	size_t i;
 
 	if (!(minName = (char*) malloc(sizeof(char)*BUF_SIZE))) return 0;
@@ -309,15 +314,18 @@ int rule_addGlobalMinMax(void *applicatorData, void *extData, GP1File *const gp)
 	snprintf(maxName, BUF_SIZE, formatStr, "max");
 
 	// Compute min/max values
-	*min = *max = param->values[0];
+	min_i = max_i = param->values[0];
 	for (i = 0; i < param->numValues; i++) {
-		if (*min > param->values[i]) {
-			*min = param->values[i];
+		if (min_i > param->values[i]) {
+			min_i = param->values[i];
 		}
-		if (*max < param->values[i]) {
-			*max = param->values[i];
+		if (max_i < param->values[i]) {
+			max_i = param->values[i];
 		}
 	}
+
+	*min = ((float) min_i)/param->scale - param->bias;
+	*max = ((float) max_i)/param->scale - param->bias;
 
 	Attribute minAttr = { minName, kAttrTypeFloat, min, 1 };
 	Attribute maxAttr = { maxName, kAttrTypeFloat, max, 1 };
