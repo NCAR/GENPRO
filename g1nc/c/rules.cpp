@@ -394,10 +394,12 @@ int rule_setPreferredType(void *applicatorData, void *extData, GP1File *const gp
 static char time_interval[] = "TimeInterval";
 static char time_coverage_start[] = "time_coverage_start";
 static char time_coverage_end[]   = "time_coverage_end";
+static char flight_date[] = "FlightDate";
 static char timeUnits[BUF_SIZE];
 static char timeCoverageStart[BUF_SIZE];
 static char timeCoverageEnd[BUF_SIZE];
 static char timeIntervalValue[BUF_SIZE];
+static char flightDate[BUF_SIZE];
 int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 {
 	Parameter *const param = (Parameter*) extData;
@@ -461,6 +463,12 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 		timeCoverageEnd
 	};
 
+	Attribute flightDateAttr = {
+		flight_date,
+		kAttrTypeText,
+		flightDate
+	};
+
 	// This is what ncplot uses to determine the number of seconds of data
 	// in the file (in GetTimeInterval() in dataIO.c). If we don't define this,
 	// ncplot will crash due to division by zero.
@@ -475,6 +483,9 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 	snprintf(timeCoverageStart, BUF_SIZE, "%4d-%02d-%02dT%02d:%02d:%02d +0000",
 	         year, month, day, startH, startM, startS);
 
+	snprintf(flightDate, BUF_SIZE, "%02d/%02d/%04d",
+	         month, day, year);
+
 	get_hms(param->values[param->numValues-1], &endH, &endM, &endS);
 	snprintf(timeCoverageEnd, BUF_SIZE, "%4d-%02d-%02dT%02d:%02d:%02d +0000",
 	         year, month, day, endH, endM, endS);
@@ -484,7 +495,8 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 
 	return rule_addGlobalAttr(&start, NULL, gp) &&
 	       rule_addGlobalAttr(&end, NULL, gp) &&
-	       rule_addGlobalAttr(&timeInterval, NULL, gp);
+	       rule_addGlobalAttr(&timeInterval, NULL, gp) &&
+	       rule_addGlobalAttr(&flightDateAttr, NULL, gp);
 }
 
 // From http://www.eol.ucar.edu/node/906
