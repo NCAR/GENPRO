@@ -177,12 +177,24 @@ RuleApplicatorData constantGlobalAttrs[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+RuleApplicatorData sanitizeParamNamesRuleApplicators[] = {
+	{ rule_sanitizeParamName, NULL }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 Rule rules[] = {
 	// Add global attributes which should always be present
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
 		constantGlobalAttrs, 6
+	},
+	// Sanitize variable names
+	{
+		NULL,
+		rule_applyToAllParams,
+		sanitizeParamNamesRuleApplicators, 1
 	},
 	// Change a variable named TIME
 	{
@@ -227,6 +239,29 @@ int set_str(char **dest, size_t *len, char *src)
 	strncpy(*dest, src, newLen);
 	(*dest)[newLen] = '\0';
 	if (len) *len = newLen;
+	return 1;
+}
+
+int rule_sanitizeParamName(void *applicatorData, void *extData, GP1File *const gp)
+{
+	Parameter *const param = (Parameter*) extData;
+	char *const newUnits = (char*) applicatorData;
+	char *src, *dst;
+
+	// Strip whitespace and replace slashes ('/') with underscores ('_')
+	src = dst = param->label;
+	while (*src != '\0') {
+		if (*src != ' ') {
+			if (*src == '/') {
+				*dst++ = '_';
+			} else {
+				*dst++ = *src;
+			}
+		}
+		*src++;
+	}
+	*src = '\0';
+
 	return 1;
 }
 
@@ -621,6 +656,21 @@ int rule_paramRegexChange(Rule const*const rule, GP1File *const gp)
 		if ((doesntMatch && data->invert) || (!doesntMatch && !data->invert)) {
 			if (!rule_apply(rule, gp->params+i, gp)) return 0;
 		}
+	}
+
+	return 1;
+}
+
+/**
+ * Applies the rule to all parameters.
+ */
+int rule_applyToAllParams(Rule const*const rule, GP1File *const gp)
+{
+	int i;
+
+	for (i = 0; i < gp->numParameters; i++) {
+		if (gp->params[i].isUnused) continue;
+		if (!rule_apply(rule, gp->params+i, gp)) return 0;
 	}
 
 	return 1;

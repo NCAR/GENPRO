@@ -42,6 +42,7 @@ int rule_applyAll(Rule const*const rules, GP1File *const gp);
 //
 // Applicators
 //
+int rule_sanitizeParamName(void *applicatorData, void *extData, GP1File *const gp);
 int rule_setUnits(void *applicatorData, void *extData, GP1File *const gp);
 int rule_setDesc(void *applicatorData, void *extData, GP1File *const gp);
 int rule_setVariableName(void *applicatorData, void *extData, GP1File *const gp);
@@ -59,6 +60,7 @@ int rule_addSampleRate(void *applicatorData, void *extData, GP1File *const gp);
 //
 int rule_paramRegexChange(Rule const*const rule, GP1File *const gp);
 int rule_alwaysApplyGlobal(Rule const*const rule, GP1File *const gp);
+int rule_applyToAllParams(Rule const*const rule, GP1File *const gp);
 
 //
 // Helpers for rule_paramRegexChange
