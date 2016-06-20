@@ -208,7 +208,10 @@ Rule rules[] = {
 		&actualRangeRule,
 		rule_paramRegexChange,
 		actualRangeRuleApplicators, 3
-	}
+	},
+
+	// End of rule set marker
+	{ NULL, NULL, NULL, 0 }
 };
 
 static void get_hms(int value, int *const h, int *const m, int *const s);
@@ -565,11 +568,11 @@ int rule_addSampleRate(void *applicatorData, void *extData, GP1File *const gp)
 	return rule_addAttr(&sampleRate, param, gp);
 }
 
-int rule_applyAll(Rule const*const rules, size_t numRules, GP1File *const gp)
+int rule_applyAll(Rule const*const rules, GP1File *const gp)
 {
 	size_t i;
 
-	for (i = 0; i < numRules; i++) {
+	for (i = 0; rules[i].match; i++) {
 		if (!rules[i].match(rules+i, gp)) {
 			return 0;
 		}

@@ -37,7 +37,7 @@ typedef struct {
 //
 // External API
 //
-int rule_applyAll(Rule const*const rules, size_t numRules, GP1File *const gp);
+int rule_applyAll(Rule const*const rules, GP1File *const gp);
 
 //
 // Applicators

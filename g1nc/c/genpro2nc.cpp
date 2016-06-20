@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 
 	fclose(fp);
 
-	rule_applyAll(rules, 5, &gp);
+	rule_applyAll(rules, &gp);
 
 	if (!gp1_write_nc(&gp, outFileName, cmode)) return 1;
 
