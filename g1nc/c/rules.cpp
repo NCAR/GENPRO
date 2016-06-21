@@ -167,6 +167,7 @@ Attribute conventionsURLGlobalAttr = {
 };
 
 RuleApplicatorData constantGlobalAttrs[] = {
+	{ rule_trimData,      NULL },
 	{ rule_addGlobalAttr, &institutionGlobalAttr },
 	{ rule_addGlobalAttr, &addressGlobalAttr },
 	{ rule_addGlobalAttr, &creatorURLGlobalAttr },
@@ -188,7 +189,7 @@ Rule rules[] = {
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
-		constantGlobalAttrs, 6
+		constantGlobalAttrs, 7
 	},
 	// Sanitize variable names
 	{
@@ -240,6 +241,47 @@ int set_str(char **dest, size_t *len, char *src)
 	(*dest)[newLen] = '\0';
 	if (len) *len = newLen;
 	return 1;
+}
+
+/**
+ * Removes zero values at the end of a file.
+ */
+int rule_trimData(void *applicatorData, void *extData, GP1File *const gp)
+{
+	int i, time = -1, trimAmount = 0;
+
+	/* Find the 'Time' variable */
+	for (i = 0; i < gp->numParameters; i++) {
+		if (strcmp(gp->params[i].label, "TIME") == 0) {
+			time = i;
+			break;
+		}
+	}
+
+	if (time < 0) {
+		fprintf(stderr, "rule_trimData: warning: failed to find `Time' "
+		                "variable\n");
+		return 0;
+	}
+
+	/* Search backwards in 'Time' for nonzero values. */
+	i = (int) gp->params[time].numValues-1;
+	while (i > 0) {
+		if (gp->params[time].values[i] == 0) {
+			i--;
+			trimAmount++;
+		} else {
+			break;
+		}
+	}
+
+	fprintf(stderr, "rule_trimData: trimming %d points\n", trimAmount);
+
+	/* Trim variables. */
+	for (i = 0; i < gp->numParameters; i++) {
+		if (gp->params[i].isUnused) continue;
+		gp->params[i].numValues -= trimAmount*gp->params[i].rate;
+	}
 }
 
 int rule_sanitizeParamName(void *applicatorData, void *extData, GP1File *const gp)

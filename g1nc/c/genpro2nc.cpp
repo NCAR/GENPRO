@@ -496,9 +496,10 @@ int gp1_write_nc(GP1File const*const gp,
 		return 0;
 	}
 
-	count[0] = gp->numBlocks * gp->cyclesPerBlock;
 	for (i = 0; i < gp->numParameters; i++) {
 		if (gp->params[i].isUnused) continue;
+
+		count[0] = gp->params[i].numValues / gp->params[i].rate;
 		count[1] = gp->params[i].rate;
 
 		switch (gp->params[i].preferredType) {
