@@ -106,6 +106,12 @@ int gp1_read(GP1File *const gp, FILE *fp)
 	char *header_decomp = NULL;
 	int i, j, k, m;
 	int start, curCycle;
+	regex_t re, reNoUnits;
+	regmatch_t match[4];
+	char reStr[] = "^ *([^ ]+.+[^ ]+)  +([^ ]+.+[^ ]+|[^ ]{1,2})  +([^ ]+.+[^ ]+|[^ ]{1,2}) *$";
+	char reNoUnitsStr[] = "^ *([^ ]+.+[^ ]+)  +([^ ]+.+[^ ]+|[^ ]{1,2}) *$";
+	int haveUnits;
+	char tmp[100];
 
 	if (!read_header_chunk(fp, &in_buffer, &header_decomp, HEADER_LINES)) {
 		return 0;
@@ -144,36 +150,70 @@ int gp1_read(GP1File *const gp, FILE *fp)
 
 #define PARAMETER(i) (header_decomp+LINE_LENGTH*(i))
 
+	assert(!regcomp(&re, reStr, REG_EXTENDED|REG_ICASE));
+	assert(!regcomp(&reNoUnits, reNoUnitsStr, REG_EXTENDED|REG_ICASE));
+
 	for (i = 0; i < gp->numParameters; i++) {
 		sscanf(PARAMETER(i)+4, "%d", &(gp->params[i].rate));
 		sscanf(PARAMETER(i)+80, "%f", &(gp->params[i].scale));
 		sscanf(PARAMETER(i)+90, "%f", &(gp->params[i].bias));
 
-		// Get the parameter (variable) name.
-		if (!get_text(header_decomp, LINE_LENGTH*i+56, 9,
-		              &(gp->params[i].label), NULL))
-		{
-			goto param_malloc_fail;
-		}
-
 		// Skip unused parameters
-		if (strcmp(gp->params[i].label, "UNUSED") == 0) {
+		if (memmem(header_decomp+LINE_LENGTH*i, 100, "UNUSED", 6)) {
 			gp->params[i].isUnused = kTrue;
+			continue;
 		}
 
-		// Get the description text.
-		if (!get_text(header_decomp, LINE_LENGTH*i+13, 42,
-		              &(gp->params[i].desc), &(gp->params[i].descLen)))
-		{
-			goto param_malloc_fail;
+		/* Are the units missing? */
+		haveUnits = 0;
+		for (j = 0; j < 7; j++) {
+			if (header_decomp[LINE_LENGTH*i+66+j] != ' ') {
+				haveUnits = 1;
+				break;
+			}
 		}
 
-		// Get the units text.
-		if (!get_text(header_decomp, LINE_LENGTH*i+66, 7,
-		              &(gp->params[i].units), &(gp->params[i].unitsLen)))
-		{
-			goto param_malloc_fail;
+		strncpy(tmp, header_decomp+LINE_LENGTH*i+13, 60);
+		tmp[60] = '\0';
+		if (haveUnits && !(regexec(&re, tmp, 4, match, 0))) {
+			gp->params[i].descLen = match[1].rm_eo-match[1].rm_so;
+			gp->params[i].unitsLen = match[3].rm_eo-match[3].rm_so;
+			if (!(gp->params[i].desc = (char*) malloc(sizeof(char)*gp->params[i].descLen))) {
+				goto mallocfail;
+			}
+			if (!(gp->params[i].label = (char*) malloc(sizeof(char)*(1+match[2].rm_eo-match[2].rm_so)))) {
+				goto mallocfail;
+			}
+			if (!(gp->params[i].units = (char*) malloc(sizeof(char)*gp->params[i].unitsLen))) {
+				goto mallocfail;
+			}
+			strncpy(gp->params[i].desc,  tmp+match[1].rm_so, gp->params[i].descLen);
+			strncpy(gp->params[i].label, tmp+match[2].rm_so, match[2].rm_eo-match[2].rm_so);
+			strncpy(gp->params[i].units, tmp+match[3].rm_so, gp->params[i].unitsLen);
+			gp->params[i].label[match[2].rm_eo-match[2].rm_so] = '\0';
+		} else if (!(regexec(&reNoUnits, tmp, 3, match, 0))) {
+			/* Units might be missing */
+			gp->params[i].descLen = match[1].rm_eo-match[1].rm_so;
+			if (!(gp->params[i].desc = (char*) malloc(sizeof(char)*gp->params[i].descLen))) {
+				goto mallocfail;
+			}
+			if (!(gp->params[i].label = (char*) malloc(sizeof(char)*(match[2].rm_eo-match[2].rm_so)))) {
+				goto mallocfail;
+			}
+			gp->params[i].units = NULL;
+			gp->params[i].unitsLen = 0;
+			strncpy(gp->params[i].desc,  tmp+match[1].rm_so, gp->params[i].descLen);
+			strncpy(gp->params[i].label, tmp+match[2].rm_so, match[2].rm_eo-match[2].rm_so);
+		} else {
+			fprintf(stderr, "fatal: failed to parse parameter. Line was:\n%.*s\n",
+			        100, header_decomp+LINE_LENGTH*i);
+			return 0;
 		}
+
+		fprintf(stderr, "found parameter: "
+		                "desc = \"%.*s\", units = \"%.*s\", label = \"%s\"\n",
+		        (int) gp->params[i].descLen, gp->params[i].desc,
+		        (int) gp->params[i].unitsLen, gp->params[i].units, gp->params[i].label);
 	}
 
 	free(header_decomp);
@@ -403,7 +443,10 @@ int gp1_write_nc(GP1File const*const gp,
 		                         numDims, dimIds,
 		                         &(gp->params[i].ncVar))) != NC_NOERR)
 		{
-			fprintf(stderr, "NetCDF variable definition failed, aborting.\n");
+			fprintf(stderr, "NetCDF variable definition failed, aborting.\n"
+			                "(desc = \"%.*s\", units = \"%.*s\", label = \"%s\")\n",
+			        (int) gp->params[i].descLen, gp->params[i].desc,
+			        (int) gp->params[i].unitsLen, gp->params[i].units, gp->params[i].label);
 			goto ncerr;
 		}
 
