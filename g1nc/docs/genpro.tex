@@ -10,6 +10,7 @@
 \usepackage{tikz}
 \usepackage{float}
 \usepackage{hyperref}
+\usepackage{enumitem} % for `noitemsep'
 
 % TODO:
 % - set lstlistings font
@@ -39,10 +40,16 @@
 
 The GENPRO-1 file format is a binary file format for storing arbitrary observational data at intervals.
 
+\subsection{About GENPRO-I Observational Data from NCAR EOL}
+
+Files with a ``-C" suffix are COS-blocked files. Files without a ``-C" suffix are Ampex TMS-4 Terabit Memory System (TBM) files. % cite: https://www.eol.ucar.edu/raf/Bulletins/b9appdx_E.html
+% new location on RDA for cos block utilities:
+% http://rda.ucar.edu/#!cosb
+
 \section{Header}
 
 All GENPRO-1 files begin with a plain-text header text header using a 6-bit word size and custom encoding. The header contains no newline characters. The header is divided into two parts: the first part is 1100 (6-bit) characters long and contains:
-\begin{itemize}
+\begin{itemize}[noitemsep]
 	\item The number of parameters contained in the file.
 	\item The cycle period.
 	\item The word size used for data.
@@ -200,7 +207,7 @@ Bias         & 90 & 95 &  6
 
 \subsection{6-bit Character Encoding}
 
-The mapping between the 6-bit character encoding and ASCII character codes is shown in tbl.~\ref{Tbl.CharEncoding}. As an example, the first 12~bytes (96~bits or 16 6-bit words)of a file in the PHOENIX-78 dataset (similar to the above example) are \texttt{7e47 4299 b72d b502 0f14 e258}. Regrouping this byte sequence into groups of three nibbles (12~bits), we decode these new groupings of three into bits, regroup the bits into groups of 6, then convert the groupings of 6 into their decimal equivalents, and look up the ASCII values corresponding to these decimal values in tbl.~\ref{Tbl.CharEncoding}:
+The mapping between the 6-bit character encoding and ASCII character codes is shown in tbl.~\ref{Tbl.CharEncoding}. As an example, the first 12~bytes (96~bits or 16 6-bit words) of a file in the PHOENIX-78 dataset (similar to the above example) are \texttt{7e47 4299 b72d b502 0f14 e258}. Regrouping this byte sequence into groups of three nibbles (12~bits), we decode these new groupings of three into bits, regroup the bits into groups of 6, then convert the groupings of 6 into their decimal equivalents, and look up the ASCII values corresponding to these decimal values in tbl.~\ref{Tbl.CharEncoding}:
 
 \newcommand{\dataline}[9]{%
 \texttt{#1} &%
@@ -337,15 +344,16 @@ Within each cycle of data, each parameter appears in order, such that if a param
 	\centering
 	\includegraphics[width=\textwidth]{figures/dataorg/dataorg.pdf}
 	\caption{Data organization. \(N_B\) is the number of blocks contained in
-	         the file.}
+	         the file; \(C_B\) is the number of cycles per block. Note that there is no
+	         padding between consecutive cycles or parameters; only between adjacent blocks.}
 	\label{Fig.DataOrganization}
 \end{figure}
 
 \section{Implementation Notes}
 
-\subsection{Decoding the header}
+\subsection{Unpacking 6-bit words}
 
-The following snippet of C~code may be used to decode the 6-bit header data.
+The following snippet of C~code may be used to decode the 6-bit header data. This has been tested to work on the x86-64 platform with gcc~4.4.7.
 
 \begin{lstlisting}[language=C]
 void decode(uint8_t *in_buffer, char *out_buffer, size_t length)
@@ -384,6 +392,7 @@ void decode(uint8_t *in_buffer, char *out_buffer, size_t length)
 }
 \end{lstlisting}
 
+Alternatively, the \texttt{gbytes} routine may be used, which is available for a variety of platforms in a variety of languages.
 
 \subsection{Ceiling of division}
 
@@ -401,41 +410,43 @@ The syntax of the converter is straightforward: one specifies the path to the in
 $ genpro2nc INFILE OUTFILE
 \end{lstlisting}
 
-For example,
+\noindent For example, starting with a COS-blocked file \texttt{G50222C}, we obtain a NetCDF file like so:
 
 \begin{lstlisting}[language=]
-$ genpro2nc -b -e bin G50222C
+$ cosconvert -b -e bin G50222C
 $ genpro2nc G50222C.bin G50222C.nc
 \end{lstlisting}
+
+\noindent (The \texttt{-e} switch to \texttt{cosconvert} tells \texttt{cosconvert} to create an un-COS-blocked file with the extension which immediately follows the flag; here, \texttt{.bin}.)
 
 \subsection{Output}
 
 \texttt{genpro2nc} generates an unlimited dimension, \texttt{Time}, which is the first dimension used by every array that is generated in the file. A number of global attributes are added (see sec.~\ref{Sec.Extending} information on changing these):
-\begin{itemize}
+\begin{itemize}[noitemsep]
 %	\item \texttt{CYCLE\_TIME} -- the fundamental sampling period. Sample rates
 %	      for individual parameters are expressed as multiples of the sampling
 %	      frequency corresponding to this period.
 %	\item \texttt{DESCRIPTION} -- the description text found in the input
 %	      GENPRO-1 file.
 	\item \texttt{institution} -- Set to ``NCAR Research Aviation Facility".
-	\item \texttt{Address}
-	\item \texttt{creator\_url} -- 
-	\item \texttt{ConventionsURL} --
-	\item \texttt{Platform} --
-	\item \texttt{time\_coverage\_start}, \texttt{time\_coverage\_end} -- 
-	\item \texttt{TimeInterval} -- 
-	\item \texttt{geospatial\_lat\_min}, \texttt{geospatial\_lat\_max}, \texttt{geospatial\_lon\_min}, \texttt{geospatial\_lon\_max} -- 
+	\item \texttt{Address} -- The address of the institution, set to ``P.O. Box 3000, Boulder, CO 80307-3000"
+	\item \texttt{creator\_url} -- The web URL of the creating institution, set to ``http://www.eol.ucar.edu".
+	\item \texttt{ConventionsURL} -- Set to ``http://www.eol.ucar.edu/raf/Software/netCDF.html".
+	\item \texttt{Platform} -- The tail number of the aircraft used as a flight platform.
+	\item \texttt{time\_coverage\_start}, \texttt{time\_coverage\_end} -- formatted as \texttt{YYYY-MM-DDTHH:MM:SS +0000} (e.g., \texttt{1978-11-17T18:02:19 +0000}).
+	\item \texttt{TimeInterval} -- The range of time covered by the file, formatted as \texttt{HH:MM:SS-HH:MM:SS} (e.g., 15:53:15-18:02:19).
+	\item \texttt{FlightDate} -- The date the flight took place, formatted as \texttt{DD/MM/YYYY} (e.g., 11/17/1978).
+	\item \texttt{geospatial\_lat\_min}, \texttt{geospatial\_lat\_max}, \texttt{geospatial\_lon\_min}, \texttt{geospatial\_lon\_max} -- Minimum and maximum latitude/longitude values contained in the file.
 \end{itemize}
 
-Every variable has three attributes:
-\begin{itemize}
-	\item \texttt{long\_name} -- a human readable description of the variable,
-	\item \texttt{units} -- the units of the variable, and
-%	\item \texttt{SAMPLE\_RATE} -- the sampling frequency for this parameter in multiples of the cycle frequency.
+Every variable has at least two attributes:
+\begin{itemize}[noitemsep]
+	\item \texttt{long\_name} -- a human readable description of the variable, and
+	\item \texttt{units} -- the units of the variable.
 \end{itemize}
 
 Every variable (except \texttt{Time}) also have these attributes:
-\begin{itemize}
+\begin{itemize}[noitemsep]
 	\item \texttt{SampledRate} -- The sample rate of the array.
 	\item \texttt{actual\_range} -- A vector of two floating point values indicating the minimum and maximum values found in the array.
 \end{itemize}
@@ -445,7 +456,7 @@ Variables which are sampled at a rate higher than the cycle rate of the source G
 \section{Extending \& Modifying the Converter} \label{Sec.Extending}
 
 \texttt{genpro2nc} works in three steps:
-\begin{enumerate}
+\begin{enumerate}[noitemsep]
 	\item Read the GENPRO-1 data without altering it in any way (\texttt{gp1\_read()}).
 	\item Apply \textit{rules} to alter how the data will be output (\texttt{rule\_applyAll()}).
 	\item Write the file to NetCDF (\texttt{gp1\_write\_nc()}).
