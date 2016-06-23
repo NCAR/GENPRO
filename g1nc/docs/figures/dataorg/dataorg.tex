@@ -9,18 +9,21 @@
 \begin{document}
 \begin{tikzpicture}
 \node (table) [inner sep=0pt] {
-	\begin{tabular}{@{}|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|@{}}
+	\begin{tabular}{@{}|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|@{}}
 		\hline
-			\multicolumn{27}{|c|}{Block \(1\)} \\
+			\multicolumn{27}{|c}{Block \(1\)} & \\
 		\hline
 			\multicolumn{13}{|c|}{Cycle \(1\)} &
-			\multicolumn{13}{|c|}{Cycle \(2\)} & \\
-		\hline
+			\multirow{3}{*}{\(\cdots\)} &
+			\multicolumn{13}{|c|}{Cycle \(C_B\)} & \\
+		\cline{1-13}
+		\cline{15-27}
 		% Cycle 1
 			\multicolumn{4}{|c|}{Parameter \(1\)} &
 			\multicolumn{4}{|c|}{Parameter \(2\)} &
 			\multirow{2}{*}{\(\cdots\)} &
 			\multicolumn{4}{|c|}{Parameter \(N\)} &
+			&
 		% Cycle 2
 			\multicolumn{4}{|c|}{Parameter \(1\)} &
 			\multicolumn{4}{|c|}{Parameter \(2\)} &
@@ -28,29 +31,37 @@
 			\multicolumn{4}{|c|}{Parameter \(N\)} &
 			\multirow{2}{*}{Padding} \\
 		\cline{1-8}
-		\cline{10-21}
-		\cline{23-26}
-		% Cycle 1
+		\cline{10-13}
+		\cline{15-22}
+		\cline{24-27}
+		% Cycle 3
 			0 & 1 & \(\cdots\) & \(R_1\) &
 			0 & 1 & \(\cdots\) & \(R_2\) & &
 			0 & 1 & \(\cdots\) & \(R_N\) &
-		% Cycle 2
+			&
+		% Cycle 4
 			0 & 1 & \(\cdots\) & \(R_1\) &
 			0 & 1 & \(\cdots\) & \(R_2\) & &
 			0 & 1 & \(\cdots\) & \(R_N\) & \\
 		\hline
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		%%%%%%%%%%%%%%%%%%%%%%% BLOCK 2 %%%%%%%%%%%%%%%%%%%%%%%
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		\multicolumn{8}{c}{\raisebox{1em}{}} \\
 		\hline
-			\multicolumn{27}{|c|}{Block \(2\)} \\
+			\multicolumn{27}{|c}{Block \(2\)} & \\
 		\hline
-			\multicolumn{13}{|c|}{Cycle \(3\)} &
-			\multicolumn{13}{|c|}{Cycle \(4\)} & \\
-		\hline
+			\multicolumn{13}{|c|}{Cycle \(C_B+1\)} &
+			\multirow{3}{*}{\(\cdots\)} &
+			\multicolumn{13}{|c|}{Cycle \(2 \, C_B\)} & \\
+		\cline{1-13}
+		\cline{15-27}
 		% Cycle 1
 			\multicolumn{4}{|c|}{Parameter \(1\)} &
 			\multicolumn{4}{|c|}{Parameter \(2\)} &
 			\multirow{2}{*}{\(\cdots\)} &
 			\multicolumn{4}{|c|}{Parameter \(N\)} &
+			&
 		% Cycle 2
 			\multicolumn{4}{|c|}{Parameter \(1\)} &
 			\multicolumn{4}{|c|}{Parameter \(2\)} &
@@ -58,29 +69,37 @@
 			\multicolumn{4}{|c|}{Parameter \(N\)} &
 			\multirow{2}{*}{Padding} \\
 		\cline{1-8}
-		\cline{10-21}
-		\cline{23-26}
+		\cline{10-13}
+		\cline{15-22}
+		\cline{24-27}
 		% Cycle 1
 			0 & 1 & \(\cdots\) & \(R_1\) &
 			0 & 1 & \(\cdots\) & \(R_2\) & &
 			0 & 1 & \(\cdots\) & \(R_N\) &
+			&
 		% Cycle 2
 			0 & 1 & \(\cdots\) & \(R_1\) &
 			0 & 1 & \(\cdots\) & \(R_2\) & &
 			0 & 1 & \(\cdots\) & \(R_N\) & \\
 		\hline
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		%%%%%%%%%%%%%%%%%%%%% BLOCK N_B-1 %%%%%%%%%%%%%%%%%%%%%
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		\multicolumn{27}{c}{\(\vdots\)} \\
 		\hline
-			\multicolumn{27}{|c|}{Block \(N_B\)} \\
+			\multicolumn{27}{|c}{Block \(N_B-1\)} & \\
 		\hline
-			\multicolumn{13}{|c|}{Cycle \(C_B N_B - 1\)} &
-			\multicolumn{13}{|c|}{Cycle \(C_B N_B\)} & \\
-		\hline
+			\multicolumn{13}{|c|}{Cycle \((N_B - 2) C_B + 1\)} &
+			\multirow{3}{*}{\(\cdots\)} &
+			\multicolumn{13}{|c|}{Cycle \((N_B - 1) C_B\)} & \\
+		\cline{1-13}
+		\cline{15-27}
 		% Cycle 1
 			\multicolumn{4}{|c|}{Parameter \(1\)} &
 			\multicolumn{4}{|c|}{Parameter \(2\)} &
 			\multirow{2}{*}{\(\cdots\)} &
 			\multicolumn{4}{|c|}{Parameter \(N\)} &
+			&
 		% Cycle 2
 			\multicolumn{4}{|c|}{Parameter \(1\)} &
 			\multicolumn{4}{|c|}{Parameter \(2\)} &
@@ -88,12 +107,52 @@
 			\multicolumn{4}{|c|}{Parameter \(N\)} &
 			\multirow{2}{*}{Padding} \\
 		\cline{1-8}
-		\cline{10-21}
-		\cline{23-26}
+		\cline{10-13}
+		\cline{15-22}
+		\cline{24-27}
 		% Cycle 1
 			0 & 1 & \(\cdots\) & \(R_1\) &
 			0 & 1 & \(\cdots\) & \(R_2\) & &
 			0 & 1 & \(\cdots\) & \(R_N\) &
+			&
+		% Cycle 2
+			0 & 1 & \(\cdots\) & \(R_1\) &
+			0 & 1 & \(\cdots\) & \(R_2\) & &
+			0 & 1 & \(\cdots\) & \(R_N\) & \\
+		\hline
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		%%%%%%%%%%%%%%%%%%%%%% BLOCK N_B %%%%%%%%%%%%%%%%%%%%%%
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		\multicolumn{8}{c}{\raisebox{1em}{}} \\
+		\hline
+			\multicolumn{27}{|c}{Block \(N_B\)} & \\
+		\hline
+			\multicolumn{13}{|c|}{Cycle \((N_B - 1) C_B + 1\)} &
+			\multirow{3}{*}{\(\cdots\)} &
+			\multicolumn{13}{|c|}{Cycle \(N_B C_B\)} & \\
+		\cline{1-13}
+		\cline{15-27}
+		% Cycle 1
+			\multicolumn{4}{|c|}{Parameter \(1\)} &
+			\multicolumn{4}{|c|}{Parameter \(2\)} &
+			\multirow{2}{*}{\(\cdots\)} &
+			\multicolumn{4}{|c|}{Parameter \(N\)} &
+			&
+		% Cycle 2
+			\multicolumn{4}{|c|}{Parameter \(1\)} &
+			\multicolumn{4}{|c|}{Parameter \(2\)} &
+			\multirow{2}{*}{\(\cdots\)} &
+			\multicolumn{4}{|c|}{Parameter \(N\)} &
+			\multirow{2}{*}{Padding} \\
+		\cline{1-8}
+		\cline{10-13}
+		\cline{15-22}
+		\cline{24-27}
+		% Cycle 1
+			0 & 1 & \(\cdots\) & \(R_1\) &
+			0 & 1 & \(\cdots\) & \(R_2\) & &
+			0 & 1 & \(\cdots\) & \(R_N\) &
+			&
 		% Cycle 2
 			0 & 1 & \(\cdots\) & \(R_1\) &
 			0 & 1 & \(\cdots\) & \(R_2\) & &
