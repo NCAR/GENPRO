@@ -282,6 +282,8 @@ int rule_trimData(void *applicatorData, void *extData, GP1File *const gp)
 		if (gp->params[i].isUnused) continue;
 		gp->params[i].numValues -= trimAmount*gp->params[i].rate;
 	}
+
+	return 1;
 }
 
 int rule_sanitizeParamName(void *applicatorData, void *extData, GP1File *const gp)
