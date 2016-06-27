@@ -8,9 +8,11 @@
 #include <string.h>
 #include <assert.h>
 #include <netcdf.h>
-#include <time.h>
+#include <regex.h>
 
 #include "gbytes.cpp"
+#include "gpfile.hpp"
+#include "rules.hpp"
 
 // Rounds up division.
 #define DIV_CEIL(n,d) (((n)-1)/(d)+1)
@@ -26,47 +28,12 @@
 #define DECOMP_HEADER_SIZE GET_DECOMP_HEADER_SIZE(HEADER_LINES)
 #define PARAMETER_HEADER_START COMP_HEADER_SIZE
 
+#define max(a,b) ((a) > (b) ? (a) : (b))
+
 enum {
 	kFalse = 0,
 	kTrue = 1
 };
-
-typedef struct {
-	int rate;         /** Sample rate in samples per "program cycle" (which can
-	                      vary). */
-	float scale;      /** Scale to be applied to reconstruct original parameter
-	                      values. */
-	float bias;       /** Offset to be applied to reconstruct original
-	                      parameter values. */
-	char *label;      /** The label associated with this parameter. */
-	char *desc;       /** Description text associated with this parameter. */
-	size_t descLen;   /** Length of description text, not including the null
-	                      terminator. */
-	char *units;      /** Units text associated with this parameter. */
-	size_t unitsLen;  /** Length of units text, not including the null
-	                      terminator. */
-	int ncVar;        /** The NetCDF variable ID corresponding to this
-	                      parameter. */
-	float *values;    /** A pointer to an array of values for this
-	                      parameter. */
-	size_t numValues; /** Total number of samples recorded. This is the length
-	                      of the `values' array. */
-	char isUnused;    /** Indicates if the variable is unused. */
-	int ncDimId;      /** Handle to the NetCDF dimension for this array. */
-} Parameter;
-
-typedef struct {
-	size_t blockLength; /** The size, in 8-bit bytes, of a block. */
-	size_t dataStart;   /** The offset to the start of the data. */
-	size_t numBlocks;   /** The number of blocks in a file. */
-	Parameter *params;  /** Parameters (variables) contained in this file. */
-	int numParameters;  /** The number of parameters. */
-	int samplesPerCycle;    /** The number of samples per cycle. */
-	int cyclesPerBlock; /** The number of cycles found in each block. */
-	float cycleTime;    /** Period between batches of samples. */
-	char *fileDesc;     /** File description text. */
-	size_t fileDescLen; /** Length of the file description text. */
-} GP1File;
 
 int gp1_read(GP1File *const gp, FILE *fp);
 int gp1_write_nc(GP1File const*const gp,
@@ -82,7 +49,10 @@ int get_text(char *const in_buf,
 int gp1_write_nc(GP1File const*const gp,
                  char const*const outFileName,
                  int cmode);
+int gp1_addAttrs(int ncid, int ncVar, Attribute *attrs, int numAttrs);
 int *get_unique_sample_rates(GP1File const*const gp, int *numUnique, int **lookupTable);
+
+extern Rule rules[];
 
 int main(int argc, char **argv)
 {
@@ -113,6 +83,8 @@ int main(int argc, char **argv)
 
 	fclose(fp);
 
+	rule_applyAll(rules, &gp);
+
 	if (!gp1_write_nc(&gp, outFileName, cmode)) return 1;
 
 	gp1_free(&gp);
@@ -134,13 +106,19 @@ int gp1_read(GP1File *const gp, FILE *fp)
 	char *header_decomp = NULL;
 	int i, j, k, m;
 	int start, curCycle;
+	regex_t re, reNoUnits;
+	regmatch_t match[4];
+	char reStr[] = "^ *([^ ]+.+[^ ]+)  +([^ ]+.+[^ ]+|[^ ]{1,2})  +([^ ]+.+[^ ]+|[^ ]{1,2}) *$";
+	char reNoUnitsStr[] = "^ *([^ ]+.+[^ ]+)  +([^ ]+.+[^ ]+|[^ ]{1,2}) *$";
+	int haveUnits;
+	char tmp[100];
 
 	if (!read_header_chunk(fp, &in_buffer, &header_decomp, HEADER_LINES)) {
 		return 0;
 	}
 
 	// Get the file description.
-	if (!get_text(header_decomp, 0, 23, &(gp->fileDesc), &(gp->fileDescLen))) {
+	if (!get_text(header_decomp, 0, 31, &(gp->fileDesc), &(gp->fileDescLen))) {
 		return 0;
 	}
 
@@ -172,36 +150,70 @@ int gp1_read(GP1File *const gp, FILE *fp)
 
 #define PARAMETER(i) (header_decomp+LINE_LENGTH*(i))
 
+	assert(!regcomp(&re, reStr, REG_EXTENDED|REG_ICASE));
+	assert(!regcomp(&reNoUnits, reNoUnitsStr, REG_EXTENDED|REG_ICASE));
+
 	for (i = 0; i < gp->numParameters; i++) {
 		sscanf(PARAMETER(i)+4, "%d", &(gp->params[i].rate));
 		sscanf(PARAMETER(i)+80, "%f", &(gp->params[i].scale));
 		sscanf(PARAMETER(i)+90, "%f", &(gp->params[i].bias));
 
-		// Get the parameter (variable) name.
-		if (!get_text(header_decomp, LINE_LENGTH*i+56, 9,
-		              &(gp->params[i].label), NULL))
-		{
-			goto param_malloc_fail;
-		}
-
 		// Skip unused parameters
-		if (strcmp(gp->params[i].label, "UNUSED") == 0) {
+		if (memmem(header_decomp+LINE_LENGTH*i, 100, "UNUSED", 6)) {
 			gp->params[i].isUnused = kTrue;
+			continue;
 		}
 
-		// Get the description text.
-		if (!get_text(header_decomp, LINE_LENGTH*i+13, 42,
-		              &(gp->params[i].desc), &(gp->params[i].descLen)))
-		{
-			goto param_malloc_fail;
+		/* Are the units missing? */
+		haveUnits = 0;
+		for (j = 0; j < 7; j++) {
+			if (header_decomp[LINE_LENGTH*i+66+j] != ' ') {
+				haveUnits = 1;
+				break;
+			}
 		}
 
-		// Get the units text.
-		if (!get_text(header_decomp, LINE_LENGTH*i+66, 7,
-		              &(gp->params[i].units), &(gp->params[i].unitsLen)))
-		{
-			goto param_malloc_fail;
+		strncpy(tmp, header_decomp+LINE_LENGTH*i+13, 60);
+		tmp[60] = '\0';
+		if (haveUnits && !(regexec(&re, tmp, 4, match, 0))) {
+			gp->params[i].descLen = match[1].rm_eo-match[1].rm_so;
+			gp->params[i].unitsLen = match[3].rm_eo-match[3].rm_so;
+			if (!(gp->params[i].desc = (char*) malloc(sizeof(char)*gp->params[i].descLen))) {
+				goto mallocfail;
+			}
+			if (!(gp->params[i].label = (char*) malloc(sizeof(char)*(1+match[2].rm_eo-match[2].rm_so)))) {
+				goto mallocfail;
+			}
+			if (!(gp->params[i].units = (char*) malloc(sizeof(char)*gp->params[i].unitsLen))) {
+				goto mallocfail;
+			}
+			strncpy(gp->params[i].desc,  tmp+match[1].rm_so, gp->params[i].descLen);
+			strncpy(gp->params[i].label, tmp+match[2].rm_so, match[2].rm_eo-match[2].rm_so);
+			strncpy(gp->params[i].units, tmp+match[3].rm_so, gp->params[i].unitsLen);
+			gp->params[i].label[match[2].rm_eo-match[2].rm_so] = '\0';
+		} else if (!(regexec(&reNoUnits, tmp, 3, match, 0))) {
+			/* Units might be missing */
+			gp->params[i].descLen = match[1].rm_eo-match[1].rm_so;
+			if (!(gp->params[i].desc = (char*) malloc(sizeof(char)*gp->params[i].descLen))) {
+				goto mallocfail;
+			}
+			if (!(gp->params[i].label = (char*) malloc(sizeof(char)*(match[2].rm_eo-match[2].rm_so)))) {
+				goto mallocfail;
+			}
+			gp->params[i].units = NULL;
+			gp->params[i].unitsLen = 0;
+			strncpy(gp->params[i].desc,  tmp+match[1].rm_so, gp->params[i].descLen);
+			strncpy(gp->params[i].label, tmp+match[2].rm_so, match[2].rm_eo-match[2].rm_so);
+		} else {
+			fprintf(stderr, "fatal: failed to parse parameter. Line was:\n%.*s\n",
+			        100, header_decomp+LINE_LENGTH*i);
+			return 0;
 		}
+
+		fprintf(stderr, "found parameter: "
+		                "desc = \"%.*s\", units = \"%.*s\", label = \"%s\"\n",
+		        (int) gp->params[i].descLen, gp->params[i].desc,
+		        (int) gp->params[i].unitsLen, gp->params[i].units, gp->params[i].label);
 	}
 
 	free(header_decomp);
@@ -249,7 +261,7 @@ int gp1_read(GP1File *const gp, FILE *fp)
 		if (gp->params[i].isUnused) continue;
 		gp->params[i].numValues = gp->params[i].rate * gp->numBlocks * gp->cyclesPerBlock;
 		if (!(gp->params[i].values =
-		      (float*) malloc(sizeof(float)*gp->params[i].numValues)))
+		      (int*) malloc(sizeof(int)*gp->params[i].numValues)))
 		{
 			goto mallocfail;
 		}
@@ -286,16 +298,6 @@ int gp1_read(GP1File *const gp, FILE *fp)
 
 	free(in_buffer); in_buffer = NULL;
 	free(data_decomp); data_decomp = NULL;
-
-	// Restore original values by scaling/biasing.
-	for (i = 0; i < gp->numParameters; i++) {
-		if (gp->params[i].isUnused) continue;
-		for (j = 0; j < (int) gp->params[i].numValues; j++) {
-			gp->params[i].values[j] = ((float) gp->params[i].values[j])/
-			                          gp->params[i].scale -
-			                          gp->params[i].bias;
-		}
-	}
 
 	return 1;
 
@@ -367,40 +369,6 @@ int *get_unique_sample_rates(GP1File const*const gp, int *numUnique, int **looku
 	return rates;
 }
 
-typedef struct {
-	char *name;
-	char *value;
-} NCTextAttr;
-
-NCTextAttr globalAttrs[] = {
-#define GLOBAL_ATTR_CREATION_DATE 0
-	/* 0 */ { (char*) "date_created" },
-#if 0
-#define GLOBAL_ATTR_LAT 1
-	/* 1 */ { (char*) "latitude_coordinate" },
-#define GLOBAL_ATTR_LON 2
-	/* 2 */ { (char*) "longitude_coordinate" },
-#endif
-
-// Global attributes with predetermined values
-	{
-		(char*) "institution",
-		(char*) "NCAR Research Aviation Facility"
-	}, {
-		(char*) "Address",
-		(char*) "P.O. Box 3000, Boulder, CO 80307-3000"
-	}, {
-		(char*) "creator_url",
-		(char*) "http://www.eol.ucar.edu"
-	}, {
-		(char*) "Conventions",
-		(char*) "NCAR-RAF/nimbus"
-	}, {
-		(char*) "ConventionsURL",
-		(char*) "http://www.eol.ucar.edu/raf/Software/netCDF.html"
-	}
-};
-
 /*
  * Saves a GENPRO-1 file to NetCDF.
  */
@@ -411,7 +379,7 @@ int gp1_write_nc(GP1File const*const gp,
 	int ncid; /* Handle on the NetCDF file */
 	char name[100];
 	int status;
-	int i;
+	int i, j;
 	int timeDimId;
 	int numUniqueRates;
 	int *uniqueRates;
@@ -419,9 +387,10 @@ int gp1_write_nc(GP1File const*const gp,
 	int *lookupTable;
 	int dimIds[2];
 	long numDims;
-	time_t t;
 	size_t start[2] = { 0, 0 };
 	size_t count[2];
+	void *values;
+	size_t maxNumValues;
 
 	if ((status = nc_create(outFileName, cmode, &ncid)) != NC_NOERR) {
 		fprintf(stderr, "Fatal: failed to create NetCDF file.\n");
@@ -469,11 +438,15 @@ int gp1_write_nc(GP1File const*const gp,
 			dimIds[1] = rateDimIds[lookupTable[i]];
 		}
 
-		if ((status = nc_def_var(ncid, gp->params[i].label, NC_FLOAT, numDims,
-		                         dimIds,
+		if ((status = nc_def_var(ncid, gp->params[i].label,
+		                         gp->params[i].preferredType,
+		                         numDims, dimIds,
 		                         &(gp->params[i].ncVar))) != NC_NOERR)
 		{
-			fprintf(stderr, "NetCDF variable definition failed, aborting.\n");
+			fprintf(stderr, "NetCDF variable definition failed, aborting.\n"
+			                "(desc = \"%.*s\", units = \"%.*s\", label = \"%s\")\n",
+			        (int) gp->params[i].descLen, gp->params[i].desc,
+			        (int) gp->params[i].unitsLen, gp->params[i].units, gp->params[i].label);
 			goto ncerr;
 		}
 
@@ -491,28 +464,14 @@ int gp1_write_nc(GP1File const*const gp,
 			goto ncerr;
 		}
 
-		if ((status = nc_put_att_int(ncid, gp->params[i].ncVar, "SampledRate",
-		                             NC_INT, 1,
-		                             &(gp->params[i].rate))) != NC_NOERR)
-		{
-			goto ncerr;
-		}
+		// Arbitrary attributes which may have been added by the rule set.
+		gp1_addAttrs(ncid, gp->params[i].ncVar, gp->params[i].attrs, gp->params[i].numAttrs);
 	}
 
-	free(uniqueRates);
+	// Add global attributes which may have been added by the rule set.
+	gp1_addAttrs(ncid, NC_GLOBAL, gp->attrs, gp->numAttrs);
+
 	free(lookupTable);
-
-	time(&t);
-	globalAttrs[GLOBAL_ATTR_CREATION_DATE].value = ctime(&t);
-
-	for (i = 0; i < (int) (sizeof(globalAttrs)/sizeof(NCTextAttr)); i++) {
-		if ((status = nc_put_att_text(ncid, NC_GLOBAL, globalAttrs[i].name,
-		                              strlen(globalAttrs[i].value),
-		                              globalAttrs[i].value)) != NC_NOERR)
-		{
-			goto ncerr;
-		}
-	}
 
 	if ((status = nc_put_att_text(ncid, NC_GLOBAL, "DESCRIPTION",
 	                              gp->fileDescLen, gp->fileDesc)) != NC_NOERR)
@@ -528,22 +487,107 @@ int gp1_write_nc(GP1File const*const gp,
 
 	nc_enddef(ncid);
 
-	count[0] = gp->numBlocks * gp->cyclesPerBlock;
+
+	// Restore original values by scaling/biasing.
+
+	// Allocate an array big enough to hold the largest array
+	maxNumValues = uniqueRates[numUniqueRates-1]*gp->numBlocks*gp->cyclesPerBlock;
+	if (!(values = malloc(max(sizeof(float),sizeof(int))*maxNumValues))) {
+		return 0;
+	}
+
 	for (i = 0; i < gp->numParameters; i++) {
 		if (gp->params[i].isUnused) continue;
+
+		count[0] = gp->params[i].numValues / gp->params[i].rate;
 		count[1] = gp->params[i].rate;
-		if (nc_put_vara_float(ncid, gp->params[i].ncVar, start, count,
-		                     gp->params[i].values) != NC_NOERR)
-		{
-			goto ncerr;
+
+		switch (gp->params[i].preferredType) {
+			case NC_FLOAT:
+				for (j = 0; j < (int) gp->params[i].numValues; j++) {
+					((float*) values)[j] = ((float) gp->params[i].values[j])/
+					                       gp->params[i].scale -
+					                       gp->params[i].bias;
+				}
+				if (nc_put_vara_float(ncid, gp->params[i].ncVar, start, count,
+				                      (float*) values) != NC_NOERR)
+				{
+					goto ncerr;
+				}
+				break;
+
+			case NC_INT:
+				for (j = 0; j < (int) gp->params[i].numValues; j++) {
+					((int*) values)[j] = gp->params[i].values[j]/
+					                     gp->params[i].scale -
+					                     gp->params[i].bias;
+				}
+				if (nc_put_vara_int(ncid, gp->params[i].ncVar, start, count,
+				                    (int*) values) != NC_NOERR)
+				{
+					goto ncerr;
+				}
+				break;
 		}
 	}
+
+	free(values);
+	free(uniqueRates);
 
 	nc_close(ncid);
 
 	return 1;
 
 ncerr:
+	fprintf(stderr, "Error string was: %s\n", nc_strerror(status));
+	return 0;
+}
+
+/**
+ * Adds attributes which have been added by a rule set to a variable in the
+ * NetCDF output.
+ * @param ncid Handle to the NetCDF output file, as returned by nc_open().
+ * @return 1 on success, 0 on failure
+ */
+int gp1_addAttrs(int ncid, int ncVar, Attribute *attrs, int numAttrs)
+{
+	int i;
+	int status;
+	Attribute *attr;
+
+	for (i = 0; i < numAttrs; i++) {
+		attr = attrs+i;
+		switch (attr->type) {
+			case kAttrTypeText:
+				if ((status = nc_put_att_text(ncid, ncVar, attr->name,
+				                              strlen((char*) attr->data),
+				                              (char*) attr->data)) != NC_NOERR)
+				{
+					goto put_fail;
+				}
+				break;
+			case kAttrTypeFloat:
+				if ((status = nc_put_att_float(ncid, ncVar, attr->name,
+				                               NC_FLOAT, attr->len,
+				                               (float*) attr->data)) != NC_NOERR)
+				{
+					goto put_fail;
+				}
+				break;
+			case kAttrTypeInt:
+				if ((status = nc_put_att_int(ncid, ncVar, attr->name,
+				                             NC_INT, attr->len,
+				                             (int*) attr->data)) != NC_NOERR)
+				{
+					goto put_fail;
+				}
+				break;
+			// TODO: implement others
+		}
+	}
+	return 1;
+
+put_fail:
 	fprintf(stderr, "Error string was: %s\n", nc_strerror(status));
 	return 0;
 }
