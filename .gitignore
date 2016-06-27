@@ -1,0 +1,5 @@
+% LaTeX files
+*.aux
+*.out
+*.log
+*.pdf
