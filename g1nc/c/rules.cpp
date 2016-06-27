@@ -360,7 +360,6 @@ int rule_makeUnitsCFCompliant(void *applicatorData,
 int rule_sanitizeParamName(void *applicatorData, void *extData, GP1File *const gp)
 {
 	Parameter *const param = (Parameter*) extData;
-	char *const newUnits = (char*) applicatorData;
 	char *src, *dst;
 
 	// Strip whitespace and replace slashes ('/') with underscores ('_')
