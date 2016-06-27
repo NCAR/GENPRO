@@ -184,12 +184,24 @@ RuleApplicatorData sanitizeParamNamesRuleApplicators[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+RuleApplicatorData makeUnitsCFCompliantRuleApplicators[] = {
+	{ rule_makeUnitsCFCompliant, NULL }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 Rule rules[] = {
 	// Add global attributes which should always be present
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
 		constantGlobalAttrs, 7
+	},
+	// Make units CF compliant
+	{
+		NULL,
+		rule_applyToAllParams,
+		makeUnitsCFCompliantRuleApplicators, 1
 	},
 	// Sanitize variable names
 	{
@@ -282,6 +294,65 @@ int rule_trimData(void *applicatorData, void *extData, GP1File *const gp)
 		if (gp->params[i].isUnused) continue;
 		gp->params[i].numValues -= trimAmount*gp->params[i].rate;
 	}
+
+	return 1;
+}
+
+#define UNITS_EQUALS(str) param->unitsLen == strlen((char*) str) && \
+                          !strncmp(param->units, (char*) str, param->unitsLen)
+#define SET_UNITS(str) set_str(&(param->units), &(param->unitsLen), (char*) str)
+
+int rule_makeUnitsCFCompliant(void *applicatorData,
+                              void *extData,
+                              GP1File *const gp)
+{
+	Parameter *const param = (Parameter*) extData;
+
+	/* degrees */
+	     if (UNITS_EQUALS("DEG"))      SET_UNITS("degree");
+
+	/* millibar */
+	else if (UNITS_EQUALS("MB"))       SET_UNITS("mbar");
+
+	/* volts */
+	else if (UNITS_EQUALS("V"))        SET_UNITS("V");
+
+	/* meters per second */
+	else if (UNITS_EQUALS("M/S"))      SET_UNITS("m/s");
+
+	/* seconds */
+	else if (UNITS_EQUALS("SEC"))      SET_UNITS("s");
+
+	/* meters per second squared */
+	else if (UNITS_EQUALS("M/S2"))     SET_UNITS("m/s^2");
+
+	/* kilometers */
+	else if (UNITS_EQUALS("KM"))       SET_UNITS("km");
+
+	/* volts DC */
+	else if (UNITS_EQUALS("VDC"))      SET_UNITS("V");
+
+	/* meters */
+	else if (UNITS_EQUALS("M"))        SET_UNITS("m");
+
+	/* grams per cubic meter */
+	else if (UNITS_EQUALS("G/M3"))     SET_UNITS("g/m^3");
+
+	/* parts per billion */
+	else if (UNITS_EQUALS("PPB"))      SET_UNITS("1/10e9");
+
+	/* grams per kilogram */
+	else if (UNITS_EQUALS("G/KG"))     SET_UNITS("g/kg");
+
+	/* watts per square meter */
+	else if (UNITS_EQUALS("WATTS/M2")) SET_UNITS("W/m^2");
+
+	/* watts per square meter */
+	else if (UNITS_EQUALS("(W/M2)"))   SET_UNITS("W/m^2");
+
+	/* number per cubic centimeter (?) */
+	else if (UNITS_EQUALS("N/CC"))     SET_UNITS("1/cm^3");
+
 
 	return 1;
 }

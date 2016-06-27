@@ -42,6 +42,9 @@ int rule_applyAll(Rule const*const rules, GP1File *const gp);
 //
 // Applicators
 //
+int rule_makeUnitsCFCompliant(void *applicatorData,
+                              void *extData,
+                              GP1File *const gp);
 int rule_sanitizeParamName(void *applicatorData, void *extData, GP1File *const gp);
 int rule_setUnits(void *applicatorData, void *extData, GP1File *const gp);
 int rule_setDesc(void *applicatorData, void *extData, GP1File *const gp);
