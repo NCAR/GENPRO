@@ -166,6 +166,12 @@ Attribute conventionsURLGlobalAttr = {
 	(char*) "http://www.eol.ucar.edu/raf/Software/netCDF.html"
 };
 
+Attribute standardNameVocabularyGlobalAttr = {
+	(char*) "standard_name_vocabulary",
+	kAttrTypeText,
+	(char*) "CF-1.0"
+};
+
 RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_trimData,      NULL },
 	{ rule_addGlobalAttr, &institutionGlobalAttr },
@@ -173,6 +179,7 @@ RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_addGlobalAttr, &creatorURLGlobalAttr },
 	{ rule_addGlobalAttr, &conventionsGlobalAttr },
 	{ rule_addGlobalAttr, &conventionsURLGlobalAttr },
+	{ rule_addGlobalAttr, &standardNameVocabularyGlobalAttr },
 	{ rule_setFlightInfo, NULL }
 };
 
@@ -195,7 +202,7 @@ Rule rules[] = {
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
-		constantGlobalAttrs, 7
+		constantGlobalAttrs, 8
 	},
 	// Make units CF compliant
 	{
