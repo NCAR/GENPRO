@@ -155,7 +155,7 @@ Attribute creatorURLGlobalAttr = {
 };
 
 Attribute conventionsGlobalAttr = {
-	(char*) "ConventionsURL",
+	(char*) "Conventions",
 	kAttrTypeText,
 	(char*) "NCAR-RAF/nimbus"
 };
@@ -164,6 +164,18 @@ Attribute conventionsURLGlobalAttr = {
 	(char*) "ConventionsURL",
 	kAttrTypeText,
 	(char*) "http://www.eol.ucar.edu/raf/Software/netCDF.html"
+};
+
+Attribute conventionsVersionGlobalAttr = {
+	(char*) "ConventionsVersion",
+	kAttrTypeText,
+	(char*) "1.3"
+};
+
+Attribute metadataConventionsGlobalAttr = {
+	(char*) "Metadata_Conventions",
+	kAttrTypeText,
+	(char*) "Unidata Dataset Discovery v1.0"
 };
 
 Attribute standardNameVocabularyGlobalAttr = {
@@ -179,6 +191,8 @@ RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_addGlobalAttr, &creatorURLGlobalAttr },
 	{ rule_addGlobalAttr, &conventionsGlobalAttr },
 	{ rule_addGlobalAttr, &conventionsURLGlobalAttr },
+	{ rule_addGlobalAttr, &conventionsVersionGlobalAttr },
+	{ rule_addGlobalAttr, &metadataConventionsGlobalAttr },
 	{ rule_addGlobalAttr, &standardNameVocabularyGlobalAttr },
 	{ rule_setFlightInfo, NULL }
 };
@@ -202,7 +216,7 @@ Rule rules[] = {
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
-		constantGlobalAttrs, 8
+		constantGlobalAttrs, 10
 	},
 	// Make units CF compliant
 	{
