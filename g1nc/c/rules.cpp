@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <regex.h>
+#include <time.h>
 #include <netcdf.h>
 #include "gpfile.hpp"
 #include "rules.hpp"
@@ -210,6 +211,7 @@ RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_addGlobalAttr, &metadataConventionsGlobalAttr },
 	{ rule_addGlobalAttr, &standardNameVocabularyGlobalAttr },
 	{ rule_addGlobalAttr, &timeCoordinateGlobalAttr },
+	{ rule_addCreationDate, NULL },
 	{ rule_setFlightInfo, NULL }
 };
 
@@ -232,7 +234,7 @@ Rule rules[] = {
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
-		constantGlobalAttrs, 11
+		constantGlobalAttrs, 12
 	},
 	// Make units CF compliant
 	{
@@ -566,6 +568,25 @@ int rule_addAttr(void *applicatorData, void *extData, GP1File *const gp)
 	memcpy(param->attrs+(param->numAttrs-1), attr, sizeof(Attribute));
 
 	return 1;
+}
+
+static char date_created_attr[] = "date_created";
+static char date_created[BUF_SIZE];
+int rule_addCreationDate(void *applicatorData, void *extData, GP1File *const gp)
+{
+	time_t tt;
+	struct tm tmt;
+	time(&tt);
+	gmtime_r(&tt, &tmt);
+	strftime(date_created, BUF_SIZE, "%FT%T +0000", &tmt);
+
+	Attribute attr = {
+		date_created_attr,
+		kAttrTypeText,
+		(char*) date_created
+	};
+
+	return rule_addGlobalAttr(&attr, NULL, gp);
 }
 
 static void get_hms(int value, int *const h, int *const m, int *const s)
