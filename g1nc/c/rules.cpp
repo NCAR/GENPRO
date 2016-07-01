@@ -393,7 +393,7 @@ int rule_sanitizeParamName(void *applicatorData, void *extData, GP1File *const g
 				*dst++ = *src;
 			}
 		}
-		*src++;
+		src++;
 	}
 	*dst = '\0';
 
