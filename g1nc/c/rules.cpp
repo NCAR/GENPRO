@@ -128,10 +128,19 @@ ParamRegexChangeRule actualRangeRule = {
 	/* .invert            = */ 1
 };
 
+float fill_value[] = { -32767.0f };
+
+Attribute fill_value_attr = {
+	(char*) "_FillValue",
+	kAttrTypeFloat,
+	fill_value, 1
+};
+
 RuleApplicatorData actualRangeRuleApplicators[] = {
 	{ rule_addMinMaxAttr, (char*) "actual_range" },
 	{ rule_setPreferredType, (void*) NC_FLOAT },
-	{ rule_addSampleRate, NULL }
+	{ rule_addSampleRate, NULL },
+	{ rule_addAttr, &fill_value_attr }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -260,7 +269,7 @@ Rule rules[] = {
 	{
 		&actualRangeRule,
 		rule_paramRegexChange,
-		actualRangeRuleApplicators, 3
+		actualRangeRuleApplicators, 4
 	},
 
 	// End of rule set marker
