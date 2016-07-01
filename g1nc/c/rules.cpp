@@ -333,7 +333,7 @@ int rule_makeUnitsCFCompliant(void *applicatorData,
 	     if (UNITS_EQUALS("DEG"))      SET_UNITS("degree");
 
 	/* millibar */
-	else if (UNITS_EQUALS("MB"))       SET_UNITS("mbar");
+	else if (UNITS_EQUALS("MB"))       SET_UNITS("hPa");
 
 	/* volts */
 	else if (UNITS_EQUALS("V"))        SET_UNITS("V");
@@ -345,19 +345,19 @@ int rule_makeUnitsCFCompliant(void *applicatorData,
 	else if (UNITS_EQUALS("SEC"))      SET_UNITS("s");
 
 	/* meters per second squared */
-	else if (UNITS_EQUALS("M/S2"))     SET_UNITS("m/s^2");
+	else if (UNITS_EQUALS("M/S2"))     SET_UNITS("m/s2");
 
 	/* kilometers */
 	else if (UNITS_EQUALS("KM"))       SET_UNITS("km");
 
 	/* volts DC */
-	else if (UNITS_EQUALS("VDC"))      SET_UNITS("V");
+	else if (UNITS_EQUALS("VDC"))      SET_UNITS("Vdc");
 
 	/* meters */
 	else if (UNITS_EQUALS("M"))        SET_UNITS("m");
 
 	/* grams per cubic meter */
-	else if (UNITS_EQUALS("G/M3"))     SET_UNITS("g/m^3");
+	else if (UNITS_EQUALS("G/M3"))     SET_UNITS("gram/m3");
 
 	/* parts per billion */
 	else if (UNITS_EQUALS("PPB"))      SET_UNITS("1/10e9");
@@ -366,13 +366,19 @@ int rule_makeUnitsCFCompliant(void *applicatorData,
 	else if (UNITS_EQUALS("G/KG"))     SET_UNITS("g/kg");
 
 	/* watts per square meter */
-	else if (UNITS_EQUALS("WATTS/M2")) SET_UNITS("W/m^2");
+	else if (UNITS_EQUALS("WATTS/M2")) SET_UNITS("W/m2");
 
 	/* watts per square meter */
-	else if (UNITS_EQUALS("(W/M2)"))   SET_UNITS("W/m^2");
+	else if (UNITS_EQUALS("(W/M2)"))   SET_UNITS("W/m2");
 
 	/* number per cubic centimeter (?) */
-	else if (UNITS_EQUALS("N/CC"))     SET_UNITS("1/cm^3");
+	else if (UNITS_EQUALS("N/CC"))     SET_UNITS("1/cm3");
+
+	/* degrees Kelvin */
+	else if (UNITS_EQUALS("K"))        SET_UNITS("deg_K");
+
+	/* degrees Celsius */
+	else if (UNITS_EQUALS("C"))        SET_UNITS("deg_C");
 
 
 	return 1;
