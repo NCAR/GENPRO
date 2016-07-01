@@ -184,6 +184,12 @@ Attribute standardNameVocabularyGlobalAttr = {
 	(char*) "CF-1.0"
 };
 
+Attribute timeCoordinateGlobalAttr = {
+	(char*) "time_coordinate",
+	kAttrTypeText,
+	(char*) "Time"
+};
+
 RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_trimData,      NULL },
 	{ rule_addGlobalAttr, &institutionGlobalAttr },
@@ -194,6 +200,7 @@ RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_addGlobalAttr, &conventionsVersionGlobalAttr },
 	{ rule_addGlobalAttr, &metadataConventionsGlobalAttr },
 	{ rule_addGlobalAttr, &standardNameVocabularyGlobalAttr },
+	{ rule_addGlobalAttr, &timeCoordinateGlobalAttr },
 	{ rule_setFlightInfo, NULL }
 };
 
@@ -216,7 +223,7 @@ Rule rules[] = {
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
-		constantGlobalAttrs, 10
+		constantGlobalAttrs, 11
 	},
 	// Make units CF compliant
 	{
