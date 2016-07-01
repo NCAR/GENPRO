@@ -272,8 +272,8 @@ static void get_hms(int value, int *const h, int *const m, int *const s);
 int set_str(char **dest, size_t *len, char *src)
 {
 	size_t newLen = strlen(src);
-	if (!((len && newLen <= *len) || newLen <= strlen(*dest))) {
-		if (!(*dest = (char*) malloc(sizeof(char)*(newLen+1)))) {
+	if (!*dest || !((len && newLen <= *len) || newLen <= strlen(*dest))) {
+		if (!(*dest = (char*) realloc(*dest, sizeof(char)*(newLen+1)))) {
 			return 0;
 		}
 	}
@@ -387,6 +387,8 @@ int rule_makeUnitsCFCompliant(void *applicatorData,
 	/* degrees Celsius */
 	else if (UNITS_EQUALS("C"))        SET_UNITS("deg_C");
 
+	/* unknown */
+	else if (UNITS_EQUALS(""))         SET_UNITS("unk");
 
 	return 1;
 }
