@@ -58,6 +58,7 @@ int rule_setPreferredType(void *applicatorData, void *extData, GP1File *const gp
 int rule_setFlightInfo(void *applicatorData, void *extData, GP1File *const gp);
 int rule_addSampleRate(void *applicatorData, void *extData, GP1File *const gp);
 int rule_trimData(void *applicatorData, void *extData, GP1File *const gp);
+int rule_addCreationDate(void *applicatorData, void *extData, GP1File *const gp);
 
 //
 // Rules
