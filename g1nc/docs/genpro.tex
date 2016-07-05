@@ -309,7 +309,7 @@ The offset, in multiples of 8-bit bytes, from the start of the file to the data 
 	\text{offset}_\text{data} = 8 \left \lceil \dfrac{100\times(11+N)\times6}{64} \right \rceil \mathrm{,}
 \]
 
-\noindent where \(N\) is the number of parameters in the file; i.e., the offset is in multiples of 64-bit words (presumably owing to the Cray-1's 64-bit word size). For example, for the PHOENIX-78 dataset, \(N = 67\), so the data section begins at the offset
+\noindent where \(N\) is the number of parameters in the file; i.e., the offset is in multiples of 64-bit words (presumably owing to the Cray-1's 64-bit word size). (The value \(11\) appears as there are always \(11\) text lines which precede the list of parameters.) For example, for the PHOENIX-78 dataset, \(N = 67\), so the data section begins at the offset
 \[
 	\text{offset}_\text{data} = 8 \left \lceil \dfrac{100\times(11+67)\times 6}{64} \right \rceil = 5856 \mathrm{.}
 \]
