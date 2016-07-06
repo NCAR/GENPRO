@@ -69,7 +69,8 @@ CopyStrRule copyVertCoordUnitsRule = {
 
 RuleApplicatorData addZAxisCoordinateApplicators[] = {
 	{ rule_addGlobalAttr, &zAxisCoordinateGlobalAttr },
-	{ rule_copyStr, &copyVertCoordUnitsRule }
+	{ rule_copyStr, &copyVertCoordUnitsRule },
+	{ rule_addGlobalMinMax, (char*) "geospatial_vertical_%s" }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -354,7 +355,7 @@ Rule rules[] = {
 	{
 		&addZAxisCoordinateRule,
 		rule_paramRegexChange,
-		addZAxisCoordinateApplicators, 2
+		addZAxisCoordinateApplicators, 3
 	},
 
 	// End of rule set marker
