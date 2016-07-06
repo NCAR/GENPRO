@@ -266,6 +266,12 @@ Attribute categoriesGlobalAttr = {
 	(char*) "Position,Thermodynamic,Aircraft State,Atmos. State"
 };
 
+Attribute geospatialVerticalPositiveGlobalAttr = {
+	(char*) "geospatial_vertical_positive",
+	kAttrTypeText,
+	(char*) "up"
+};
+
 RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_trimData,      NULL },
 	{ rule_addGlobalAttr, &institutionGlobalAttr },
@@ -281,6 +287,7 @@ RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_addGlobalAttr, &processorURL },
 	{ rule_addGlobalAttr, &processorRevision },
 	{ rule_addGlobalAttr, &categoriesGlobalAttr },
+	{ rule_addGlobalAttr, &geospatialVerticalPositiveGlobalAttr },
 	{ rule_addCreationDate, NULL },
 	{ rule_setFlightInfo, NULL }
 };
@@ -304,7 +311,7 @@ Rule rules[] = {
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
-		constantGlobalAttrs, 16
+		constantGlobalAttrs, 17
 	},
 	// Make units CF compliant
 	{
