@@ -240,6 +240,18 @@ Attribute phoneNumberGlobalAttr = {
 	(char*) "(303) 497-1030"
 };
 
+Attribute processorURL = {
+	(char*) "ProcessorURL",
+	kAttrTypeText,
+	(char*) "https://github.com/ncareol/GENPRO"
+};
+
+Attribute processorRevision = {
+	(char*) "ProcessorRevision",
+	kAttrTypeText,
+	(char*) PROCESSOR_REVISION
+};
+
 RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_trimData,      NULL },
 	{ rule_addGlobalAttr, &institutionGlobalAttr },
@@ -252,6 +264,8 @@ RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_addGlobalAttr, &standardNameVocabularyGlobalAttr },
 	{ rule_addGlobalAttr, &timeCoordinateGlobalAttr },
 	{ rule_addGlobalAttr, &phoneNumberGlobalAttr },
+	{ rule_addGlobalAttr, &processorURL },
+	{ rule_addGlobalAttr, &processorRevision },
 	{ rule_addCreationDate, NULL },
 	{ rule_setFlightInfo, NULL }
 };
@@ -275,7 +289,7 @@ Rule rules[] = {
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
-		constantGlobalAttrs, 13
+		constantGlobalAttrs, 15
 	},
 	// Make units CF compliant
 	{
