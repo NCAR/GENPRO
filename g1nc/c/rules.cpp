@@ -46,6 +46,26 @@ RuleApplicatorData changeTimeRuleApplicators[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+ParamRegexChangeRule addZAxisCoordinateRule = {
+	/* .matchReStr        = */ (char*) "^hp$",
+	/* .didCompileMatchRe = */ 0,
+	/* .matchReFlags      = */ REG_ICASE,
+	/* .getText           = */ rule_getVariableName,
+	/* .invert            = */ 0
+};
+
+Attribute zAxisCoordinateGlobalAttr = {
+	(char*) "zaxis_coordinate",
+	kAttrTypeText,
+	(char*) "HP"
+};
+
+RuleApplicatorData addZAxisCoordinateApplicators[] = {
+	{ rule_addGlobalAttr, &zAxisCoordinateGlobalAttr }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 // Also used by ALAT rules
 Attribute position_category = {
 	(char*) "Category",
@@ -293,6 +313,12 @@ Rule rules[] = {
 		&actualRangeRule,
 		rule_paramRegexChange,
 		actualRangeRuleApplicators, 4
+	},
+	// Add the 'zaxis_coordinate' global attribute
+	{
+		&addZAxisCoordinateRule,
+		rule_paramRegexChange,
+		addZAxisCoordinateApplicators, 1
 	},
 
 	// End of rule set marker
