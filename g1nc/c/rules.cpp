@@ -75,6 +75,12 @@ Attribute ALAT_valid_range_attr = {
 	ALAT_valid_range, 2
 };
 
+Attribute latGlobalAttr = {
+	(char*) "latitude_coordinate",
+	kAttrTypeText,
+	(char*) "LAT"
+};
+
 RuleApplicatorData ALAT_renameRuleApplicators[] = {
 	{ rule_setVariableName, (char*) "LAT" },
 	{ rule_addAttr, &position_category, },
@@ -82,7 +88,8 @@ RuleApplicatorData ALAT_renameRuleApplicators[] = {
 //	{ rule_setDesc, (char*) "" },
 	{ rule_addAttr, &ALAT_standard_name },
 	{ rule_addGlobalMinMax, (char*) "geospatial_lat_%s" },
-	{ rule_addAttr, &ALAT_valid_range_attr }
+	{ rule_addAttr, &ALAT_valid_range_attr },
+	{ rule_addGlobalAttr, &latGlobalAttr }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,6 +116,12 @@ Attribute ALON_valid_range_attr = {
 	ALON_valid_range, 2
 };
 
+Attribute lonGlobalAttr = {
+	(char*) "longitude_coordinate",
+	kAttrTypeText,
+	(char*) "LON"
+};
+
 RuleApplicatorData ALON_renameRuleApplicators[] = {
 	{ rule_setVariableName, (char*) "LON" },
 	{ rule_addAttr, &position_category, },
@@ -116,7 +129,8 @@ RuleApplicatorData ALON_renameRuleApplicators[] = {
 //	{ rule_setDesc, (char*) "" },
 	{ rule_addAttr, &ALON_standard_name },
 	{ rule_addGlobalMinMax, (char*) "geospatial_lon_%s" },
-	{ rule_addAttr, &ALON_valid_range_attr }
+	{ rule_addAttr, &ALON_valid_range_attr },
+	{ rule_addGlobalAttr, &lonGlobalAttr }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -266,13 +280,13 @@ Rule rules[] = {
 	{
 		&ALAT_renameRule,
 		rule_paramRegexChange,
-		ALAT_renameRuleApplicators, 6
+		ALAT_renameRuleApplicators, 7
 	},
 	// Change "ALON" ("RAW INS LONGITUDE") into "LON"
 	{
 		&ALON_renameRule,
 		rule_paramRegexChange,
-		ALON_renameRuleApplicators, 6
+		ALON_renameRuleApplicators, 7
 	},
 	// Add "actual_range" to every variable *except* time
 	{
