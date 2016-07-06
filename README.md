@@ -9,15 +9,15 @@ found around NCAR. In addition it contains software to convert GENPRO-I and
 GENPRO-II to netCDF.
 
 
-# NCAR/EOL GENPRO-I Conversion Utility & Documentation
+## NCAR/EOL GENPRO-I Conversion Utility & Documentation
 
-## Getting the source
+### Getting the source
 
 ```
 $ git clone https://github.com/ncareol/GENPRO.git
 ```
 
-## Compiling
+### Compiling
 
 `genpro2nc` has no external dependencies. Compile with:
 
@@ -26,7 +26,7 @@ $ cd GENPRO/g1nc/c
 $ make
 ```
 
-## Documentation
+### Documentation
 
 Documentation of the GENPRO software can be found in the
 [NCAR archives](https://opensky.ucar.edu/islandora/search/GENPRO?type=dismax).
