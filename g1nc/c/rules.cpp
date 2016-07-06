@@ -873,6 +873,7 @@ int rule_paramRegexChange(Rule const*const rule, GP1File *const gp)
 	int doesntMatch;
 	regmatch_t match;
 	ParamRegexChangeRule *data = (ParamRegexChangeRule*) rule->data;
+	int found = 0;
 
 	if (!data->didCompileMatchRe) {
 		assert(!regcomp(&(data->matchRe), data->matchReStr, data->matchReFlags));
@@ -885,8 +886,14 @@ int rule_paramRegexChange(Rule const*const rule, GP1File *const gp)
 		                      1, &match, 0);
 		// ^ (regexec returns 0 on success)
 		if ((doesntMatch && data->invert) || (!doesntMatch && !data->invert)) {
+			found++;
 			if (!rule_apply(rule, gp->params+i, gp)) return 0;
 		}
+	}
+
+	if (found == 0) {
+		fprintf(stderr, "warning: no parameter found matching regex \"%s\"\n",
+		        data->matchReStr);
 	}
 
 	return 1;
