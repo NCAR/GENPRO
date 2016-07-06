@@ -252,6 +252,12 @@ Attribute processorRevision = {
 	(char*) PROCESSOR_REVISION
 };
 
+Attribute categoriesGlobalAttr = {
+	(char*) "Categories",
+	kAttrTypeText,
+	(char*) "Position,Thermodynamic,Aircraft State,Atmos. State"
+};
+
 RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_trimData,      NULL },
 	{ rule_addGlobalAttr, &institutionGlobalAttr },
@@ -266,6 +272,7 @@ RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_addGlobalAttr, &phoneNumberGlobalAttr },
 	{ rule_addGlobalAttr, &processorURL },
 	{ rule_addGlobalAttr, &processorRevision },
+	{ rule_addGlobalAttr, &categoriesGlobalAttr },
 	{ rule_addCreationDate, NULL },
 	{ rule_setFlightInfo, NULL }
 };
@@ -289,7 +296,7 @@ Rule rules[] = {
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
-		constantGlobalAttrs, 15
+		constantGlobalAttrs, 16
 	},
 	// Make units CF compliant
 	{
