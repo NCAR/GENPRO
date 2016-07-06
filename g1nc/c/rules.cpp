@@ -200,6 +200,12 @@ Attribute timeCoordinateGlobalAttr = {
 	(char*) "Time"
 };
 
+Attribute phoneNumberGlobalAttr = {
+	(char*) "Phone",
+	kAttrTypeText,
+	(char*) "(303) 497-1030"
+};
+
 RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_trimData,      NULL },
 	{ rule_addGlobalAttr, &institutionGlobalAttr },
@@ -211,6 +217,7 @@ RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_addGlobalAttr, &metadataConventionsGlobalAttr },
 	{ rule_addGlobalAttr, &standardNameVocabularyGlobalAttr },
 	{ rule_addGlobalAttr, &timeCoordinateGlobalAttr },
+	{ rule_addGlobalAttr, &phoneNumberGlobalAttr },
 	{ rule_addCreationDate, NULL },
 	{ rule_setFlightInfo, NULL }
 };
@@ -234,7 +241,7 @@ Rule rules[] = {
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
-		constantGlobalAttrs, 12
+		constantGlobalAttrs, 13
 	},
 	// Make units CF compliant
 	{
