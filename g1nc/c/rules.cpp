@@ -60,8 +60,16 @@ Attribute zAxisCoordinateGlobalAttr = {
 	(char*) "HP"
 };
 
+CopyStrRule copyVertCoordUnitsRule = {
+	rule_getUnits,
+	rule_makeAttrFromStr,
+	rule_addGlobalAttr,
+	(char*) "geospatial_vertical_units"
+};
+
 RuleApplicatorData addZAxisCoordinateApplicators[] = {
-	{ rule_addGlobalAttr, &zAxisCoordinateGlobalAttr }
+	{ rule_addGlobalAttr, &zAxisCoordinateGlobalAttr },
+	{ rule_copyStr, &copyVertCoordUnitsRule }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -339,7 +347,7 @@ Rule rules[] = {
 	{
 		&addZAxisCoordinateRule,
 		rule_paramRegexChange,
-		addZAxisCoordinateApplicators, 1
+		addZAxisCoordinateApplicators, 2
 	},
 
 	// End of rule set marker
@@ -523,6 +531,16 @@ int rule_setVariableName(void *applicatorData, void *extData, GP1File *const gp)
 
 	set_str(&(param->label), NULL, newName);
 	return 1;
+}
+
+char *rule_getUnits(Parameter *const param)
+{
+	char *str;
+
+	if (!(str = (char*) malloc(sizeof(char)*(param->unitsLen+1)))) {
+		return 0;
+	}
+	return param->units;
 }
 
 char *rule_getVariableName(Parameter *const param)
@@ -853,6 +871,39 @@ int rule_addSampleRate(void *applicatorData, void *extData, GP1File *const gp)
 	};
 
 	return rule_addAttr(&sampleRate, param, gp);
+}
+
+void* rule_makeAttrFromStr(char *const str, void *const data)
+{
+	Attribute *attr;
+
+	if (!(attr = (Attribute*) malloc(sizeof(Attribute)))) {
+		return NULL;
+	}
+
+	attr->name = (char*) data;
+	attr->type = kAttrTypeText;
+	attr->data = str;
+	attr->len = strlen(str);
+
+	return attr;
+}
+
+int rule_copyStr(void *applicatorData, void *extData, GP1File *const gp)
+{
+	Parameter *const param = (Parameter*) extData;
+	CopyStrRule *rule = (CopyStrRule*) applicatorData;
+	void *data;
+	char *str;
+
+	if (!(str = rule->getText(param))) {
+		return 0;
+	}
+
+	if (!(data = rule->transformData(str, rule->data))) {
+		return 0;
+	}
+	return rule->apply(data, extData, gp);
 }
 
 int rule_applyAll(Rule const*const rules, GP1File *const gp)
