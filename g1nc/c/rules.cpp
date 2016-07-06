@@ -405,8 +405,9 @@ int rule_makeUnitsCFCompliant(void *applicatorData,
 	/* degrees Celsius */
 	else if (UNITS_EQUALS("C"))        SET_UNITS("deg_C");
 
-	/* degrees Celsius */
-	else if (UNITS_EQUALS("N-UNITS"))  SET_UNITS("none");
+	/* refractive index */
+	else if (strncmp(param->desc, "REFRACTIVE INDEX", param->descLen) &&
+	         UNITS_EQUALS("N"))        SET_UNITS("none");
 
 	/* unknown */
 	else if (UNITS_EQUALS(""))         SET_UNITS("unk");
