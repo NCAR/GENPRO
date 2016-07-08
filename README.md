@@ -1,3 +1,11 @@
+© 2016 University Corporation for Atmospheric Research
+
+This work was performed under the auspices of the National Center for
+Atmospheric Research (NCAR) Earth Observing Laboratory (EOL) Summer
+Undergraduate Projects in Engineering Research (SUPER) program, which is
+managed by the University Corporation for Atmospheric Research (UCAR) and is
+funded by the National Science Foundation (NSF) (www.eol.ucar.edu).
+
 # GENPRO
 
 GENPRO is a software package developed at NCAR designed for scientific data
