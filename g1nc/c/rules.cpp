@@ -46,6 +46,32 @@ RuleApplicatorData changeTimeRuleApplicators[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+ParamRegexChangeRule findWSPDRule = {
+	/* .matchReStr        = */ (char*) "^wspd$",
+	/* .didCompileMatchRe = */ 0,
+	/* .matchReFlags      = */ REG_ICASE,
+	/* .getText           = */ rule_getVariableName,
+	/* .invert            = */ 0
+};
+
+ParamRegexChangeRule findWIRule = {
+	/* .matchReStr        = */ (char*) "^wi$",
+	/* .didCompileMatchRe = */ 0,
+	/* .matchReFlags      = */ REG_ICASE,
+	/* .getText           = */ rule_getVariableName,
+	/* .invert            = */ 0
+};
+
+ParamRegexChangeRule findWDRCTNRule = {
+	/* .matchReStr        = */ (char*) "^wdrctn$",
+	/* .didCompileMatchRe = */ 0,
+	/* .matchReFlags      = */ REG_ICASE,
+	/* .getText           = */ rule_getVariableName,
+	/* .invert            = */ 0
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 ParamRegexChangeRule addZAxisCoordinateRule = {
 	/* .matchReStr        = */ (char*) "^hp$",
 	/* .didCompileMatchRe = */ 0,
@@ -273,6 +299,12 @@ Attribute geospatialVerticalPositiveGlobalAttr = {
 	(char*) "up"
 };
 
+Attribute windFieldGlobalAttr = {
+	(char*) "wind_field",
+	kAttrTypeText,
+	(char*) "WSPD WDRCTN WI"
+};
+
 RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_trimData,      NULL },
 	{ rule_addGlobalAttr, &institutionGlobalAttr },
@@ -289,6 +321,7 @@ RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_addGlobalAttr, &processorRevision },
 	{ rule_addGlobalAttr, &categoriesGlobalAttr },
 	{ rule_addGlobalAttr, &geospatialVerticalPositiveGlobalAttr },
+	{ rule_addGlobalAttr, &windFieldGlobalAttr },
 	{ rule_addCreationDate, NULL },
 	{ rule_setFlightInfo, NULL }
 };
@@ -312,7 +345,7 @@ Rule rules[] = {
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
-		constantGlobalAttrs, 17
+		constantGlobalAttrs, 18
 	},
 	// Make units CF compliant
 	{
@@ -325,6 +358,27 @@ Rule rules[] = {
 		NULL,
 		rule_applyToAllParams,
 		sanitizeParamNamesRuleApplicators, 1
+	},
+	// Look for the WSPD variable
+	{
+		&findWSPDRule,
+		rule_paramRegexChange,
+		NULL,
+		/* .numApplicators = */ 0
+	},
+	// Look for the WDRCTN variable
+	{
+		&findWDRCTNRule,
+		rule_paramRegexChange,
+		NULL,
+		/* .numApplicators = */ 0
+	},
+	// Look for the WI variable
+	{
+		&findWIRule,
+		rule_paramRegexChange,
+		NULL,
+		/* .numApplicators = */ 0
 	},
 	// Change a variable named TIME
 	{
