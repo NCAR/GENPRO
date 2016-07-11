@@ -65,14 +65,14 @@ Files with a ``-C" suffix are COS-blocked files. Files without a ``-C" suffix ar
 
 \section{Header}
 
-All GENPRO-1 files begin with a plain-text header text header using a 6-bit word size and custom encoding. The header contains no newline characters. The header is divided into two parts: the first part is 1100 (6-bit) characters long and contains:
+All GENPRO-1 files begin with a plain-text header using a 6-bit word size and custom encoding. The header contains no newline characters. The header is divided into two parts. The first part is 1100 (6-bit) characters long and contains:
 \begin{itemize}[noitemsep]
 	\item The number of parameters contained in the file.
 	\item The cycle period.
 	\item The word size used for data.
 \end{itemize}
 
-Note that there does not appear to be an ideal line width to display this portion of the header. All of these values in this part of the header are at fixed offsets from the start of the file. Some of these offsets are listed in tbl.~\ref{Tbl.HeaderOffsets}.
+Note that there does not appear to be an ideal line width to display this portion of the header. All of the values in this part of the header are at fixed offsets from the start of the file. Some of these offsets are listed in tbl.~\ref{Tbl.HeaderOffsets}.
 
 \begin{table}[H]
 \centering
@@ -490,7 +490,7 @@ Attribute creatorGlobalAttr = {
 };
 \end{lstlisting}
 
-Next, we define an array of \textit{applicator data}. Each entry in the array (of type \texttt{RuleApplicatorData}) contains an \textit{applicator} (a callback which effects some change on the output) and data that will be passed the applicator as an argument. To add a constant global attribute, we will use the \texttt{rule\_addGlobalAttr} applicator, which requires an \texttt{Attribute} as an argument:
+Next, we define an array of \textit{applicator data}. Each entry in the array (of type \texttt{RuleApplicatorData}) contains an \textit{applicator} (a callback which effects some change on the output) and data that will be passed to the applicator as an argument. To add a constant global attribute, we will use the \texttt{rule\_addGlobalAttr} applicator, which requires an \texttt{Attribute} as an argument:
 
 \begin{lstlisting}[language=c]
 RuleApplicatorData creatorGlobalAttrApplicatorData[] = {
