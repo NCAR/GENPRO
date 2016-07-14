@@ -630,8 +630,8 @@ int rule_addMinMaxAttr(void *applicatorData, void *extData, GP1File *const gp)
 		if (minmax_i[0] > param->values[i]) {
 			minmax_i[0] = param->values[i];
 		}
-		if (minmax_i[0] < param->values[i]) {
-			minmax_i[0] = param->values[i];
+		if (minmax_i[1] < param->values[i]) {
+			minmax_i[1] = param->values[i];
 		}
 	}
 
