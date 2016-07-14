@@ -397,7 +397,10 @@ int gp1_write_nc(GP1File const*const gp,
 		goto ncerr;
 	}
 
-	if ((status = nc_def_dim(ncid, "Time", NC_UNLIMITED, &timeDimId)) != NC_NOERR) {
+	if ((status = nc_def_dim(ncid, "Time", gp->params[0].numValues/
+	                                       gp->params[0].rate,
+	                         &timeDimId)) != NC_NOERR)
+	{
 		goto ncerr;
 	}
 	dimIds[0] = timeDimId;
