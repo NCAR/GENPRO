@@ -179,13 +179,13 @@ int gp1_read(GP1File *const gp, FILE *fp)
 			gp->params[i].descLen = match[1].rm_eo-match[1].rm_so;
 			gp->params[i].unitsLen = match[3].rm_eo-match[3].rm_so;
 			if (!(gp->params[i].desc = (char*) malloc(sizeof(char)*gp->params[i].descLen))) {
-				goto mallocfail;
+				goto param_malloc_fail;
 			}
 			if (!(gp->params[i].label = (char*) malloc(sizeof(char)*(1+match[2].rm_eo-match[2].rm_so)))) {
-				goto mallocfail;
+				goto param_malloc_fail;
 			}
 			if (!(gp->params[i].units = (char*) malloc(sizeof(char)*gp->params[i].unitsLen))) {
-				goto mallocfail;
+				goto param_malloc_fail;
 			}
 			strncpy(gp->params[i].desc,  tmp+match[1].rm_so, gp->params[i].descLen);
 			strncpy(gp->params[i].label, tmp+match[2].rm_so, match[2].rm_eo-match[2].rm_so);
@@ -195,10 +195,10 @@ int gp1_read(GP1File *const gp, FILE *fp)
 			/* Units might be missing */
 			gp->params[i].descLen = match[1].rm_eo-match[1].rm_so;
 			if (!(gp->params[i].desc = (char*) malloc(sizeof(char)*gp->params[i].descLen))) {
-				goto mallocfail;
+				goto param_malloc_fail;
 			}
 			if (!(gp->params[i].label = (char*) malloc(sizeof(char)*(match[2].rm_eo-match[2].rm_so)))) {
-				goto mallocfail;
+				goto param_malloc_fail;
 			}
 			gp->params[i].units = NULL;
 			gp->params[i].unitsLen = 0;
@@ -397,7 +397,10 @@ int gp1_write_nc(GP1File const*const gp,
 		goto ncerr;
 	}
 
-	if ((status = nc_def_dim(ncid, "Time", NC_UNLIMITED, &timeDimId)) != NC_NOERR) {
+	if ((status = nc_def_dim(ncid, "Time", gp->params[0].numValues/
+	                                       gp->params[0].rate,
+	                         &timeDimId)) != NC_NOERR)
+	{
 		goto ncerr;
 	}
 	dimIds[0] = timeDimId;

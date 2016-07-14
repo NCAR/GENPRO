@@ -31,10 +31,27 @@
 
 \begin{document}
 
-\title{GENPRO-1 File Format Description}
+\title{TBM Format}
 \author{Nicholas DeCicco}
 
-\maketitle
+\null
+\vskip 3in
+
+\begin{center}
+	{\huge GENPRO File Format Reference \& Utility Manual}
+
+	\vskip 1em
+
+	{\large Nicholas DeCicco}
+\end{center}
+
+\null\vfill
+\noindent \copyright \, 2016 University Corporation for Atmospheric Research.
+
+\vskip 1em
+
+\noindent This work was performed under the auspices of the National Center for Atmospheric Research (NCAR) Earth Observing Laboratory (EOL) Summer Undergraduate Projects in Engineering Research (SUPER) program, which is managed by the University Corporation for Atmospheric Research (UCAR) and is funded by the National Science Foundation (NSF) (www.eol.ucar.edu).
+\newpage
 
 \section{Introduction}
 
@@ -48,14 +65,14 @@ Files with a ``-C" suffix are COS-blocked files. Files without a ``-C" suffix ar
 
 \section{Header}
 
-All GENPRO-1 files begin with a plain-text header text header using a 6-bit word size and custom encoding. The header contains no newline characters. The header is divided into two parts: the first part is 1100 (6-bit) characters long and contains:
+All GENPRO-1 files begin with a plain-text header using a 6-bit word size and custom encoding. The header contains no newline characters. The header is divided into two parts. The first part is 1100 (6-bit) characters long and contains:
 \begin{itemize}[noitemsep]
 	\item The number of parameters contained in the file.
 	\item The cycle period.
 	\item The word size used for data.
 \end{itemize}
 
-Note that there does not appear to be an ideal line width to display this portion of the header. All of these values in this part of the header are at fixed offsets from the start of the file. Some of these offsets are listed in tbl.~\ref{Tbl.HeaderOffsets}.
+Note that there does not appear to be an ideal line width to display this portion of the header. All of the values in this part of the header are at fixed offsets from the start of the file. Some of these offsets are listed in tbl.~\ref{Tbl.HeaderOffsets}.
 
 \begin{table}[H]
 \centering
@@ -309,7 +326,7 @@ The offset, in multiples of 8-bit bytes, from the start of the file to the data 
 	\text{offset}_\text{data} = 8 \left \lceil \dfrac{100\times(11+N)\times6}{64} \right \rceil \mathrm{,}
 \]
 
-\noindent where \(N\) is the number of parameters in the file; i.e., the offset is in multiples of 64-bit words (presumably owing to the Cray-1's 64-bit word size). For example, for the PHOENIX-78 dataset, \(N = 67\), so the data section begins at the offset
+\noindent where \(N\) is the number of parameters in the file; i.e., the offset is in multiples of 64-bit words (presumably owing to the Cray-1's 64-bit word size). (The value \(11\) appears as there are always \(11\) text lines which precede the list of parameters.) For example, for the PHOENIX-78 dataset, \(N = 67\), so the data section begins at the offset
 \[
 	\text{offset}_\text{data} = 8 \left \lceil \dfrac{100\times(11+67)\times 6}{64} \right \rceil = 5856 \mathrm{.}
 \]
@@ -473,7 +490,7 @@ Attribute creatorGlobalAttr = {
 };
 \end{lstlisting}
 
-Next, we define an array of \textit{applicator data}. Each entry in the array (of type \texttt{RuleApplicatorData}) contains an \textit{applicator} (a callback which effects some change on the output) and data that will be passed the applicator as an argument. To add a constant global attribute, we will use the \texttt{rule\_addGlobalAttr} applicator, which requires an \texttt{Attribute} as an argument:
+Next, we define an array of \textit{applicator data}. Each entry in the array (of type \texttt{RuleApplicatorData}) contains an \textit{applicator} (a callback which effects some change on the output) and data that will be passed to the applicator as an argument. To add a constant global attribute, we will use the \texttt{rule\_addGlobalAttr} applicator, which requires an \texttt{Attribute} as an argument:
 
 \begin{lstlisting}[language=c]
 RuleApplicatorData creatorGlobalAttrApplicatorData[] = {

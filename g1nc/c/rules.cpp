@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <regex.h>
+#include <time.h>
 #include <netcdf.h>
 #include "gpfile.hpp"
 #include "rules.hpp"
@@ -45,6 +46,61 @@ RuleApplicatorData changeTimeRuleApplicators[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+ParamRegexChangeRule findWSPDRule = {
+	/* .matchReStr        = */ (char*) "^wspd$",
+	/* .didCompileMatchRe = */ 0,
+	/* .matchReFlags      = */ REG_ICASE,
+	/* .getText           = */ rule_getVariableName,
+	/* .invert            = */ 0
+};
+
+ParamRegexChangeRule findWIRule = {
+	/* .matchReStr        = */ (char*) "^wi$",
+	/* .didCompileMatchRe = */ 0,
+	/* .matchReFlags      = */ REG_ICASE,
+	/* .getText           = */ rule_getVariableName,
+	/* .invert            = */ 0
+};
+
+ParamRegexChangeRule findWDRCTNRule = {
+	/* .matchReStr        = */ (char*) "^wdrctn$",
+	/* .didCompileMatchRe = */ 0,
+	/* .matchReFlags      = */ REG_ICASE,
+	/* .getText           = */ rule_getVariableName,
+	/* .invert            = */ 0
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+ParamRegexChangeRule addZAxisCoordinateRule = {
+	/* .matchReStr        = */ (char*) "^hp$",
+	/* .didCompileMatchRe = */ 0,
+	/* .matchReFlags      = */ REG_ICASE,
+	/* .getText           = */ rule_getVariableName,
+	/* .invert            = */ 0
+};
+
+Attribute zAxisCoordinateGlobalAttr = {
+	(char*) "zaxis_coordinate",
+	kAttrTypeText,
+	(char*) "HP"
+};
+
+CopyStrRule copyVertCoordUnitsRule = {
+	rule_getUnits,
+	rule_makeAttrFromStr,
+	rule_addGlobalAttr,
+	(char*) "geospatial_vertical_units"
+};
+
+RuleApplicatorData addZAxisCoordinateApplicators[] = {
+	{ rule_addGlobalAttr, &zAxisCoordinateGlobalAttr },
+	{ rule_copyStr, &copyVertCoordUnitsRule },
+	{ rule_addGlobalMinMax, (char*) "geospatial_vertical_%s" }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 // Also used by ALAT rules
 Attribute position_category = {
 	(char*) "Category",
@@ -74,6 +130,12 @@ Attribute ALAT_valid_range_attr = {
 	ALAT_valid_range, 2
 };
 
+Attribute latGlobalAttr = {
+	(char*) "latitude_coordinate",
+	kAttrTypeText,
+	(char*) "LAT"
+};
+
 RuleApplicatorData ALAT_renameRuleApplicators[] = {
 	{ rule_setVariableName, (char*) "LAT" },
 	{ rule_addAttr, &position_category, },
@@ -81,7 +143,8 @@ RuleApplicatorData ALAT_renameRuleApplicators[] = {
 //	{ rule_setDesc, (char*) "" },
 	{ rule_addAttr, &ALAT_standard_name },
 	{ rule_addGlobalMinMax, (char*) "geospatial_lat_%s" },
-	{ rule_addAttr, &ALAT_valid_range_attr }
+	{ rule_addAttr, &ALAT_valid_range_attr },
+	{ rule_addGlobalAttr, &latGlobalAttr }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -108,6 +171,12 @@ Attribute ALON_valid_range_attr = {
 	ALON_valid_range, 2
 };
 
+Attribute lonGlobalAttr = {
+	(char*) "longitude_coordinate",
+	kAttrTypeText,
+	(char*) "LON"
+};
+
 RuleApplicatorData ALON_renameRuleApplicators[] = {
 	{ rule_setVariableName, (char*) "LON" },
 	{ rule_addAttr, &position_category, },
@@ -115,7 +184,8 @@ RuleApplicatorData ALON_renameRuleApplicators[] = {
 //	{ rule_setDesc, (char*) "" },
 	{ rule_addAttr, &ALON_standard_name },
 	{ rule_addGlobalMinMax, (char*) "geospatial_lon_%s" },
-	{ rule_addAttr, &ALON_valid_range_attr }
+	{ rule_addAttr, &ALON_valid_range_attr },
+	{ rule_addGlobalAttr, &lonGlobalAttr }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -128,10 +198,19 @@ ParamRegexChangeRule actualRangeRule = {
 	/* .invert            = */ 1
 };
 
+float fill_value[] = { -32767.0f };
+
+Attribute fill_value_attr = {
+	(char*) "_FillValue",
+	kAttrTypeFloat,
+	fill_value, 1
+};
+
 RuleApplicatorData actualRangeRuleApplicators[] = {
 	{ rule_addMinMaxAttr, (char*) "actual_range" },
 	{ rule_setPreferredType, (void*) NC_FLOAT },
-	{ rule_addSampleRate, NULL }
+	{ rule_addSampleRate, NULL },
+	{ rule_addAttr, &fill_value_attr }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -155,7 +234,7 @@ Attribute creatorURLGlobalAttr = {
 };
 
 Attribute conventionsGlobalAttr = {
-	(char*) "ConventionsURL",
+	(char*) "Conventions",
 	kAttrTypeText,
 	(char*) "NCAR-RAF/nimbus"
 };
@@ -166,6 +245,66 @@ Attribute conventionsURLGlobalAttr = {
 	(char*) "http://www.eol.ucar.edu/raf/Software/netCDF.html"
 };
 
+Attribute conventionsVersionGlobalAttr = {
+	(char*) "ConventionsVersion",
+	kAttrTypeText,
+	(char*) "1.3"
+};
+
+Attribute metadataConventionsGlobalAttr = {
+	(char*) "Metadata_Conventions",
+	kAttrTypeText,
+	(char*) "Unidata Dataset Discovery v1.0"
+};
+
+Attribute standardNameVocabularyGlobalAttr = {
+	(char*) "standard_name_vocabulary",
+	kAttrTypeText,
+	(char*) "CF-1.0"
+};
+
+Attribute timeCoordinateGlobalAttr = {
+	(char*) "time_coordinate",
+	kAttrTypeText,
+	(char*) "Time"
+};
+
+Attribute phoneNumberGlobalAttr = {
+	(char*) "Phone",
+	kAttrTypeText,
+	(char*) "(303) 497-1030"
+};
+
+Attribute processorURL = {
+	(char*) "ProcessorURL",
+	kAttrTypeText,
+	(char*) "https://github.com/ncareol/GENPRO"
+};
+
+Attribute processorRevision = {
+	(char*) "ProcessorRevision",
+	kAttrTypeText,
+	(char*) PROCESSOR_REVISION
+};
+
+Attribute categoriesGlobalAttr = {
+	(char*) "Categories",
+	kAttrTypeText,
+	(char*) "Position,Thermodynamic,Aircraft State,Atmos. State"
+};
+
+Attribute geospatialVerticalPositiveGlobalAttr = {
+	(char*) "geospatial_vertical_positive",
+	kAttrTypeText,
+	(char*) "up"
+};
+
+Attribute windFieldGlobalAttr = {
+	(char*) "wind_field",
+	kAttrTypeText,
+	(char*) "WSPD WDRCTN WI"
+};
+
 RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_trimData,      NULL },
 	{ rule_addGlobalAttr, &institutionGlobalAttr },
@@ -173,6 +312,17 @@ RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_addGlobalAttr, &creatorURLGlobalAttr },
 	{ rule_addGlobalAttr, &conventionsGlobalAttr },
 	{ rule_addGlobalAttr, &conventionsURLGlobalAttr },
+	{ rule_addGlobalAttr, &conventionsVersionGlobalAttr },
+	{ rule_addGlobalAttr, &metadataConventionsGlobalAttr },
+	{ rule_addGlobalAttr, &standardNameVocabularyGlobalAttr },
+	{ rule_addGlobalAttr, &timeCoordinateGlobalAttr },
+	{ rule_addGlobalAttr, &phoneNumberGlobalAttr },
+	{ rule_addGlobalAttr, &processorURL },
+	{ rule_addGlobalAttr, &processorRevision },
+	{ rule_addGlobalAttr, &categoriesGlobalAttr },
+	{ rule_addGlobalAttr, &geospatialVerticalPositiveGlobalAttr },
+	{ rule_addGlobalAttr, &windFieldGlobalAttr },
+	{ rule_addCreationDate, NULL },
 	{ rule_setFlightInfo, NULL }
 };
 
@@ -184,18 +334,51 @@ RuleApplicatorData sanitizeParamNamesRuleApplicators[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+RuleApplicatorData makeUnitsCFCompliantRuleApplicators[] = {
+	{ rule_makeUnitsCFCompliant, NULL }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 Rule rules[] = {
 	// Add global attributes which should always be present
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
-		constantGlobalAttrs, 7
+		constantGlobalAttrs, 18
+	},
+	// Make units CF compliant
+	{
+		NULL,
+		rule_applyToAllParams,
+		makeUnitsCFCompliantRuleApplicators, 1
 	},
 	// Sanitize variable names
 	{
 		NULL,
 		rule_applyToAllParams,
 		sanitizeParamNamesRuleApplicators, 1
+	},
+	// Look for the WSPD variable
+	{
+		&findWSPDRule,
+		rule_paramRegexChange,
+		NULL,
+		/* .numApplicators = */ 0
+	},
+	// Look for the WDRCTN variable
+	{
+		&findWDRCTNRule,
+		rule_paramRegexChange,
+		NULL,
+		/* .numApplicators = */ 0
+	},
+	// Look for the WI variable
+	{
+		&findWIRule,
+		rule_paramRegexChange,
+		NULL,
+		/* .numApplicators = */ 0
 	},
 	// Change a variable named TIME
 	{
@@ -208,19 +391,25 @@ Rule rules[] = {
 	{
 		&ALAT_renameRule,
 		rule_paramRegexChange,
-		ALAT_renameRuleApplicators, 6
+		ALAT_renameRuleApplicators, 7
 	},
 	// Change "ALON" ("RAW INS LONGITUDE") into "LON"
 	{
 		&ALON_renameRule,
 		rule_paramRegexChange,
-		ALON_renameRuleApplicators, 6
+		ALON_renameRuleApplicators, 7
 	},
 	// Add "actual_range" to every variable *except* time
 	{
 		&actualRangeRule,
 		rule_paramRegexChange,
-		actualRangeRuleApplicators, 3
+		actualRangeRuleApplicators, 4
+	},
+	// Add the 'zaxis_coordinate' global attribute
+	{
+		&addZAxisCoordinateRule,
+		rule_paramRegexChange,
+		addZAxisCoordinateApplicators, 3
 	},
 
 	// End of rule set marker
@@ -232,8 +421,8 @@ static void get_hms(int value, int *const h, int *const m, int *const s);
 int set_str(char **dest, size_t *len, char *src)
 {
 	size_t newLen = strlen(src);
-	if (!((len && newLen <= *len) || newLen <= strlen(*dest))) {
-		if (!(*dest = (char*) malloc(sizeof(char)*(newLen+1)))) {
+	if (!*dest || !((len && newLen <= *len) || newLen <= strlen(*dest))) {
+		if (!(*dest = (char*) realloc(*dest, sizeof(char)*(newLen+1)))) {
 			return 0;
 		}
 	}
@@ -286,10 +475,80 @@ int rule_trimData(void *applicatorData, void *extData, GP1File *const gp)
 	return 1;
 }
 
+#define UNITS_EQUALS(str) param->unitsLen == strlen((char*) str) && \
+                          !strncmp(param->units, (char*) str, param->unitsLen)
+#define SET_UNITS(str) set_str(&(param->units), &(param->unitsLen), (char*) str)
+
+int rule_makeUnitsCFCompliant(void *applicatorData,
+                              void *extData,
+                              GP1File *const gp)
+{
+	Parameter *const param = (Parameter*) extData;
+
+	/* degrees */
+	     if (UNITS_EQUALS("DEG"))      SET_UNITS("degree");
+
+	/* millibar */
+	else if (UNITS_EQUALS("MB"))       SET_UNITS("hPa");
+
+	/* volts */
+	else if (UNITS_EQUALS("V"))        SET_UNITS("V");
+
+	/* meters per second */
+	else if (UNITS_EQUALS("M/S"))      SET_UNITS("m/s");
+
+	/* seconds */
+	else if (UNITS_EQUALS("SEC"))      SET_UNITS("s");
+
+	/* meters per second squared */
+	else if (UNITS_EQUALS("M/S2"))     SET_UNITS("m/s2");
+
+	/* kilometers */
+	else if (UNITS_EQUALS("KM"))       SET_UNITS("km");
+
+	/* volts DC */
+	else if (UNITS_EQUALS("VDC"))      SET_UNITS("Vdc");
+
+	/* meters */
+	else if (UNITS_EQUALS("M"))        SET_UNITS("m");
+
+	/* grams per cubic meter */
+	else if (UNITS_EQUALS("G/M3"))     SET_UNITS("gram/m3");
+
+	/* parts per billion */
+	else if (UNITS_EQUALS("PPB"))      SET_UNITS("1/10e9");
+
+	/* grams per kilogram */
+	else if (UNITS_EQUALS("G/KG"))     SET_UNITS("g/kg");
+
+	/* watts per square meter */
+	else if (UNITS_EQUALS("WATTS/M2")) SET_UNITS("W/m2");
+
+	/* watts per square meter */
+	else if (UNITS_EQUALS("(W/M2)"))   SET_UNITS("W/m2");
+
+	/* number per cubic centimeter (?) */
+	else if (UNITS_EQUALS("N/CC"))     SET_UNITS("1/cm3");
+
+	/* degrees Kelvin */
+	else if (UNITS_EQUALS("K"))        SET_UNITS("deg_K");
+
+	/* degrees Celsius */
+	else if (UNITS_EQUALS("C"))        SET_UNITS("deg_C");
+
+	/* refractive index */
+	else if (strncmp(param->desc, "REFRACTIVE INDEX", param->descLen) &&
+	         UNITS_EQUALS("N"))        SET_UNITS("none");
+
+	/* unknown */
+	else if (UNITS_EQUALS(""))         SET_UNITS("unk");
+
+	return 1;
+}
+
 int rule_sanitizeParamName(void *applicatorData, void *extData, GP1File *const gp)
 {
 	Parameter *const param = (Parameter*) extData;
-	char *const newUnits = (char*) applicatorData;
 	char *src, *dst;
 
 	// Strip whitespace and replace slashes ('/') with underscores ('_')
@@ -302,7 +561,7 @@ int rule_sanitizeParamName(void *applicatorData, void *extData, GP1File *const g
 				*dst++ = *src;
 			}
 		}
-		*src++;
+		src++;
 	}
 	*dst = '\0';
 
@@ -334,6 +593,16 @@ int rule_setVariableName(void *applicatorData, void *extData, GP1File *const gp)
 
 	set_str(&(param->label), NULL, newName);
 	return 1;
+}
+
+char *rule_getUnits(Parameter *const param)
+{
+	char *str;
+
+	if (!(str = (char*) malloc(sizeof(char)*(param->unitsLen+1)))) {
+		return 0;
+	}
+	return param->units;
 }
 
 char *rule_getVariableName(Parameter *const param)
@@ -451,6 +720,25 @@ int rule_addAttr(void *applicatorData, void *extData, GP1File *const gp)
 	memcpy(param->attrs+(param->numAttrs-1), attr, sizeof(Attribute));
 
 	return 1;
+}
+
+static char date_created_attr[] = "date_created";
+static char date_created[BUF_SIZE];
+int rule_addCreationDate(void *applicatorData, void *extData, GP1File *const gp)
+{
+	time_t tt;
+	struct tm tmt;
+	time(&tt);
+	gmtime_r(&tt, &tmt);
+	strftime(date_created, BUF_SIZE, "%FT%T +0000", &tmt);
+
+	Attribute attr = {
+		date_created_attr,
+		kAttrTypeText,
+		(char*) date_created
+	};
+
+	return rule_addGlobalAttr(&attr, NULL, gp);
 }
 
 static void get_hms(int value, int *const h, int *const m, int *const s)
@@ -647,6 +935,39 @@ int rule_addSampleRate(void *applicatorData, void *extData, GP1File *const gp)
 	return rule_addAttr(&sampleRate, param, gp);
 }
 
+void* rule_makeAttrFromStr(char *const str, void *const data)
+{
+	Attribute *attr;
+
+	if (!(attr = (Attribute*) malloc(sizeof(Attribute)))) {
+		return NULL;
+	}
+
+	attr->name = (char*) data;
+	attr->type = kAttrTypeText;
+	attr->data = str;
+	attr->len = strlen(str);
+
+	return attr;
+}
+
+int rule_copyStr(void *applicatorData, void *extData, GP1File *const gp)
+{
+	Parameter *const param = (Parameter*) extData;
+	CopyStrRule *rule = (CopyStrRule*) applicatorData;
+	void *data;
+	char *str;
+
+	if (!(str = rule->getText(param))) {
+		return 0;
+	}
+
+	if (!(data = rule->transformData(str, rule->data))) {
+		return 0;
+	}
+	return rule->apply(data, extData, gp);
+}
+
 int rule_applyAll(Rule const*const rules, GP1File *const gp)
 {
 	size_t i;
@@ -686,6 +1007,7 @@ int rule_paramRegexChange(Rule const*const rule, GP1File *const gp)
 	int doesntMatch;
 	regmatch_t match;
 	ParamRegexChangeRule *data = (ParamRegexChangeRule*) rule->data;
+	int found = 0;
 
 	if (!data->didCompileMatchRe) {
 		assert(!regcomp(&(data->matchRe), data->matchReStr, data->matchReFlags));
@@ -698,8 +1020,14 @@ int rule_paramRegexChange(Rule const*const rule, GP1File *const gp)
 		                      1, &match, 0);
 		// ^ (regexec returns 0 on success)
 		if ((doesntMatch && data->invert) || (!doesntMatch && !data->invert)) {
+			found++;
 			if (!rule_apply(rule, gp->params+i, gp)) return 0;
 		}
+	}
+
+	if (found == 0) {
+		fprintf(stderr, "warning: no parameter found matching regex \"%s\"\n",
+		        data->matchReStr);
 	}
 
 	return 1;
