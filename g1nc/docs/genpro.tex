@@ -11,6 +11,7 @@
 \usepackage{float}
 \usepackage{hyperref}
 \usepackage{enumitem} % for `noitemsep'
+\usepackage{booktabs}
 
 % TODO:
 % - set lstlistings font
@@ -185,7 +186,7 @@ PARAMETER FOLLOW
  67)  20     DEWPOINT TEMPERATURE (REFRACT) (C)         DPCRF     C       = (N/ 1000.0) -  100.0
 \end{lstlisting}
 
-Offsets from the start of a line to each attribute associated with a parameter are listed in tbl.~\ref{Tbl.ParamOffsets}
+Offsets from the start of a line to each attribute associated with a parameter are listed in tbl.~\ref{Tbl.ParamOffsets}. Note that attributes associated with a parameter are not \textit{necessarily} at these locations; for this reason, the logic used in \texttt{genpro2nc} to parse parameters' attributes is appreciably more complex than just reading strings from particular offsets.
 
 \begin{table}[H]
 \centering
@@ -440,20 +441,30 @@ $ genpro2nc G50222C.bin G50222C.nc
 
 \texttt{genpro2nc} generates an unlimited dimension, \texttt{Time}, which is the first dimension used by every array that is generated in the file. A number of global attributes are added (see sec.~\ref{Sec.Extending} information on changing these):
 \begin{itemize}[noitemsep]
-%	\item \texttt{CYCLE\_TIME} -- the fundamental sampling period. Sample rates
-%	      for individual parameters are expressed as multiples of the sampling
-%	      frequency corresponding to this period.
-%	\item \texttt{DESCRIPTION} -- the description text found in the input
-%	      GENPRO-1 file.
 	\item \texttt{institution} -- Set to ``NCAR Research Aviation Facility".
 	\item \texttt{Address} -- The address of the institution, set to ``P.O. Box 3000, Boulder, CO 80307-3000"
 	\item \texttt{creator\_url} -- The web URL of the creating institution, set to ``http://www.eol.ucar.edu".
+	\item \texttt{Phone} -- Set to ``\texttt{(303) 497-1030}"
+	\item \texttt{Metadata\_Conventions} -- Set to ``\texttt{Unidata Dataset Discovery v1.0}"
+	\item \texttt{ConventionsVersion} -- Set to "\texttt{1.3}".
+	\item \texttt{Conventions} -- Set to "\texttt{NCAR-RAF/nimbus}".
 	\item \texttt{ConventionsURL} -- Set to ``http://www.eol.ucar.edu/raf/Software/netCDF.html".
 	\item \texttt{Platform} -- The tail number of the aircraft used as a flight platform.
+	\item \texttt{time\_coordinate} -- Set to 
 	\item \texttt{time\_coverage\_start}, \texttt{time\_coverage\_end} -- formatted as \texttt{YYYY-MM-DDTHH:MM:SS +0000} (e.g., \texttt{1978-11-17T18:02:19 +0000}).
 	\item \texttt{TimeInterval} -- The range of time covered by the file, formatted as \texttt{HH:MM:SS-HH:MM:SS} (e.g., 15:53:15-18:02:19).
 	\item \texttt{FlightDate} -- The date the flight took place, formatted as \texttt{DD/MM/YYYY} (e.g., 11/17/1978).
 	\item \texttt{geospatial\_lat\_min}, \texttt{geospatial\_lat\_max}, \texttt{geospatial\_lon\_min}, \texttt{geospatial\_lon\_max} -- Minimum and maximum latitude/longitude values contained in the file.
+	\item \texttt{geospatial\_vertical\_min}, \texttt{geospatial\_vertical\_max} -- 
+	\item \texttt{geospatial\_vertical\_units} -- 
+	\item \texttt{zaxis\_coordinate} -- Set to \texttt{HP}
+	\item \texttt{standard\_name\_vocabulary} -- Set to ``\texttt{CF-1.0}".
+	\item \texttt{ProcessorURL} -- Set to \texttt{https://github.com/ncareol/GENPRO}
+	\item \texttt{ProcessorRevision} -- Automatically set to the branch/
+	\item \texttt{Categories} -- Set to ``\texttt{Position,Thermodynamic,Aircraft State,Atmos. State}"
+	\item \texttt{geospatial\_vertical\_positive} -- 
+	\item \texttt{wind\_field} -- Set to ``\texttt{WSPD WDRCTN WI}".
+	\item \texttt{}
 \end{itemize}
 
 Every variable has at least two attributes:
@@ -469,6 +480,35 @@ Every variable (except \texttt{Time}) also have these attributes:
 \end{itemize}
 
 Variables which are sampled at a rate higher than the cycle rate of the source GENPRO-I file are stored as two-dimensional arrays; the first dimension is, as always, \texttt{Time}, and the second dimension indicates the sample rate of the variable and is named of the form \texttt{sps\#} (e.g., \texttt{sps5}).
+
+\begin{table}
+\centering
+\begin{tabular}{lll}
+\toprule
+\\
+\midrule
+degrees                     & units are ``\texttt{DEG}"      & ``\texttt{degree}" \\
+millibar                    & units are ``\texttt{MB}"       & ``\texttt{hPa}" \\
+volts                       & units are ``\texttt{V}"        & ``\texttt{V}" \\
+meters per second           & units are ``\texttt{M/S}"      & ``\texttt{m/s}" \\
+seconds                     & units are ``\texttt{SEC}"      & ``\texttt{s}" \\
+meters per second squared   & units are ``\texttt{M/S2}"     & ``\texttt{m/s2}" \\
+kilometers                  & units are ``\texttt{KM}"       & ``\texttt{km}" \\
+volts DC                    & units are ``\texttt{VDC}"      & ``\texttt{Vdc}" \\
+meters                      & units are ``\texttt{M}"        & ``\texttt{m}" \\
+grams per cubic meter       & units are ``\texttt{G/M3}"     & ``\texttt{gram/m3}" \\
+parts per billion           & units are ``\texttt{PPB}"      & ``\texttt{1/10e9}" \\
+grams per kilogram          & units are ``\texttt{G/KG}"     & ``\texttt{g/kg}" \\
+watts per square meter      & units are ``\texttt{WATTS/M2}" & ``\texttt{W/m2}" \\
+watts per square meter      & units are ``\texttt{(W/M2)}"   & ``\texttt{W/m2}" \\
+number per cubic centimeter & units are ``\texttt{N/CC}"     & ``\texttt{1/cm3}" \\
+degrees Kelvin              & units are ``\texttt{K}"        & ``\texttt{deg\_K}" \\
+degrees Celsius             & units are ``\texttt{C}"        & ``\texttt{deg\_C}" \\
+unknown                     & units are ``\texttt{}"         & ``\texttt{unk}" \\
+refractive index            & \shortstack[l]{description is\\``\texttt{REFRACTIVE INDEX}"\\and units are ``\texttt{N}"} & ``\texttt{none}" \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Extending \& Modifying the Converter} \label{Sec.Extending}
 
@@ -515,5 +555,10 @@ Rule rules[] = {
 \end{lstlisting}
 
 We used the \texttt{rule\_alwaysApplyGlobal} rule, which always executes its applicators once for the entire file.
+
+\nocite{*}
+% \bibliographystyle{IEEEtran}
+% \bibliography{IEEEabrv,cites}
+\bibliography{cites}
 
 \end{document}
