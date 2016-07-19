@@ -2,6 +2,9 @@
 /* Author: Nicholas DeCicco <decicco@ucar.edu>
  */
 
+#ifndef GPFILE_HPP
+#define GPFILE_HPP
+
 typedef enum {
 	kAttrTypeText,
 	kAttrTypeFloat,
@@ -62,3 +65,5 @@ typedef struct {
 } GP1File;
 
 Parameter *gp1_findParam(GP1File const*const gpfile, const char paramName[]);
+
+#endif
