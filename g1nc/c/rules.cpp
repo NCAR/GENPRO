@@ -305,8 +305,15 @@ Attribute windFieldGlobalAttr = {
 	(char*) "WSPD WDRCTN WI"
 };
 
+TrimThresholdRule aircraftSpeedTrimRule = {
+	/* varName */ (char*) "TASG",
+	/* condition */ kTrimIfValueLess,
+	/* threshold */ 25.0f
+};
+
 RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_trimData,      NULL },
+	{ rule_trimThreshold, &aircraftSpeedTrimRule },
 	{ rule_addGlobalAttr, &institutionGlobalAttr },
 	{ rule_addGlobalAttr, &addressGlobalAttr },
 	{ rule_addGlobalAttr, &creatorURLGlobalAttr },
@@ -345,7 +352,7 @@ Rule rules[] = {
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
-		constantGlobalAttrs, 18
+		constantGlobalAttrs, 19
 	},
 	// Make units CF compliant
 	{
@@ -470,6 +477,122 @@ int rule_trimData(void *applicatorData, void *extData, GP1File *const gp)
 	for (i = 0; i < gp->numParameters; i++) {
 		if (gp->params[i].isUnused) continue;
 		gp->params[i].numValues -= trimAmount*gp->params[i].rate;
+	}
+
+	return 1;
+}
+
+int rule_trimThreshold_trimIfLess(const float value, const float threshold)
+{
+	return value < threshold;
+}
+
+int rule_trimThreshold_trimIfGreater(const float value, const float threshold)
+{
+	return value > threshold;
+}
+
+enum {
+	kTrimStart,
+	kTrimEnd
+};
+
+/**
+ * Trims a multiple of each parameter's respective sampling rates worth of
+ * points from either the beginning or end of each parameter.
+ *
+ * @param trimAmount Not the number of points to trim, but a multiple of each
+ *        parameter's rate worth of values to trim.
+ * @param trimDirection One of either kTrimStart or kTrimEnd
+ */
+static void ResizeParam(GP1File *const gp, const int trimAmount,
+                        const int trimDirection)
+{
+	int i;
+
+	for (i = 0; i < gp->numParameters; i++) {
+		if (gp->params[i].isUnused) continue;
+		gp->params[i].numValues -= trimAmount*gp->params[i].rate;
+	}
+
+	/* We could resize the arrays, but instead we'll just cheat and shift
+	 * the data in memory. (We could also just advance the parameter value
+	 * pointers forward, but that would mess up freeing memory.)
+	 */
+	if (trimDirection == kTrimStart) {
+		for (i = 0; i < gp->numParameters; i++) {
+			if (gp->params[i].isUnused) continue;
+			memmove(gp->params[i].values,
+			        gp->params[i].values + trimAmount*gp->params[i].rate,
+			        gp->params[i].numValues * sizeof(int));
+		}
+	}
+}
+
+/**
+ * Trims data from either end of every variable corresponding to values in
+ * a variable specified in a TrimThresholdRule structure whose values are
+ * either above or below (as indicated) a threshold, both also specified in
+ * said structure.
+ *
+ * @param applicatorData A pointer to a TrimThresholdRule structure.
+ * @param extData Unused.
+ * @param gp
+ */
+int rule_trimThreshold(void *applicatorData, void *extData, GP1File *const gp)
+{
+	TrimThresholdRule *rule = (TrimThresholdRule*) applicatorData;
+	Parameter *var;
+	float value;
+	int i, j, k;
+	int stop;
+	int (*cond[])(const float, const float) = {
+		rule_trimThreshold_trimIfLess,
+		rule_trimThreshold_trimIfGreater,
+	};
+
+	if (!(var = gp1_findParam(gp, rule->varName))) {
+		fprintf(stderr, "rule_trimThreshold: could not find specified "
+		                "variable \"%s\"\n", rule->varName);
+		return 0;
+	}
+
+	/* Trim values from the start of the array. */
+	for (i = 0, j = 0; j < (int) var->numValues; i++, j += var->rate)
+	{
+		/* Trim entire "blocks" of data (length equal to the sampling rate at
+		 * a time
+		 */
+		for (stop = 0, k = 0; k < var->rate; k++) {
+			value = var->values[j+k]/var->scale - var->bias;
+			if (!cond[rule->condition](value, rule->threshold)) {
+				stop = 1;
+				break;
+			}
+		}
+		if (stop) {
+			ResizeParam(gp, i, kTrimStart);
+			break;
+		}
+	}
+
+	for (i = var->numValues/var->rate - 1, j = var->numValues - 1;
+	     j >= 0; i--, j -= var->rate)
+	{
+		/* Trim entire "blocks" of data (length equal to the sampling rate at
+		 * a time
+		 */
+		for (stop = 0, k = 0; k < var->rate; k++) {
+			value = var->values[j-k]/var->scale - var->bias;
+			if (!cond[rule->condition](value, rule->threshold)) {
+				stop = 1;
+				break;
+			}
+		}
+		if (stop) {
+			ResizeParam(gp, var->numValues/var->rate - 1 - i, kTrimEnd);
+			break;
+		}
 	}
 
 	return 1;

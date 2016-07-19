@@ -11,7 +11,7 @@ GIT_VERSION := $(shell git describe --abbrev=8 --dirty --always --tags)
 
 LIBS = -lnetcdf
 
-OBJS = rules.o
+OBJS = rules.o gpfile.o
 
 all: $(C_TARGETS) $(CXX_TARGETS)
 

@@ -34,6 +34,23 @@ typedef struct {
 	regex_t matchRe;
 } ParamRegexChangeRule;
 
+/**
+ * Trim conditions for rule_trimThreshold().
+ */
+enum {
+	kTrimIfValueLess = 0,
+	kTrimIfValueGreater
+};
+
+/**
+ * Used in conjunction with rule_trimThreshold().
+ */
+typedef struct {
+	char *varName;
+	int condition;
+	float threshold;
+} TrimThresholdRule;
+
 typedef struct {
 	char* (*getText)(Parameter *const param);
 	/**
@@ -69,6 +86,7 @@ int rule_setPreferredType(void *applicatorData, void *extData, GP1File *const gp
 int rule_setFlightInfo(void *applicatorData, void *extData, GP1File *const gp);
 int rule_addSampleRate(void *applicatorData, void *extData, GP1File *const gp);
 int rule_trimData(void *applicatorData, void *extData, GP1File *const gp);
+int rule_trimThreshold(void *applicatorData, void *extData, GP1File *const gp);
 int rule_addCreationDate(void *applicatorData, void *extData, GP1File *const gp);
 int rule_copyStr(void *applicatorData, void *extData, GP1File *const gp);
 

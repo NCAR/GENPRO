@@ -60,3 +60,5 @@ typedef struct {
 	Attribute *attrs;
 	int numAttrs;
 } GP1File;
+
+Parameter *gp1_findParam(GP1File const*const gpfile, const char paramName[]);
