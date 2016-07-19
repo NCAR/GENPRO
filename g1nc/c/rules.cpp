@@ -444,26 +444,20 @@ int set_str(char **dest, size_t *len, char *src)
  */
 int rule_trimData(void *applicatorData, void *extData, GP1File *const gp)
 {
-	int i, time = -1, trimAmount = 0;
+	int i, trimAmount = 0;
+	Parameter *time;
 
 	/* Find the 'Time' variable */
-	for (i = 0; i < gp->numParameters; i++) {
-		if (strcmp(gp->params[i].label, "TIME") == 0) {
-			time = i;
-			break;
-		}
-	}
-
-	if (time < 0) {
+	if (!(time = gp1_findParam(gp, "TIME"))) {
 		fprintf(stderr, "rule_trimData: warning: failed to find `Time' "
 		                "variable\n");
 		return 0;
 	}
 
 	/* Search backwards in 'Time' for nonzero values. */
-	i = (int) gp->params[time].numValues-1;
+	i = (int) time->numValues-1;
 	while (i > 0) {
-		if (gp->params[time].values[i] == 0) {
+		if (time->values[i] == 0) {
 			i--;
 			trimAmount++;
 		} else {
