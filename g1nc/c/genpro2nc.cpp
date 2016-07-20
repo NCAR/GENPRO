@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Error: Require exactly two arguments.\n");
 		printf("Usage:\n"
 		       "\n"
-		       "    convert INFILE OUTFILE\n");
+		       "    genpro2nc INFILE OUTFILE\n");
 		exit(1);
 	}
 
