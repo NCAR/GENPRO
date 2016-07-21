@@ -60,7 +60,8 @@ The GENPRO-1 file format is a binary file format for storing arbitrary observati
 
 \subsection{About GENPRO-I Observational Data from NCAR EOL}
 
-Files with a ``-C" suffix are COS-blocked files. Files without a ``-C" suffix are Ampex TMS-4 Terabit Memory System (TBM) files. % cite: https://www.eol.ucar.edu/raf/Bulletins/b9appdx_E.html
+Files with a ``-C" suffix are COS-blocked files. Files without a ``-C" suffix are Ampex TMS-4 Terabit Memory System (TBM) files.
+% cite: https://www.eol.ucar.edu/raf/Bulletins/b9appdx_E.html
 % new location on RDA for cos block utilities:
 % http://rda.ucar.edu/#!cosb
 
@@ -444,27 +445,28 @@ $ genpro2nc G50222C.bin G50222C.nc
 	\item \texttt{institution} -- Set to ``NCAR Research Aviation Facility".
 	\item \texttt{Address} -- The address of the institution, set to ``P.O. Box 3000, Boulder, CO 80307-3000"
 	\item \texttt{creator\_url} -- The web URL of the creating institution, set to ``http://www.eol.ucar.edu".
-	\item \texttt{Phone} -- Set to ``\texttt{(303) 497-1030}"
+	\item \texttt{Phone} -- Set to ``\texttt{(303) 497-1030}".
 	\item \texttt{Metadata\_Conventions} -- Set to ``\texttt{Unidata Dataset Discovery v1.0}"
-	\item \texttt{ConventionsVersion} -- Set to "\texttt{1.3}".
-	\item \texttt{Conventions} -- Set to "\texttt{NCAR-RAF/nimbus}".
+	\item \texttt{ConventionsVersion} -- Set to ``\texttt{1.3}".
+	\item \texttt{Conventions} -- Set to ``\texttt{NCAR-RAF/nimbus}".
 	\item \texttt{ConventionsURL} -- Set to ``http://www.eol.ucar.edu/raf/Software/netCDF.html".
-	\item \texttt{Platform} -- The tail number of the aircraft used as a flight platform.
-	\item \texttt{time\_coordinate} -- Set to 
-	\item \texttt{time\_coverage\_start}, \texttt{time\_coverage\_end} -- formatted as \texttt{YYYY-MM-DDTHH:MM:SS +0000} (e.g., \texttt{1978-11-17T18:02:19 +0000}).
-	\item \texttt{TimeInterval} -- The range of time covered by the file, formatted as \texttt{HH:MM:SS-HH:MM:SS} (e.g., 15:53:15-18:02:19).
-	\item \texttt{FlightDate} -- The date the flight took place, formatted as \texttt{DD/MM/YYYY} (e.g., 11/17/1978).
+	\item \texttt{Platform} -- The tail number of the aircraft used as a flight platform; e.g., ``\texttt{N304D}".
+	\item \texttt{time\_coordinate} -- Set to ``\texttt{Time}".
+	\item \texttt{time\_coverage\_start}, \texttt{time\_coverage\_end} -- formatted as \texttt{YYYY-MM-DDTHH:MM:SS +0000} (e.g., \linebreak ``\texttt{1978-11-17T18:02:19 +0000}").
+	\item \texttt{TimeInterval} -- The range of time covered by the file, formatted as \texttt{HH:MM:SS-HH:MM:SS} (e.g., \linebreak ``\texttt{15:53:15-18:02:19}").
+	\item \texttt{FlightDate} -- The date the flight took place, formatted as \texttt{DD/MM/YYYY} (e.g., ``\texttt{11/17/1978}").
 	\item \texttt{geospatial\_lat\_min}, \texttt{geospatial\_lat\_max}, \texttt{geospatial\_lon\_min}, \texttt{geospatial\_lon\_max} -- Minimum and maximum latitude/longitude values contained in the file.
-	\item \texttt{geospatial\_vertical\_min}, \texttt{geospatial\_vertical\_max} -- 
-	\item \texttt{geospatial\_vertical\_units} -- 
-	\item \texttt{zaxis\_coordinate} -- Set to \texttt{HP}
+	\item \texttt{geospatial\_vertical\_min}, \texttt{geospatial\_vertical\_max} -- The minimum and maximum recorded vertical coordinate values.
+	\item \texttt{geospatial\_vertical\_units} -- Set to ``\texttt{m}".
+	\item \texttt{latitude\_coordinate}, \texttt{longitude\_coordinate} -- Specify the names of the latitude and longitude coordinate variables. Set to ``\texttt{LAT}" and ``\texttt{LON}", respectively.
+	\item \texttt{zaxis\_coordinate} -- Set to ``\texttt{HP}".
 	\item \texttt{standard\_name\_vocabulary} -- Set to ``\texttt{CF-1.0}".
-	\item \texttt{ProcessorURL} -- Set to \texttt{https://github.com/ncareol/GENPRO}
-	\item \texttt{ProcessorRevision} -- Automatically set to the branch/
-	\item \texttt{Categories} -- Set to ``\texttt{Position,Thermodynamic,Aircraft State,Atmos. State}"
-	\item \texttt{geospatial\_vertical\_positive} -- 
-	\item \texttt{wind\_field} -- Set to ``\texttt{WSPD WDRCTN WI}".
-	\item \texttt{}
+	\item \texttt{ProcessorURL} -- Set to ``\texttt{https://github.com/ncareol/GENPRO}".
+	\item \texttt{ProcessorRevision} -- Automatically set to the tag/commit and working directory status (e.g., \linebreak ``\texttt{a44d36cd-dirty}") of the source used to compile \texttt{genpro2nc}.
+	\item \texttt{Categories} -- Set to ``\texttt{Position,Thermodynamic,Aircraft State,Atmos. State}".
+	\item \texttt{geospatial\_vertical\_positive} -- Set to ``\texttt{up}".
+	\item \texttt{wind\_field} -- Set to ``\texttt{WSPD WDRCTN WI}". Note that warnings will be thrown during execution of \texttt{genpro2nc} if any of these three variables cannot be found, but program execution will complete regardless.
+	\item \texttt{date\_created} -- The file creation date, formatted as ``\texttt{YYYY-MM-DDTHH:MM:SS +0000}", e.g., \linebreak ``\texttt{2016-07-21T17:51:23 +0000}".
 \end{itemize}
 
 Every variable has at least two attributes:
@@ -485,7 +487,7 @@ Variables which are sampled at a rate higher than the cycle rate of the source G
 \centering
 \begin{tabular}{lll}
 \toprule
-\\
+Unit description & Match criteria & Replaced with \\
 \midrule
 degrees                     & units are ``\texttt{DEG}"      & ``\texttt{degree}" \\
 millibar                    & units are ``\texttt{MB}"       & ``\texttt{hPa}" \\
