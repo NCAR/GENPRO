@@ -103,6 +103,26 @@ ParamRegexChangeRule findWDRCTNRule = {
 	/* .invert            = */ 0
 };
 
+Attribute windFieldGlobalAttr_WSPD_WDRCTN_WI = {
+	(char*) "wind_field",
+	kAttrTypeText,
+	(char*) "WSPD WDRCTN WI"
+};
+
+RuleApplicatorData addWindFieldGlobalAttr_WSPD_WDRCTN_WI_Applicators[] = {
+	{ rule_addGlobalAttr, &windFieldGlobalAttr_WSPD_WDRCTN_WI }
+};
+
+Attribute windFieldGlobalAttr_WSPD_WDRCTN = {
+	(char*) "wind_field",
+	kAttrTypeText,
+	(char*) "WSPD WDRCTN"
+};
+
+RuleApplicatorData addWindFieldGlobalAttr_WSPD_WDRCTN_Applicators[] = {
+	{ rule_addGlobalAttr, &windFieldGlobalAttr_WSPD_WDRCTN }
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 ParamRegexChangeRule addZAxisCoordinateRule = {
@@ -332,12 +352,6 @@ Attribute geospatialVerticalPositiveGlobalAttr = {
 	(char*) "up"
 };
 
-Attribute windFieldGlobalAttr = {
-	(char*) "wind_field",
-	kAttrTypeText,
-	(char*) "WSPD WDRCTN WI"
-};
-
 TrimThresholdRule aircraftSpeedTrimRule = {
 	/* varName */ (char*) "TASG",
 	/* condition */ kTrimIfValueLess,
@@ -346,7 +360,6 @@ TrimThresholdRule aircraftSpeedTrimRule = {
 
 RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_trimData,      NULL },
-	{ rule_trimThreshold, &aircraftSpeedTrimRule },
 	{ rule_addGlobalAttr, &institutionGlobalAttr },
 	{ rule_addGlobalAttr, &addressGlobalAttr },
 	{ rule_addGlobalAttr, &creatorURLGlobalAttr },
@@ -361,9 +374,22 @@ RuleApplicatorData constantGlobalAttrs[] = {
 	{ rule_addGlobalAttr, &processorRevision },
 	{ rule_addGlobalAttr, &categoriesGlobalAttr },
 	{ rule_addGlobalAttr, &geospatialVerticalPositiveGlobalAttr },
-	{ rule_addGlobalAttr, &windFieldGlobalAttr },
 	{ rule_addCreationDate, NULL },
 	{ rule_setFlightInfo, NULL }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+ParamRegexChangeRule trimAirspeedRule = {
+	/* .matchReStr        = */ (char*) "^tas[fg]$",
+	/* .didCompileMatchRe = */ 0,
+	/* .matchReFlags      = */ REG_ICASE,
+	/* .getText           = */ rule_getVariableName,
+	/* .invert            = */ 0
+};
+
+RuleApplicatorData trimAirspeedRuleApplicators[] = {
+	{ rule_trimThreshold, &aircraftSpeedTrimRule },
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -381,75 +407,99 @@ RuleApplicatorData makeUnitsCFCompliantRuleApplicators[] = {
 ///////////////////////////////////////////////////////////////////////////////
 
 Rule rules[] = {
+	// Trim data according to airspeed
+	{
+		&trimAirspeedRule,
+		rule_paramRegexChange,
+		trimAirspeedRuleApplicators, 1,
+		kContinueOnSuccess | kContinueOnFailure
+	},
 	// Add global attributes which should always be present
 	{
 		NULL,
 		rule_alwaysApplyGlobal,
-		constantGlobalAttrs, 19
+		constantGlobalAttrs, 17,
+		kContinueOnSuccess | kAbortOnFailure
 	},
 	// Make units CF compliant
 	{
 		NULL,
 		rule_applyToAllParams,
-		makeUnitsCFCompliantRuleApplicators, 1
+		makeUnitsCFCompliantRuleApplicators, 1,
+		kContinueOnSuccess | kContinueOnFailure
 	},
 	// Sanitize variable names
 	{
 		NULL,
 		rule_applyToAllParams,
-		sanitizeParamNamesRuleApplicators, 1
+		sanitizeParamNamesRuleApplicators, 1,
+		kContinueOnSuccess | kContinueOnFailure
 	},
-	// Look for the WSPD variable
+	// Look for the WI variable, and set 'wind_field' to 'WSPD WDRCTN WI'
+	// if present; otherwise, set 'wind_field' to 'WSPD WDRCTN'.
+	{
+		&findWIRule,
+		rule_paramRegexChange,
+		addWindFieldGlobalAttr_WSPD_WDRCTN_WI_Applicators, 1,
+		kJumpOnSuccess | kContinueOnFailure, 1, 0
+	},
+	{
+		NULL,
+		rule_alwaysApplyGlobal,
+		addWindFieldGlobalAttr_WSPD_WDRCTN_Applicators, 1,
+		kContinueOnSuccess | kContinueOnFailure
+	},
+	// Look for the WSPD variable (this is just to throw warnings)
 	{
 		&findWSPDRule,
 		rule_paramRegexChange,
 		NULL,
-		/* .numApplicators = */ 0
+		/* .numApplicators = */ 0,
+		kContinueOnSuccess | kAbortOnFailure
 	},
-	// Look for the WDRCTN variable
+	// Look for the WDRCTN variable (this is just to throw warnings)
 	{
 		&findWDRCTNRule,
 		rule_paramRegexChange,
 		NULL,
-		/* .numApplicators = */ 0
-	},
-	// Look for the WI variable
-	{
-		&findWIRule,
-		rule_paramRegexChange,
-		NULL,
-		/* .numApplicators = */ 0
+		/* .numApplicators = */ 0,
+		kContinueOnSuccess | kAbortOnFailure
 	},
 	// Change a variable named TIME
 	{
 		&changeTimeRule,
 		rule_paramRegexChange,
 		changeTimeRuleApplicators,
-		/* .numApplicators = */ 6
+		/* .numApplicators = */ 6,
+		kContinueOnSuccess | kContinueOnFailure
 	},
 	// Change "ALAT" ("RAW INS LATITUDE") into "LAT"
 	{
 		&ALAT_renameRule,
 		rule_paramRegexChange,
-		ALAT_renameRuleApplicators, 7
+		ALAT_renameRuleApplicators, 7,
+		kContinueOnSuccess | kContinueOnFailure
 	},
 	// Change "ALON" ("RAW INS LONGITUDE") into "LON"
 	{
 		&ALON_renameRule,
 		rule_paramRegexChange,
-		ALON_renameRuleApplicators, 7
+		ALON_renameRuleApplicators, 7,
+		kContinueOnSuccess | kContinueOnFailure
 	},
 	// Add "actual_range" to every variable *except* time
 	{
 		&actualRangeRule,
 		rule_paramRegexChange,
-		actualRangeRuleApplicators, 4
+		actualRangeRuleApplicators, 4,
+		kContinueOnSuccess | kContinueOnFailure
 	},
 	// Add the 'zaxis_coordinate' global attribute
 	{
 		&addZAxisCoordinateRule,
 		rule_paramRegexChange,
-		addZAxisCoordinateApplicators, 3
+		addZAxisCoordinateApplicators, 3,
+		kContinueOnSuccess | kContinueOnFailure
 	},
 
 	// End of rule set marker
@@ -578,10 +628,14 @@ int rule_trimThreshold(void *applicatorData, void *extData, GP1File *const gp)
 		rule_trimThreshold_trimIfGreater,
 	};
 
-	if (!(var = gp1_findParam(gp, rule->varName))) {
-		fprintf(stderr, "rule_trimThreshold: could not find specified "
-		                "variable \"%s\"\n", rule->varName);
-		return 0;
+	if (extData) {
+		var = (Parameter*) extData;
+	} else {
+		if (!(var = gp1_findParam(gp, rule->varName))) {
+			fprintf(stderr, "rule_trimThreshold: could not find specified "
+			                "variable \"%s\"\n", rule->varName);
+			return 0;
+		}
 	}
 
 	/* Trim values from the start of the array. */
@@ -1119,10 +1173,42 @@ int rule_copyStr(void *applicatorData, void *extData, GP1File *const gp)
 int rule_applyAll(Rule const*const rules, GP1File *const gp)
 {
 	size_t i;
+	int retval;
 
 	for (i = 0; rules[i].match; i++) {
-		if (!rules[i].match(rules+i, gp)) {
-			return 0;
+		retval = rules[i].match(rules+i, gp);
+		if (!retval) {
+			switch (RULE_POSTACTION_FAILURE(rules[i].nextAction)) {
+				case kJumpOnFailure:
+					fprintf(stderr, "Info: rule failed, skipping following "
+					        "%d rules.\n", rules[i].failureJumpAmount);
+					i += rules[i].failureJumpAmount;
+					break;
+				case kAbortOnFailure:
+					fprintf(stderr, "Error: Critical rule did not succeed, "
+					                "aborting.\n");
+					return 0;
+				case kContinueOnFailure:
+					break;
+				default:
+					break;
+			}
+		} else {
+			switch (RULE_POSTACTION_SUCCESS(rules[i].nextAction)) {
+				case kJumpOnSuccess:
+					fprintf(stderr, "Info: rule succeeded, skipping following"
+					        " %d rules.\n", rules[i].successJumpAmount);
+					i += rules[i].successJumpAmount;
+					break;
+				case kAbortOnSuccess:
+					fprintf(stderr, "Error: Rule succeded which requires "
+					                "abort on success.\n");
+					return 0;
+				case kContinueOnSuccess:
+					break;
+				default:
+					break;
+			}
 		}
 	}
 	return 1;
@@ -1176,6 +1262,7 @@ int rule_paramRegexChange(Rule const*const rule, GP1File *const gp)
 	if (found == 0) {
 		fprintf(stderr, "warning: no parameter found matching regex \"%s\"\n",
 		        data->matchReStr);
+		return 0;
 	}
 
 	return 1;

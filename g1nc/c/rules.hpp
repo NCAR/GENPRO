@@ -46,11 +46,27 @@ typedef struct {
 	void *data;
 } RuleApplicatorData;
 
+/** Values for the 'nextAction' property of 'Rule'. */
+enum {
+	kAbortOnFailure     = 1 << 0,
+	kJumpOnFailure      = 1 << 1,
+	kContinueOnFailure  = 1 << 2,
+	kAbortOnSuccess     = 1 << 3,
+	kJumpOnSuccess      = 1 << 4,
+	kContinueOnSuccess  = 1 << 5
+};
+
+#define RULE_POSTACTION_FAILURE(action) ((action) & 0x07)
+#define RULE_POSTACTION_SUCCESS(action) ((action) & 0x38)
+
 struct Rule_s {
 	void *data;
 	int (*match)(Rule const*const rule, GP1File *const gp);
 	RuleApplicatorData *applicators;
 	int numApplicators;
+	int nextAction;
+	int successJumpAmount;
+	int failureJumpAmount;
 };
 
 /**
