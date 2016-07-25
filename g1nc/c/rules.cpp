@@ -1025,7 +1025,6 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 // 2 = N312D, B200T KingAir (one N2UW, Wyoming KingAir project in 1985)
 // 3 = Naval Research Lab (NRL) P-3
 // 4 = N304D, QueenAir, A-80
-// 5 = N677F, Gulfstream V (from 2005)
 // 5 = N595KR, L-188 Electra (1973 through 1977)
 // 6 = N306D, QueenAir, B-80
 // 7 = N307D, Sabreliner, Model 60
@@ -1034,16 +1033,15 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 static struct {
 	char* name;
 } flightPlatforms[] = {
-	{ (char*) "N130AR" },
-	{ (char*) "N312D" },
-	{ (char*) "Naval Research Lab (NRL) P-3"  },
-	{ (char*) "N304D" },
-	{ (char*) "N677F" },
-	{ (char*) "N595KR" },
-	{ (char*) "N306D" },
-	{ (char*) "N307D" },
-	{ (char*) "N308D" },
-	{ (char*) "N9929J" }
+	/* 1 */ { (char*) "N130AR" },
+	/* 2 */ { (char*) "N312D" },
+	/* 3 */ { (char*) "Naval Research Lab (NRL) P-3"  },
+	/* 4 */ { (char*) "N304D" },
+	/* 5 */ { (char*) "N595KR" },
+	/* 6 */ { (char*) "N306D" },
+	/* 7 */ { (char*) "N307D" },
+	/* 8 */ { (char*) "N308D" },
+	/* 9 */ { (char*) "N9929J" }
 };
 static char flight_platform[] = "Platform";
 int rule_setFlightInfo(void *applicatorData, void *extData, GP1File *const gp)
