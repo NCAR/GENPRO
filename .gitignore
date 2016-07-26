@@ -3,4 +3,9 @@
 *.out
 *.log
 *.pdf
+*.bbl
+*.blg
+*.synctex.gz
+
+*.o
 doxygen/
