@@ -722,6 +722,9 @@ int rule_makeUnitsCFCompliant(void *applicatorData,
 	/* parts per billion */
 	else if (UNITS_EQUALS("PPB"))      SET_UNITS("1/10e9");
 
+	/* parts per billion (per volume?) */
+	else if (UNITS_EQUALS("PPBV"))     SET_UNITS("ppbv");
+
 	/* grams per kilogram */
 	else if (UNITS_EQUALS("G/KG"))     SET_UNITS("g/kg");
 
