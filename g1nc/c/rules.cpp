@@ -1104,22 +1104,28 @@ static struct {
 	/* 9 */ { (char*) "N9929J" }
 };
 static char flight_platform[] = "Platform";
+static char ncar_electra_platform[] = "N595KR";
 int rule_setFlightInfo(void *applicatorData, void *extData, GP1File *const gp)
 {
 	// FIXME: we're making a lot of assumptions here...
 	// should probably at least trim leading whitespace
 	int platformNum = gp->fileDesc[0];
-	if (platformNum < '1' || platformNum > '9') {
-		fprintf(stderr, "rule_setFlightInfo: warning: invalid flight number\n");
-		return 0;
-	}
-	platformNum -= '1';
-
+	const char ncar_electra[] = "NCAR ELECTRA";
 	Attribute platform = {
 		flight_platform,
-		kAttrTypeText,
-		flightPlatforms[platformNum].name
+		kAttrTypeText
 	};
+	if (platformNum < '1' || platformNum > '9') {
+		if (!strncmp(gp->fileDesc, ncar_electra, strlen(ncar_electra))) {
+			platform.data = ncar_electra_platform;
+		} else {
+			fprintf(stderr, "rule_setFlightInfo: warning: invalid flight number\n");
+			return 0;
+		}
+	} else {
+		platformNum -= '1';
+		platform.data = flightPlatforms[platformNum].name;
+	}
 
 	return rule_addGlobalAttr(&platform, NULL, gp);
 }
