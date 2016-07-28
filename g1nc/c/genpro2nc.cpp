@@ -145,6 +145,7 @@ int gp1_read(GP1File *const gp, FILE *fp)
 	char reNoUnitsStr[] = "^ *([^ ]+.+[^ ]+)  +([^ ]+.+[^ ]+|[^ ]{1,2}) *$";
 	int haveUnits;
 	char tmp[100];
+	long fileLen;
 
 	if (!read_header_chunk(fp, &in_buffer, &header_decomp, HEADER_LINES)) {
 		return 0;
@@ -274,9 +275,21 @@ int gp1_read(GP1File *const gp, FILE *fp)
 	}
 
 	// Number of records in the file.
-	gp->numBlocks = DIV_CEIL(ftell(fp) - gp->dataStart, gp->blockLength);
+	fileLen = ftell(fp);
+	gp->numBlocks = DIV_CEIL(fileLen - gp->dataStart, gp->blockLength);
 
-	assert((size_t) ftell(fp) == gp->numBlocks*gp->blockLength+gp->dataStart);
+	if ((size_t) fileLen != gp->numBlocks*gp->blockLength+gp->dataStart) {
+		/* The file size doesn't match what we computed the file size should
+		 * be assuming that data starts on a 64-bit word boundary. See if the
+		 * file size works out for a non-64-bit word boundary.
+		 */
+		gp->dataStart = (HEADER_LINES+gp->numParameters)*LINE_LENGTH*6/8;
+		if ((size_t) fileLen != gp->numBlocks*gp->blockLength+gp->dataStart) {
+			fprintf(stderr, "Error: file length does not match predicted "
+			                "length\n");
+			return 0;
+		}
+	}
 
 	/*
 	 * Get data from the file.
