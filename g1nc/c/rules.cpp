@@ -984,15 +984,15 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 {
 	Parameter *const param = (Parameter*) extData;
 	int year, month, day;
-	regmatch_t match[4];
+	regmatch_t match[5];
 	regex_t matchRe;
 	int found = 0;
 	int i;
 	int startH, startM, startS, endH, endM, endS;
 	const char matchReStr[] =
 		"\\([0-9]\\{1,2\\}\\) \\{0,1\\}"
-		"\\(JAN\\|FEB\\|MAR\\|APR\\|MAY\\|JUN\\|JUL\\|AUG\\|SEP\\|OCT\\|NOV\\|DEC\\)"
-		" \\{0,1\\}\\([0-9]\\{2\\}\\)";
+		"\\(JAN\\|FEB\\|MAR\\|APR\\|MAY\\|JUN\\|JUL\\|AUG\\|SEP\\|OCT\\|NOV\\|DEC\\)[A-Z]*"
+		" \\{0,1\\}\\(19\\)\\{0,1\\}\\([0-9]\\{2\\}\\)";
 
 	struct {
 		char *name;
@@ -1004,7 +1004,7 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 	};
 
 	assert(!regcomp(&matchRe, matchReStr, REG_ICASE));
-	if (!regexec(&matchRe, gp->fileDesc, 4, match, REG_EXTENDED)) {
+	if (!regexec(&matchRe, gp->fileDesc, 5, match, REG_EXTENDED)) {
 		regfree(&matchRe);
 		// use timeUnits as a temporary buffer
 		strncpy(timeUnits, gp->fileDesc+match[1].rm_so,
@@ -1019,8 +1019,8 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 		assert(found);
 		month = i+1;
 		// use timeUnits as a temporary buffer
-		strncpy(timeUnits, gp->fileDesc+match[3].rm_so,
-		        match[3].rm_eo-match[3].rm_so);
+		strncpy(timeUnits, gp->fileDesc+match[4].rm_so,
+		        match[4].rm_eo-match[4].rm_so);
 		year = 1900 + atoi(timeUnits);
 	} else {
 		fprintf(stderr, "rule_setTimeUnits: warning: couldn't find date\n");
