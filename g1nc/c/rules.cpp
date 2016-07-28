@@ -743,6 +743,9 @@ int rule_makeUnitsCFCompliant(void *applicatorData,
 	/* degrees Celsius */
 	else if (UNITS_EQUALS("C"))        SET_UNITS("deg_C");
 
+	/* percent */
+	else if (UNITS_EQUALS("PER CENT")) SET_UNITS("%");
+
 	/* refractive index */
 	else if (strncmp(param->desc, "REFRACTIVE INDEX", param->descLen) &&
 	         UNITS_EQUALS("N"))        SET_UNITS("none");
