@@ -381,7 +381,7 @@ RuleApplicatorData constantGlobalAttrs[] = {
 ///////////////////////////////////////////////////////////////////////////////
 
 ParamRegexChangeRule trimAirspeedRule = {
-	/* .matchReStr        = */ (char*) "^tas[fg]$",
+	/* .matchReStr        = */ (char*) "^\\(tas[fg]\\|gs\\)$",
 	/* .didCompileMatchRe = */ 0,
 	/* .matchReFlags      = */ REG_ICASE,
 	/* .getText           = */ rule_getVariableName,
