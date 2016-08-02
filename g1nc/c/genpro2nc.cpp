@@ -83,6 +83,7 @@ int gp1_write_nc(GP1File const*const gp,
                  char const*const outFileName,
                  int cmode);
 int gp1_addAttrs(int ncid, int ncVar, Attribute *attrs, int numAttrs);
+int gp1_computeBlockSize(GP1File *const gp, const size_t fileLen);
 int *get_unique_sample_rates(GP1File const*const gp, int *numUnique, int **lookupTable);
 
 extern Rule rules[];
@@ -261,33 +262,25 @@ int gp1_read(GP1File *const gp, FILE *fp)
 	// Offset to the start of data.
 	gp->dataStart = DIV_CEIL((HEADER_LINES+gp->numParameters)*LINE_LENGTH*6,64)*8;
 
-	// Amount of data to read in with each fread(). (I.e., the amount of data
-	// in one cycle's worth of samples.)
-	gp->blockLength = DIV_CEIL(gp->cyclesPerBlock*gp->samplesPerCycle*20/*bits per value*/,64) *
-	             8 /*bytes per 64-bit word*/;
-
-	// It would seem that if cyclesPerBlock*samplesPerCycle*20%64 == 0 (i.e., the
-	// amount of space needed for a block is exactly divisible by 64 such that
-	// the data would run right up to the edge with no zero padding), a word
-	// of zero padding is added. (So every block is separated by 8 zero bytes.)
-	if (gp->cyclesPerBlock*gp->samplesPerCycle*20/*bits per value*/ % 64 == 0) {
-		gp->blockLength += 8;
-	}
-
-	// Number of records in the file.
 	fileLen = ftell(fp);
-	gp->numBlocks = DIV_CEIL(fileLen - gp->dataStart, gp->blockLength);
 
-	if ((size_t) fileLen != gp->numBlocks*gp->blockLength+gp->dataStart) {
+	if (!gp1_computeBlockSize(gp, fileLen)) {
 		/* The file size doesn't match what we computed the file size should
-		 * be assuming that data starts on a 64-bit word boundary. See if the
-		 * file size works out for a non-64-bit word boundary.
+		 * be assuming that data starts on a 64-bit word boundary. See if
+		 * incrementing the data start fixes things (as is the case in the
+		 * CODE-I dataset).
 		 */
-		gp->dataStart = (HEADER_LINES+gp->numParameters)*LINE_LENGTH*6/8;
-		if ((size_t) fileLen != gp->numBlocks*gp->blockLength+gp->dataStart) {
-			fprintf(stderr, "Error: file length does not match predicted "
-			                "length\n");
-			return 0;
+		gp->dataStart += 8;
+		if (!gp1_computeBlockSize(gp, fileLen)) {
+			/* Welp, that wasn't it either. See if the file size works out for a
+			 * non-64-bit word boundary.
+			 */
+			gp->dataStart = (HEADER_LINES+gp->numParameters)*LINE_LENGTH*6/8;
+			if (!gp1_computeBlockSize(gp, fileLen)) {
+				fprintf(stderr, "Error: file length does not match predicted "
+				                "length\n");
+				return 0;
+			}
 		}
 	}
 
@@ -721,4 +714,37 @@ int get_text(char *const in_buf,
 	(*out_buf)[i] = '\0';
 	if (out_length) *out_length = i;
 	return 1;
+}
+
+/**
+ * Computes the size of a block and the number of blocks in a GENPRO-I file
+ * given the length of the GENPRO-I file and the value of gp->dataStart at the
+ * time this function is called, and indicates if these values appear sane.
+ *
+ * @param gp The GENPRO-I file for which the block size and number of blocks
+ *        will be computed.
+ * @param fileLen The length of the GENPRO-I file, as reported by ftell()
+ *        after seeking to the end of a file (SEEK_END) with fseek().
+ * @return zero (false) if the file length does not jive with the computed
+ *         block size and number, nonzero (true) otherwise.
+ */
+int gp1_computeBlockSize(GP1File *const gp, const size_t fileLen)
+{
+	// Amount of data to read in with each fread(). (I.e., the amount of data
+	// in one cycle's worth of samples.)
+	gp->blockLength = DIV_CEIL(gp->cyclesPerBlock*gp->samplesPerCycle*20/*bits per value*/,64) *
+	             8 /*bytes per 64-bit word*/;
+
+	// It would seem that if cyclesPerBlock*samplesPerCycle*20%64 == 0 (i.e., the
+	// amount of space needed for a block is exactly divisible by 64 such that
+	// the data would run right up to the edge with no zero padding), a word
+	// of zero padding is added. (So every block is separated by 8 zero bytes.)
+	if (gp->cyclesPerBlock*gp->samplesPerCycle*20/*bits per value*/ % 64 == 0) {
+		gp->blockLength += 8;
+	}
+
+	// Number of records in the file.
+	gp->numBlocks = DIV_CEIL(fileLen - gp->dataStart, gp->blockLength);
+
+	return (size_t) fileLen == gp->numBlocks*gp->blockLength+gp->dataStart;
 }
