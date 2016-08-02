@@ -1107,9 +1107,10 @@ static char flight_platform[] = "Platform";
 static char ncar_electra_platform[] = "N595KR";
 int rule_setFlightInfo(void *applicatorData, void *extData, GP1File *const gp)
 {
-	// FIXME: we're making a lot of assumptions here...
-	// should probably at least trim leading whitespace
-	int platformNum = gp->fileDesc[0];
+	int i;
+	int platformNum;
+	for (i = 0; gp->fileDesc[i] == ' '; i++) {} // Skip leading whitespace
+	platformNum = gp->fileDesc[i];
 	const char ncar_electra[] = "NCAR ELECTRA";
 	Attribute platform = {
 		flight_platform,
