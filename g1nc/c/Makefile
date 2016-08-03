@@ -53,3 +53,8 @@ $(CXX_TARGETS) : % : %.cpp $(OBJS)
 
 $(OBJS) : %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -DPROCESSOR_REVISION=\"$(GIT_VERSION)\" -c $<
+
+clean:
+	-rm $(OBJS)
+	-rm $(C_TARGETS)
+	-rm $(CXX_TARGETS)
