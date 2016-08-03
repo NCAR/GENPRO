@@ -1024,6 +1024,7 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 		year = 1900 + atoi(timeUnits);
 	} else {
 		fprintf(stderr, "rule_setTimeUnits: warning: couldn't find date\n");
+		return 0;
 	}
 
 	snprintf(timeUnits, BUF_SIZE, "seconds since %4d-%02d-%02d 00:00:00 +0000",
