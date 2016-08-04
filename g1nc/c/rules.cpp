@@ -162,7 +162,7 @@ Attribute position_category = {
 };
 
 ParamRegexChangeRule ALAT_renameRule = {
-	/* .matchReStr        = */ (char*) "^alat$",
+	/* .matchReStr        = */ (char*) "^alat1\\{0,1\\}$",
 	/* .didCompileMatchRe = */ 0,
 	/* .matchReFlags      = */ REG_ICASE,
 	/* .getText           = */ rule_getVariableName,
