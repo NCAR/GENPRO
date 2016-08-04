@@ -234,6 +234,17 @@ int gp1_read(GP1File *const gp, FILE *fp)
 			strncpy(gp->params[i].label, tmp+match[2].rm_so, match[2].rm_eo-match[2].rm_so);
 			strncpy(gp->params[i].units, tmp+match[3].rm_so, gp->params[i].unitsLen);
 			gp->params[i].label[match[2].rm_eo-match[2].rm_so] = '\0';
+
+			/* Strip parens from units (if present) */
+			if (gp->params[i].units[0] == '(') {
+				gp->params[i].unitsLen--;
+				memmove(gp->params[i].units,
+				        gp->params[i].units+1,
+				        gp->params[i].unitsLen);
+			}
+			if (gp->params[i].units[gp->params[i].unitsLen-1] == ')') {
+				gp->params[i].unitsLen--;
+			}
 		} else if (!(regexec(&reNoUnits, tmp, 3, match, 0))) {
 			/* Units might be missing */
 			gp->params[i].descLen = match[1].rm_eo-match[1].rm_so;
