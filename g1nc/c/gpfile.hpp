@@ -81,8 +81,9 @@ typedef struct {
 } Parameter;
 
 typedef struct {
-	size_t blockLength; /** The size, in 8-bit bytes, of a block. */
-	size_t dataStart;   /** The offset to the start of the data. */
+	size_t blockLength; /** The size, in bits, of a block. */
+	size_t dataStart;   /** The offset, in bits, to the start of the
+	                        data. */
 	size_t numBlocks;   /** The number of blocks in a file. */
 	Parameter *params;  /** Parameters (variables) contained in this file. */
 	int numParameters;  /** The number of parameters. */

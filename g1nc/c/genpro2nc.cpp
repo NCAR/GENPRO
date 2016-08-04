@@ -83,7 +83,7 @@ int gp1_write_nc(GP1File const*const gp,
                  char const*const outFileName,
                  int cmode);
 int gp1_addAttrs(int ncid, int ncVar, Attribute *attrs, int numAttrs);
-int gp1_computeBlockSize(GP1File *const gp, const size_t fileLen);
+int gp1_checkBlockSize(GP1File *const gp, const size_t fileLen);
 int *get_unique_sample_rates(GP1File const*const gp, int *numUnique, int **lookupTable);
 
 extern Rule rules[];
@@ -134,7 +134,7 @@ int main(int argc, char **argv)
  */
 int gp1_read(GP1File *const gp, FILE *fp)
 {
-	size_t amtRead;
+	int quit;
 	uint8_t *in_buffer = NULL;
 	int *data_decomp = NULL;
 	char *header_decomp = NULL;
@@ -146,7 +146,15 @@ int gp1_read(GP1File *const gp, FILE *fp)
 	char reNoUnitsStr[] = "^ *([^ ]+.+[^ ]+)  +([^ ]+.+[^ ]+|[^ ]{1,2}) *$";
 	int haveUnits;
 	char tmp[100];
-	long fileLen;
+	size_t fileLen;
+	size_t offset;
+	const char *dataStorageSchemeDescriptions[] = {
+		"64-bit word boundaries with conditional padding",
+		"64-bit word boundaries with conditional padding and offset start",
+		"64-bit word stride with conditional padding and 8-bit aligned start",
+		"8-bit word boundaries",
+		"60-bit word boundaries"
+	};
 
 	if (!read_header_chunk(fp, &in_buffer, &header_decomp, HEADER_LINES)) {
 		return 0;
@@ -254,33 +262,100 @@ int gp1_read(GP1File *const gp, FILE *fp)
 	free(header_decomp);
 	header_decomp = NULL;
 
-	/*
-	 * Determine how many records there are by doing some math.
-	 */
+	/* Determine the file length. */
 	fseek(fp, 0L, SEEK_END);
-
-	// Offset to the start of data.
-	gp->dataStart = DIV_CEIL((HEADER_LINES+gp->numParameters)*LINE_LENGTH*6,64)*8;
-
 	fileLen = ftell(fp);
 
-	if (!gp1_computeBlockSize(gp, fileLen)) {
-		/* The file size doesn't match what we computed the file size should
-		 * be assuming that data starts on a 64-bit word boundary. See if
-		 * incrementing the data start fixes things (as is the case in the
-		 * CODE-I dataset).
-		 */
-		gp->dataStart += 8;
-		if (!gp1_computeBlockSize(gp, fileLen)) {
-			/* Welp, that wasn't it either. See if the file size works out for a
-			 * non-64-bit word boundary.
-			 */
-			gp->dataStart = (HEADER_LINES+gp->numParameters)*LINE_LENGTH*6/8;
-			if (!gp1_computeBlockSize(gp, fileLen)) {
+	/* Keep trying different data strides/offsets to start of data until we
+	 * find one that works. (There are four different variations.)
+	 */
+	quit = 0;
+	for (i = 0; !quit; i++) {
+		switch (i) {
+			case 0:
+				/* Assumptions:
+				 * - Data starts on a 64-bit word boundary.
+				 * - Stride is a multiple of 64-bit words.
+				 */
+				gp->dataStart = DIV_CEIL((HEADER_LINES+gp->numParameters)*
+				                         LINE_LENGTH*6,64)*64;
+
+				/* Round the block length up to the nearest 64-bit word
+				 * boundary.
+				 */
+				gp->blockLength = DIV_CEIL(gp->cyclesPerBlock *
+				                           gp->samplesPerCycle *
+				                           20 /* bits per value */, 64) *
+				                  64 /* bits per 64-bit word */;
+
+				/* It would seem that if cyclesPerBlock*samplesPerCycle*20%64
+				 * == 0 (i.e., the amount of space needed for a block is
+				 * exactly divisible by 64 such that the data would run right
+				 * up to the edge with no zero padding), a word of zero padding
+				 * is added. (So every block is separated by 8 zero bytes.)
+				 */
+				if (gp->cyclesPerBlock * gp->samplesPerCycle *
+				    20 /* bits per value */ % 64 == 0)
+				{
+					gp->blockLength += 8;
+				}
+
+				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
+				                         gp->blockLength);
+				break;
+			case 1: /* Late start (e.g., CODE-I) */
+				gp->dataStart += 8;
+				gp->blockLength = DIV_CEIL(gp->cyclesPerBlock *
+				                           gp->samplesPerCycle *
+				                           20 /* bits per value */, 64) *
+				                  64 /* bits per 64-bit word */;
+				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
+				                         gp->blockLength);
+				break;
+			case 2:
+				/* Assumptions:
+				 * - Data starts on a 8-bit word boundary.
+				 * - Stride is a multiple of 64-bit words.
+				 * Example datasets:
+				 * - AIDJEX-I
+				 */
+				gp->dataStart = DIV_CEIL((HEADER_LINES+gp->numParameters)*
+				                         LINE_LENGTH*6, 8)*8;
+				gp->blockLength = DIV_CEIL(gp->cyclesPerBlock *
+				                           gp->samplesPerCycle *
+				                           20 /* bits per value */, 64) *
+				                  64 /* bits per 8-bit word */;
+				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
+				                         gp->blockLength);
+				break;
+			case 3: /* 8-bit word boundaries */
+				gp->dataStart = DIV_CEIL((HEADER_LINES+gp->numParameters)*
+				                         LINE_LENGTH*6, 8)*8;
+				gp->blockLength = DIV_CEIL(gp->cyclesPerBlock *
+				                           gp->samplesPerCycle *
+				                           20 /* bits per value */, 8) *
+				                  8 /* bits per 8-bit word */;
+				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
+				                         gp->blockLength);
+				break;
+			case 4: /* 60-bit word boundaries */
+				gp->dataStart = (HEADER_LINES+gp->numParameters)*LINE_LENGTH*6;
+				gp->blockLength = gp->cyclesPerBlock *
+				                  gp->samplesPerCycle *
+				                  20 /* bits per value */;
+				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
+				                         gp->blockLength);
+				break;
+			default:
 				fprintf(stderr, "Error: file length does not match predicted "
 				                "length\n");
-				return 0;
-			}
+				quit = 1;
+				break;
+		}
+		if (gp1_checkBlockSize(gp, fileLen)) {
+			fprintf(stderr, "Info: Data is using scheme: %d (%s)\n",
+			        i, dataStorageSchemeDescriptions[i]);
+			break;
 		}
 	}
 
@@ -288,17 +363,23 @@ int gp1_read(GP1File *const gp, FILE *fp)
 	 * Get data from the file.
 	 */
 
-	if (!(in_buffer = (uint8_t*) realloc(in_buffer, sizeof(uint8_t)*gp->blockLength))) {
+	if (!(in_buffer = (uint8_t*) realloc(in_buffer, sizeof(uint8_t)*fileLen)))
+	{
 		goto mallocfail;
 	}
-	if (!(data_decomp = (int*) realloc(data_decomp, sizeof(int)*gp->cyclesPerBlock*gp->samplesPerCycle))) {
+
+	if (!(data_decomp = (int*) realloc(data_decomp, sizeof(int) *
+	                                                gp->cyclesPerBlock *
+	                                                gp->samplesPerCycle)))
+	{
 		goto mallocfail;
 	}
 
 	// Allocate arrays
 	for (i = 0; i < gp->numParameters; i++) {
 		if (gp->params[i].isUnused) continue;
-		gp->params[i].numValues = gp->params[i].rate * gp->numBlocks * gp->cyclesPerBlock;
+		gp->params[i].numValues = gp->params[i].rate * gp->numBlocks *
+		                          gp->cyclesPerBlock;
 		if (!(gp->params[i].values =
 		      (int*) malloc(sizeof(int)*gp->params[i].numValues)))
 		{
@@ -306,19 +387,19 @@ int gp1_read(GP1File *const gp, FILE *fp)
 		}
 	}
 
+	/* Read the entire contents of the file. */
+	fseek(fp, 0, SEEK_SET);
+	if (fread(in_buffer, sizeof(uint8_t), fileLen, fp) != fileLen) {
+		fprintf(stderr, "Error: failed to read contents of file.\n");
+		return 0;
+	}
+
 	// Next, read out the records
-	fseek(fp, gp->dataStart, SEEK_SET);
+	offset = gp->dataStart;
 	curCycle = 0; // Which cycle are we reading?
 	do {
-		amtRead = fread(in_buffer, sizeof(uint8_t), gp->blockLength, fp);
-		if (amtRead < gp->blockLength) {
-			if (amtRead > 0) {
-				fprintf(stderr, "Warning: premature EOF encountered while "
-				        "reading data\n");
-			}
-			break;
-		}
-		gbytes<uint8_t,int>(in_buffer, data_decomp, 0, 20, 0, gp->cyclesPerBlock*gp->samplesPerCycle);
+		gbytes<uint8_t,int>(in_buffer+(offset/8), data_decomp+(offset%8),
+		                    0, 20, 0, gp->cyclesPerBlock*gp->samplesPerCycle);
 		k = 0; // Index into data_decomp
 		for (m = 0; m < gp->cyclesPerBlock; m++) {
 			for (i = 0; i < gp->numParameters; i++) {
@@ -333,7 +414,8 @@ int gp1_read(GP1File *const gp, FILE *fp)
 			}
 			curCycle++;
 		}
-	} while (!feof(fp));
+		offset += gp->blockLength;
+	} while ((offset/8) < fileLen);
 
 	free(in_buffer); in_buffer = NULL;
 	free(data_decomp); data_decomp = NULL;
@@ -717,34 +799,16 @@ int get_text(char *const in_buf,
 }
 
 /**
- * Computes the size of a block and the number of blocks in a GENPRO-I file
- * given the length of the GENPRO-I file and the value of gp->dataStart at the
- * time this function is called, and indicates if these values appear sane.
+ * Verifies if the block size, number of blocks, and offset to start of data
+ * in a GENPRO-I file yield a file with the length specified.
  *
- * @param gp The GENPRO-I file for which the block size and number of blocks
- *        will be computed.
+ * @param gp
  * @param fileLen The length of the GENPRO-I file, as reported by ftell()
  *        after seeking to the end of a file (SEEK_END) with fseek().
  * @return zero (false) if the file length does not jive with the computed
  *         block size and number, nonzero (true) otherwise.
  */
-int gp1_computeBlockSize(GP1File *const gp, const size_t fileLen)
+int gp1_checkBlockSize(GP1File *const gp, const size_t fileLen)
 {
-	// Amount of data to read in with each fread(). (I.e., the amount of data
-	// in one cycle's worth of samples.)
-	gp->blockLength = DIV_CEIL(gp->cyclesPerBlock*gp->samplesPerCycle*20/*bits per value*/,64) *
-	             8 /*bytes per 64-bit word*/;
-
-	// It would seem that if cyclesPerBlock*samplesPerCycle*20%64 == 0 (i.e., the
-	// amount of space needed for a block is exactly divisible by 64 such that
-	// the data would run right up to the edge with no zero padding), a word
-	// of zero padding is added. (So every block is separated by 8 zero bytes.)
-	if (gp->cyclesPerBlock*gp->samplesPerCycle*20/*bits per value*/ % 64 == 0) {
-		gp->blockLength += 8;
-	}
-
-	// Number of records in the file.
-	gp->numBlocks = DIV_CEIL(fileLen - gp->dataStart, gp->blockLength);
-
-	return (size_t) fileLen == gp->numBlocks*gp->blockLength+gp->dataStart;
+	return (size_t) fileLen*8 == gp->numBlocks*gp->blockLength+gp->dataStart;
 }
