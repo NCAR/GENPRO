@@ -315,7 +315,9 @@ int gp1_read(GP1File *const gp, FILE *fp)
 				                         gp->blockLength);
 				break;
 			case 1: /* Late start (e.g., CODE-I) */
-				gp->dataStart += 8;
+				gp->dataStart = DIV_CEIL((HEADER_LINES+gp->numParameters)*
+				                         LINE_LENGTH*6,64)*64;
+				gp->dataStart += 64;
 				gp->blockLength = DIV_CEIL(gp->cyclesPerBlock *
 				                           gp->samplesPerCycle *
 				                           20 /* bits per value */, 64) *
