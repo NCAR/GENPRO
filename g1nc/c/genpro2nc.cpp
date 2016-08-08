@@ -312,9 +312,6 @@ int gp1_read(GP1File *const gp, FILE *fp)
 				{
 					gp->blockLength += 64;
 				}
-
-				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
-				                         gp->blockLength);
 				break;
 			case 1: /* 64-bit aligned everything, but blocks are one 64-bit
 			         * word longer than normal. Examples: UPSLOPE G51173
@@ -329,8 +326,6 @@ int gp1_read(GP1File *const gp, FILE *fp)
 				                           20 /* bits per value */, 64) *
 				                  64 /* bits per 64-bit word */;
 				gp->blockLength += 64;
-				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
-				                         gp->blockLength);
 				break;
 			case 2: /* Late start (e.g., CODE-I) */
 				gp->dataStart = DIV_CEIL((HEADER_LINES+gp->numParameters)*
@@ -340,8 +335,6 @@ int gp1_read(GP1File *const gp, FILE *fp)
 				                           gp->samplesPerCycle *
 				                           20 /* bits per value */, 64) *
 				                  64 /* bits per 64-bit word */;
-				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
-				                         gp->blockLength);
 				break;
 			case 3:
 				/* Assumptions:
@@ -356,8 +349,6 @@ int gp1_read(GP1File *const gp, FILE *fp)
 				                           gp->samplesPerCycle *
 				                           20 /* bits per value */, 64) *
 				                  64 /* bits per 8-bit word */;
-				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
-				                         gp->blockLength);
 				break;
 			case 4: /* 8-bit word boundaries */
 				gp->dataStart = DIV_CEIL((HEADER_LINES+gp->numParameters)*
@@ -366,8 +357,6 @@ int gp1_read(GP1File *const gp, FILE *fp)
 				                           gp->samplesPerCycle *
 				                           20 /* bits per value */, 8) *
 				                  8 /* bits per 8-bit word */;
-				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
-				                         gp->blockLength);
 				break;
 			case 5: /* 32-bit alignment (e.g., DUSTORM G00036) */
 				gp->dataStart = DIV_CEIL((HEADER_LINES+gp->numParameters)*
@@ -377,16 +366,12 @@ int gp1_read(GP1File *const gp, FILE *fp)
 				                           20 /* bits per value */, 32) *
 				                  32 /* bits per 64-bit word */;
 				gp->blockLength += 32;
-				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
-				                         gp->blockLength);
 				break;
 			case 6: /* 60-bit word boundaries */
 				gp->dataStart = (HEADER_LINES+gp->numParameters)*LINE_LENGTH*6;
 				gp->blockLength = gp->cyclesPerBlock *
 				                  gp->samplesPerCycle *
 				                  20 /* bits per value */;
-				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
-				                         gp->blockLength);
 				break;
 			default:
 				fprintf(stderr, "Error: file length does not match predicted "
@@ -394,6 +379,7 @@ int gp1_read(GP1File *const gp, FILE *fp)
 				quit = 1;
 				break;
 		}
+		gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart, gp->blockLength);
 		if (gp1_checkBlockSize(gp, fileLen)) {
 			fprintf(stderr, "Info: Data is using scheme: %d (%s)\n",
 			        i, dataStorageSchemeDescriptions[i]);
