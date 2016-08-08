@@ -308,7 +308,7 @@ int gp1_read(GP1File *const gp, FILE *fp)
 				if (gp->cyclesPerBlock * gp->samplesPerCycle *
 				    20 /* bits per value */ % 64 == 0)
 				{
-					gp->blockLength += 8;
+					gp->blockLength += 64;
 				}
 
 				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
