@@ -150,6 +150,7 @@ int gp1_read(GP1File *const gp, FILE *fp)
 	size_t offset;
 	const char *dataStorageSchemeDescriptions[] = {
 		"64-bit word boundaries with conditional padding",
+		"64-bit word boundaries with unconditional padding",
 		"64-bit word boundaries with conditional padding and offset start",
 		"64-bit word stride with conditional padding and 8-bit aligned start",
 		"8-bit word boundaries",
@@ -314,7 +315,23 @@ int gp1_read(GP1File *const gp, FILE *fp)
 				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
 				                         gp->blockLength);
 				break;
-			case 1: /* Late start (e.g., CODE-I) */
+			case 1: /* 64-bit aligned everything, but blocks are one 64-bit
+			         * word longer than normal. Examples: UPSLOPE G51173
+			         */
+				/* dataStart and blockLength same as case 0, except we
+				 * increment blockLength.
+				 */
+				gp->dataStart = DIV_CEIL((HEADER_LINES+gp->numParameters)*
+				                         LINE_LENGTH*6,64)*64;
+				gp->blockLength = DIV_CEIL(gp->cyclesPerBlock *
+				                           gp->samplesPerCycle *
+				                           20 /* bits per value */, 64) *
+				                  64 /* bits per 64-bit word */;
+				gp->blockLength += 64;
+				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
+				                         gp->blockLength);
+				break;
+			case 2: /* Late start (e.g., CODE-I) */
 				gp->dataStart = DIV_CEIL((HEADER_LINES+gp->numParameters)*
 				                         LINE_LENGTH*6,64)*64;
 				gp->dataStart += 64;
@@ -325,7 +342,7 @@ int gp1_read(GP1File *const gp, FILE *fp)
 				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
 				                         gp->blockLength);
 				break;
-			case 2:
+			case 3:
 				/* Assumptions:
 				 * - Data starts on a 8-bit word boundary.
 				 * - Stride is a multiple of 64-bit words.
@@ -341,7 +358,7 @@ int gp1_read(GP1File *const gp, FILE *fp)
 				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
 				                         gp->blockLength);
 				break;
-			case 3: /* 8-bit word boundaries */
+			case 4: /* 8-bit word boundaries */
 				gp->dataStart = DIV_CEIL((HEADER_LINES+gp->numParameters)*
 				                         LINE_LENGTH*6, 8)*8;
 				gp->blockLength = DIV_CEIL(gp->cyclesPerBlock *
@@ -351,7 +368,7 @@ int gp1_read(GP1File *const gp, FILE *fp)
 				gp->numBlocks = DIV_CEIL(fileLen*8 - gp->dataStart,
 				                         gp->blockLength);
 				break;
-			case 4: /* 60-bit word boundaries */
+			case 5: /* 60-bit word boundaries */
 				gp->dataStart = (HEADER_LINES+gp->numParameters)*LINE_LENGTH*6;
 				gp->blockLength = gp->cyclesPerBlock *
 				                  gp->samplesPerCycle *
