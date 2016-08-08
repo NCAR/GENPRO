@@ -369,9 +369,9 @@ int gp1_read(GP1File *const gp, FILE *fp)
 				break;
 			case 6: /* 60-bit word boundaries */
 				gp->dataStart = (HEADER_LINES+gp->numParameters)*LINE_LENGTH*6;
-				gp->blockLength = gp->cyclesPerBlock *
+				gp->blockLength = DIV_CEIL(gp->cyclesPerBlock *
 				                  gp->samplesPerCycle *
-				                  20 /* bits per value */;
+				                  20 /* bits per value */, 60) * 60;
 				break;
 			default:
 				fprintf(stderr, "Error: file length does not match predicted "
