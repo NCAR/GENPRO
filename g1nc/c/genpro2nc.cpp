@@ -212,8 +212,8 @@ int gp1_read(GP1File *const gp, FILE *fp)
 
 		/* Are the units missing? */
 		haveUnits = 0;
-		for (j = 0; j < 7; j++) {
-			if (header_decomp[LINE_LENGTH*i+66+j] != ' ') {
+		for (j = 0; j < 9; j++) {
+			if (header_decomp[LINE_LENGTH*i+64+j] != ' ') {
 				haveUnits = 1;
 				break;
 			}
