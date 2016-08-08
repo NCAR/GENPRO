@@ -985,14 +985,19 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 	Parameter *const param = (Parameter*) extData;
 	int year, month, day;
 	regmatch_t match[5];
-	regex_t matchRe;
+	regex_t matchRe, altRe;
 	int found = 0;
 	int i;
 	int startH, startM, startS, endH, endM, endS;
-	const char matchReStr[] =
-		"\\([0-9]\\{1,2\\}\\) \\{0,1\\}"
-		"\\(JAN\\|FEB\\|MAR\\|APR\\|MAY\\|JUN\\|JUL\\|AUG\\|SEP\\|OCT\\|NOV\\|DEC\\)[A-Z]*"
-		" \\{0,1\\}\\(19\\)\\{0,1\\}\\([0-9]\\{2\\}\\)";
+	int regexDayInd, regexMonthInd, regexYearInd;
+#define MONTH_RE "\\(JAN\\|FEB\\|MAR\\|APR\\|MAY\\|JUN\\|JUL\\|AUG\\|SEP\\|OCT\\|NOV\\|DEC\\)[A-Z]*"
+#define DAY_RE "\\([0-9]\\{1,2\\}\\)"
+#define YEAR_RE "\\(19\\)\\{0,1\\}\\([0-9]\\{2\\}\\)"
+#define SPACE_RE " \\{0,1\\}"
+	const char matchReStr[] = DAY_RE SPACE_RE MONTH_RE SPACE_RE YEAR_RE;
+
+	/* Alternate regular expression for dates of the form "MONTH DAY YEAR" */
+	const char altReStr[] = MONTH_RE SPACE_RE DAY_RE SPACE_RE YEAR_RE;
 
 	struct {
 		char *name;
@@ -1004,28 +1009,40 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 	};
 
 	assert(!regcomp(&matchRe, matchReStr, REG_ICASE));
+	assert(!regcomp(&altRe, altReStr, REG_ICASE));
 	if (!regexec(&matchRe, gp->fileDesc, 5, match, REG_EXTENDED)) {
-		regfree(&matchRe);
-		// use timeUnits as a temporary buffer
-		strncpy(timeUnits, gp->fileDesc+match[1].rm_so,
-		        match[1].rm_eo-match[1].rm_so);
-		day = atoi(timeUnits);
-		for (i = 0; i < 12; i++) {
-			if (!strncmp(monthNames[i].name, gp->fileDesc+match[2].rm_so, 3)) {
-				found = 1;
-				break;
-			}
-		}
-		assert(found);
-		month = i+1;
-		// use timeUnits as a temporary buffer
-		strncpy(timeUnits, gp->fileDesc+match[4].rm_so,
-		        match[4].rm_eo-match[4].rm_so);
-		year = 1900 + atoi(timeUnits);
+		regexDayInd = 1;
+		regexMonthInd = 2;
+		regexYearInd = 4;
+	} else if (!regexec(&altRe, gp->fileDesc, 5, match, REG_EXTENDED)) {
+		regexDayInd = 2;
+		regexMonthInd = 1;
+		regexYearInd = 4;
 	} else {
 		fprintf(stderr, "rule_setTimeUnits: warning: couldn't find date\n");
 		return 0;
 	}
+
+	/*
+	 * Extract fields from the date regex.
+	 */
+	regfree(&matchRe);
+	// use timeUnits as a temporary buffer
+	strncpy(timeUnits, gp->fileDesc+match[regexDayInd].rm_so,
+	        match[regexDayInd].rm_eo-match[regexDayInd].rm_so);
+	day = atoi(timeUnits);
+	for (i = 0; i < 12; i++) {
+		if (!strncmp(monthNames[i].name, gp->fileDesc+match[regexMonthInd].rm_so, 3)) {
+			found = 1;
+			break;
+		}
+	}
+	assert(found);
+	month = i+1;
+	// use timeUnits as a temporary buffer
+	strncpy(timeUnits, gp->fileDesc+match[regexYearInd].rm_so,
+	        match[regexYearInd].rm_eo-match[regexYearInd].rm_so);
+	year = 1900 + atoi(timeUnits);
 
 	snprintf(timeUnits, BUF_SIZE, "seconds since %4d-%02d-%02d 00:00:00 +0000",
 	         year, month, day);
