@@ -1,14 +1,8 @@
 \documentclass{standalone}
-\usepackage{tikz}
 \usepackage{multirow}
 \usepackage{multicol}
-\usepackage[margin=1in]{geometry}
-
-\usetikzlibrary{fit}
 
 \begin{document}
-\begin{tikzpicture}
-\node (table) [inner sep=0pt] {
 	\begin{tabular}{@{}|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|@{}}
 		\hline
 			\multicolumn{27}{|c}{Block \(1\)} & \\
@@ -158,13 +152,5 @@
 			0 & 1 & \(\cdots\) & \(R_2\) & &
 			0 & 1 & \(\cdots\) & \(R_N\) & \\
 		\hline
-	\end{tabular}};
-	\foreach \i/\corner in {1/south west, 2/south east}
-		\draw (table.\corner) ++(down:3pt) -- ++(down:0.3cm)
-		      coordinate (p\i) -- ++(down:0.2cm);
-	\draw [<->] (p1) -- (p2)
-	      node [midway,anchor=north] {Multiples of 64 bits};
-	% The right dimension line gets cut off otherwise.
-	\node [fit=(table),inner sep=1pt] {};
-\end{tikzpicture}
+	\end{tabular}
 \end{document}
