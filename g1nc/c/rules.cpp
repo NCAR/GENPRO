@@ -203,7 +203,7 @@ RuleApplicatorData ALAT_renameRuleApplicators[] = {
 ///////////////////////////////////////////////////////////////////////////////
 
 ParamRegexChangeRule ALON_renameRule = {
-	/* .matchReStr        = */ (char*) "^along$",
+	/* .matchReStr        = */ (char*) "^along1\\{0,1\\}$",
 	/* .didCompileMatchRe = */ 0,
 	/* .matchReFlags      = */ REG_ICASE,
 	/* .getText           = */ rule_getVariableName,
