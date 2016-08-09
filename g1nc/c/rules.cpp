@@ -126,7 +126,7 @@ RuleApplicatorData addWindFieldGlobalAttr_WSPD_WDRCTN_Applicators[] = {
 ///////////////////////////////////////////////////////////////////////////////
 
 ParamRegexChangeRule addZAxisCoordinateRule = {
-	/* .matchReStr        = */ (char*) "^hp$",
+	/* .matchReStr        = */ (char*) "^hp1\\{0,1\\}$",
 	/* .didCompileMatchRe = */ 0,
 	/* .matchReFlags      = */ REG_ICASE,
 	/* .getText           = */ rule_getVariableName,
