@@ -138,7 +138,7 @@ int gp1_read(GP1File *const gp, FILE *fp)
 	uint8_t *in_buffer = NULL;
 	int *data_decomp = NULL;
 	char *header_decomp = NULL;
-	int i, j, k, m;
+	int i, j, k, l, m;
 	int start, curCycle;
 	regex_t re, reNoUnits;
 	regmatch_t match[4];
@@ -148,6 +148,7 @@ int gp1_read(GP1File *const gp, FILE *fp)
 	char tmp[100];
 	size_t fileLen;
 	size_t offset;
+	size_t len;
 	const char *dataStorageSchemeDescriptions[] = {
 		/* 0 */ "64-bit word boundaries with conditional padding",
 		/* 1 */ "64-bit word boundaries with unconditional padding",
@@ -272,6 +273,33 @@ int gp1_read(GP1File *const gp, FILE *fp)
 		                "desc = \"%.*s\", units = \"%.*s\", label = \"%s\"\n",
 		        (int) gp->params[i].descLen, gp->params[i].desc,
 		        (int) gp->params[i].unitsLen, gp->params[i].units, gp->params[i].label);
+
+		/* Ensure that the label name is not one that has already been taken.
+		 * If it is, we'll have to rename the variable (by appending a number).
+		 */
+		k = 1; /* This is the number that we will append */
+		do {
+			quit = 1;
+			for (j = 0; j < i; j++) {
+				if (!strcmp(gp->params[j].label, gp->params[i].label)) {
+					len = strlen(gp->params[j].label) + 2 /* one character for
+					      the null terminator and one for a hypen */;
+					/* Determine number of characters needed to represent k. */
+					for (l = k; l; l /= 10, len++) {}
+					if (!(gp->params[i].label = (char*)
+					      realloc(gp->params[i].label, len)))
+					{
+						goto mallocfail;
+					}
+					fprintf(stderr, "warning: parameter name \"%s\" is "
+					                "already in use, renaming to \"%s-%d\".\n",
+					        gp->params[j].label, gp->params[j].label, k);
+					snprintf(gp->params[i].label, len, "%s-%d",
+					         gp->params[j].label, k);
+					quit = 0;
+				}
+			}
+		} while (!quit);
 	}
 
 	free(header_decomp);
