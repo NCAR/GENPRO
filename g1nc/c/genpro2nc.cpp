@@ -281,6 +281,7 @@ int gp1_read(GP1File *const gp, FILE *fp)
 		do {
 			quit = 1;
 			for (j = 0; j < i; j++) {
+				if (gp->params[j].isUnused) continue;
 				if (!strcmp(gp->params[j].label, gp->params[i].label)) {
 					len = strlen(gp->params[j].label) + 2 /* one character for
 					      the null terminator and one for a hypen */;
