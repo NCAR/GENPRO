@@ -156,7 +156,8 @@ int gp1_read(GP1File *const gp, FILE *fp)
 		/* 4 */ "64-bit word stride with conditional padding and 8-bit aligned start",
 		/* 5 */ "8-bit word boundaries",
 		/* 6 */ "32-bit word boundaries with unconditional padding",
-		/* 7 */ "60-bit word boundaries"
+		/* 7 */ "60-bit word boundaries",
+		/* 8 */ "60-bit aligned stride and offset start"
 	};
 
 	if (!read_header_chunk(fp, &in_buffer, &header_decomp, HEADER_LINES)) {
@@ -381,6 +382,14 @@ int gp1_read(GP1File *const gp, FILE *fp)
 				break;
 			case 7: /* 60-bit word boundaries */
 				gp->dataStart = (HEADER_LINES+gp->numParameters)*LINE_LENGTH*6;
+				gp->blockLength = DIV_CEIL(gp->cyclesPerBlock *
+				                  gp->samplesPerCycle *
+				                  20 /* bits per value */, 60) * 60;
+				break;
+			case 8: /* Stride is 60-bit aligned, late start
+			           Example: OAFSS G00024 */
+				gp->dataStart = (HEADER_LINES+gp->numParameters)*LINE_LENGTH*6;
+				gp->dataStart += 64;
 				gp->blockLength = DIV_CEIL(gp->cyclesPerBlock *
 				                  gp->samplesPerCycle *
 				                  20 /* bits per value */, 60) * 60;
