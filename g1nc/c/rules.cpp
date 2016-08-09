@@ -998,7 +998,7 @@ int rule_setTimeUnits(void *applicatorData, void *extData, GP1File *const gp)
 	const char matchReStr[] = DAY_RE SPACE_RE MONTH_RE SPACE_RE YEAR_RE;
 
 	/* Alternate regular expression for dates of the form "MONTH DAY YEAR" */
-	const char altReStr[] = MONTH_RE SPACE_RE DAY_RE SPACE_RE YEAR_RE;
+	const char altReStr[] = MONTH_RE SPACE_RE DAY_RE " \\{0,2\\}" YEAR_RE;
 
 	struct {
 		char *name;
