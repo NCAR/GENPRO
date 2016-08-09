@@ -558,6 +558,87 @@ Rule rules[] = {
 
 We used the \texttt{rule\_alwaysApplyGlobal} rule, which always executes its applicators once for the entire file.
 
+\subsection{Available Rule Matching Criteria}
+
+\subsubsection{rule\_paramRegexChange}
+
+\subsubsection{rule\_applyToAllParams}
+
+\subsubsection{rule\_alwaysApplyGlobal}
+
+\subsection{Available Rule Applicators}
+
+\subsubsection{rule\_addAttr}
+
+\subsubsection{rule\_addCreationDate}
+
+\subsubsection{rule\_addGlobalAttr}
+
+\subsubsection{rule\_addGlobalMinMax}
+
+\subsubsection{rule\_addMinMaxAttr}
+
+\subsubsection{rule\_addSampleRate}
+
+\subsubsection{rule\_copyStr}
+
+\subsubsection{rule\_makeUnitsCFCompliant}
+
+\subsubsection{rule\_sanitizeParamName}
+
+\subsubsection{rule\_setDesc}
+
+\subsubsection{rule\_setFlightInfo}
+
+\subsubsection{rule\_setPreferredType}
+
+\subsubsection{rule\_setTimeUnits}
+
+\subsubsection{rule\_setUnits}
+
+\subsubsection{rule\_setVariableName}
+
+\subsubsection{rule\_trimData}
+
+\subsubsection{rule\_trimThreshold}
+
+\subsection{Rule Cookbook}
+
+\subsubsection{Always a constant global attribute}
+
+(Note that this is the same example described above.) To add a constant global attribute,
+\begin{enumerate}
+\item First, define (in global scope in \texttt{rules.cpp}) the attribute:
+\begin{lstlisting}[language=c]
+Attribute creatorGlobalAttr = {
+	(char*) "creator",                    /* name */
+	kAttrTypeText,                        /* type */
+	(char*) "Your Organization Name Here" /* value */
+};
+\end{lstlisting}
+\item Next, define the applicator which will add this attribute to the document:
+\begin{lstlisting}[language=c]
+RuleApplicatorData creatorGlobalAttrApplicatorData[] = {
+    { rule_addGlobalAttr, &creatorGlobalAttr }
+};
+\end{lstlisting}
+
+
+\item Finally, add this rule to the global \texttt{rules} array:
+\begin{lstlisting}[language=c]
+Rule rules[] = {
+    // Add global attributes which should always be present
+    {
+        NULL,
+        rule_alwaysApplyGlobal,
+        creatorGlobalAttrApplicatorData, 1 /* number of applicators */
+    },
+    // Other rules follow
+    // ...
+};
+\end{lstlisting}
+\end{enumerate}
+
 \nocite{*}
 % \bibliographystyle{IEEEtran}
 % \bibliography{IEEEabrv,cites}
