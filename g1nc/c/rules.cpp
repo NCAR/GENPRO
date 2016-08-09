@@ -80,7 +80,7 @@ RuleApplicatorData changeTimeRuleApplicators[] = {
 ///////////////////////////////////////////////////////////////////////////////
 
 ParamRegexChangeRule findWSPDRule = {
-	/* .matchReStr        = */ (char*) "^wspd$",
+	/* .matchReStr        = */ (char*) "^wspd1\\{0,1\\}$",
 	/* .didCompileMatchRe = */ 0,
 	/* .matchReFlags      = */ REG_ICASE,
 	/* .getText           = */ rule_getVariableName,
@@ -96,7 +96,7 @@ ParamRegexChangeRule findWIRule = {
 };
 
 ParamRegexChangeRule findWDRCTNRule = {
-	/* .matchReStr        = */ (char*) "^wdrctn$",
+	/* .matchReStr        = */ (char*) "^wdrctn1\\{0,1\\}$",
 	/* .didCompileMatchRe = */ 0,
 	/* .matchReFlags      = */ REG_ICASE,
 	/* .getText           = */ rule_getVariableName,
