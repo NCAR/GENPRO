@@ -39,5 +39,7 @@ $ make
 Documentation of the GENPRO software can be found in the
 [NCAR archives](https://opensky.ucar.edu/islandora/search/GENPRO?type=dismax).
 
+In particular, please note that information on GBYTES and SBYTES can be found in [Gacnik, B., and B. Lackman, 1983: GenPro: GEN Scientific Data Processor; Reference Manual, Release 1.0. NCAR Technical Note NCAR/TN-209+IA, doi:10.5065/D6V122Q1.](https://opensky.ucar.edu/islandora/object/technotes%3A311), Appendix B (Pp 332) 
+
 A PDF document describing the GENPRO-I format is available as a part of this
 project: [genpro.pdf](https://ncareol.github.io/GENPRO/files/genpro.pdf).
