@@ -74,4 +74,4 @@ Conversion Status Page (Static HTML)
 [Page 1](http://htmlpreview.github.io/?https://github.com/ncareol/GENPRO/blob/master/g2n/doc/ar.html)
 [Page 2](http://htmlpreview.github.io/?https://github.com/ncareol/GENPRO/blob/master/g2n/doc/ar2.html)
 
-[TOGA COARE Date inconsistencies](http://htmlpreview.github.io/?http://dmg.eol.ucar.edu/projects/toga_coare/date_problem.html)
+[TOGA COARE Date inconsistencies](http://dmg.eol.ucar.edu/projects/toga_coare/date_problem.html)
