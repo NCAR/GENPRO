@@ -43,3 +43,10 @@ In particular, please note that information on GBYTES and SBYTES can be found in
 
 A PDF document describing the GENPRO-I format is available as a part of this
 project: [genpro.pdf](https://ncareol.github.io/GENPRO/files/genpro.pdf).
+
+### Additional Resources
+
+The following repositories may be useful:
+
+* https://github.com/NCAR/TBMconv utilities to examing and extract the contents of TBM archives
+* https://github.com/NCAR/GENPRO-batch-convert [private] batch scripts to automate converting large quantities of old EOL/RAF GENPRO-I files.
