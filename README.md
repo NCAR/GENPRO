@@ -66,7 +66,8 @@ $ make
 
 [How to convert old RAF aircraft data in GENPROII format to netCDF and archive the old and new data in codiac](http://htmlpreview.github.io/?https://github.com/ncareol/GENPRO/blob/master/g2n/doc/how_to_g2n.html)
 
-http://htmlpreview.github.io/?https://github.com/ncareol/GENPRO/blob/master/g2n/doc/how_to_ProjSetup.html
+[Steps to insert a project and datasets into COIDAC using ProjSetup.pl](http://htmlpreview.github.io/?https://github.com/ncareol/GENPRO/blob/master/g2n/doc/how_to_ProjSetup.html)
+
 [Conversion Status Page](http://htmlpreview.github.io/?https://github.com/ncareol/GENPRO/blob/master/g2n/doc/Conv%20Table.xls)
 
 Conversion Status Page (Static HTML)[Page 1](http://htmlpreview.github.io/?https://github.com/ncareol/GENPRO/blob/master/g2n/doc/ar.html)[Page 2](http://htmlpreview.github.io/?https://github.com/ncareol/GENPRO/blob/master/g2n/doc/ar2.html)
