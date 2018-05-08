@@ -1,7 +1,7 @@
-Explanation of files and directories in /jnet/shared/proj/archives/g2n
--------------------------------------------------------------------------------
-Last update by Ron Ruth:
-Mon Jan  9 13:45:44 MST 2006
+This is the latest, greatest version of the EOL GENPRO-II to netcdf conversion 
+software.
+
+Explanation of the files in g2n 
 -------------------------------------------------------------------------------
 CloseNetCDF.c           --  Finish up and close both GENPRO and netCDF files
 CreateNetCDF.c          --  Create netCDF file and set up its header
