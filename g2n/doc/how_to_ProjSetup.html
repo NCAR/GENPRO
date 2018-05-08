@@ -1,0 +1,209 @@
+<head>
+    <style>
+b { color:darkblue; }
+</style>
+</head>
+<html>
+    <title>Project Setup.pl</title>
+    <body>
+	<H2>Steps to insert a project and datasets into COIDAC using ProjSetup.pl</H2>
+	<ol>	
+	    <li> <b>Copy template</b> setup, proj, dataset, and dataset_GP from /net/work/Projects/g2n_conversion/BLANK
+	    <li> <b>Set project metadata</b>: Open proj and input the appropriate information.
+	    <ul>
+		project_id="FIFE_2"<br/>
+		full_name="Second ISLSCP [International Satellite Land Surface Climatology Project] Field Experiment"<br/>
+		dataset_id_prefix="145"<br/>
+		description="FIFE II is a supplement to FIFE in which aircraft were used for volumetric budget studies associated with the Konza site, since
+		analysis<br/>
+		of the 1987 data has shown that volumetric budgets may be feasible. Aircraft were also used to aid in verification of area estimates, extend
+		flux<br/>
+		measurements through the depth of the atmospheric boundary layer, and improve our understanding of boundary layer-physics associated with
+		albedo,<br/>
+		roughness, and soil moisture forcing by the changing underlying prairie surface."<br/>
+		begin_date="1989-07-19 15:40:05"<br/>
+		end_date="1989-08-12 17:04:51"<br/>
+		minlat=38.264<br/>
+		maxlat=40.593<br/>
+		minlon=-105.344<br/>
+		maxlon=-96.13<br/>
+		add_xlink_where=href LIKE "%220%"<br/>
+		<br/>
+		The above example will create the FIFE II project and set the project_id, full_name, description, etc. it will also add any xlinks that contain 220
+		to the FIFE_2 project.
+	    </ul>
+	    <li> <b>Set NetCDF dataset metadata</b>: Open dataset and replace "???" with the appropriate information. The template will use the project AOI and TOI
+	    for the dataset.
+	    <ul>
+		dataset_id="145.001"<br/>
+		name="Navigation, State Parameter, and Microphysics HRT Data - [NetCDF]"<br/>
+		description="This data set includes airborne measurements obtained from the NCAR Research Aviation Facility (RAF) King Air aircraft (Tail
+		Number:<br/>
+		N312D) during the Second ISLSCP [International Satellite Land Surface Climatology Project] Field Experiment (FIFE-II). This dataset contains
+		high<br/>
+		rate navigation, state parameter, and microphysics flight-level data in NetCDF format."<br/>
+		platform_id=31<br/>
+		hide=1<br/><br/>
+		The above example is the completed portion of the template which must be filled out. The rest of the template can usually be left alone but and
+		explanation of how it works and syntax is below.
+	    </ul>
+	    <li><b>Set GENPROII dataset metadata</b> The dataset_GP file contains the metdata data for the GENPROII dataset, it does not usually need to be edited as
+	    it will inherit the metadata from the NetCDF dataset and replace "NetCDF" with "GENPROII" and reference the NetCDF dataset as a "superceded_by" dataset.
+	    However, if the GENPROII dataset_id does not end in .002 or the NetCDF dataset does not end with .001 the dataset_id will need to be changes in dataset_GP.
+	    <li><b>Insert</b>: From the directory containing the metadata files run /net/work/Projects/g2n_conversion/scripts/ProjSetup.pl setup
+	    <br/><br/>
+	    Continue with step 2 of put the dataset into codiac <a href="http://dmg.eol.ucar.edu/projects/operational/aircraft/g2n/how_to_g2n.html">here</a>.
+
+	</ol>
+
+
+	<H2>ProjSetup File syntax</H2>
+	<p>There are three types of files, setup files, project data files, and dataset data files</p>
+	<ol>
+	    <li><b>Setup Files:</b>
+	    <ul>
+		A setup will contains a list of instructions and files to be executed by ProjSetup.pl<br/>
+		Currently there are only two inructions:<br/>
+		<ol>
+		    <li>add_project=proj
+		    <li>add_dataset=dataset
+		</ol>
+		Where add_project will add a project to CODIAC according to the metadata found in file "proj" and add_dataset will add a dataset according to
+		the metadata in file "dataset".<br/>
+		NOTE: The project must be added before you can add a dataset that belongs to that project. Also ProjSetup runs all or nothing, so if there is an error
+		in any of the datasets or projects you are adding all of the changes will be rolled back.
+	    </ul>
+	    <li><b>Project Data Files:</b>
+	    <ul>
+		These Files contain metadata for a project.<br/>
+		Synatx is: variable=value<br/>
+		Value Functions are also supported, See "Value Functions"<br/>
+		Currently the following variables are supported:<br/>
+		<ul>
+		    <li>(string) project_id
+		    <li>(string) full_name
+		    <li>(string) description
+		    <li>(string: YYYY-MM-DD hh:mm:ss) begin_date
+		    <li>(string: YYYY-MM-DD hh:mm:ss) end_date
+		    <li>(int) minlat
+		    <li>(int) maxlat
+		    <li>(int) minlon
+		    <li>(int) maxlon
+		    <li>(int) internal_contact_id
+		    <li>(string) parent_project_id
+		    <li>(int) hide
+		    <li>(string) dataset_id_prefix
+		</ul>
+		add_xlink_where is a special variable, it will add all xlinks that match the supplied where clause<br/>
+		<ul>
+		    EX: add_xlink_where=href LIKE "%220%"<br/>
+		    will add any xlinks where the URL contains "220" to the project<br/>
+		</ul>
+	    </ul>
+	    <li><b>Dataset Files:</b>
+	    <ul>
+		These Files contain metadata for a dataset.<br/>
+		Synatx is: variable=value<br/>
+		Value Functions are also supported, See "Value Functions"<br/>
+		Currently the following variables are supported:<br/>
+		<ul>
+		    <li>(string) dataset_id
+		    <li>(string) name
+		    <li>(string) description
+		    <li>(string: YYYY-MM-DD hh:mm:ss) begin_date
+		    <li>(string: YYYY-MM-DD hh:mm:ss) end_date
+		    <li>(int) minlat
+		    <li>(int) maxlat
+		    <li>(int) minlon
+		    <li>(int) maxlon
+		    <li>(int) frequency_id
+		    <li>(string) spatial_type
+		    <li>(int) displayed_contact_id
+		    <li>(int) source_contact_id
+		    <li>(int) internal_contact_id
+		    <li>(int) auth_reqd
+		    <li>(int) eula_reqd
+		    <li>(int) offlineorderable
+		    <li>(int) onlineorderable
+		    <li>(int) browseable
+		    <li>(int) dodsable
+		    <li>(int) is_eol_data
+		    <li>(int) hide
+		    <li>(int) row_revise_contact_id
+		    <li>(string) project_id
+		    <li>(string) referenced_dataset_id
+		    <li>(string) reference_type
+		    <li>(int) category_id
+		    <li>(int) platform_id
+		    <li>(int) platform_id
+		    <li>(int) x_subset
+		    <li>(int) y_subset
+		    <li>(int) z_subset
+		    <li>(int) t_subset
+		    <li>(int) p_subset
+		    <li>(int) stnid_subset
+		    <li>(int) event_subset
+		    <li>(int) file_subset
+		    <li>(int) order_allow_compress
+		    <li>(int) order_max_size_gp
+		    <li>(int) order_directory_levels
+		    <li>(string) order_merge_prog
+		    <li>(string) order_param_list_prog
+		    <li>(string) order_fgf_prog
+		    <li>(string) browse_stn_scan_prog
+		    <li>(string) browse_extract_prog
+		    <li>(string) browse_param_prog
+		</ul>
+
+		These are all just variables from tables in the CODIAC MySql Database tables related to datasets. Missing values would be simple to add if needed,
+		and I'm not sure exactly what all of these values control.
+	    </ul>
+	    <li><b>Value Functions</b>
+	    <ul>
+		I have created a small set of variable functions so that I do not have to put in the same information over and over. For example the GENPROII and
+		NetCDF datasets are almost identical except the work NetCDF is replaced by GENPROII.
+		Currectly Supported Variable Functions:
+		<ul>
+		    <li><b>Reference Function</b>
+		    <ul>
+			<li>Syntax: variable=->FILENAME
+			ProjSetup will search the supplied file for variable and use the value found. (Supports Recusion)
+			<li>Syntax: variable=->FILENAME:variable2
+			ProjSetup will search the supplied file for variable2 and use the value found for variable (Supports Recusion)
+		    </ul>
+		    <li><b>Replace Function</b>
+		    <ul>
+			<li>Syntax: variable=VALUE;/.SRC->REPLACE
+			ProjSetup will replace all instances of SRC with REPLACE in VALUE
+		    </ul>
+		    <li><b>Add Function</b>
+		    <ul>
+			<li>Syntax: variable=VALUE;+NUM
+			numerically adds NUM to VALUE
+		    </ul>
+		    <li><b>Append Function</b>
+		    <ul>
+			<li>Syntax: variable=VALUE1;VALUE2
+			Appends VALUE2 to VALUE
+		    </ul>
+		    Multiple Fuctions may be used, each function must be seperated by a semicolon (;), functions are evaluated from left to right.
+		</ul>
+
+		Complex Example:<br/>
+		<br/>
+		<em>file1:</em><br/>
+		var1=100<br/>
+		<br/>
+		<em>file2:</em><br/>
+		var2=->file1:var1;+100;/.0->1;" values"<br/>
+		<br/>
+		Result:<br/>
+		var2="211 values"<br/>
+		<br/>
+		First 100 is retrieved from file1 (100), then 100 added to it (200), then all 0's are replaced with 1's (211), then " values" appended (211
+		values).<br/>
+
+	</ol>
+
+    </body>
+</html>

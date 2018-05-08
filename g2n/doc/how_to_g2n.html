@@ -1,0 +1,257 @@
+<head>
+    <style>
+b { color:darkblue; }
+</style>
+</head>
+<html>
+    <title>G2N conversion</title>
+    <body>
+	<H2>Steps to convert old GENPROII data to netCDF, and to load these
+	    old data and projects into CODIAC</H2>
+
+
+	    <br>
+<H3>Convert the GENPROII files to netCDF and archive them to the Mass
+Store</H3>
+<ol>
+    <li> <b>Choose a project</b> that is in GENPROII format to start with.
+<p> Access the list of old projects by going to the 
+ <a href="http://www.eol.ucar.edu/about/our-organization/raf/data/raf-project-data-archive-catalog">
+     RAF Project Data Archive Catalog</a> page. GENPROII projects are between years 1993 and 1983. 
+ Open the data catalog link (taplog) and make sure the data is in GENPROII format (Look for "Output format: GENPRO-II" near the top).
+
+ <li> <b>Create a directory to work in </b> 
+ <p> under /net/work/Projects/g2n_conversion create a directory for the project, copy everything from /net/work/Projects/g2n_conversion/BLANK into the directory.</p>
+ <pre>
+	cd /net/work/Projects/g2n_conversion
+	mkdir Project
+	cp ../BLANK/* Project
+ </pre>
+
+<li> <b>Get a list of the GENPROII files</b> 
+<p>Go back to the taplog and open the order link (near the bottom of the taplog "Click here to retrieve data file...")
+There will be a textbox with a list of mass store files highlight them and copy (You will need to right click and click copy to get around the "Sorry this field
+cannot be edited" warning)
+</p>
+
+<li><b>Download and convert the files to netCDF</b>
+
+<p>
+In the directory you created, create files.txt and paste the list of GENPROII files into it.
+run dlconv.pl which will download all of the files in files.txt, convert them to NetCDF and reorder the NetCDF files.<br/>
+When it is done running (may take a while) check for ErrorLog.txt, if it exists there was a problem downloading one or more of the GENPROII files. The problems will
+be listed in ErrorLog.txt<br/>
+Occasionally the file location is wrong in the taplog and you must find it using msls and fix the entry in files.txt and rerun dlconv.pl (it will skip already
+downloaded files)
+<br /><br />
+Syntax notes on files.txt<br />
+&nbsp;&nbsp;&nbsp;Each file must be on its own line<br />
+&nbsp;&nbsp;&nbsp;If the file name or path does not contain the flight number (\w\w\d\d\w?) ",fltno" should be added to the line<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ex: /RAF/TL0910/G61741,RF01<br />
+</p>
+
+<b>To convert the files manually</b>, download each file using <a href="http://www.mss.ucar.edu/dcs4/current-html/msrcp.html">msrcp</a> and use the following steps.
+The code is in
+ /net/work/bin/converters.
+<p>
+ Notice that the files you downloaded are cos-blocked. The aircraft files
+ are in three or more blocks and cosconvert seems to only convert the first block,
+ so the technique I had to use was to run "cossplit" to split the aircraft
+ file into three or more files, then run "cosconvert" on each subfile, then finally
+ use "cat" to combine the three files back into one. Then I could use g2n
+ to convert the  file to netCDF. E.G.:
+<pre>
+ cossplit 1990.876.HRT.RF01
+ cosconvert -b T0O1
+ cosconvert -b T0O2
+ cosconvert -b T0O3
+ cat T0O1 T0O2 T0O3 > RF01
+ g2n RF01 RF01.nc
+</pre>
+
+ <li>Run "<b>ncplot file.nc</b>" on a few of the  newly created files and make sure
+ content looks resonable.
+ Also run "<b>ncdump -h file.nc</b>" and check for reasonableness.
+ <p>
+ <li><b>Create a readme</b> in each working dir stating these steps so that
+ future users will know how we did the conversion.
+ <p>
+ <li><b>Reorder the files (if dlconv.pl was not used)</b> (run "<b>reorder *nc</b>"). This will create s* files which
+are the original files, and replace your files with reordered files. <br />
+WARNING: running reorder *nc on already reordered files such as those created by dlconv.pl will
+result in permissions issues. Run <b>chmod 666 *nc</b> to fix the permissions
+<p>
+<li>Copy <b>archAC.sh</b> to the /net/work/Projects/g2n_conversion/Project dir (Already done if you copied the files in g2n_conversion/BLANK)<br />
+Open archAC.sh and put the the appropriate project number, project year, and uncomment the HRT and or LRT lines as nessesary.<br />
+run archAC.sh to archive the .nc files to the mass store (Make sure the files are renamed correctly, dates are reasonable and the mass store directory is correct).
+<p>
+</ol>
+
+<br>
+<H3>Put the project (if necessary) and dataset into codiac</H3>
+<p>
+
+ Once you have the data converted to netCDF in
+/net/work/Projects/g2n_conversion and you have
+ tested them using ncplot and ncdump and archived them to the mss using
+ archAC.sh:
+<ol>
+    <li> <p>See if the project exists in codiac.</b>
+ - go to http://data.eol.ucar.edu/codiac/ and look for it
+<p>
+If it does not exist, then <b>add it</b>. Search through the binders at RAF for it, or if
+the project is more recent, search online for project description, AOI and TOI.<br/>
+AOI and TOI can be gotten from the NetCDF files. For TOI the renamed NetCDF files will have the start and stop time of each file, look for the
+oldest and newest files.<br/>
+AOI can be obtained using ncplot and checking the ALAT/ALON variables or by using ncstat.pl located in /net/work/Projects/g2n_conversion/scripts<br/>
+&nbsp;&nbsp;cd to the directory will all of the NetCDF files and run "ncstat.pl ALAT" it will print out the min and max latitude and any error is encounters.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRAY VALUES is a common error caused by a large very sharp spike in the variable value (ncplot the file you will see the spike). These files are ignored for the
+min/max calculation.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONSTANT DATA is a more rare error tha occours when the variable value is exactly constant for the entire flight (ie. nav data was not recorded during that flight).
+These files are ignored for the min/max calculation<br/>
+<br/>
+<b>Below are manual steps for inserting a project and datasets into CODIAC, <a href="http://dmg.eol.ucar.edu/projects/operational/aircraft/g2n/how_to_ProjSetup.html"
+	>click here</a> for instructions on using ProjSetup.pl to add projects and datasets to CODIAC</b><br/>
+(Steps culled from <a
+     href="http://www.eol.ucar.edu/about/our-organization/cds/dmg/dmg-internal/dmg-documentation/how-to/set-up-a-new-project-for-tracking-within-the-cds-environment/#selecting-a-codiac-prefix" target="_top">add
+     the project to codiac</a>.)
+ <ul>
+     <p>You will need to be logged into the Tsunami MySQL database in an xterm
+     and have GUImaint up.
+
+     <li>In the GUImaint window, click on Project on the left. You should get a
+     blank form. If it is populated, I log out and back in to get a blank one.
+     Enter the project info you researched. Reword the description to be past
+     tense.
+
+     <li>In the database window:
+     <br>> select * from dataset_prefix_project;
+     <li>select the next number, e.g. 131 for SPIN (use the acronym, not the full
+     name - you only have 15 chars to play with)
+     <br>> insert into dataset_prefix_project (dataset_id_prefix,project_id) values (131,"SPIN");
+     <li>Link the number to the project description:
+     <br>> select * from project where full_name like "Spontaneous%";
+     <li>Make sure you only matched ONE project
+     <br>> update project set project_id = "SPIN" where full_name like "%Spontaneous%";
+
+     <li>Logout and back in to GUImaint and the project number (131) should appear
+     in the Project form.
+
+     <p>Update links to these projects in the 
+<a href="http://www.eol.ucar.edu/raf/data_catalog.htm">
+RAF Project Data Archive Catalog  
+</a>
+     <li>Make sure the TapeLog is an xlink in the database
+     <br>> select * from xlink where href like "%739%";
+     <li>If it's not there, add it by going to the xlinks tab in GUImaint for any
+     dataset and adding the link title, purpose, and HREF. I use
+     <br>> select * from xlink;
+     <br>to see past examples so I can be consistent.
+     <li>Then logout and back into GUImaint so the new xlink will show up on the
+     project xlinks table. Add the xlink for the project ID. Sometime I can't
+     add to a project with no previous xlinks, so I just go to a different
+     project and add a line. As long as I put in the project_id for the
+     project I want to add (and not the project I am looking at) the line I
+     add will "fly away" to the correct project when I post and save.
+
+     <li>Go to http://www.eol.ucar.edu/data and make sure your project is there
+     and the xlink works.
+ </ul>
+<p>
+ If it does exist, then compare the info at the top of the taplog file with
+ what is in codiac. Let's meet and decide what, if anything, is missing
+ from codiac and can be added.
+
+ <li> Use the information in codiac to <a href="http://dmg.eol.ucar.edu/dts/dln"
+     target="_top">add the project to the DTS</a>.  
+ Check that the project is not already there (click on Project). From the
+ dts, click "DLN home" on the left, then click on "Add/Edit Projects", then
+ add new. All the info you need should be available in codiac. If you have
+ questions, ask.
+ <p>
+<li> You should then see the project listed under "Project" on the left in
+ the DTS. Click on it, then click on "Add New" to add a new dataset. Use a
+ previously loaded dataset  of the same type (LRT, HRT, camera, movie, etc)
+ for a recent project (HIPPO, PLOWS, etc) as an example of the dataset
+ naming connvention. The ingest location will be your dir under /net/work.
+ The archive location will be where you put them on the mss. Get the
+ dataset prefix from codiac and then just add .001, .002, etc in order for
+ each dataset you load. Put me as the internal and source contacts. Put
+ yourself as the ingest and load contacts and me as the checker.
+
+<p> Don't forget to add two dataset for each data type: one in netCDF format
+ and one in GENPRO. We want to load them as two separate datasets in
+ codiac. Make sure the GENPRO dataset is hidden. It is for internal
+ tracking use only.
+ <p>
+<li> Load the dataset as normal and update the dts when you have checked it.
+Link the mass store bitfile log (given in the 
+ <a
+     href="http://www.eol.ucar.edu/about/our-organization/raf/data/raf-project-data-archive-catalog"
+     target="_top">
+     Project Data Archive Catalog</a> to the dataset as a document. Unlink
+ all the links to order the data. Add an order link for each data type
+ that points back to codiac:
+ <pre>
+1) Check for taplog in xlink table in codiac. I search on project number
+2) If not there, in GUImaint Xlinks tab, add it. Exit GUImaint and get back
+in.
+3) in GUImaint Xlinks tab add dataset_id and href linkage, post save
+4) Click on project tab and add xlink to project (if not there)
+5) Go to /net/www/raf/Catalog and update taplog.
+- Remove mss_retrieval links.
+- Add links to codiac for NetCDF and GENPRO datasets. Link to order page
+6) Go to /net/www/raf/Headers. "ncdump -h" on RF01.nc for this project and
+save to headerNC.<project number> for LRT data (or HeaderNC.### if HRT
+data)
+7) Go to RAF project table, check link to taplog and add link to new
+headerNC file. 
+</pre>
+ Note this in DTS.
+Have the DTS send me the email so I know to do final checking. 
+<p>
+<li> Once I have checked the dataset, add a direct link to the codiac order
+page for that dataset in place of the taplog link
+ that is currently in the new
+ <a
+     href="http://www.eol.ucar.edu/about/our-organization/raf/data/raf-project-data-archive-catalog"
+     target="_top">
+     Project Data Archive Catalog</a> page. These are the same links you
+ are using to make the netCDF dataset a companion to the GENPRO dataset.
+ <p>
+ <li> Add the dataset and conversion info into <b>IVEN.</b>
+<p>In the DLN select the project and click "IVEN Dataset List"
+click "Add New" add the NetCDF and GENPROII dataset pair (by dataset id number)
+click on the NetCDF dataset
+Click add Source and put in the GENPROII dataset_id
+	Set "Data Directory" to the dir you worked in
+	EMDAC Platforms is the aircraft platform_id (ie the King Air is 31)
+click "Add Software" Select g2n conversion scripts [aircraft name]
+	Set Repository Tag Name to dir scrips are in under g2n/tags in svn (usually project name)
+click the edit button to the left of the dataset name
+Set contact, status, work location, and final data location
+</p>
+<p>
+<li><b>Put the scripts into SVN.</b>
+<p>To set up a new platform area (if needed):
+<ol>
+<li> cd to /net/work/Projects/g2n_conversion
+<li>mkdir PLATFORM
+<li>svn import . http://svn/svn/dmg/conversions/aircraft/PLATFORM/g2n
+</ol>
+</p>
+<p>To add processing scripts for specific projects to that area:
+<ul>
+    <li>Remove unessesary data from working dir (rm -rf HRT)
+    <li>mv working dir to platform directory
+    <ul>cd /net/work/Projects/g2n_conversion<br/>
+	mv PROJ PLATFORM</ul>
+<li>cd PLATFORM
+<li>svn add PROJ
+<li>svn ci
+</ul>
+</p>
+
+</ol>
+    </body>
+</html>
