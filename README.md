@@ -17,13 +17,13 @@ found around NCAR. In addition it contains software to convert GENPRO-I and
 GENPRO-II to netCDF.
 
 
-## NCAR/EOL GENPRO-I Conversion Utility & Documentation
-
 ### Getting the source
 
 ```
 $ git clone https://github.com/ncareol/GENPRO.git
 ```
+
+## NCAR/EOL GENPRO-I Conversion Utility & Documentation
 
 ### Compiling
 
@@ -50,3 +50,16 @@ The following repositories may be useful:
 
 * https://github.com/NCAR/TBMconv utilities to examing and extract the contents of TBM archives
 * https://github.com/NCAR/GENPRO-batch-convert [private] batch scripts to automate converting large quantities of old EOL/RAF GENPRO-I files.
+
+## NCAR/EOL GENPRO-II Conversion Utility & Documentation
+
+### Compiling
+
+To compile `g2n` 
+
+```
+$ cd g2n
+$ make
+```
+
+### Documentation
