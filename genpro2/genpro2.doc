@@ -1,0 +1,189 @@
+          SOFTWARE FOR READING RAF (GENPRO) TAPES 
+  
+     These software programs provide the recipient of RAF processed data
+ tapes a means for reading the data files and informational header files
+ on various computers. 
+  
+     The RAF provides the processed aircraft data to users as pure binary 
+ data on 1/2" magnetic tape or 8mm (ExaByte) cartridge.  The 1/2" data are 
+ written in 1600 bpi phase-encoded or 6250 bpi gcr format at the user's
+ request.  (Other formats may also be available.)  Since these data are
+ processed on the NCAR CRAY computers, they are also available as COS-blocked,
+ tape-image volumes on the NCAR Mass Storage System.  The data consist of a
+ data file(s), generally an entire flight, and an informational header file
+ preceding each data file.  The header file is formatted in ASCII characters
+ containing information such as the flight date, the variables recorded in the
+ data file, and their locations in a logical record.
+  
+     The data file has physical records which contain one or more logical 
+ records of data.  (A logical record typically is one second of data.)
+ Information on the size of the logical and physical records is given in the 
+ header.  The data values are written in pure binary, 32 bits per word.  (The 
+ number of bits per word may not always be 32, however this is the recommended
+ format.)  To write the values as pure binary on magnetic tape, they were first
+ converted to positive integers by adding a bias and then multiplying by a
+ scale factor.  To convert these values on the tape back to floating-point
+ numbers, the process must be reversed (that is, divide by a scale factor and
+ subtract a bias).  This information can be obtained from the file header.
+  
+     These subroutines have been written to be as portable as possible using
+ FORTRAN 77.  If the user elects to write his/her own software, we hope that
+ these listings will provide some insight as to how to approach the task.
+ The subroutines will read the header of an RAF tape and use this information
+ to read the data files into arrays in the computer.  The three subroutines
+ included are called "GENHDR," "GENDAT," and "UNPCK."  GENHDR and GENDAT are
+ to be called from the user-written driver or main program.  GENHDR and GENDAT
+ can be used on any computer by entering the computer's word size (IWDSZ).
+ The user must select the version of UNPCK written specifically for the
+ computer with corresponding word size (16,32,or 64 bits).
+  
+     Even though these subroutines are portable, the computer's basic word
+ size must be specified.  Versions have been configured and tested on some of
+ the computers at NCAR:  HP1000 (16 bit), DEC VAX 11/780 (32 bit), CRAY 1A
+ (64 bit), CRAY-XMP (64 bit) and CRAY-YMP (64 bit).
+  
+     To use the subroutines, one must first set the parameter IDWSZ in GENDAT
+ to the number of bits that an INTEGER variable uses on your computer.  Then
+ select the version of UNPCK that cooresponds to the machine's word size. It
+ is advised that the user first try the UNPCK supplied for his/her computer
+ before attempting to write your own version from scratch.
+  
+     To facilitate easy access, this software is available on the Internet
+ via anonymous ftp from chinook.atd.ucar.edu.  If you need help in obtaining
+ a copy or have other questions or suggestions, contact Ron Ruth, NCAR,
+ (303)497-1084 (email address = ruth@ncar.ucar.edu).
+  
+  
+
+  
+  
+  
+      The FORTRAN 77 subroutines included will read the new GENPRO II 
+ data tapes.  The three subroutines included are called 'GENHDR,' 'GENDAT,' 
+ and 'UNPCK.'  The descriptions of these routines follow on the next page.
+ There are four versions of 'UNPCK' supplied:  one for a 16-bit machine, 
+ a 32-bit machine, a 32-bit DEC machine (A separate version is necessary
+ because of DEC's unique byte ordering.), and a 64 bit machine.  Use only
+ the version that conforms to your machine's word size.  Also included
+ are example programs for an HP1000, DEC VAX 11/780 and a CRAY-1A. 
+
+  
+ IMPORTANT NOTE:
+      To use these routines, one must first set the parameter IWDSZ in
+ GENDAT to the number of bits an INTEGER variable uses.  Also, throughout 
+ this document a byte means 8 bits. 
+  
+ 
+ **************************************************************************** 
+ * Description for subroutine GENHDR (supplied)                             * 
+ **************************************************************************** 
+      Subroutine GENHDR should be used to read the header file of the 
+ GENPRO II tape.  The call is:
+  
+      CALL GENHDR(LUIN,LUOUT) 
+  
+      Where:
+        LUIN  is the logical unit number of the input device from which 
+              the data are read.
+        LUOUT is the logical unit number of the output device to which the
+              header should be written. 
+  
+ NOTE: To read the data file, it is also necessary to call GENHDR and read
+       the header file, because pertinent information must be obtained from
+       the header file to read the data file.
+  
+ **************************************************************************** 
+ * Description for subroutine GENDAT (supplied)                             * 
+ **************************************************************************** 
+      Subroutine GENDAT should be used to read a logical data record.  The
+ data values will be placed in DATARY so that a user may manipulate them in 
+ any way s/he desires.  Each call to GENDAT reads the next logical record 
+ in a sequential manner, meaning that to reach the 50th logical data record,
+ GENDAT would have to be called 50 times.  The call is: 
+  
+      CALL GENDAT(LUIN,LUOUT,DATARY,ISTAT)
+  
+      Where:
+        LUIN   is the logical unit number of the input device from which
+               the data are read. 
+        LUOUT  is the logical unit number of the device to which all error
+               messages are written.
+        DATARY is the array to contain one continuous logical record of 
+               data.  NOTE: This array must be large enough to contain
+               one logical data record !! 
+        ISTAT  is a status return variable: 
+               ISTAT <  0   read error
+               ISTAT =  0   successful read 
+               ISTAT >  0   EOF sensed
+  
+ NOTE: YOU MUST SET THE PARAMETER 'IWDSZ' TO YOUR MACHINE WORD SIZE 
+ BEFORE USING GENDAT !!!
+  
+ **************************************************************************** 
+ * Description for subroutine UNPCK (4 versions supplied)                   * 
+ **************************************************************************** 
+      Subroutine UNPCK unpacks the packed integer data read directly from
+ the GENPRO II tape, giving the unpacked real data.  It is only used as a
+ GENDAT subroutine, so the user need not be concerned with its details.  The
+ call is: 
+  
+      CALL UNPCK(DATARY,IDAT) 
+  
+      Where:
+        DATARY is the array to contain the unpacked real data.
+        IDAT   is the integer array that contains the packed data.
+  
+ 
+  
+            SPECIAL NOTE FOR 16-BIT MACHINE USERS 
+  
+      It may be necessary to declare ILGBIT and IDSIZ in the / GENBLK / 
+ common block and the IFBIT variable local to GENHDR as 32-bit long integers. 
+ This is usually done in the following manner:
+  
+    For GENHDR: 
+  
+      INTEGER*4 ILGBIT,IDSIZ,IFBIT
+  
+    For GENDAT: 
+  
+      INTEGER*4 ILGBIT,IDSIZ,IRSIZ
+  
+    For UNPCK:
+  
+      INTEGER*4 ILGBIT,IDSIZ,IDAT(1)
+  
+    For all other routines that reference common block / GENBLK / : 
+  
+      INTEGER*4 ILGBIT,IDSIZ
+  
+ 
+             SPECIAL NOTES FOR USERS OF D.E.C. MACHINES
+  
+     Because of the way DEC machines handle integer variables, I have included
+ a modified version of UNPCK that should only be used with Digital Equipment
+ Corporation machines.  It handles the "byte swapping" that is necessary.  The
+ MOUNT command below, when modified for your application should be used to
+ properly read the tape.  Also, some users have deemed it necessary to use the
+ 'CHECK=NOOVERFLOW' option when compiling the UNPCK subroutine.  This is done
+ with this command:
+ 'FOR/CHECK=NOOVERFLOW (filespecifier)'.
+  
+              $ MOUNT/FOREIGN/NOWRITE/BLOCKSIZE=10440 MMB0: 
+  Where:
+  
+  $               Is the normal prompting character from the VAX
+  FOREIGN         Specifies the tape is in a non-DEC format 
+  NOWRITE         Assures the tape will not be written over 
+  BLOCKSIZE=10440 Specifies the largest record to be read in this example is
+                  10,440 bytes long (the data records), this overrides the
+                  the default of 512 bytes. 
+  MMB0:           Is the device name of the tape drive the tape is on.  This
+                  will surely be site-dependent.
+  
+     Then, in your driver program, open the logical unit with this OPEN 
+ statement (example for logical unit "2" and tape device name "MMB0:") :
+  
+ OPEN(2,FILE='MMB0:',FORM='UNFORMATTED',RECORDTYPE='VARIABLE',STATUS='OLD') 
+  
+                          - end of document -

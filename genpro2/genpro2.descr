@@ -1,0 +1,59 @@
+             Brief description of GENPRO-II data set
+             ---------------------------------------
+
+   Data on a GENPRO-II output data tape consists of alternating file pairs
+(header and data), each pair containing one data set.  These data are in
+GENPRO-II format, NOT UNIX tar format.  On the SCD Mass Store System (MSS)
+each GENPRO-II data set (consisting of a header and data file pair) is
+saved in one COS-blocked (to preserve record and file boundaries) MSS
+bitfile.
+
+Header file
+-----------
+   The GENPRO-II header, the first file of a pair, is written in ASCII,
+having 800 byte records that can be further subdivided into ten (10)
+80-character "lines."  The number of records in this header file varies
+depending upon the number of variables that are recorded in the binary
+data file which follows.  This number is usually the same for all data sets
+in a given project.  The last "line" in the header file consists of the
+characters " ENDHD" (between quotes) with the last record padded to 800
+bytes, if needed.
+   The header file gives English instructions for decoding the data records
+in its accompanying binary data file, which follows.  It has information
+such as the project's name, flight date and start and end times.
+Instructions for decoding the binary data follow that and are typically
+(though not always) divided into 3 parts:
+ 1) variable name list;
+ 2) variable titles (long descriptions) including their rates;
+ 3) variable units and decode information.
+
+
+Data file
+---------
+   The second file of a pair is a binary data file having a constant number
+of bytes per physical record, consisting of 32-bit, unsigned integers.  A
+physical record is usually subdivided into a number of logical records, each
+of which constitutes one second of data for all the variables.
+  The binary data are decoded per instructions given in its associated
+header file.  Variable descriptions in the header appear in the same order
+as the accompanying data.  (A variable's starting position within a record
+is given in bits, not bytes.)  A 32-bit integer is converted to a variable's
+value by dividing the decoded integer by the header's FACTOR value then
+subtracting the header's TERM value.
+  For variables whose rate is higher than 1 sample per second (sps), values
+are consecutively repeated within the logical record.  The binary record
+format typically will be the same for all the data sets of a given project. 
+
+   If you use the GENPRO read subroutines (assuming that they are working
+properly for you), the above operations will be done automatically.
+Variables and their values (in engineering units) will be stored in arrays
+within your program.
+
+   Tape log files exist for each project having the number of header records
+and the number and size of a logical data record in a binary data record
+associated with each data set.
+
+-- 
+Ron Ruth   NCAR/ATD/RDP&RAF   Voice: (303)497-1084          19 Jul 1994
+  (ron@raf.atd.ucar.edu)        Fax: (303)497-1092    rev.  12 Aug 1997
+

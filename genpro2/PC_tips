@@ -1,0 +1,15 @@
+Following is courtesy of Carl.Kreitzberg@drexel.edu  (4 May 1999):
+
+Using "binary" [ftp transfer] solved all my problems.
+At one time I knew using ASCII results in confusion about control characters
+by some transmission protocol but I forgot.  I also should have noticed the
+bytes transferred was wrong using ASCII.
+
+My PC Fortran is "Absoft Pro Fortran".  It requires use of the BigEndian
+and to deal with 70 Mbytes of input in one read statement it requires use of
+the static storage option or raising the stack size limitation in the Linker
+options.  Unformatted read is used as well.
+
+If anyone else needs to ingest RAF data into a PC without dealing with special
+software only using Fortran, these clues might help.  Of course I would be
+more than happy to talk to (or email) with anyone facing these problems.

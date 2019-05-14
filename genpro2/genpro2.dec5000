@@ -1,0 +1,364 @@
+From bister@fog.mit.edu Fri Jul 30 12:37:05 1993
+Received: from FOG.MIT.EDU by chinook.atd.ucar.EDU (5.65/ NCAR Mail Server 04/10/90)
+	id AA04463; Fri, 30 Jul 93 12:37:04 MDT
+Received: by fog.mit.edu (5.57/Ultrix3.0-C)
+	id AA13326; Fri, 30 Jul 93 14:36:17 -0400
+Date: Fri, 30 Jul 93 14:36:17 -0400
+From: bister@fog.mit.edu (Marja H. Bister)
+Message-Id: <9307301836.AA13326@fog.mit.edu>
+To: ron@chinook.atd.ucar.edu
+Subject: DEC 5000 and GENPRO tapes
+Status: OR
+
+
+Dear Ron Ruth,
+
+here comes the version of the program with which one can read GENPRO tapes
+using a DEC 5000.  I made changes to read and open statements, as I explained 
+before.  (I am surprised that in your example of a VAX program the file 
+from which the header information is read is opened as unformatted.
+I have to open it as formatted.)  I also changed the recordtype in the open 
+statements to be stream.
+
+Also, I need two open statements instead of just one, to first open the file 
+from which the data is read as formatted and later as unformatted.
+ 
+By the way, one can use the regular UNPCK subroutine instead of the one
+that swaps the bytes if one sets the keyword 'convert' to 'big_endian' 
+in the second open statement that opens the file.  The two open statements
+then look like:
+    
+   open( unit = 2, file = '/dev/nrmt0h' , status = 'old',
+     &  recordtype = 'stream', blocksize = 10440 , recl = 80)
+   .
+   . 
+   .
+  
+    open( unit = 2, file = '/dev/nrmt0h' , status = 'old',
+     &  form='unformatted', recordtype = 'stream',
+     &  convert= 'big_endian' , blocksize=10440 )
+
+However, in the following program I use the UNPCK routine that does the
+byte swapping. 
+
+
+Marja Bister
+
+
+The program follows:
+
+
+      PARAMETER (NVARMX=300)       
+      DIMENSION DATARY(5000)
+      COMMON / GENBLK / ILGBIT,IDATLG,IRATE(NVARMX),IPOS(NVARMX),
+     1                  TERM(NVARMX),FACTR(NVARMX),NVAR,NLOGRC,IDSIZ
+      open( unit = 2, file = '/dev/nrmt0h' , status = 'old',
+     &  recordtype = 'stream', blocksize = 10440 , recl = 80)
+      open( unit = 7, file = 'electra.out', status = 'new' )
+      luin  = 2
+      luout = 7
+      call genhdr(luin,luout)
+      close(2)
+      open( unit = 2, file = '/dev/nrmt0h' , status = 'old',
+     &  form='unformatted',recordtype='stream',
+     &  blocksize = 10440)
+      do 100 i = 1, 20
+         call gendat(luin,luout,datary,istat)
+         write(luout, 150) ( datary(j), j=1,5 )
+ 100  continue
+ 150  format (1x,5f20.5)
+      stop
+      end
+*----------------------------------------------------------------------*
+      block data gnblok
+
+      parameter (nvarmx = 300 )
+
+      COMMON / GENBLK / ILGBIT,IDATLG,IRATE(NVARMX),IPOS(NVARMX),
+     1                  TERM(NVARMX),FACTR(NVARMX),NVAR,NLOGRC,IDSIZ
+
+      end
+*----------------------------------------------------------------------*
+       SUBROUTINE GENHDR(LUIN,LUOUT)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C     SUBROUTINE GENHDR WILL READ A GENPRO II HEADER, WRITE IT OUT (TO C
+C LOGICAL UNIT NUMBER LUOUT), STORE THE VALUES NECESSARY TO READ THE   C
+C DATA FILE, AND WILL WRITE OUT A TABLE OF THE VARIABLES, THEIR INDEX  C
+C WITHIN THE DATA ARRAY (WHEN CREATED) AND THEIR RATES.                C
+C                                                                      C
+C PARAMETERS USED BY GENHDR:                                           C
+C   LUIN      -THE LOGICAL UNIT NUMBER OF THE INPUT DEVICE FROM WHICH  C
+C              THE DATA ARE READ.                                      C
+C   LUOUT     -THE LOGICAL UNIT NUMBER OF THE DEVICE TO WHICH THE      C
+C              HEADER SHOULD BE WRITTEN.                               C
+C                                                                      C
+C VARIABLES IN GENHDR:                                                 C
+C   ILGBIT    -THE NUMBER OF BITS PER LOGICAL DATA RECORD.             C
+C   IDATLG    -THE NUMBER OF LOGICAL DATA RECORDS PER PHYSICAL DATA    C
+C              RECORD.                                                 C
+C   IDSIZ     -THE NUMBER OF BITS PER PHYSICAL DATA RECORD.            C
+C   IRATE()   -THIS ARRAY STORES THE SAMPLE RATE OF EACH RESPECTIVE    C
+C              VARIABLE.                                               C
+C   IPOS()    -THIS ARRAY STORES THE INDEX POSITION OF EACH RESPECTIVE C
+C              VARIABLE IN A DATA RECORD ARRAY.                        C
+C   TERM()    -THIS ARRAY STORES THE TERM VALUE FOR EACH RESPECTIVE    C
+C              VARIABLE.                                               C
+C   FACTR()   -THIS ARRAY STORES THE FACTOR VALUE FOR EACH RESPECTIVE  C
+C              VARIABLE.                                               C
+C   NVAR      -THE NUMBER OF VARIABLES SAMPLED FOR THIS DATA FILE.     C
+C   NLOGRC    -A COUNTER USED TO DETERMINE THE CURRENT LOGICAL DATA    C
+C              RECORD BEING PROCESSED.                                 C
+C   INBUF()   -THE ARRAY USED TO CHECK FOR AN EIGHT CHARACTER          C
+C              IDENTIFIER AT THE BEGINNING OF A LOGICAL HEADER RECORD. C
+C   VNAME()   -THE ARRAY TO STORE THE RESPECTIVE VARIABLE NAMES.       C
+C   LOGBIT    -STORES THE EIGHT CHARACTER IDENTIFIER ' LOGBIT '.       C
+C   DATLOG    -STORES THE EIGHT CHARACTER IDENTIFIER ' DATLOG '.       C
+C   ORDVAR    -STORES THE EIGHT CHARACTER IDENTIFIER ' ORDVAR '.       C
+C   LETVAR    -STORES THE EIGHT CHARACTER IDENTIFIER ' LETVAR '.       C
+C   DATSIZ    -STORES THE EIGHT CHARACTER IDENTIFIER ' DATSIZ '.
+C   DEBUF()   -THE ARRAY USED TO DECODE NUMERIC VALUES FROM AN         C
+C              ASCII REPRESENTATION OF A LOGICAL HEADER RECORD.        C
+C   NORDV     -A VARIABLES USED TO DETERMINE THE NUMBER OF TIMES THE   C
+C              ' ORDVAR ' IDENTIFIER HAS BEEN ENCOUNTERED.             C
+C   NRATE     -A VARIABLE USED AS AN INDEX INTO IRATE STORING THE      C
+C              NUMBER OF IRATE VALUES READ.                            C
+C   NTERM     -A VARIABLE USED AS AN INDEX INTO TERM AND FACTR STORING C
+C              THE NUMBER OF TERM AND FACTR VALUES READ.               C
+C   NREC      -A COUNTER USED TO KEEP TRACK OF THE NUMBER OF PHYSICAL  C
+C              HEADER RECORDS READ.                                    C
+C   INDX      -THE CURRENT INDEX INTO THE INBUF ARRAY.                 C
+C   INDXD     -THE CURRENT INDEX INTO THE DEBUF ARRAY.                 C
+C                                                                      C
+C      THIS ROUTINE WAS WRITTEN BY MIKE DANIELS, SEPTEMBER 1984.       C
+C QUESTIONS AND/OR COMMENTS MAY BE GIVEN TO DICK FRIESEN BY CALLING    C
+C (303) 497-1047.                                                      C
+C                                                                      C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      COMMON / GENBLK / ILGBIT,IDATLG,IRATE(300),IPOS(300),TERM(300),
+     &                  FACTR(300),NVAR,NLOGRC,IDSIZ
+      CHARACTER*8 INBUF(100),VNAME(300),LOGBIT,DATLOG,ORDVAR,LETVAR,
+     &            DATSIZ
+      CHARACTER*80 DEBUF(10)
+      EQUIVALENCE (DEBUF,INBUF)
+C
+C-----> INITIALIZE THE IDENTIFIERS
+C
+      LOGBIT=' LOGBIT '
+      DATLOG=' DATLOG '
+      ORDVAR=' ORDVAR '
+      LETVAR=' LETVAR '
+      DATSIZ=' DATSIZ '
+C
+C-----> INITIALIZE THE COUNTERS
+C
+      NORDV=0
+      NRATE=0
+      NTERM=0
+      NREC=0
+   10 NREC=NREC+1
+      READ(LUIN,201,END=150) DEBUF
+ 201    format (a80)
+      GOTO 40
+C
+C-----> READ ERROR
+C
+   20 WRITE(LUOUT,30) NREC
+   30 FORMAT(/,' >>> READ ERROR ON HEADER FILE RECORD ',
+     &       'NUMBER ',I5,/)
+      GOTO 10
+C
+C-----> GOOD READ
+C
+C
+C-----> WRITE OUT EACH LOGICAL RECORD WHILE SEARCHING FOR THE
+C-----> IDENTIFIERS
+C
+   40 DO 120 INDX=1,100,10
+        INDXD=INDX/10+1
+        WRITE(LUOUT,60) DEBUF(INDXD)
+   60   FORMAT(1X,A80)
+        IF (INBUF(INDX).EQ.LOGBIT) THEN
+C
+C-----> DECODE THE NUMBER OF BITS PER LOGICAL DATA RECORD
+C
+           READ(DEBUF(INDXD),80) ILGBIT
+   80      FORMAT(10X,I8,62X)
+         ELSE IF (INBUF(INDX).EQ.DATLOG) THEN
+C
+C-----> DECODE THE NUMBER OF LOGICAL DATA RECORDS PER PHYSICAL DATA
+C-----> RECORD
+C
+           READ(DEBUF(INDXD),90) IDATLG
+   90      FORMAT(10X,I4,66X)
+         ELSE IF (INBUF(INDX).EQ.DATSIZ) THEN
+C
+C-----> DECODE THE NUMBER OF BITS PER PHYSICAL RECORD
+C
+           READ(DEBUF(INDXD),80) IDSIZ
+         ELSE IF (INBUF(INDX).EQ.ORDVAR) THEN
+           NORDV=NORDV+1
+         ELSE IF (INBUF(INDX).EQ.LETVAR) THEN
+           IF (NORDV.EQ.2) THEN
+C
+C-----> DECODE A VARIABLE'S SAMPLE RATE, FROM THE BIT LOCATION
+C-----> COMPUTE THE INDEX INTO A LOGICAL DATA RECORD AND READ THE
+C-----> VARIABLE NAME
+C
+              NRATE=NRATE+1
+              READ(DEBUF(INDXD),100) IRATE(NRATE),IFBIT,VNAME(NRATE)
+  100         FORMAT(28X,I6,5X,I8,15X,A8,10X)
+              IPOS(NRATE)=((IFBIT-1)/32)+1
+            ELSE IF (NORDV.EQ.3) THEN
+C
+C-----> DECODE A VARIABLE'S TERM AND FACTR
+C
+
+              NTERM=NTERM+1
+              READ(DEBUF(INDXD),110) TERM(NTERM),FACTR(NTERM)
+  110         FORMAT(16X,F15.8,1X,F14.8,34X)
+              END IF
+           END IF
+  120 CONTINUE
+      GOTO 10
+C
+C-----> EOF SENSED
+C
+  150 WRITE(LUOUT,160) NREC-1
+  160 FORMAT(/,' >>> EOF SENSED ON HEADER FILE AFTER ',I4,' RECORDS',/)
+C
+C-----> ASSIGN THE NUMBER OF VARIABLES AND SET THE NLOGRC POINTER TO
+C-----> IDATLG SO THAT WHEN GENDAT IS CALLED A PHYSICAL DATA RECORD IS
+C-----> READ IMMEDIATELY
+C
+      NVAR=NRATE
+      NLOGRC=IDATLG
+C
+C-----> WRITE OUT A VARIABLE TABLE
+C
+      WRITE(LUOUT,170)
+  170 FORMAT(//,1X,'  NAME  ',5X,'INDEX',5X,'RATE',/)
+      DO 180 I=1,NVAR
+  180 WRITE(LUOUT,190) VNAME(I),IPOS(I),IRATE(I)
+  190 FORMAT(1X,A8,5X,I5,5X,I4)
+      RETURN
+      END
+
+      SUBROUTINE GENDAT(LUIN,LUOUT,DATARY,ISTAT)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C     SUBROUTINE GENDAT WILL READ A LOGICAL DATA RECORD.  IT FIRST     C
+C CHECKS TO SEE IF IT IS NECESSARY TO READ A PHYSICAL RECORD.  IT THEN C
+C CONVERTS EACH INTEGER DATA VALUE TO A REAL DATA VALUE THROUGH        C
+C SUBROUTINE UNPCK.                                                    C
+C                                                                      C
+C PARAMETERS USED BY GENDAT:                                           C
+C   LUIN      -THE VARIABLE USED TO STORE THE LOGICAL UNIT NUMBER OF   C
+C              THE INPUT DEVICE FROM WHICH THE DATA ARE READ.          C
+C   LUOUT     -THE LOGICAL UNIT NUMBER OF THE DEVICE TO WHICH ALL      C
+C              ERROR MESSAGES ARE TO BE WRITTEN.                       C
+C   DATARY()  -THE ARRAY WHERE THE DATA ARE TO BE STORED.              C
+C   ISTAT     -A STATUS RETURN VARIABLE.                               C
+C                ISTAT=0   SUCCESSFUL READ                             C
+C                ISTAT=1   EOF SENSED                                  C
+C                ISTAT=-1  READ ERROR OCCURED                          C
+C                                                                      C
+C VARIABLES IN GENDAT:                                                 C
+C   NLOGRC    -A VARIABLE USED TO KEEP TRACK OF THE CURRENT LOGICAL    C
+C              RECORD BEING PROCESSED.  IT IS USED TO DETERMINE        C
+C              WHETHER OR NOT A NEW PHYSICAL RECORD NEEDS TO BE READ.  C
+C   INDX      -A POINTER USED TO POSITION A LOGICAL RECORD WITHIN A    C
+C              PHYSICAL RECORD.                                        C
+C                                                                      C
+C            WRITTEN BY MIKE DANIELS, SEPTEMBER, 1984.                 C
+C                                                                      C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      COMMON / GENBLK / ILGBIT,IDATLG,IRATE(300),IPOS(300),TERM(300),
+     &                  FACTR(300),NVAR,NLOGRC,IDSIZ
+C
+C-----> SET PARAMETER IWDSZ TO THE WORD SIZE OF YOUR MACHINE IN BITS
+C
+      PARAMETER (IWDSZ=32)
+C
+C-----> SET PARAMETER IRSIZ TO THE MAXIMUM EXPECTED NUMBER OF BITS
+C-----> PER PHYSICAL DATA RECORD
+C
+      PARAMETER (IRSIZ=100000)
+C
+C-----> CALCULATE THE MAXIMUM EXPECTED WORDS PER PHYSICAL RECORD
+C
+      PARAMETER (ISIZ=IRSIZ/IWDSZ)
+C
+C-----> SET INDAT ARRAY TO ITS EXPECTED MAXIMUM DIMENSION
+C
+      DIMENSION INDAT(ISIZ),DATARY(5000)
+      SAVE INDAT
+C
+C-----> CALCULATE THE NUMBER OF WORDS PER PHYSICAL RECORD
+C
+      IWORDS=IDSIZ/IWDSZ
+C
+C-----> DETERMINE WHETHER OR NOT IT IS NECESSARY TO READ THE NEXT
+C-----> PHYSICAL DATA RECORD
+C
+      IF (NLOGRC.GE.IDATLG) THEN
+         NLOGRC=0
+         READ(LUIN,ERR=20,END=100,IOSTAT=IOS) (INDAT(I),I=1,IWORDS)
+         END IF
+      ISTAT=0
+      GOTO 50
+C
+C-----> READ ERROR
+C
+   20 ISTAT=-1
+      WRITE(LUOUT,30) IOS
+   30 FORMAT(/,' >>> READ ERROR ON DATA FILE, IOSTAT=',I10,/)
+C
+C-----> GOOD READ
+C
+   50 NLOGRC=NLOGRC+1
+      INDX=(ILGBIT*(NLOGRC-1))/IWDSZ+1
+      CALL UNPCK(DATARY,INDAT(INDX))
+      RETURN
+C
+C-----> EOF SENSED
+C
+  100 ISTAT=1
+      WRITE(LUOUT,110)
+  110 FORMAT(/,' >>> EOF SENSED ON DATA FILE',/)
+      RETURN
+      END
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C                                                                      C
+C SAMPLE UNPCK TO BE USED WITH 32 BIT DEC MACHINES                     C
+C                                                                      C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C                                                                      C
+C                                                                      C
+      SUBROUTINE UNPCK(DATARY,IDAT)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C                                                                      C
+C     THIS SUBROUTINE IS WRITTEN FOR A DEC MACHINE ONLY !!!!!  IT DOES C
+C A BYTE SWAP THAT IS NOT NECESSARY FOR OTHER MACHINES.                C
+C                                                                      C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      PARAMETER (NVARMX=300)
+      COMMON / GENBLK / ILGBIT,IDATLG,IRATE(NVARMX),IPOS(NVARMX),
+     &                  TERM(NVARMX),FACTR(NVARMX),NVAR,NLOGRC,IDSIZ
+      DIMENSION DATARY(5000)
+      BYTE IDAT(1)
+      IMASK=255
+      IC=0
+      DO 10 I=1,NVAR
+      DO 10 J=1,IRATE(I)
+      IC=IC+1
+C
+C-----> BECAUSE OF A DEC QUIRK, WE MUST SWAP THE BYTES WITHIN A 4 BYTE
+C-----> WORD.
+C
+      IB1=(IMASK.AND.IDAT(IC*4-3))*16777216
+      IB2=(IMASK.AND.IDAT(IC*4-2))*65536
+      IB3=(IMASK.AND.IDAT(IC*4-1))*256
+      IB4=(IMASK.AND.IDAT(IC*4))
+      I32=IB1+IB2+IB3+IB4
+   10 DATARY(IC)=(I32/FACTR(I))-TERM(I)
+      RETURN
+      END

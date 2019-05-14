@@ -1,0 +1,362 @@
+c
+c Program to read University of Wyoming KingAir Data files in GENPRO-II
+c format.  The header file is read using "mostly" the GENPRO2.TAP
+c routine.  The actual code that reads and unpacks the binary data file
+c had to be rewritten for the Dec Alpha.
+c
+c        Written by   Paul Gluhosky       24 January 1996
+c                     paul.gluhosky@yale.edu
+c
+      parameter (maxrecs = 10000)
+      PARAMETER (NVARMX=600)       
+      DIMENSION DATARY(5000)
+      COMMON / GENBLK / ILGBIT,IDATLG,IRATE(NVARMX),IPOS(NVARMX),
+     1                  TERM(NVARMX),FACTR(NVARMX),NVAR,NLOGRC,IDSIZ
+c
+c Open Header file and output file.
+c
+      open( unit = 22, file = 'jul18a_hd' , status = 'old',
+     &  form = 'formatted', recl = 80 )
+      open( unit = 27, file = 'test.out', status = 'new' )
+      luin  = 22
+      luout = 27
+c
+c Read the header file and fill the "unpacking" arrays.
+c
+      call genhdr(luin,luout)
+      close(22)
+c
+c Open the binary data file.
+c
+      open( unit = 22, file = 'jul18a' , status = 'old',
+     &  form='unformatted')
+c
+c Read in the data.  You'll probably want to play with the maxrecs
+c parameter and the write statement below.
+c
+      do 100 i = 1, maxrecs
+         call gendat(luin,luout,datary,istat)
+         write(luout, 150) ( datary(j), j=1,5 )
+ 100  continue
+ 150  format (1x,5f20.5)
+      stop
+      end
+c
+c Routine for reading the GENPRO-II header. Most of this is the original
+c code written by Mike Daniels.
+c 
+       SUBROUTINE GENHDR(LUIN,LUOUT)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C     SUBROUTINE GENHDR WILL READ A GENPRO II HEADER, WRITE IT OUT (TO C
+C LOGICAL UNIT NUMBER LUOUT), STORE THE VALUES NECESSARY TO READ THE   C
+C DATA FILE, AND WILL WRITE OUT A TABLE OF THE VARIABLES, THEIR INDEX  C
+C WITHIN THE DATA ARRAY (WHEN CREATED) AND THEIR RATES.                C
+C                                                                      C
+C PARAMETERS USED BY GENHDR:                                           C
+C   LUIN      -THE LOGICAL UNIT NUMBER OF THE INPUT DEVICE FROM WHICH  C
+C              THE DATA ARE READ.                                      C
+C   LUOUT     -THE LOGICAL UNIT NUMBER OF THE DEVICE TO WHICH THE      C
+C              HEADER SHOULD BE WRITTEN.                               C
+C                                                                      C
+C VARIABLES IN GENHDR:                                                 C
+C   ILGBIT    -THE NUMBER OF BITS PER LOGICAL DATA RECORD.             C
+C   IDATLG    -THE NUMBER OF LOGICAL DATA RECORDS PER PHYSICAL DATA    C
+C              RECORD.                                                 C
+C   IDSIZ     -THE NUMBER OF BITS PER PHYSICAL DATA RECORD.            C
+C   IRATE()   -THIS ARRAY STORES THE SAMPLE RATE OF EACH RESPECTIVE    C
+C              VARIABLE.                                               C
+C   IPOS()    -THIS ARRAY STORES THE INDEX POSITION OF EACH RESPECTIVE C
+C              VARIABLE IN A DATA RECORD ARRAY.                        C
+C   TERM()    -THIS ARRAY STORES THE TERM VALUE FOR EACH RESPECTIVE    C
+C              VARIABLE.                                               C
+C   FACTR()   -THIS ARRAY STORES THE FACTOR VALUE FOR EACH RESPECTIVE  C
+C              VARIABLE.                                               C
+C   NVAR      -THE NUMBER OF VARIABLES SAMPLED FOR THIS DATA FILE.     C
+C   NLOGRC    -A COUNTER USED TO DETERMINE THE CURRENT LOGICAL DATA    C
+C              RECORD BEING PROCESSED.                                 C
+C   INBUF()   -THE ARRAY USED TO CHECK FOR AN EIGHT CHARACTER          C
+C              IDENTIFIER AT THE BEGINNING OF A LOGICAL HEADER RECORD. C
+C   VNAME()   -THE ARRAY TO STORE THE RESPECTIVE VARIABLE NAMES.       C
+C   LOGBIT    -STORES THE EIGHT CHARACTER IDENTIFIER ' LOGBIT '.       C
+C   DATLOG    -STORES THE EIGHT CHARACTER IDENTIFIER ' DATLOG '.       C
+C   ORDVAR    -STORES THE EIGHT CHARACTER IDENTIFIER ' ORDVAR '.       C
+C   LETVAR    -STORES THE EIGHT CHARACTER IDENTIFIER ' LETVAR '.       C
+C   DATSIZ    -STORES THE EIGHT CHARACTER IDENTIFIER ' DATSIZ '.
+C   DEBUF()   -THE ARRAY USED TO DECODE NUMERIC VALUES FROM AN         C
+C              ASCII REPRESENTATION OF A LOGICAL HEADER RECORD.        C
+C   NORDV     -A VARIABLES USED TO DETERMINE THE NUMBER OF TIMES THE   C
+C              ' ORDVAR ' IDENTIFIER HAS BEEN ENCOUNTERED.             C
+C   NRATE     -A VARIABLE USED AS AN INDEX INTO IRATE STORING THE      C
+C              NUMBER OF IRATE VALUES READ.                            C
+C   NTERM     -A VARIABLE USED AS AN INDEX INTO TERM AND FACTR STORING C
+C              THE NUMBER OF TERM AND FACTR VALUES READ.               C
+C   NREC      -A COUNTER USED TO KEEP TRACK OF THE NUMBER OF PHYSICAL  C
+C              HEADER RECORDS READ.                                    C
+C   INDX      -THE CURRENT INDEX INTO THE INBUF ARRAY.                 C
+C   INDXD     -THE CURRENT INDEX INTO THE DEBUF ARRAY.                 C
+C                                                                      C
+C      THIS ROUTINE WAS WRITTEN BY MIKE DANIELS, SEPTEMBER 1984.       C
+C QUESTIONS AND/OR COMMENTS MAY BE GIVEN TO DICK FRIESEN BY CALLING    C
+C (303) 497-1047.                                                      C
+c      
+c Updated by:   Paul Gluhosky     24 Jan 1996
+c    Capture the full variable titles and units. 
+C                                                                      C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      COMMON / GENBLK / ILGBIT,IDATLG,IRATE(600),IPOS(600),TERM(600),
+     &                  FACTR(600),NVAR,NLOGRC,IDSIZ
+      CHARACTER*8 INBUF(100),VNAME(600),LOGBIT,DATLOG,ORDVAR,LETVAR,
+     &            DATSIZ
+      character*8  units(600)
+      character*40 titles(600)
+      CHARACTER*80 DEBUF(10)
+      EQUIVALENCE (DEBUF,INBUF)
+C
+C-----> INITIALIZE THE IDENTIFIERS
+C
+      LOGBIT=' LOGBIT '
+      DATLOG=' DATLOG '
+      ORDVAR=' ORDVAR '
+      LETVAR=' LETVAR '
+      DATSIZ=' DATSIZ '
+C
+C-----> INITIALIZE THE COUNTERS
+C
+      NORDV=0
+      NRATE=0
+      NTERM=0
+      NREC=0
+      ncnt = 0
+   10 NREC=NREC+1
+      READ(LUIN,201,err=20,END=150) DEBUF
+ 201    format (a80)
+      GOTO 40
+C
+C-----> READ ERROR
+C
+   20 WRITE(LUOUT,30) NREC
+   30 FORMAT(/,' >>> READ ERROR ON HEADER FILE RECORD ',
+     &       'NUMBER ',I5,/)
+      GOTO 10
+C
+C-----> GOOD READ
+C
+C
+C-----> WRITE OUT EACH LOGICAL RECORD WHILE SEARCHING FOR THE
+C-----> IDENTIFIERS
+C
+   40 DO 120 INDX=1,100,10
+        INDXD=INDX/10+1
+        WRITE(LUOUT,60) DEBUF(INDXD)
+   60   FORMAT(1X,A80)
+        IF (INBUF(INDX).EQ.LOGBIT) THEN
+C
+C-----> DECODE THE NUMBER OF BITS PER LOGICAL DATA RECORD
+C
+           READ(DEBUF(INDXD),80) ILGBIT
+   80      FORMAT(10X,I8,62X)
+         ELSE IF (INBUF(INDX).EQ.DATLOG) THEN
+C
+C-----> DECODE THE NUMBER OF LOGICAL DATA RECORDS PER PHYSICAL DATA
+C-----> RECORD
+C
+           READ(DEBUF(INDXD),90) IDATLG
+   90      FORMAT(10X,I4,66X)
+         ELSE IF (INBUF(INDX).EQ.DATSIZ) THEN
+C
+C-----> DECODE THE NUMBER OF BITS PER PHYSICAL RECORD
+C
+           READ(DEBUF(INDXD),80) IDSIZ
+         ELSE IF (INBUF(INDX).EQ.ORDVAR) THEN
+           NORDV=NORDV+1
+         ELSE IF (INBUF(INDX).EQ.LETVAR) THEN
+           if(nordv .eq. 1) then
+c
+c Decode the full title names.
+c
+              ncnt = ncnt + 1
+              read(debuf(indxd),95) titles(ncnt)
+   95         format(11x,a40,29x)
+           else IF (NORDV.EQ.2) THEN
+C
+C-----> DECODE A VARIABLE'S SAMPLE RATE, FROM THE BIT LOCATION
+C-----> COMPUTE THE INDEX INTO A LOGICAL DATA RECORD AND READ THE
+C-----> VARIABLE NAME
+c       decode the units also.
+C
+              NRATE=NRATE+1
+              READ(DEBUF(INDXD),100) units(nrate),IRATE(NRATE),IFBIT,
+     +                               VNAME(NRATE)
+  100         FORMAT(11x,a8,9x,I6,5X,I8,15X,A8,10X)
+c             READ(DEBUF(INDXD),100) IRATE(NRATE),IFBIT,VNAME(NRATE)
+c 100         FORMAT(28X,I6,5X,I8,15X,A8,10X)
+              IPOS(NRATE)=((IFBIT-1)/32)+1
+            ELSE IF (NORDV.EQ.3) THEN
+C
+C-----> DECODE A VARIABLE'S TERM AND FACTR
+C
+
+              NTERM=NTERM+1
+              READ(DEBUF(INDXD),110) TERM(NTERM),FACTR(NTERM)
+  110         FORMAT(16X,F15.8,1X,F14.8,34X)
+              END IF
+           END IF
+  120 CONTINUE
+      GOTO 10
+C
+C-----> EOF SENSED
+C
+  150 WRITE(LUOUT,160) NREC-1
+  160 FORMAT(/,' >>> EOF SENSED ON HEADER FILE AFTER ',I4,' RECORDS',/)
+C
+C-----> ASSIGN THE NUMBER OF VARIABLES AND SET THE NLOGRC POINTER TO
+C-----> IDATLG SO THAT WHEN GENDAT IS CALLED A PHYSICAL DATA RECORD IS
+C-----> READ IMMEDIATELY
+C
+      NVAR=NRATE
+      NLOGRC=IDATLG
+C
+C-----> WRITE OUT A VARIABLE TABLE
+C
+      WRITE(LUOUT,170)
+  170 FORMAT(//,1X,'  NAME  ',5X,'INDEX',5X,'RATE',8x,'TERM',6x,
+     +       'FACTOR'/)
+      DO 180 I=1,NVAR
+  180 WRITE(LUOUT,190) VNAME(I),IPOS(I),IRATE(I),term(i),factr(i)
+  190 FORMAT(1X,A8,5X,I5,5X,I4,5x,f7.1,5x,f7.1)
+c
+c Do some error checking first and output full variable names and units.
+c
+      if(nvar .ne. ncnt) print *, ' nvar:',nvar,' .ne.  ncnt:',ncnt
+      do i = 1, nvar
+         write(33,200) titles(i),units(i)
+ 200     format(2x,a40,2x,a8)
+      end do
+      RETURN
+      END
+c
+      SUBROUTINE GENDAT(LUIN,LUOUT,DATARY,ISTAT)
+c
+c Stub to read a record from data file.  This routine is here for historical
+c reasons only.
+c
+      COMMON / GENBLK / ILGBIT,IDATLG,IRATE(600),IPOS(600),TERM(600),
+     &                  FACTR(600),NVAR,NLOGRC,IDSIZ
+C
+      DIMENSION DATARY(5000)
+C
+      CALL MY_UNPCK(DATARY,LUIN,ISTAT)
+      if(istat .eq. 0) RETURN
+C
+C-----> EOF SENSED
+C
+      WRITE(LUOUT,110)
+  110 FORMAT(/,' >>> EOF SENSED ON DATA FILE',/)
+c
+c You may want to do other stuff after you've read in all the data!
+c
+      stop
+      END
+C                                                                      C
+      SUBROUTINE MY_UNPCK(DATARY,luin,istat)
+c
+c This routine uses the Fortran 3f routines.  It will most certainly
+c need to be at least checked and probably rewritten for other platforms.
+c This routine does ALL the work.  It reads in four characters at a time
+c and places them, high byte first, into a four byte integer.  The integer
+c is then "unpacked".
+c
+c        Written by  Paul Gluhosky     24 Jan 1996
+c
+c Additional help:
+c        Digital UNIX (OSF/1): man 3f intro
+c                              man 3f fgetc
+c                              man 3f lshift
+c        ULTRIX:               man 3f intro
+c                              man 3f fgetc
+c                              man 3f lshift
+c        IRIX:                 man fgetc
+c                              man lshift
+c
+      PARAMETER (NVARMX=600)
+      COMMON / GENBLK / ILGBIT,IDATLG,IRATE(NVARMX),IPOS(NVARMX),
+     &                  TERM(NVARMX),FACTR(NVARMX),NVAR,NLOGRC,IDSIZ
+      DIMENSION DATARY(5000)
+      character*1 ch
+      integer*4 fgetc, ierr, luin, ihold
+      integer dt1,dt2,dt3,dt4
+      external fgetc
+c
+      istat = 0
+      IC=0
+c
+c Loop through NVAR variables, sampled at IRATE rates.
+c
+      DO 10 I=1,NVAR
+      DO 10 J=1,IRATE(I)
+         IC=IC+1
+         ierr = fgetc(luin,ch)
+c
+c Check for errors and EOF after each read.
+c
+         if(ierr .gt. 0) then
+            print *, '  Read Error:',ierr
+            stop
+         end if
+         if(ierr .eq. -1) then
+            istat = ierr
+            return
+         end if
+         inum1 = ichar(ch)
+         dt1 = lshift(inum1,24)
+         ierr = fgetc(luin,ch)
+         if(ierr .gt. 0) then
+            print *, '  Read Error:',ierr
+            stop
+         end if
+         if(ierr .eq. -1) then
+            istat = ierr
+            return
+         end if
+         inum2 = ichar(ch)
+         dt2 = lshift(inum2,16)
+         ierr = fgetc(luin,ch)
+         if(ierr .gt. 0) then
+            print *, '  Read Error:',ierr
+            stop
+         end if
+         if(ierr .eq. -1) then
+            istat = ierr
+            return
+         end if
+         inum3 = ichar(ch)
+         dt3 = lshift(inum3,8)
+         ierr = fgetc(luin,ch)
+         if(ierr .gt. 0) then
+            print *, '  Read Error:',ierr
+            stop
+         end if
+         if(ierr .eq. -1) then
+            istat = ierr
+            return
+         end if
+         inum4 = ichar(ch)
+         dt4 = inum4
+c
+c Build the four byte integer.
+c
+         ihold = dt1 + dt2 + dt3 + dt4
+c
+c Check for missing info in header.
+c
+         if(factr(i) .eq. 0.0) then
+            print *, '  Fixing factor for index variable:',i
+            factr(i) = 1.0
+         end if
+c
+c "Unpack" the number.
+c
+         DATARY(IC)=(ihold/FACTR(I))-TERM(I)
+   10 continue
+      RETURN
+      END
