@@ -1,0 +1,45 @@
+XCOMM platform:  $Id: cray.cf,v 1.1.1.1 1999/05/14 20:57:08 morreale Exp $
+
+/*
+**	ncar_imake will automatically define the macros OSMajorVersion, 
+**	OSMinorVersion, and OSTeenyVersion to the appropriate version
+**	numbers.
+*/
+#define OSName		UNICOS OSMajorVersion OSMinorVersion OSTeenyVersion
+XCOMM operating system:	OSName
+XCOMM OSMajorNumber:	OSMajorVersion
+XCOMM OSMinorNumber:	OSMinorVersion
+XCOMM OSTeenyNumber:	OSTeenyVersion
+
+
+#define CCsuf C
+#define HasCplusplus		YES
+#define SystemV			YES
+#define Malloc0ReturnsNull	YES
+#define RemoveTargetProgramByMoving YES
+#define ArCmd			bld cr
+#define StandardDefines		-DSYSV -DUSG
+#define ExecableScripts		NO
+#define HasPoll			NO
+#define HasShm			NO
+#define NativeFPFormat		CRAY_Float
+#if defined(UseInstalled) || ! IsNcarImakeProject
+#define InstallCmd              ncar_install
+#else
+#define InstallCmd              $(SHELL) $(UTILSRC)/ncar_install
+#endif
+
+#ifdef _CRAY2
+#define DefaultCCOptions	-hpagelm -hlimitlm
+#endif
+
+#if OSMajorVersion >= 6
+#define PreProcessCmd 		/lib/pcpp
+#define CppCmd	 		/lib/pcpp
+#else
+#  if OSMajorVersion == 5
+#  define PreProcessCmd 	/lib/cpp
+#  define CppCmd	 	/lib/cpp
+#  define ExtraLoadFlags        -lnet
+#  endif
+#endif

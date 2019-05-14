@@ -1,0 +1,168 @@
+.na
+.nh
+.TH CRAYOPEN 3  "04 May 1999" NCAR "Local Routine"
+.SH NAME
+crayopen   - open a Cray file for reading or writing.
+.SH SYNOPSIS
+INTEGER CRAYOPEN
+.br
+\fIifc\fR = \fBCRAYOPEN(\fIflnm, iflag, mode\fR)
+.sp
+.br
+CHARACTER*(*)  \fIflnm\fR
+.br
+INTEGER        \fIiflag\fR
+.br
+INTEGER        \fImode\fR
+.SH "C EXTENSION"
+ifc = CrayOpen(flnm, iflag, mode)
+.br
+char  *flnm;
+.br
+int   iflag;
+.br
+int   mode;
+.SH DESCRIPTION
+The NCAR local library routine 
+.B CRAYOPEN
+is used to open a Cray file for either reading or writing.  This
+routine is part of a family of routines which allow you to
+manipulate Cray datasets from your Fortran programs on machines other
+than a Cray.
+.PP
+If
+.B CRAYOPEN
+returns successfully then \fIifc\fR is an integer which 
+must be retained for later use in routines which read of write data 
+to the file.  If 
+.B CRAYOPEN
+fails, then an error has occurred and the file was not opened.
+.PP
+.B CRAYOPEN
+uses a dynamically allocated buffer for blocked I/O.  By default this buffer
+is set to 256 blocks (1MB). You can control the 
+size of this buffer
+by using the 
+.B CRAYBLOCKS
+routine.   The 
+.B CRAYBLOCKS
+routine must be called prior to the 
+.B CRAYOPEN 
+routine and sets the number of blocks 
+.B CRAYOPEN will use for the buffer.  If the 
+.B CRAYBLOCKS 
+routine is not executed, then 
+.B CRAYOPEN 
+will look for the "CRAYBLOCKS" environment variable and use its value as
+the number of blocks desired.  In general, the larger the I/O buffer, the more
+efficient the I/O.   For optimum performance, the block-size should be a
+power of 2.
+.PP
+Depending on the value of 
+.I iflag
+you can either open a Cray-blocked file, or a Cray unblocked file.  
+If 
+.B CRAYOPEN
+is used to open an unblocked Cray file, the I/O buffer is not allocated
+and therefore the environment variable CRAYBLOCKS is ignored.
+.PP
+The arguments are:
+.TP 6
+\fIflnm
+A character string or character variable containing the name of the file
+to open.  If the file exists, the file must be in a Cray-Blocked
+format.
+.TP 
+\fIiflag
+An INTEGER flag which indicates whether the file is going to read or
+written. See NOTES below.  \fIiflag\fR must have one of the following values:
+.RS 6
+.TP 5
+0 -
+Blocked file read only. If the file does not exist, an error is returned.
+The file pointer is positioned to the beginning of the file. 
+.TP 5
+1 -
+Blocked file write only. The file will be created if it does not exist, and
+truncated if it does exist.
+.TP 5
+2 -
+Blocked file read and write. The file will be created if it doesn't exist.  If the
+file exists, it is not truncated. The file pointer is set to the
+beginning of the file. 
+.TP 5
+3 -
+Blocked file append.  The file is opened for both reading and writing, and 
+the record pointer is positioned at the end of the data in the last file
+of the dataset.  The file must exist.
+.TP 5
+10 -
+Unblocked file read only. If the file does not exist, an error is returned.
+The file pointer is positioned to the beginning of the file.
+.TP 5
+11 -
+Unblocked file write only. The file will be created if it does not exist, and
+truncated if it does exist.
+.TP 5
+12 -
+Unblocked file read and write. The file will be created if it doesn't exist.  If the
+file exists, it is not truncated. The file pointer is set to the
+beginning of the file.  
+.TP 5
+13 -
+Unblocked file append.  The file is opened for both reading and writing, and the file 
+pointer is positioned at the end of the data.  The file must exist.
+.RE
+.TP 6
+\fImode
+An INTEGER octal value specifying the permissions of the file, if the
+file is being created.  This argument is only meaningful for
+\fIiflag\fRs 1 and 2.  A typical value is o'644' which means read/write
+for the owner and read for all others.
+.TP 6 
+.I len
+The length of the 
+.I flnm 
+argument in bytes.  This argument is valid only for the C version of
+this routine.  Do not specify this argument for the Fortran version. 
+.SH EXAMPLES
+To open the file "/usr/tmp/foo" for reading:
+.sp
+.ce
+IFC = CRAYOPEN("/usr/tmp/foo", 1, 0)
+.PP
+In this case, the last argument is not used.
+.PP
+To create the file "/usr/tmp/bar" for later writing, with read and write
+permissions for yourself only:
+.sp
+.ce
+IFC = CRAYOPEN("/usr/tmp/bar, 2, o'600')
+.PP
+The file is created (or truncated if it exists) and is ready for
+writing.
+.SH NOTES
+.PP
+If you intend on using crayback(3), you must open the file using 
+.I iflag
+= 2.  Any other value will result in an error being returned.
+.PP
+If you are writing a Cray file, you must explicitly close the file using
+the CRAYCLOSE routine otherwise the diskfile will be improperly
+terminated and unusable.
+.SH IMPLEMENTATION
+To include this routine when loading your program, be sure to use
+the following loader flags:
+.sp
+            -L/usr/local/lib -lncaru
+.sp
+.SH "RETURN VALUES"
+Upon return, if \fIifc\fR is less than zero, and error of some sort has
+occurred. Otherwise, \fIifc\fR contains a value which must be
+passed to the other Cray file routines.
+.SH "SEE ALSO"
+crayblocks(3), crayrew(3), crayread(3), craywrite(3), crayclose(3), crayweod(3), crayeod(3)
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved

@@ -1,0 +1,59 @@
+XCOMM site:  $Id: site.def,v 1.1.1.1 1999/05/14 20:57:08 morreale Exp $
+
+/*****************************************************************************
+ *                                                                           *
+ *			   SITE-SPECIFIC DEFINITIONS                         *
+ *                                                                           *
+ * This file contains two halves, one included before the vendor-specific    *
+ * configuration file (.cf file), and one included after the .cf file.       *
+ * The before-half should be protected by #ifdef BeforeVendorCF, and the     *
+ * after-half should be protected by #ifdef AfterVendorCF.                   *
+ *                                                                           *
+ * The before-half should only set things that the .cf file depends on.      *
+ * For the .cf files shipped in this release, the main variables in this     *
+ * category are HasGcc and HasGcc2.                                          *
+ *                                                                           *
+ * The after-half should contain all other definitions.  For example,        *
+ * place your ProjectRoot definition here.                                   *
+ *                                                                           *
+ *                                                                           *
+ *****************************************************************************/
+
+/* if you want host-specific customization, this is one way to do it */
+/*
+#ifndef SiteIConfigFiles
+#define SiteIConfigFiles $(IRULESRC)/host.def
+#define LocalConfigFiles host.def
+#endif
+
+*/
+
+
+#ifdef BeforeVendorCF
+
+/*
+#include <host.def>
+*/
+
+/*
+#ifndef HasGcc2
+#define HasGcc2 YES
+#endif
+*/
+
+#endif /* BeforeVendorCF */
+
+#ifdef AfterVendorCF
+
+#define HasPurify	YES
+
+
+#ifndef	ProjectRoot
+#define ProjectRoot /fs/scd/home0/morreale
+#endif
+
+/*
+#include <host.def>
+*/
+
+#endif /* AfterVendorCF */

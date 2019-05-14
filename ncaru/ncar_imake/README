@@ -1,0 +1,94 @@
+$Id: README,v 1.1.1.1 1999/05/14 20:57:07 morreale Exp $
+
+			ncar_imake V1.1
+			---------- ----
+
+X11-independent imake
+
+by John Clyne
+clyne@ncar.ucar.edu
+
+
+1. Introduction
+---------------
+
+ncar_imake is an X11-independent version of X's imake. I.e. its
+imake without all the ties to X11 that make imake difficult to use
+for non-X projects. For example, ncar_imake doesn't insist on
+installing executables in /usr/bin/X11. Installation directories
+in ncar_imake can easily be set up on a per-project basis.
+
+ncar_imake has a number of other nice features that distinguish it
+from imake. Too many to go into here. 
+
+Most imake Imakefile files should work without modification with 
+ncar_imake.
+
+
+2. Compiling and Installation
+-----------------------------
+
+This release of ncar_imake has been compiled and tested on the following 
+systems:
+
+	Cray	Unicos 9.x
+	Cray	Unicos 8.x
+	DEC	OSF1 4.0
+	SGI	Irix 6.2
+	Sun	Solaris	2.5.1
+	HP	HP-UX 10.0
+
+To compile and build on one of the above systems do the following:
+
+	(a) Edit the file cf/site.def. Make sure the ProjectRoot
+	    macro is defined to a suitable path for the top of 
+	    the installation tree. Ncar_imake will install files
+	    in $ProjectRoot/bin and $ProjectRoot/lib. If you bin and
+	    lib need to have different parent directories, use the
+	    BinDir and LibDir macros to define separate bin and lib
+	    installation directory paths. E.g.
+
+		#define	BinDir	/something/bin
+		#define LibDir	/somethingelse/lib
+
+	(b) Type the following to build ncar_imake:
+
+		% make -f Makefile.ini World
+
+	(c) To install type:
+
+		% make install
+
+	    That's it. You're done.
+
+
+
+3. Getting Started
+------------------
+
+
+You can now use ncar_imake in much the same way as Imake. For a good 
+reference on Imake see the O'Reilly book, "Software Portability with 
+Imake", by Paul DuBois.
+
+For small projects you'll want to use the stock ncar_imake configuration
+environment that you just installed. If you've defined ProjectRoot
+to be /usr/local for Ncar_imake, then this is the same project root
+that will be used for Imakefiles outside of ncar_imake. 
+
+Ncar_imake's greatest flexibility is gained when you create a custom
+configuration environment for a project. Just create a 'cf' subdirectory
+at the root or your projects source tree, populate this directory
+with whatever config files you want to override ncar_imake's config
+files, and then bootstrap the top-level Imakefile with the command:
+
+	% ncar_imboot -p topdir .
+
+For example. If ncar_imake was configured with ProjectRoot set to 
+/usr/local, but you were working on a project where you wanted to 
+ProjectRoot to be /usr/myprojectname, just create a file called
+cf/Project.p-tmpl and add the line:
+
+	#define ProjectRoot /usr/myprojectname.
+
+Then bootstrap with the above ncar_imboot command.

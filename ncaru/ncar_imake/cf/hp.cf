@@ -1,0 +1,57 @@
+XCOMM platform:  $Id: hp.cf,v 1.1.1.1 1999/05/14 20:57:08 morreale Exp $
+
+/*
+**	ncar_imake will automatically define the macros OSMajorVersion, 
+**	OSMinorVersion, and OSTeenyVersion to the appropriate version
+**	numbers.
+*/
+#define OSName		HP-UX OSMajorVersion OSMinorVersion OSTeenyVersion 
+XCOMM operating system:  OSName
+XCOMM OSMajorNumber:	OSMajorVersion
+XCOMM OSMinorNumber:	OSMinorVersion
+XCOMM OSTeenyNumber:	OSTeenyVersion
+
+#define SystemV                YES
+#define Malloc0ReturnsNull     YES
+
+#ifdef __hp9000s800
+
+#ifndef	DefaultCCOptions
+#define DefaultCCOptions       -Ae +ESlit
+#endif
+
+#ifndef	StandardDefines
+#define StandardDefines        -Dhpux -DSYSV
+#endif
+
+/* #include <hpLib.rules> */
+#else
+
+#ifndef	StandardDefines
+#define StandardDefines        -Dhpux -DSYSV
+#endif
+
+#endif
+
+#ifndef	CplusplusOptions
+#define	CplusplusOptions	+a1
+#endif
+
+#define MvCmd                  mv -f
+#define LdCombineFlags -r
+#define ExecableScripts        YES
+#define HasVFork               YES
+#define HasPoll                YES
+#define RemoveTargetProgramByMoving YES
+#define ExpandManNames         YES
+#define HasPutenv              YES
+#define HasNdbm		       YES
+#define HPFastScrolling        YES
+
+#define CCsuf C
+#define HasCplusplus		YES
+
+#ifndef CplusplusCmd
+#define CplusplusCmd		/opt/CC/bin/CC
+#endif
+

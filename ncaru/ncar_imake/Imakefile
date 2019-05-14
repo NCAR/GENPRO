@@ -1,0 +1,18 @@
+XCOMM $Id: Imakefile,v 1.1.1.1 1999/05/14 20:57:07 morreale Exp $
+#define IHaveSubdirs
+#define PassCDebugFlags CDEBUGFLAGS="$(CDEBUGFLAGS)"
+
+#ifndef OSName
+#define OSName Unknown Operating System!
+#endif
+
+SUBDIRS 	= cf src
+
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))
+
+VerifyOS::
+	@echo ""
+	@echo Building on OSName.
+	@echo ""
+

@@ -1,0 +1,21 @@
+XCOMM $Id: Imakefile,v 1.1.1.1 1999/05/14 20:57:04 morreale Exp $
+
+#ifdef LocalConfigFiles
+LOCALFILES = LocalConfigFiles
+#endif
+
+DEFFILES = \
+site.p-def
+
+RULEFILES = 
+
+TMPLFILES = \
+Project.p-tmpl
+
+CFFILES = 
+
+INSTFILES = $(RULEFILES) $(TMPLFILES) $(DEFFILES) $(CFFILES) $(LOCALFILES)
+
+all::
+
+InstallMultipleDestFlags(install,$(INSTFILES),$(CONFIGDIR),$(INSTDATFLAGS))

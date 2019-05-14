@@ -1,0 +1,12 @@
+/*
+**	 Dummy private site file
+*/
+
+/*
+**	This is the ncar_imake project. This macro should probably be
+**	defined in Project.p-tmpl but Project.p-tmpl is included too
+**	late in Imake.tmpl :-(
+*/
+#ifndef	IsNcarImakeProject
+#define	IsNcarImakeProject	YES
+#endif

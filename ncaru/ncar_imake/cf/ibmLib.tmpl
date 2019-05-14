@@ -1,0 +1,30 @@
+XCOMM $Id: ibmLib.tmpl,v 1.1.1.1 1999/05/14 20:57:08 morreale Exp $
+
+/*
+ * AIX shared library template
+ */
+
+#if ThreadedX
+#define SharedX11Reqs -lpthreads
+#endif
+#define SharedXextReqs $(XLIBONLY)
+#define SharedXmuReqs $(XTOOLLIB) $(XLIB)
+#define SharedOldXReqs $(XLIBONLY)
+#if ThreadedX
+#define SharedXtReqs $(XLIBONLY) $(SMLIB) $(ICELIB) -lpthreads
+#else
+#define SharedXtReqs $(XLIBONLY) $(SMLIB) $(ICELIB) 
+#endif
+#define SharedXawReqs $(XMULIB) $(XTOOLLIB) $(XLIB)
+#define SharedXiReqs $(XLIB)
+#define SharedXtstReqs $(XLIB)
+#define SharedPexReqs $(XLIBONLY)
+#define SharedXieReqs $(XLIBONLY)
+#define SharedSMReqs $(ICELIB)
+#define SharedFrescoReqs $(XLIBONLY) CplusplusLibC
+#define SharedXtfReqs $(FRESCOLIB) $(XTOOLLIB) $(XLIB) CplusplusLibC
+
+#ifndef FixupLibReferences
+#define FixupLibReferences()						@@\
+DEPXTOOLLIB = _UseCat($(USRLIBDIR),$(TOOLKITSRC),/libXt.a)
+#endif

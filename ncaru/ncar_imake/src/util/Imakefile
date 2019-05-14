@@ -1,0 +1,39 @@
+XCOMM BASED ON:
+XCOMM $Id: Imakefile,v 1.1.1.1 1999/05/14 20:57:11 morreale Exp $
+
+PROJECTNAME	= ncar_imake
+PUBCONFIGDIR 	= $(LIBDIR)/cf
+PROGRAMS	= ncar_mkdirhier ncar_imboot ncar_imdent ncar_bsdinst \
+		ncar_install
+INSTALLFLAGS	= $(INSTPGMFLAGS)
+
+all:: $(PROGRAMS)
+install:: install.ncar_mkdirhier install.ncar_imboot install.ncar_imdent \
+	install.ncar_bsdinst install.ncar_install
+
+ncar_mkdirhier: ncar_mkdirhier.sh
+	$(CP) ncar_mkdirhier.sh ncar_mkdirhier
+	chmod a+x ncar_mkdirhier
+InstallMultipleDestFlags(install.ncar_mkdirhier,ncar_mkdirhier,$(BINDIR),$(INSTBINFLAGS))
+InstallManPage(ncar_mkdirhier,$(MANDIR),1)
+
+CppScriptTarget(ncar_imboot,ncar_imboot.cpp,-DPUBCONFIGDIR=$(PUBCONFIGDIR),$(ICONFIGFILES))
+InstallMultipleDestFlags(install.ncar_imboot,ncar_imboot,$(BINDIR),$(INSTBINFLAGS))
+
+CppScriptTarget(ncar_imdent,ncar_imdent.pl,NullParameter,NullParameter)
+InstallMultipleDestFlags(install.ncar_imdent,ncar_imdent,$(BINDIR),$(INSTBINFLAGS))
+
+ncar_bsdinst: ncar_bsdinst.sh
+	$(CP) ncar_bsdinst.sh ncar_bsdinst
+	chmod a+x ncar_bsdinst
+InstallMultipleDestFlags(install.ncar_bsdinst,ncar_bsdinst,$(BINDIR),$(INSTBINFLAGS))
+
+ncar_install: ncar_install.sh
+	$(CP) ncar_install.sh ncar_install
+	chmod a+x ncar_install
+InstallMultipleDestFlags(install.ncar_install,ncar_install,$(BINDIR),$(INSTBINFLAGS))
+
+clean::
+	$(RM) $(PROGRAMS)
+
+depend::

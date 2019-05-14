@@ -1,0 +1,51 @@
+XCOMM platform:  $Id: osf1.cf,v 1.1.1.1 1999/05/14 20:57:08 morreale Exp $
+/* only tested with Digital OSF/1 */
+
+#ifdef AlphaArchitecture
+#define OSName		OSF/1 OSMajorVersion OSMinorVersion OSTeenyVersion
+#else
+#define OSName		OSF/1 OSMajorVersion OSMinorVersion OSTeenyVersion
+XCOMM operating system:  OSName
+#endif
+
+/*
+**	ncar_imake will automatically define the macros OSMajorVersion, 
+**	OSMinorVersion, and OSTeenyVersion to the appropriate version
+**	numbers.
+*/
+XCOMM operating system:	OSName
+XCOMM OSMajorNumber:	OSMajorVersion
+XCOMM OSMinorNumber:	OSMinorVersion
+XCOMM OSTeenyNumber:	OSTeenyVersion
+
+_NULLCMD_		= @ /usr/bin/true
+
+
+#define HasPutenv		YES
+#define Malloc0ReturnsNull	YES
+#define HasNdbm			YES
+#define HasShm			YES
+#define SystemMTDefines -D_REENTRANT
+#define HasPoll			YES
+#define HasVFork                NO
+#define InstallCmd installbsd
+#if OSMinorVersion > 0
+#define ModernOSF1		YES
+#else
+#define ModernOSF1		NO
+#define ShLibDir /usr/shlib
+#endif
+
+#include <osfLib.rules>
+#define NoRConst		YES
+
+#ifdef AlphaArchitecture
+#define DefaultCCOptions	-std1
+#endif
+#ifdef MipsArchitecture
+#define DefaultCCOptions	-Xc
+#define NormalLibObjCompile(options) $(RM) $@ $*.os \			@@\
+	&& $(CC) -c options $(CFLAGS) $*.c \				@@\
+	&& $(LD) $(LDSTRIPFLAGS) -r $@ -o $*.os \			@@\
+	&& $(MV) $*.os $@
+#endif

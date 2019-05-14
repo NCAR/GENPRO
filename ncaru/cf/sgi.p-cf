@@ -1,0 +1,7 @@
+XCOMM platform:  $Id: sgi.p-cf,v 1.1.1.1 1999/05/14 20:57:05 morreale Exp $
+
+/*
+**	Set the special options we require on SGI machines.
+*/
+
+

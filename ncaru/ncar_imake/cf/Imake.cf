@@ -1,0 +1,171 @@
+XCOMM $Id: Imake.cf,v 1.1.1.1 1999/05/14 20:57:09 morreale Exp $
+/*
+ * To add support for another platform:
+ * 
+ *     1.  Identify a machine-specific cpp symbol.  If your preprocessor 
+ *         does not have any built in, you will need to add the symbol to the
+ *         cpp_argv table in config/imakemdep.h and rebuild imake with the
+ *         BOOTSTRAPCFLAGS variable set (see the macII for an example).
+ *
+ *     2.  Add all machine-specific cpp symbols (either defined by you or by
+ *         the preprocessor or compiler) to the predefs table in 
+ *         config/imakemdep.h.
+ *
+ *     3.  But a new #ifdef block below that defines MacroIncludeFile and
+ *         MacroFile for your new platform and then #undefs the machine-
+ *         specific preprocessor symbols (to avoid problems with file names).
+ *
+ *     4.  Create a .cf file with the name given by MacroFile.
+ */
+
+#ifdef ultrix
+#define MacroIncludeFile <ultrix.cf>
+#define ProjectMacroIncludeFile <ultrix.p-cf>
+#define MacroFile ultrix.cf
+#ifdef vax
+#undef vax
+#define VaxArchitecture
+#endif
+#ifdef mips
+#undef mips
+#define MipsArchitecture
+#endif
+#undef ultrix
+#define UltrixArchitecture
+#define	ArchDefine	-DArchUltrix
+#endif /* ultrix */
+
+#ifdef sun
+#define MacroIncludeFile <sun.cf>
+#define ProjectMacroIncludeFile <sun.p-cf>
+#define MacroFile sun.cf
+#ifdef sparc
+#undef sparc
+#define SparcArchitecture
+#endif
+#ifdef mc68000
+#undef mc68000
+#define Sun3Architecture
+#endif
+#ifdef i386
+#undef i386
+#define i386Architecture
+#endif
+#undef sun
+#define SunArchitecture
+#define	ArchDefine	-DArchSun
+#endif /* sun */
+
+#ifdef linux
+#define MacroIncludeFile <linux.cf>
+#define ProjectMacroIncludeFile <linux.p-cf>
+#define MacroFile linux.cf
+#ifdef sparc
+#undef sparc
+#define SparcArchitecture
+#endif
+#ifdef mc68000
+#undef mc68000
+#define Sun3Architecture
+#endif
+#ifdef i386
+#undef i386
+#define i386Architecture
+#endif
+#undef linux
+#define LinuxArchitecture
+#define	ArchDefine	-DArchLinux
+#endif /* sun */
+
+#if defined(hpux) || defined(__hpux)
+#define MacroIncludeFile <hp.cf>
+#define ProjectMacroIncludeFile <hp.p-cf>
+#define MacroFile hp.cf
+#undef hpux
+#define HPArchitecture
+#define	ArchDefine	-DArchHP
+#endif /* hpux */
+
+
+#ifdef _CRAY
+#define MacroIncludeFile <cray.cf>
+#define ProjectMacroIncludeFile <cray.p-cf>
+#define MacroFile cray.cf
+#undef cray
+#undef CRAY
+#undef CRAY1
+#undef CRAY2
+#undef YMP
+#define CrayArchitecture
+#define	ArchDefine	-DArchCray
+#endif /* _CRAY */
+
+#ifdef sgi
+#define MacroIncludeFile <sgi.cf>
+#define ProjectMacroIncludeFile <sgi.p-cf>
+#define MacroFile sgi.cf
+#undef sgi
+#define SGIArchitecture
+#define	ArchDefine	-DArchSGI
+#undef mips
+#define MipsArchitecture
+#endif /* sgi */
+
+
+#if defined(ibm) || defined(_IBMR2) || defined(ibm032) || defined(aix)
+#define MacroIncludeFile <ibm.cf>
+#define ProjectMacroIncludeFile <ibm.p-cf>
+#define MacroFile ibm.cf
+#ifdef ibm
+#undef ibm
+#endif
+#define IBMArchitecture
+#define	ArchDefine	-DArchIBM
+#ifdef i386
+#undef i386
+#define PS2Architecture
+#endif
+#ifdef ibm032
+#undef ibm032
+#define RtArchitecture
+#endif
+#ifdef aix
+#undef aix
+#define AIXArchitecture
+#endif
+#ifdef _IBMR2
+#undef _IBMR2
+#define RsArchitecture
+#endif
+#endif /* ibm */
+
+
+#ifdef __osf__
+#define MacroIncludeFile <osf1.cf>
+#define ProjectMacroIncludeFile <osf1.p-cf>
+#define MacroFile osf1.cf
+#define OSF1Architecture
+#define	ArchDefine	-DArchOSF1
+#undef __osf__
+#ifdef __mips__
+#undef __mips__
+#define MipsArchitecture
+#endif
+#ifdef __alpha
+#undef __alpha
+#define AlphaArchitecture
+#endif
+#endif /* __osf__ */
+
+
+#ifndef	ArchDefine
+#define	ArchDefine	-DArchUnknown
+#endif
+
+#ifndef MacroIncludeFile
+XCOMM WARNING:  Imake.cf not configured; guessing at definitions!!!
+XCOMM This might mean that BOOTSTRAPCFLAGS was not set when building imake.
+#define MacroIncludeFile <generic.cf>
+#define ProjectMacroIncludeFile <generic.p-cf>
+#define MacroFile generic.cf
+#endif

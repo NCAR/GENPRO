@@ -1,0 +1,179 @@
+XCOMM -----------------------------------------------------------------------
+XCOMM X Window System Build Parameters and Rules
+XCOMM $Id: Project.tmpl,v 1.1.1.1 1999/05/14 20:57:08 morreale Exp $
+
+/****************************************************************************
+ *                                                                          *
+ *                            DEFAULT DEFINITONS                            *
+ *                                                                          *
+ * The following section contains defaults for things that can              *
+ * overridden in the various *.cf and site.def files.  DO NOT EDIT!         *
+ *                                                                          *
+ ***************************************************************************/
+#ifndef	ProjectName
+#define	ProjectName	myproject
+#endif
+
+#ifndef ConfigRootDir
+#define ConfigRootDir $(LIBDIR)/cf
+#endif
+
+/*
+**	For anything put the ncar_imake project, PubConfigDir should be
+**	defined somewhere else to be the path to the installed ncar_imake
+**	config files. Typically "somewhere else" is a Makefile booted with
+**	the `ncar_imboot' shell script
+*/
+#ifndef PubConfigDir
+#define PubConfigDir ConfigRootDir
+#endif
+
+#ifndef	PrivConfigDir
+#ifdef	UseInstalled
+#define	PrivConfigDir $(LIBDIR)/cf
+#else
+#define	PrivConfigDir $(TOP)/cf
+#endif
+#endif
+
+CONFIGROOTDIR	= ConfigRootDir
+PRIVCONFIGDIR	= PrivConfigDir
+
+XCOMM 
+XCOMM This is the path to the "public" ncar_imake config files. It will
+XCOMM be set in "private" Makefiles when booted via ncar_imake.
+XCOMM
+PUBCONFIGDIR	= PubConfigDir
+
+#ifndef BinDir
+#ifdef ProjectRoot
+#define BinDir Concat(ProjectRoot,/bin)
+#else
+#define BinDir /usr/local/bin
+#endif
+#endif
+
+#ifndef IncDir
+#define IncDir $(INCROOT)/$(PROJECTNAME)
+#endif
+
+
+/*
+**	LinkLibDir defined in Imake.tmpl. Why?
+*/
+
+#ifndef	BuildRoot
+#define	BuildRoot $(TOP)
+#endif
+
+BUILDROOT	= BuildRoot
+
+#ifndef BuildIncRoot
+#define BuildIncRoot $(BUILDROOT)/include
+#endif
+
+#ifndef BuildIncDir
+#define BuildIncDir $(BUILDINCROOT)/$(PROJECTNAME)
+#endif
+
+#ifndef BuildIncTop
+#define BuildIncTop ../..		/* relative to BuildIncDir */
+#endif
+
+#ifndef BuildLinkLibDir
+#define BuildLinkLibDir $(BUILDROOT)/lib
+#endif
+
+#ifndef BuildLinkLibTop
+#define BuildLinkLibTop ..		/* relative to BuildLinkLibDir */
+#endif
+
+#ifndef LibDir
+#define LibDir $(LINKLIBDIR)/$(PROJECTNAME)
+#endif
+
+#ifndef ConfigDir
+#define ConfigDir $(LIBDIR)/cf
+#endif
+
+
+#ifndef	SrcSrc
+#define	SrcSrc	$(TOP)/src
+#endif
+
+#ifndef BinSrc
+#define BinSrc SrcSrc/bin
+#endif
+
+#ifndef LinkLibSrc
+#define LinkLibSrc SrcSrc/lib
+#endif
+
+#ifndef UtilSrc
+#define UtilSrc SrcSrc/util
+#endif
+
+
+#ifndef DefaultUserPath			/* for xdm */
+#define DefaultUserPath :/bin:/usr/bin:$(BINDIR):/usr/ucb
+#endif
+
+#ifndef DefaultSystemPath		/* for xdm */
+#define DefaultSystemPath /etc:/bin:/usr/bin:$(BINDIR):/usr/ucb
+#endif
+
+#ifndef DefaultSystemShell		/* for xdm to set in SHELL */
+#define DefaultSystemShell BourneShell
+#endif
+
+#ifndef AllocateLocalDefines
+#define AllocateLocalDefines /**/
+#endif
+
+#ifndef ForceNormalLib
+#define ForceNormalLib (HasGcc && !HasGcc2)
+#endif
+
+XCOMM -----------------------------------------------------------------------
+XCOMM X Window System make variables; these need to be coordinated with rules
+
+PROJECTNAME	= ProjectName
+
+/*
+**	Install directories
+*/
+BINDIR 		= BinDir		/* executable programs	*/
+LINKLIBDIR 	= LinkLibDir		/* linkable libraries	*/
+LIBDIR 		= LibDir		/* misc stuff		*/
+INCROOT		= IncRoot
+INCDIR 		= IncDir		/* header files		*/
+
+/*
+**	Work directories
+*/
+BUILDINCROOT 	= BuildIncRoot		/* base of build loc */
+BUILDINCDIR 	= BuildIncDir		/* built headers */
+BUILDINCTOP 	= BuildIncTop		/* top relative to BUILDINCDIR */
+BUILDLIBDIR 	= BuildLinkLibDir	/* built libraries */
+BUILDLIBTOP 	= BuildLinkLibTop	/* top relative to BUILDLIBDIR */
+
+
+/*
+**	Source directories
+*/
+LINKLIBSRC 	= LinkLibSrc
+BINSRC 		= BinSrc
+UTILSRC		= UtilSrc
+
+#ifndef ShLibIncludeFile
+/* need this to make ANSI-style preprocessors happy */
+#define ShLibIncludeFile <noop.rules>
+#endif
+
+#include ShLibIncludeFile
+
+#ifndef NeedDefaultDepLibs
+#define NeedDefaultDepLibs YES
+#endif
+
+DEPLIBS = $(LOCAL_LIBRARIES)

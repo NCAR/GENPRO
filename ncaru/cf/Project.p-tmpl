@@ -1,0 +1,47 @@
+XCOMM -----------------------------------------------------------------------
+XCOMM X DCS Project config project parameters
+XCOMM $Id: Project.p-tmpl,v 1.1.1.1 1999/05/14 20:57:05 morreale Exp $
+
+
+/*
+**	Override ncar_imake config parameters
+*/
+#ifndef ProjectName
+#define ProjectName     ncaru
+#endif
+
+#ifndef	BuildRoot
+#define	BuildRoot	$(TOP)/build
+#endif
+
+#ifndef BuildIncTop
+#define BuildIncTop ../../..	/* relative to BuildIncDir */
+#endif
+
+#ifndef BuildLinkLibTop
+#define BuildLinkLibTop ../..	/* relative to BuildLinkLibDir */
+#endif
+
+#ifndef BuildDCEIDLTop
+#define BuildDCEIDLTop ../..	/* relative to BuildDCEIDLDir */
+#endif
+
+
+/*
+**	New, NCARU-specific config parameters
+*/
+
+
+#ifndef	SrcSrc
+#define	SrcSrc	$(TOP)/.
+#endif
+
+#ifndef	LibSrc
+#define	LibSrc	SrcSrc/lib
+#endif
+
+
+LIBLIB		= LibSrc
+
+
+UnsharedLibReferences(NCARU_,ncaru,$(LIBLIB))

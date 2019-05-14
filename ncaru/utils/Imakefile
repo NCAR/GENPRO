@@ -1,0 +1,10 @@
+XCOMM $Id: Imakefile,v 1.5 2000/02/24 23:16:16 morreale Exp $
+
+
+#define IHaveSubdirs
+#define PassCDebugFlags CDEBUGFLAGS="$(CDEBUGFLAGS)"
+
+SUBDIRS	= cosfile cosconvert cossplit
+
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))

@@ -1,0 +1,26 @@
+
+all:
+	@echo "Install in man done"
+
+InstallManPage(cosconvert, $(MANDIR),$(MANSUFFIX))
+InstallManPage(cosfile, $(MANDIR),$(MANSUFFIX))
+InstallManPage(cossplit, $(MANDIR),$(MANSUFFIX))
+
+InstallManPage(crayback, $(LIBMANDIR),$(LIBMANSUFFIX))
+InstallManPage(crayblocks, $(LIBMANDIR),$(LIBMANSUFFIX))
+InstallManPage(crayclose, $(LIBMANDIR),$(LIBMANSUFFIX))
+InstallManPage(crayopen, $(LIBMANDIR),$(LIBMANSUFFIX))
+InstallManPage(crayread, $(LIBMANDIR),$(LIBMANSUFFIX))
+InstallManPage(crayrew, $(LIBMANDIR),$(LIBMANSUFFIX))
+InstallManPage(crayweod, $(LIBMANDIR),$(LIBMANSUFFIX))
+InstallManPage(crayweof, $(LIBMANDIR),$(LIBMANSUFFIX))
+InstallManPage(craywrite, $(LIBMANDIR),$(LIBMANSUFFIX))
+InstallManPage(crayseek, $(LIBMANDIR),$(LIBMANSUFFIX))
+InstallManPage(ctodpf, $(LIBMANDIR),$(LIBMANSUFFIX))
+InstallManPage(ctospf, $(LIBMANDIR),$(LIBMANSUFFIX))
+InstallManPage(ctospi, $(LIBMANDIR),$(LIBMANSUFFIX))
+InstallManPage(dptocf, $(LIBMANDIR),$(LIBMANSUFFIX))
+InstallManPage(ncaru, $(LIBMANDIR),$(LIBMANSUFFIX))
+InstallManPage(sptocf, $(LIBMANDIR),$(LIBMANSUFFIX))
+InstallManPage(sptoci, $(LIBMANDIR),$(LIBMANSUFFIX))
+

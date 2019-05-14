@@ -1,0 +1,8 @@
+XCOMM platform:  $Id: ibm.p-cf,v 1.1.1.1 1999/05/14 20:57:05 morreale Exp $
+
+/*
+**	Need to use xlc_r4 compiler when including <dce/pthreads.h>. Thanks, ibm.
+*/
+#ifndef CcCmd
+#define CcCmd /usr/bin/xlc_r4
+#endif

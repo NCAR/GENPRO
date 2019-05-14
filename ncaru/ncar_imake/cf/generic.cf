@@ -1,0 +1,20 @@
+XCOMM platform:  $Id: generic.cf,v 1.1.1.1 1999/05/14 20:57:08 morreale Exp $
+
+/*
+**	ncar_imake will automatically define the macros OSMajorVersion, 
+**	OSMinorVersion, and OSTeenyVersion to the appropriate version
+**	numbers.
+*/
+#define OSName            Unknown OSMajorVersion OSMinorVersion OSTeenyVersion
+XCOMM operating system:  OSName
+XCOMM OSMajorNumber:	OSMajorVersion 
+XCOMM OSMinorNumber:	OSMinorVersion
+XCOMM OSTeenyNumber:	OSTeenyVersion
+
+#ifdef SYSV
+#define SystemV		YES
+#endif
+#ifdef SVR4
+#define SystemV4	YES
+#endif
+

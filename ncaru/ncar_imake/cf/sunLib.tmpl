@@ -1,0 +1,13 @@
+XCOMM $Id: sunLib.tmpl,v 1.1.1.1 1999/05/14 20:57:07 morreale Exp $
+
+/*
+ * SunOS shared library template
+ */
+
+#if OSMajorVersion <= 4
+
+#else				/* else it's Solaris */
+
+#include <sv4Lib.tmpl>
+
+#endif

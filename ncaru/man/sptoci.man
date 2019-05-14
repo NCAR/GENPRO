@@ -1,0 +1,62 @@
+.nh
+.TH sptoci 3 "04 May 1999" NCAR "Local Routine"
+.SH NAME
+ctospf  -  Cray integer format to local conversion
+.SH SYNOPSIS
+call sptoci(larray, carray, nwords, ipad)
+.sp
+integer  larray(*), carray(*)
+.br
+integer  nwords, ipad
+.SH DESCRIPTION
+The 
+.B SPTOCI  
+routine converts 32bit or 64bit IEEE integer words to Cray 64bit integers.
+.PP
+The arguments are:
+.TP 8
+.B larray
+The input array containing the integers.  
+If you are using this
+routine on the IBM RS6000 cluster and had used the "-qautodbl=dblpad"
+compiler flag, then this array should have been dimensioned \fInwords\fR
+long, otherwise, this array should have been dimensioned \fI2*nwords\fR long.
+.TP 8
+.B larray
+The output Cray 64bit word array containing the converted integers.  
+If you are using this
+routine on the IBM RS6000 cluster and had used the "-qautodbl=dblpad"
+compiler flag, then this array should have been dimensioned \fInwords\fR
+long, otherwise, this array should have been dimensioned \fI2*nwords\fR long.
+.TP 8
+.B nwords
+The number of local words to convert.
+.TP 8
+.B ipad
+The 
+.I ipad 
+argument specifies whether zero padding is performed.  Specify 0 (zero)
+for no padding, 1 (one) for padding.  Padding is needed only if your
+program was compiled using the "-qautodbl=dblpad" compiler option on the
+IBM RS6000 cluster.
+.SH EXAMPLES
+The following converts 100 Cray words:
+.sp
+.RS 5
+PARAMETER (N=100)
+.br
+REAL      CRAY(2*N),  LOC(2*N)
+.br
+(...)
+.br
+CALL SPTOCI(CRAY, LOC, N)
+.br
+.RE
+.SH IMPLEMENTATION
+This routine is available in the "ncaru" local library.
+.SH "SEE ALSO"
+ctospf(3), ctodpf(3), sptocf(3), sptoci(3), dptocf(3), ncaru(3)
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved

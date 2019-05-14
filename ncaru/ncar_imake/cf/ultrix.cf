@@ -1,0 +1,48 @@
+XCOMM platform:  $Id: ultrix.cf,v 1.1.1.1 1999/05/14 20:57:09 morreale Exp $
+
+/*
+**	ncar_imake will automatically define the macros OSMajorVersion, 
+**	OSMinorVersion, and OSTeenyVersion to the appropriate version
+**	numbers.
+*/
+#define OSName            Ultrix-32 OSMajorVersion OSMinorVersion OSTeenyVersion
+XCOMM operating system:  OSName
+XCOMM OSMajorNumber:	 OSMajorVersion
+XCOMM OSMinorNumber:	 OSMinorVersion
+XCOMM OSTeenyNumber:	 OSTeenyVersion
+
+#define HasNdbm YES
+#define HasPutenv YES
+#define HasShm YES
+#define LintLibFlag -o
+#define LintOpts -ax
+
+#ifdef MipsArchitecture
+#if OSMajorVersion > 4 || (OSMajorVersion == 4 && OSMinorVersion >= 2)
+/* Even under ultrix 4.2, the compiler miscompiles some alloca calls */
+#define AllocateLocalDefines /* -DINCLUDE_ALLOCA_H */
+#else
+#define AllocateLocalDefines /**/
+#endif
+#if !HasGcc
+#define NeedFunctionPrototypes YES
+/*
+ * NormalLibObjCompile - compile fragment for a library object file
+ * 	do ld -x to remove line number symbols for libraries
+ */
+#define NormalLibObjCompile(options) $(RM) $@ $*.os \			@@\
+	&& $(CC) -c options $(CFLAGS) $*.c \				@@\
+	&& $(LD) $(LDSTRIPFLAGS) -r $@ -o $*.os \			@@\
+	&& $(MV) $*.os $@
+#endif
+#endif
+
+#if HasGcc
+#ifdef VaxArchitecture
+#define CcCmd gcc -ansi -Dvax -Dultrix -fpcc-struct-return
+#endif
+#ifdef MipsArchitecture
+#define CcCmd gcc -ansi -Dmips -Dultrix -fpcc-struct-return
+#endif
+#define AllocateLocalDefines /* */
+#endif

@@ -1,0 +1,14 @@
+
+SRCS		= parsecos.c
+OBJS		= parsecos.o
+
+PARSE		= parsecos
+
+SYSLIBS		=
+
+
+all: $(PARSE)
+
+NormalProgramTarget($(PARSE),$(OBJS),$(DEPNCARU_LIB), $(NCARU_LIB), $(SYSLIBS))
+
+InstallProgram($(PARSE), $(BINDIR))

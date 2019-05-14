@@ -1,0 +1,24 @@
+XCOMM platform:  $Id: sun.p-cf,v 1.1.1.1 1999/05/14 20:57:05 morreale Exp $
+
+/*
+**	Override strict ansi-C compliance option for Solaris systems: It
+**	barfs on some of the DCE header files
+*/
+#ifdef SVR4	/* If Solaris	*/
+#ifndef DefaultCCOptions
+#define DefaultCCOptions	-Xa  -xstrconst
+#endif
+#endif
+
+#if	(OSMajorVersion < 5)
+
+#ifndef CcCmd
+#define CcCmd /usr/lang/acc
+#endif
+
+#ifndef	DependDefines
+#define	DependDefines -I/usr/lang/SC1.0.1/ansi_include 
+#endif
+
+#endif
+

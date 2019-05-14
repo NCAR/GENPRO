@@ -1,0 +1,10 @@
+
+The cos utilities are located here, briefly:
+
+cosfile		- reports on the record structure for a COS blocked
+		  file.  Max record size is 3Mb.
+
+cosconvert	- Strips COS blocking from the first file in the dataset.
+
+cossplit	- Split a multi-file COS dataset into separate files.
+

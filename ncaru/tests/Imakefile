@@ -1,0 +1,29 @@
+
+SRCS		= craytest.c
+
+CRAY		= craytest
+CRAYOBJS	= craytest.o
+
+
+PACK		= packtest
+PACKOBJS	= packtest.o
+
+UNPACK		= unpacktest
+UNPACKOBJS	= unpacktest.o
+
+
+SYSLIBS		= -lm
+
+
+all: $(CRAY) $(PACK) $(UNPACK)
+
+NormalProgramTarget($(CRAY),$(CRAYOBJS),$(DEPNCARU_LIB),$(NCARU_LIB),$(SYSLIBS))
+
+$(PACK): $(PACKOBJS) $(DEPNCARU_LIB)
+	$(F77) $(FFLAGS) -o $(PACK) $(PACKOBJS) $(DEPNCARU_LIB)
+
+$(UNPACK): $(UNPACKOBJS) $(DEPNCARU_LIB)
+	$(F77) $(FFLAGS) -o $(UNPACK) $(UNPACKOBJS) $(DEPNCARU_LIB)
+
+clean::
+	rm -f $(CRAY) $(PACK) $(UNPACK)

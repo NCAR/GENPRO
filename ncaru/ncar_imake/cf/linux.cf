@@ -1,0 +1,24 @@
+XCOMM platform:  $Id: linux.cf,v 1.1.1.1 1999/05/14 20:57:08 morreale Exp $
+
+#ifdef i386Architecture
+#define OSName		Linux_x86 OSMajorVersion OSMinorVersion OSTeenyVersion
+#else
+#define OSName		Linux_unknown OSMajorVersion OSMinorVersion OSTeenyVersion
+#endif
+
+/*
+**	ncar_imake will automatically define the macros OSMajorVersion, 
+**	OSMinorVersion, and OSTeenyVersion to the appropriate version
+**	numbers.
+*/
+XCOMM operating system:  OSName
+XCOMM OSMajorNumber:	 OSMajorVersion
+XCOMM OSMinorNumber:	 OSMinorVersion
+XCOMM OSTeenyNumber:	 OSTeenyVersion
+
+#define SystemMTDefines -D_REENTRANT
+#define ThreadsLibraries -lpthread
+
+#define CppCmd  /lib/cpp -traditional
+#define LexCmd	flex -l
+

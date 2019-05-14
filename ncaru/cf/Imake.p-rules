@@ -1,0 +1,7 @@
+/*
+**	 DCS project uses OSF DCE IDL
+*/
+#ifndef ProjectHasDCEIDL
+#define ProjectHasDCEIDL                NO
+#endif
+

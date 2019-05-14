@@ -1,0 +1,81 @@
+XCOMM $Id: site.p-def,v 1.3 2000/02/25 15:52:56 morreale Exp $
+
+/*****************************************************************************
+ *                                                                           *
+ *			   SITE-SPECIFIC DEFINITIONS                         *
+ *                                                                           *
+ * This file contains two halves, one included before the vendor-specific    *
+ * configuration file (.cf file), and one included after the .cf file.       *
+ * The before-half should be protected by #ifdef BeforeVendorCF, and the     *
+ * after-half should be protected by #ifdef AfterVendorCF.                   *
+ *                                                                           *
+ * The before-half should only set things that the .cf file depends on.      *
+ * For the .cf files shipped in this release, the main variables in this     *
+ * category are HasGcc and HasGcc2.                                          *
+ *                                                                           *
+ * The after-half should contain all other definitions.  For example,        *
+ * place your ProjectRoot definition here.                                   *
+ *                                                                           *
+ * OS Major and Minor version numbers should be changed directly in the .cf  *
+ * file, not overridden in site.def.                                         *
+ *                                                                           *
+ *****************************************************************************/
+
+#ifdef SunArchitecture
+
+#ifdef HasLdRunPath
+#undef HasLdRunPath
+#endif
+
+#ifndef LdPostLib
+#define LdPostLib /**/
+#endif
+
+#endif
+
+#ifdef ManSuffix
+#undef ManSuffix
+#endif
+#define ManSuffix       1
+
+#ifdef LibManSuffix
+#undef LibManSuffix
+#endif
+#define LibManSuffix    3
+
+#ifdef BeforeVendorCF
+
+/*
+**	Force on debugging
+*/
+#ifndef	DefaultCDebugFlags
+#define	DefaultCDebugFlags	DebuggableCDebugFlags
+#endif
+
+#if defined(ArchSGI)
+FFLAGS		= -mips4 -64 DefaultCDebugFlags
+F77		= f90
+#endif
+
+/*
+** Fortran debug flags.
+*/
+
+#ifndef	DefaultFDebugFlags
+#if defined(ArchSGI)
+#define	DefaultFDebugFlags	-g 
+#else
+#define	DefaultFDebugFlags	-g 
+#endif
+#endif
+
+
+#endif /* BeforeVendorCF */
+
+#ifdef AfterVendorCF
+
+#ifndef	ProjectRoot
+#define ProjectRoot  /usr/local
+#endif
+
+#endif /* AfterVendorCF */

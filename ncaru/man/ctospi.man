@@ -1,0 +1,69 @@
+.na
+.nh
+.TH ctospi 3 "04 May 1999" NCAR "Local Routine"
+.SH NAME
+ctospf  -  Cray integer format to IEEE conversion
+.SH SYNOPSIS
+call ctospi(carray, larray, nwords, ipad)
+.sp
+real     carray(2*nwords), larray(nwords)
+.br
+integer  nwords, ipad
+.SH DESCRIPTION
+The 
+.B CTOSPF  
+routine converts 64bit Cray integer words to the local 32bit or 64 bit
+integers.
+.PP
+The arguments are:
+.TP 8
+.B carray
+The input array containing the 64bit Cray words.  If you are using this
+routine on the IBM RS6000 cluster and had used the "-qautodbl=dblpad"
+compiler flag, then this array should have been dimensioned \fInwords\fR
+long, otherwise, this array should have been dimensioned \fI2*nwords\fR
+long.
+.TP 8
+.B larray
+The output 32bit or 64 bit word array containing the local representation.  
+.TP 8
+.B nwords
+The number of Cray words to convert.
+.TP 8
+.B ipad
+The 
+.I ipad 
+argument specifies whether zero padding is performed.  Specify 0 (zero)
+for no padding, 1 (one) for padding.  Padding is needed only if your
+program was compiled using the "-qautodbl=dblpad" compiler option on the
+IBM RS6000 cluster.
+.SH EXAMPLES
+The following converts 100 Cray words:
+.sp
+.RS 5
+PARAMETER (N=100)
+.br
+REAL      CRAY(2*N),  LOC(n)
+.br
+(...)
+.br
+CALL CTOSPF(CRAY, LOC, N)
+.br
+.RE
+.SH NOTES
+Any values in the input array that are too large to be represented in
+the native format are set to the largest number that can be
+represented with the correct sign.  Any values which are too small are
+set to 0 (zero).
+.PP 
+This routine will not work properly on the IBM RS6000 if the 
+"-qINTSIZE=8" option is used.
+.SH IMPLEMENTATION
+This routine is available in the
+"ncaru" local library.
+.SH "SEE ALSO"
+ctospf(3), ctodpf(3), sptocf(3), sptoci(3), dptocf(3), ncaru(3)
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved

@@ -1,0 +1,57 @@
+#define IHaveSubdirs
+#define PassCDebugFlags CDEBUGFLAGS="$(CDEBUGFLAGS)"
+
+RELEASE = "Release 1.1"
+#ifndef OSName
+#define OSName Unknown Operating System!
+#endif
+
+XCOMM SUBDIRS	= cf lib tests man utils tests
+SUBDIRS	= lib man utils tests parse
+
+MakeSubdirs($(SUBDIRS))
+
+DependSubdirs($(SUBDIRS))
+
+VerifyOS::
+	@echo ""
+	@echo Building on OSName.
+	@echo ""
+
+includes::
+	MakeDir($(BUILDINCDIR))
+
+XCOMM
+XCOMM Watch out!!!  Make sure you do make includes after removing X11....
+XCOMM
+clean::
+	$(RM) -r $(BUILDINCDIR)
+	$(RM) -r $(BUILDLIBDIR)
+
+WORLDOPTS 	= -k
+
+XCOMM do not name your log file make.log when you run this ...
+World::
+	@echo ""
+	@echo Building $(RELEASE) of NCAU
+	@echo ""
+	@date
+	@echo ""
+	$(MAKE) $(MFLAGS) VerifyOS
+	$(MAKE) $(MFLAGS) Makefiles
+	$(MAKE) $(MFLAGS) clean
+	$(MAKE) $(MFLAGS) includes
+	$(MAKE) $(MFLAGS) depend
+	$(MAKE) $(MFLAGS) $(WORLDOPTS)
+	@echo ""
+	@date
+	@echo ""
+	@echo Full build of $(RELEASE) of NCARU
+	@echo ""
+
+
+XCOMM clean out link tree looking for stuff that should get checked in
+dangerous_strip_clean::
+	make -k clean
+	find . -type l -exec rm {} \;
+	find . \( \! \( -type d -o -name Makefile \) \) -print

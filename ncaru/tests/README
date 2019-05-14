@@ -1,0 +1,150 @@
+
+This directory contains a Fortran test program, and some Fortran
+skeleton programs for use in testing the NCARU library package.
+
+craytest
+--------
+
+The file craytest.f contains a generic test program which tests all of
+the Cray I/O routines. This particular test program does not exercise
+the numeric conversion capabilities of the library.  It is designed to
+solely test the Cray routines of the library.
+
+The craytest command is built when you build the entire distribution.
+
+Results of a successful craytest run are included at the bottom of this
+README.
+
+skeletons
+---------
+
+Since numeric conversion depends entirely on compiler options which set
+REAL and INTEGER word sizes, along with the fact that you need a Cray, to
+verify numeric conversion, only skeleton programs for testing numeric
+conversion are included here.  These are:
+
+	writecray.f  - Fortran program for use on a Cray to create a 
+		       simple cray dataset.
+
+	readcray.f   - Simple program which uses the NCARU library to 
+		       read a data set created by writecray.f.
+
+The writecray program merely writes out a CHARACTER string, an array of
+REALS and an array of INTEGERS in a blocked file format.  This program
+*MUST* be executed on a Cray system.  Transfer back the dataset (named:
+fort.23) to this system for running the readcray program.
+The character record contains the string "Hello World", the second
+record is 100 REALS each with a value of 3.14.  The third and final
+record has 100 integers set to 2.
+
+The readcray program makes the following assumptions about word sizes:
+
+	   REALS    - are 4 bytes long.
+	   INTEGERS - are 4 bytes long.
+
+These assumptions are necessary since both the IBM and Suns allow
+compiler options to specify word sizes.  If your compiler has different
+default word sizes, see the source code (and/or man pages) for setting 
+options to the crayread routine used in readcray.f
+
+NOTE:  The purpose of these tests are merely to exercise the numeric
+       conversion routines.  See craytest for a test of the Cray
+       routines.
+
+Here is the output from a successful craytest execution:
+
+-----------------start of output-----------------------------------
+*** MakeCray test ****
+  Wrote   100 words
+  Wrote   200 words
+  Wrote   400 words
+  Wrote   600 words
+  Wrote   800 words
+  Wrote   1000 words
+  Wrote an EOF
+  Wrote   1000 words
+Successfully wrote a blocked file
+ 
+*** ReadCray test ****
+  Read   100 words
+  Read   200 words
+  Read   400 words
+  Read   600 words
+  Read   800 words
+  Read   1000 words
+  Read EOF
+  Read   1000 words
+  Read EOF
+  Read EOD
+Successfully read a blocked file
+ 
+*** RewindRead test *** 
+  Read   100 words
+  Rewind complete
+  Read   100 words
+  Read   200 words
+  Read   400 words
+  Read   600 words
+  Read   800 words
+  Read   1000 words
+  Rewind complete
+  Read   100 words
+Successfully rewound and read a blocked file
+ 
+*** BackRead test *** 
+  Read   100 words
+  Backspace complete
+  Read   100 words
+  Read   200 words
+  Read   400 words
+  Backspace complete
+  Read   400 words
+Successfully backspaced a blocked file
+ 
+*** ShortLong test *** 
+  Read 1   word  (100  word record), nwds =   1
+  Read 500 words (200 word record), nwds =   200
+Successfully read short and long requests
+ 
+*** Append test *** 
+  Blocked file opened for appending
+  Appended 100 words
+  Blocked file reopened.
+  Read   100 words
+  Read   200 words
+  Read   400 words
+  Read   600 words
+  Read   800 words
+  Read   1000 words
+  Read EOF
+  Read   1000 words
+  Read   100 words
+  Read EOF
+  Read EOD
+Successfully appended file
+ 
+*** WriteBack test *** 
+  Wrote 100 words
+  Backspace complete
+  Read   100 words
+  Wrote   1000 words
+  Backspace complete
+  Read   1000 words
+  Read EOF
+  Read EOD
+Successfully backspaced write file
+ 
+*****  All Tests Complete ******
+-------------------end of output----------------------------------
+
+ Copyright 1994 University Corporation for Atmospheric Research (UCAR).
+	All rights reserved
+ 
+ Permission to use, copy, and modify this software and its documentation 
+ for any non-commercial purpose is hereby granted without fee, provided 
+ that the above copyright notice appear in all copies and that both that 
+ copyright notice and this permission notice appear in supporting 
+ documentation. UCAR makes no representations about the suitability of 
+ this software for any purpose.   It is provided "as is" without express
+ or implied warranty.
+

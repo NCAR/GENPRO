@@ -1,0 +1,289 @@
+/******************************************************************
+*******************************************************************
+**
+**	Cray-specific defines
+**
+*******************************************************************
+******************************************************************/
+
+#ifdef	CrayArchitecture
+
+#ifndef	DceIdlCmd
+#define	DceIdlCmd	/opt/dcelocal/bin/idl
+#endif
+
+#if	OSMajorVersion < 9
+
+#ifndef	DceCCFlags
+#define	DceCCFlags	-DPTHREAD_H_PATH="</usr/include/dce/pthread.h>"
+#endif
+
+#else	/* OSMajorVersion >= 9	*/
+
+#ifndef	DceCCFlags
+#define	DceCCFlags	-DDCE -I/opt/dcelocal/include \
+			-I/opt/dcelocal/include/dce\
+			-DPTHREAD_H_PATH="</opt/dcelocal/include/pthread.h>"
+
+#ifndef DceLibraries
+#define DceLibraries    /opt/dcelocal/lib/libdce.a -lm
+#endif
+
+#endif
+
+#ifndef DceIdlFlags
+#define DceIdlFlags \
+-keep c_source -I/opt/dcelocal/include -I/opt/dcelocal/include/dce
+#endif
+
+#endif	/* if OSMajorVersion < 9	*/
+
+#endif	/* ifdef CrayArchitecture	*/
+
+
+/******************************************************************
+*******************************************************************
+**
+**	SGI-specific defines
+**
+*******************************************************************
+******************************************************************/
+
+#if	defined(SGIArchitecture)
+
+#if (OSMajorVersion < 6)
+
+#ifndef DceIdlFlags
+#define DceIdlFlags \
+-keep c_source -cc_opt "-D_BSD_COMPAT -DDCE"
+#endif
+
+#ifndef	DceCCFlags
+#define	DceCCFlags	-DPTHREAD_H_PATH="</usr/include/dce/pthread.h>" \
+			-D_BSD_COMPAT -DDCE -Dsgi
+#endif
+
+#else	/* OSMajorVersion >= 6	*/
+
+#ifndef	DceCCFlags
+#define	DceCCFlags	-DPTHREAD_H_PATH="</usr/include/dce/pthread.h>" \
+			-DSGIMIPS -D_BSD_SOURCE
+#endif
+
+#if (OSMinorVersion > 4)
+#ifndef	DceLibraries
+#define	DceLibraries	-lpthread -ldce -lm
+#endif
+#endif
+
+#endif
+#endif	/*	SGIArchitecture */
+
+/******************************************************************
+*******************************************************************
+**
+**	Sun-specific defines
+**
+*******************************************************************
+******************************************************************/
+
+#if defined(SunArchitecture) 
+
+#if OSMajorVersion < 5
+
+#ifndef	DceLibraries
+#define	DceLibraries	-ldce -lils
+#endif
+
+#else
+
+#ifndef	DceLibraries
+#define	DceLibraries	-ldce -lthread -lm
+#endif
+
+#ifndef	DceCCFlags
+#define	DceCCFlags	-DPTHREAD_H_PATH="<dce/pthread.h>" \
+			-D_REENTRANT
+#endif
+
+#endif
+
+#endif	/*	SunArchitecture */
+
+
+/******************************************************************
+*******************************************************************
+**
+**	Linux-specific defines
+**
+*******************************************************************
+******************************************************************/
+
+#if defined(LinuxArchitecture) 
+
+#ifndef	DceIdlCmd
+#define	DceIdlCmd	/opt/dcelocal/bin/idl
+#endif
+
+#ifndef	DceLibraries
+#define	DceLibraries	-L/opt/dce/lib -ldcerpc -ldcethread -lpthread
+#endif
+
+#ifndef	DceCCFlags
+#define	DceCCFlags	-I/opt/dce/include -D_REENTRANT -DPTHREAD_H_PATH="<dce/pthread.h>"
+#endif
+
+#endif	/*	LinuxArchitecture */
+
+/******************************************************************
+*******************************************************************
+**
+**	OSF/1-specific defines
+**
+*******************************************************************
+******************************************************************/
+#ifdef	OSF1Architecture
+
+#if (OSMajorVersion == 4) 
+
+#ifndef DceCCFlags
+#define DceCCFlags      -D_PTHREAD_USE_D4 -threads
+#endif
+
+#ifndef	DceLibraries
+#define	DceLibraries	-threads -ldce -lc_r -lmach
+#endif
+
+#else 
+
+#ifndef	DceLibraries
+#define	DceLibraries	-ldce -lpthreads -lc_r -lmach
+#endif
+
+#endif
+
+#endif	/*	OSF1Architecture */
+
+
+
+/******************************************************************
+*******************************************************************
+**
+**	default defines
+**
+*******************************************************************
+******************************************************************/
+
+#ifndef	DceIdlCmd
+#define	DceIdlCmd	/bin/idl
+#endif
+
+#ifndef DceIdlFlags
+#define DceIdlFlags \
+-keep c_source 
+#endif
+
+#ifndef	DceCmdLineFlags
+#define	DceCmdLineFlags	/* leave blank command line use	*/
+#endif
+
+#ifndef	DceLibraries
+#define	DceLibraries	-ldce -lm
+#endif
+
+#ifndef	DceCCFlags
+#define	DceCCFlags
+#endif
+
+#ifndef	DceIdlSrc	
+#define	DceIdlSrc	SrcSrc/dceidl
+#endif
+
+
+DCEIDL 			= DceIdlCmd
+DCEIDLFLAGS 		= DceIdlFlags
+DCECMDLINEFLAGS		= DceCmdLineFlags
+EXTRA_DCEIDLFLAGS	= 	/* leave blank for individual Imakefile use*/
+ALLDCEIDLFLAGS		= $(DCEIDLFLAGS) $(DCECMDLINEFLAGS) \
+			$(EXTRA_DCEIDLFLAGS)
+
+
+DCELIBRARIES		= DceLibraries
+DCECCFLAGS		= DceCCFlags
+
+DCEIDLSRC		= DceIdlSrc
+
+EXTRA_DEFINES		= $(DCECCFLAGS)
+
+#ifndef SymLinkDCEIDLs
+#define SymLinkDCEIDLs(srclist)						@@\
+dceidls::								@@\
+	@(set -x; for i in srclist; do \				@@\
+		RemoveFile($$i.idl); \					@@\
+		$(LN) $(DCEIDLSRC)/$$i.idl .; \				@@\
+		if [ -f $(DCEIDLSRC)/$$i.acf ]; then \			@@\
+			RemoveFile($$i.acf); \				@@\
+			 $(LN) $(DCEIDLSRC)/$$i.acf .; \		@@\
+		fi; \							@@\
+	done)
+#endif /* SymLinkDCEIDLs */
+
+#ifndef SimpleDceIdlServerFile
+#define SimpleDceIdlServerFile(file)					@@\
+ComplexDceIdlServerFile(file,file.h,file.idl file.acf,./)
+#endif
+
+#ifndef SimpleDceIdlClientFile
+#define SimpleDceIdlClientFile(file)					@@\
+ComplexDceIdlClientFile(file,file.h,file.idl file.acf,./)
+#endif
+
+
+/*
+**	Invoke the idl compiler to translate .idl and .acf files.
+**	to create server stub file, "$(idlroot)_sstub.c", and header
+**	file, "$(headerfile)". 
+**
+**	Must be invoked *before* normal depend target.
+*/
+#ifndef	ComplexDceIdlServerFile
+#define	ComplexDceIdlServerFile(idlroot,headerfile,depends)		@@\
+									@@\
+all::									@@\
+depend:: Concat(idlroot,_sstub.c)					@@\
+									@@\
+Concat(idlroot,_sstub.c): depends					@@\
+	$(DCEIDL) -client none -header headerfile $(ALLDCEIDLFLAGS) idlroot.idl	@@\
+									@@\
+headerfile:: depends							@@\
+	$(DCEIDL) -client none -server none -header headerfile $(ALLDCEIDLFLAGS) idlroot.idl	@@\
+									@@\
+clean::									@@\
+	RemoveFiles(Concat(idlroot,_sstub.c) Concat(idlroot,_saux.c) headerfile)
+#endif	/*	ComplexDceIdlServerFile */
+
+
+/*
+**	Invoke the idl compiler to translate .idl and .acf files.
+**	to create client stub file, "$(idlroot)_cstub.c", and header
+**	file, "$(headerfile)". 
+**
+**	Must be invoked *before* normal depend target.
+*/
+#ifndef	ComplexDceIdlClientFile
+#define	ComplexDceIdlClientFile(idlroot,headerfile,depends)		@@\
+									@@\
+all::									@@\
+depend:: Concat(idlroot,_cstub.c)					@@\
+									@@\
+Concat(idlroot,_cstub.c): depends					@@\
+	$(DCEIDL) -server none -header headerfile $(ALLDCEIDLFLAGS) idlroot.idl	@@\
+									@@\
+headerfile:: depends							@@\
+	$(DCEIDL) -server none -client none -header headerfile $(ALLDCEIDLFLAGS) idlroot.idl	@@\
+									@@\
+clean::									@@\
+	RemoveFiles(Concat(idlroot,_cstub.c) Concat(idlroot,_caux.c) headerfile)
+#endif	/*	ComplexDceIdlClientFile */
+
+

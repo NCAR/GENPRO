@@ -1,0 +1,24 @@
+
+
+#define DoNormalLib	YES
+#define DoDebugLib	NO
+#define DoSharedLib	NO
+#define DoProfileLib	NO
+#define LibName		ncaru
+#define LibHeaders	NO
+
+HEADERS		= cray.h
+
+SRCS		= cray.c conversion.c packf.c
+
+OBJS		= cray.o conversion.o packf.o 
+
+
+DEFINES		= -DSTRICT
+
+LINTOPTS	= -x  -Nlevel=4
+
+#include <Library.tmpl>
+DependTarget()
+
+BuildIncludesTop($(HEADERS))

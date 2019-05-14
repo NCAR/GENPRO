@@ -1,0 +1,82 @@
+.na
+.nh
+.TH crayseek 3 "18 June 1999" NCAR "Local Routine"
+.SH NAME
+crayseek  - Seek to a word offset in an unblocked Cray file.
+.SH SYNOPSIS
+INTEGER crayseek
+.br
+\fIier\fR = crayseek(\fIcf\fR, \fIword_off\fR, \fIwhence\fR)
+.br
+INTEGER  \fIcf\fR
+.br
+INTEGER  \fIword_off\fR
+.br
+INTEGER  \fIwhence\fR
+.SH "C EXTENSION"
+ier = CraySeek(icf, word_off, whence)
+.br
+int    icf;
+.br
+int    word_off;
+.br
+int    whence;
+.SH DESCRIPTION
+The 
+.B CRAYSEEK
+routine seeks to a specified word offset in a Cray unblocked dataset.
+This routine cannot be used on a Cray blocked file.
+.PP
+.I cf
+is the return from a previously executed crayopen(3).
+The 
+.I word_off
+argument specifies the number of words offset from 
+the file's position specified by the 
+.I whence.
+Specify 
+.I whence
+as either:
+.TP 5
+0
+From the beginning of the file.
+.TP 5
+1
+From the current file position.
+.TP 5
+2
+From the end of the file.
+.SH NOTES
+.PP
+This routine will not work correctly for files larger than 2 gigabytes.
+.SH IMPLEMENTATION
+To access this routine, you must include the following loader flags when
+building your program:
+.sp
+.ce
+-L /usr/local/lib -lncaru
+.SH "RETURN VALUES"
+.B CRAYSEEK
+returns one of the following values:
+.TP 5
+-1
+The underlying lseek(2) failed.
+.TP 5
+-7
+The file is not an unblocked Cray dataset.
+.TP 5
+-11
+The 
+.I whence
+argument is not 0, 1, or 2.
+.TP 5
+>=0
+The new offset of the file.
+.SH "SEE ALSO"
+crayopen(3), crayrew(3), craywrite(3), crayread(3), crayclose(3),
+crayeod(3)
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved
+

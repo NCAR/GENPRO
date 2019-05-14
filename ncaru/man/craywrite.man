@@ -1,0 +1,158 @@
+.na
+.nh
+.TH craywrite 3  "04 May 1999" NCAR "Local Routine"
+.SH NAME
+craywrite  - Write data to a Cray file.
+.SH SYNOPSIS
+INTEGER CRAYWRITE
+.br
+\fInwds\fR = \fBCRAYWRITE\fR(\fIifc, loc, nwords, iconv\fR)
+.br
+INTEGER    \fIifc\fR
+.br
+(type)     \fIloc\fR
+.br
+INTEGER    \fInwords\fR
+.br
+INTEGER    \fIiconv\fR
+.SH "C EXTENSION"
+nwds = CrayWrite(ifc, loc, nwords, iconv)
+.br
+int     ifc;
+.br
+void    *loc;
+.br
+int     nwords;
+.br
+int     iconv;
+.SH DESCRIPTION
+The 
+.B CRAYWRITE 
+routine is used to write data to a Cray-blocked or Cray-unblocked file.  This routine is
+part of a family of routines used to read and write Cray datasets from
+compute servers other than the Cray computers.
+.PP
+This routine can also convert data from a native format into a Cray
+format by setting the \fIiconv\fR argument.  This allows you to write 
+data files in a Cray format without having to call other numeric
+conversion routines.
+.PP
+Note that for unblocked writes, the number of words written must be a
+multiple of 512 Cray words.  See the 
+.I nwords
+and 
+.I iconv
+description below.
+.PP
+The arguments to 
+.B CRAYWRITE
+are:
+.TP 7
+.I ifc
+The integer return from a previous crayopen(3).
+.TP
+.I loc
+The array where the data are stored.  The type of this array depends
+upon the data being written.  The array type can be INTEGER, REAL, 
+CHARACTER, or 
+DOUBLE PRECISION.  The data in this array is unchanged, regardless of
+the conversion specified by the \fIiconv\fR argument.
+.TP 7
+.I nwords
+The integer number of words to write from \fIloc\fR.  
+.TP 7
+.I iconv
+An integer specifying the numeric conversion.  
+\fIiconv\fR must be one of the following:
+.RS 7
+.TP 4
+0 -
+No conversion is performed. In this case the \fInwords\fR argument is
+measured in Cray (8-byte) words. 
+.TP 4
+1 -
+Data from \fIloc\fR are converted from single precision (32 bit)
+floating point format into the Cray single precision (64 bit)
+floating point format.  In this case, \fIloc\fR is dimensioned
+\fInwords\fR long.
+.TP 4
+2 - 
+Data from \fIloc\fR are converted from double precision
+floating point format (64 bit) into the Cray single precision (64 bit) 
+floating point format.  
+.TP 4
+3 -
+Data from \fIloc\fR are converted from the native 
+integer format (32 bit) into the Cray (46 bit) integer format.
+Note: This is the default INTEGER type on Cray systems.
+.TP 4
+4 - 
+This setting is only useful on an IBM RS6000 machine where you have
+compiled your program using the "-qautodbl=dblpad" option to the xlf
+compiler.  Data from \fIloc\fR are converted from the double-padded
+integer format (64 bit) into the Cray (64 bit) integer format.  
+.TP 4
+5 - 
+Data converted from 64bit integers to Cray 64bit integers.
+.SH EXAMPLES
+Write 100 words of array "X" with no conversion:
+.sp
+.RS 8
+PARAMETER (NWORDS = 100)
+.br
+REAL  X(2*NWORDS)
+.br
+(...)
+.br
+NWDS = CRAYWRITE(IFC, X, NWORDS, 0)
+.RE
+.PP
+Write 100 words from array "X" and convert from floating point format to
+Cray single precision floating point format.
+.sp
+.RS 8
+PARAMETER (NWORDS = 100)
+.br
+REAL  X(NWORDS)
+.br
+(...)
+.br
+NWDS = CRAYWRITE(IFC, X, NWORDS, 1)
+.RE
+.SH NOTES
+You must explicitly close the file using the CRAYCLOSE routine,
+otherwise the disk file will be improperly terminated and unusable.
+.PP
+This routine cannot be used to write Cray double precision (128 bit)
+format.
+.SH IMPLEMENTATION
+To access this routine, you must include the following loader flags when
+building your program:
+.sp
+.ce
+-L /usr/local/lib -lncaru
+.SH "RETURN VALUES"
+.B CRAYWRITE
+returns the number of Cray words successfully written or:
+.TP 10 
+0
+Invalid conversion flag specified.
+.TP 10 
+-2
+Invalid Cray blocked file structure encountered.
+.TP 10
+-6
+An error occurred while writing the disk file.
+.TP 10
+-7
+An error occurred while writing a Cray unblocked file.
+.TP 10
+-12
+malloc(3) failed to obtain memory for the conversion buffer.
+.sp 4
+.SH "SEE ALSO"
+crayopen(3), crayrew(3), crayread(3), crayclose(3), crayweod(3), crayeod(3)
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved

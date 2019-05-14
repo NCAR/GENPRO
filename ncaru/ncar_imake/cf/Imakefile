@@ -1,0 +1,62 @@
+XCOMM $Id: Imakefile,v 1.1.1.1 1999/05/14 20:57:08 morreale Exp $
+
+#ifdef LocalConfigFiles
+LOCALFILES = LocalConfigFiles
+#endif
+
+DEFFILES = \
+site.def \
+site.p-def
+
+RULEFILES = \
+Imake.rules \
+Imake.p-rules \
+hpLib.rules \
+ibmLib.rules \
+noop.rules \
+oldlib.rules \
+osfLib.rules \
+sgiLib.rules \
+sv4Lib.rules \
+sunLib.rules
+
+TMPLFILES = \
+Imake.tmpl \
+Library.tmpl \
+Project.tmpl \
+Project.p-tmpl \
+hpLib.tmpl \
+ibmLib.tmpl \
+osfLib.tmpl \
+sv4Lib.tmpl \
+sunLib.tmpl \
+OSFDCE.tmpl
+
+CFFILES = \
+Imake.cf \
+cray.cf \
+cray.p-cf \
+generic.cf \
+generic.p-cf \
+hp.cf \
+hp.p-cf \
+ibm.cf \
+ibm.p-cf \
+linux.cf \
+linux.p-cf \
+osf1.cf \
+osf1.p-cf \
+rtcchack.bac \
+sgi.cf \
+sgi.p-cf \
+sun.cf \
+sun.p-cf \
+ultrix.cf \
+svr4.cf \
+ultrix.p-cf 
+
+INSTFILES = $(RULEFILES) $(TMPLFILES) $(DEFFILES) $(CFFILES) $(LOCALFILES)
+
+all::
+
+InstallMultipleDestFlags(install,$(INSTFILES),$(CONFIGDIR),$(INSTDATFLAGS))

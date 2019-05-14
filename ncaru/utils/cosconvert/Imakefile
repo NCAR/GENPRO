@@ -1,0 +1,11 @@
+XCOMM $Id: Imakefile,v 1.2 2000/02/24 23:16:17 morreale Exp $
+
+SRCS	= cosconvert.c
+OBJS	= cosconvert.o
+
+
+DEPLIBS 	= $(DEPNCARU_LIB)
+
+LOCAL_LIBRARIES = $(NCARU_LIB)
+
+ComplexProgramTarget(cosconvert);

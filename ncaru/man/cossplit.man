@@ -1,0 +1,53 @@
+.na
+.TH cossplit 1 "04 May 1999" NCAR "Local Command"
+.SH NAME
+cossplit - Split a Cray-blocked dataset 
+.SH SYNOPSIS
+.B cossplit 
+[
+.B -m \fImaxf 
+][
+.B -p \fIprefix
+]
+.I file
+.SH DESCRIPTION
+The 
+.B cossplit 
+command splits a Cray-blocked multi-file dataset into separate single-file 
+datasets.
+.PP
+By default, the resulting file names are of the form:
+.sp
+.ce
+f00[n]
+.PP
+Where \fI[n]\fR is an incrementing digit starting with 1. 
+.SH OPTIONS
+.B cossplit 
+has two options:
+.TP 10
+.B -m \fImaxf
+The maximum number of files to split.  Specify 
+.I maxf
+as an integer.
+If omitted, then all files in the
+dataset are split.
+.TP 10
+.B -p
+The prefix for the resulting single-file datasets.  If specified, then 
+.B cossplit 
+creates file names of:
+.sp
+.ce 
+\fIprefix\fR.f00[n]
+.sp
+.RS 10
+Where \fI[n]\fR is an incrementing digit starting with 1.
+.RE
+.SH "SEE ALSO"
+cosfile(1), cosconvert(1) 
+.SH COPYRIGHT
+(c) Copyright 1999 University Corporation for Atmospheric Research
+.br
+All Rights Reserved
+

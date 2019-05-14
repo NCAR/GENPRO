@@ -1,0 +1,96 @@
+XCOMM platform:  $Id: sgi.cf,v 1.1.1.1 1999/05/14 20:57:08 morreale Exp $
+
+/*
+**	ncar_imake will automatically define the macros OSMajorVersion, 
+**	OSMinorVersion, and OSTeenyVersion to the appropriate version
+**	numbers.
+*/
+#define OSName		IRIX OSMajorVersion OSMinorVersion OSTeenyVersion
+XCOMM operating system:  OSName
+XCOMM OSMajorNumber:	 OSMajorVersion
+XCOMM OSMinorNumber:	 OSMinorVersion
+XCOMM OSTeenyNumber:	 OSTeenyVersion
+
+#if OSMajorVersion < 4
+/* We do not guarantee this will work */
+#define BootstrapCFlags   -DX_WCHAR -DX_LOCALE -DX_USEBFUNCS -DSYSV
+#define StandardDefines   -DX_WCHAR -DX_LOCALE -DX_USEBFUNCS -DSYSV
+#endif
+
+#define CCsuf C 
+#define	HasCplusplus		YES
+#define SystemV			YES
+#define HasPutenv		YES
+#define ExecableScripts		YES
+#if OSMajorVersion > 3
+#define SetTtyGroup		YES
+#else
+#define SetTtyGroup		NO
+#endif
+#define HasNdbm			YES
+#define HasPoll                 YES
+#define Malloc0ReturnsNull	YES
+#define ExpandManNames          YES
+
+#if OSMajorVersion > 3 || (OSMajorVersion == 3 && OSMinorVersion > 2)
+#define NeedVarargsPrototypes	YES
+#define NeedConstPrototypes	YES
+#define NeedWidePrototypes	NO
+#endif
+
+/* Extra libraries provide : yp, sysV malloc, shared libc, and widechar */
+#ifdef	DEAD
+#define ExtraLibraries -lsun -lmalloc -lc_s -lw
+#endif
+
+/* #include <sgiLib.rules> */
+
+/* this is for floating point, ANSI cpp */
+#if	OSMajorVersion < 6
+#define sgiCCOptions -ansiposix -D_XOPEN_SOURCE
+#else
+#define sgiCCOptions -xansi -n32 -mips3 
+#endif
+
+#ifndef	DefaultCCOptions
+#define DefaultCCOptions sgiCCOptions
+#endif
+
+#ifndef	DefaultCplusplusOptions
+#define	DefaultCplusplusOptions -n32 -mips3
+#endif
+
+/* At SGI, we don't need this */
+#define ConstructMFLAGS		NO	/* build MFLAGS from MAKEFLAGS */
+
+/* Used only for compressed fonts */
+#define UNCOMPRESSPATH /usr/bsd/uncompress
+
+/* Override Imake.tmpl's "-X" flag */
+#define LdCombineFlags -r
+
+/* Installation Build Parameters */
+#define InstKmemFlags -m 2755 -g sys
+
+#define ArCmd ar scq
+
+/* for xdm or anyone else to use */
+#define DefaultUserPath :/usr/sbin:/usr/bsd:/usr/bin:/bin:$(BINDIR):/etc:/usr/etc
+#define DefaultSystemPath /usr/sbin:/usr/bsd:/bin:/etc:/usr/bin:/usr/etc:$(BINDIR)
+
+
+/* Changed to a single shell command for pmake/smake */
+/*
+ * NormalLibObjCompile - compile fragment for a library object file
+ * 	do ld -x to remove line number symbols for libraries
+ */
+/*
+**#define	NormalLibObjCompile(options) $(RM) $@ $*.os \			@@\
+**	&& $(CC) -c options $(CFLAGS) $*.c \				@@\
+**	&& $(LD) $(LDSTRIPFLAGS) -r $@ -o $*.os \			@@\
+**	&& $(MV) $*.os $@
+*/
+
+#define	LibObjCompile(dir,options) $(RM) $@ dir/$@ \			@@\
+	&& $(CC) -c $(CCOPTIONS) $(ALLDEFINES) options $*.c \		@@\
+	&& $(MV) $@ dir/$@
