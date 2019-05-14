@@ -1,0 +1,3180 @@
+%!
+%%BoundingBox: (atend)
+%%Pages: (atend)
+%%DocumentFonts: (atend)
+%%EndComments
+%
+% FrameMaker PostScript Prolog 3.0, for use with FrameMaker 3.0
+% Copyright (c) 1986,87,89,90,91 by Frame Technology Corporation.
+% All rights reserved.
+%
+% Known Problems:
+%	Due to bugs in Transcript, the 'PS-Adobe-' is omitted from line 1
+/FMversion (3.0) def 
+% Set up Color vs. Black-and-White
+	/FMPrintInColor systemdict /colorimage known
+		systemdict /currentcolortransfer known or def
+% Uncomment this line to force b&w on color printer
+%   /FMPrintInColor false def
+/FrameDict 195 dict def 
+systemdict /errordict known not {/errordict 10 dict def
+		errordict /rangecheck {stop} put} if
+% The readline in 23.0 doesn't recognize cr's as nl's on AppleTalk
+FrameDict /tmprangecheck errordict /rangecheck get put 
+errordict /rangecheck {FrameDict /bug true put} put 
+FrameDict /bug false put 
+mark 
+% Some PS machines read past the CR, so keep the following 3 lines together!
+currentfile 5 string readline
+00
+0000000000
+cleartomark 
+errordict /rangecheck FrameDict /tmprangecheck get put 
+FrameDict /bug get { 
+	/readline {
+		/gstring exch def
+		/gfile exch def
+		/gindex 0 def
+		{
+			gfile read pop 
+			dup 10 eq {exit} if 
+			dup 13 eq {exit} if 
+			gstring exch gindex exch put 
+			/gindex gindex 1 add def 
+		} loop
+		pop 
+		gstring 0 gindex getinterval true 
+		} def
+	} if
+/FMVERSION {
+	FMversion ne {
+		/Times-Roman findfont 18 scalefont setfont
+		100 100 moveto
+		(FrameMaker version does not match postscript_prolog!)
+		dup =
+		show showpage
+		} if
+	} def 
+/FMLOCAL {
+	FrameDict begin
+	0 def 
+	end 
+	} def 
+	/gstring FMLOCAL
+	/gfile FMLOCAL
+	/gindex FMLOCAL
+	/orgxfer FMLOCAL
+	/orgproc FMLOCAL
+	/organgle FMLOCAL
+	/orgfreq FMLOCAL
+	/yscale FMLOCAL
+	/xscale FMLOCAL
+	/manualfeed FMLOCAL
+	/paperheight FMLOCAL
+	/paperwidth FMLOCAL
+/FMDOCUMENT { 
+	array /FMfonts exch def 
+	/#copies exch def
+	FrameDict begin
+	0 ne dup {setmanualfeed} if
+	/manualfeed exch def
+	/paperheight exch def
+	/paperwidth exch def
+	/yscale exch def
+	/xscale exch def
+	currenttransfer cvlit /orgxfer exch def
+	currentscreen cvlit /orgproc exch def
+	/organgle exch def /orgfreq exch def
+	setpapername 
+	manualfeed {true} {papersize} ifelse 
+	{manualpapersize} {false} ifelse 
+	{desperatepapersize} if
+	end 
+	} def 
+	/pagesave FMLOCAL
+	/orgmatrix FMLOCAL
+	/landscape FMLOCAL
+/FMBEGINPAGE { 
+	FrameDict begin 
+	/pagesave save def
+	3.86 setmiterlimit
+	/landscape exch 0 ne def
+	landscape { 
+		90 rotate 0 exch neg translate pop 
+		}
+		{pop pop}
+		ifelse
+	xscale yscale scale
+	/orgmatrix matrix def
+	gsave 
+	} def 
+/FMENDPAGE {
+	grestore 
+	pagesave restore
+	end 
+	showpage
+	} def 
+/FMFONTDEFINE { 
+	FrameDict begin
+	findfont 
+	ReEncode 
+	1 index exch 
+	definefont 
+	FMfonts 3 1 roll 
+	put
+	end 
+	} def 
+/FMFILLS {
+	FrameDict begin
+	array /fillvals exch def
+	end 
+	} def 
+/FMFILL {
+	FrameDict begin
+	 fillvals 3 1 roll put
+	end 
+	} def 
+/FMNORMALIZEGRAPHICS { 
+	newpath
+	0.0 0.0 moveto
+	1 setlinewidth
+	0 setlinecap
+	0 0 0 sethsbcolor
+	0 setgray 
+	} bind def
+	/fx FMLOCAL
+	/fy FMLOCAL
+	/fh FMLOCAL
+	/fw FMLOCAL
+	/llx FMLOCAL
+	/lly FMLOCAL
+	/urx FMLOCAL
+	/ury FMLOCAL
+/FMBEGINEPSF { 
+	end 
+	/FMEPSF save def 
+	/showpage {} def 
+	FMNORMALIZEGRAPHICS 
+	[/fy /fx /fh /fw /ury /urx /lly /llx] {exch def} forall 
+	fx fy translate 
+	rotate
+	fw urx llx sub div fh ury lly sub div scale 
+	llx neg lly neg translate 
+	} bind def
+/FMENDEPSF {
+	FMEPSF restore
+	FrameDict begin 
+	} bind def
+FrameDict begin 
+/setmanualfeed {
+%%BeginFeature *ManualFeed True
+	 statusdict /manualfeed true put
+%%EndFeature
+	} def
+/max {2 copy lt {exch} if pop} bind def
+/min {2 copy gt {exch} if pop} bind def
+/inch {72 mul} def
+/pagedimen { 
+	paperheight sub abs 16 lt exch 
+	paperwidth sub abs 16 lt and
+	{/papername exch def} {pop} ifelse
+	} def
+	/papersizedict FMLOCAL
+/setpapername { 
+	/papersizedict 14 dict def 
+	papersizedict begin
+	/papername /unknown def 
+		/Letter 8.5 inch 11.0 inch pagedimen
+		/LetterSmall 7.68 inch 10.16 inch pagedimen
+		/Tabloid 11.0 inch 17.0 inch pagedimen
+		/Ledger 17.0 inch 11.0 inch pagedimen
+		/Legal 8.5 inch 14.0 inch pagedimen
+		/Statement 5.5 inch 8.5 inch pagedimen
+		/Executive 7.5 inch 10.0 inch pagedimen
+		/A3 11.69 inch 16.5 inch pagedimen
+		/A4 8.26 inch 11.69 inch pagedimen
+		/A4Small 7.47 inch 10.85 inch pagedimen
+		/B4 10.125 inch 14.33 inch pagedimen
+		/B5 7.16 inch 10.125 inch pagedimen
+	end
+	} def
+/papersize {
+	papersizedict begin
+		/Letter {lettertray letter} def
+		/LetterSmall {lettertray lettersmall} def
+		/Tabloid {11x17tray 11x17} def
+		/Ledger {ledgertray ledger} def
+		/Legal {legaltray legal} def
+		/Statement {statementtray statement} def
+		/Executive {executivetray executive} def
+		/A3 {a3tray a3} def
+		/A4 {a4tray a4} def
+		/A4Small {a4tray a4small} def
+		/B4 {b4tray b4} def
+		/B5 {b5tray b5} def
+		/unknown {unknown} def
+	papersizedict dup papername known {papername} {/unknown} ifelse get
+	end
+	/FMdicttop countdictstack 1 add def 
+	statusdict begin stopped end 
+	countdictstack -1 FMdicttop {pop end} for 
+	} def
+/manualpapersize {
+	papersizedict begin
+		/Letter {letter} def
+		/LetterSmall {lettersmall} def
+		/Tabloid {11x17} def
+		/Ledger {ledger} def
+		/Legal {legal} def
+		/Statement {statement} def
+		/Executive {executive} def
+		/A3 {a3} def
+		/A4 {a4} def
+		/A4Small {a4small} def
+		/B4 {b4} def
+		/B5 {b5} def
+		/unknown {unknown} def
+	papersizedict dup papername known {papername} {/unknown} ifelse get
+	end
+	stopped 
+	} def
+/desperatepapersize {
+	statusdict /setpageparams known
+		{
+		paperwidth paperheight 0 1 
+		statusdict begin
+		{setpageparams} stopped pop 
+		end
+		} if
+	} def
+/savematrix {
+	orgmatrix currentmatrix pop
+	} bind def
+/restorematrix {
+	orgmatrix setmatrix
+	} bind def
+/dmatrix matrix def
+/dpi    72 0 dmatrix defaultmatrix dtransform
+    dup mul exch   dup mul add   sqrt def
+/freq dpi 18.75 div 8 div round dup 0 eq {pop 1} if 8 mul dpi exch div def
+/sangle 1 0 dmatrix defaultmatrix dtransform exch atan def
+/DiacriticEncoding [
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /space /exclam /quotedbl
+/numbersign /dollar /percent /ampersand /quotesingle /parenleft
+/parenright /asterisk /plus /comma /hyphen /period /slash /zero /one
+/two /three /four /five /six /seven /eight /nine /colon /semicolon
+/less /equal /greater /question /at /A /B /C /D /E /F /G /H /I /J /K
+/L /M /N /O /P /Q /R /S /T /U /V /W /X /Y /Z /bracketleft /backslash
+/bracketright /asciicircum /underscore /grave /a /b /c /d /e /f /g /h
+/i /j /k /l /m /n /o /p /q /r /s /t /u /v /w /x /y /z /braceleft /bar
+/braceright /asciitilde /.notdef /Adieresis /Aring /Ccedilla /Eacute
+/Ntilde /Odieresis /Udieresis /aacute /agrave /acircumflex /adieresis
+/atilde /aring /ccedilla /eacute /egrave /ecircumflex /edieresis
+/iacute /igrave /icircumflex /idieresis /ntilde /oacute /ograve
+/ocircumflex /odieresis /otilde /uacute /ugrave /ucircumflex
+/udieresis /dagger /.notdef /cent /sterling /section /bullet
+/paragraph /germandbls /registered /copyright /trademark /acute
+/dieresis /.notdef /AE /Oslash /.notdef /.notdef /.notdef /.notdef
+/yen /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/ordfeminine /ordmasculine /.notdef /ae /oslash /questiondown
+/exclamdown /logicalnot /.notdef /florin /.notdef /.notdef
+/guillemotleft /guillemotright /ellipsis /.notdef /Agrave /Atilde
+/Otilde /OE /oe /endash /emdash /quotedblleft /quotedblright
+/quoteleft /quoteright /.notdef /.notdef /ydieresis /Ydieresis
+/fraction /currency /guilsinglleft /guilsinglright /fi /fl /daggerdbl
+/periodcentered /quotesinglbase /quotedblbase /perthousand
+/Acircumflex /Ecircumflex /Aacute /Edieresis /Egrave /Iacute
+/Icircumflex /Idieresis /Igrave /Oacute /Ocircumflex /.notdef /Ograve
+/Uacute /Ucircumflex /Ugrave /dotlessi /circumflex /tilde /macron
+/breve /dotaccent /ring /cedilla /hungarumlaut /ogonek /caron
+] def
+/ReEncode { 
+	dup 
+	length 
+	dict begin 
+	{
+	1 index /FID ne 
+		{def} 
+		{pop pop} ifelse 
+	} forall 
+	0 eq {/Encoding DiacriticEncoding def} if 
+	currentdict 
+	end 
+	} bind def
+/graymode true def
+	/bwidth FMLOCAL
+	/bpside FMLOCAL
+	/bstring FMLOCAL
+	/onbits FMLOCAL
+	/offbits FMLOCAL
+	/xindex FMLOCAL
+	/yindex FMLOCAL
+	/x FMLOCAL
+	/y FMLOCAL
+/setpattern {
+	 /bwidth  exch def
+	 /bpside  exch def
+	 /bstring exch def
+	 /onbits 0 def  /offbits 0 def
+	 freq sangle landscape {90 add} if 
+		{/y exch def
+		 /x exch def
+		 /xindex x 1 add 2 div bpside mul cvi def
+		 /yindex y 1 add 2 div bpside mul cvi def
+		 bstring yindex bwidth mul xindex 8 idiv add get
+		 1 7 xindex 8 mod sub bitshift and 0 ne
+		 {/onbits  onbits  1 add def 1}
+		 {/offbits offbits 1 add def 0}
+		 ifelse
+		}
+		setscreen
+	 {} settransfer
+	 offbits offbits onbits add div FMsetgray
+	/graymode false def
+	} bind def
+/grayness {
+	FMsetgray
+	graymode not {
+		/graymode true def
+		orgxfer cvx settransfer
+		orgfreq organgle orgproc cvx setscreen
+		} if
+	} bind def
+	/HUE FMLOCAL
+	/SAT FMLOCAL
+	/BRIGHT FMLOCAL
+	/Colors FMLOCAL
+FMPrintInColor 
+	
+	{
+	/HUE 0 def
+	/SAT 0 def
+	/BRIGHT 0 def
+	% array of arrays Hue and Sat values for the separations [HUE BRIGHT]
+	/Colors   
+	[[0    0  ]    % black
+	 [0    0  ]    % white
+	 [0.00 1.0]    % red
+	 [0.37 1.0]    % green
+	 [0.60 1.0]    % blue
+	 [0.50 1.0]    % cyan
+	 [0.83 1.0]    % magenta
+	 [0.16 1.0]    % comment / yellow
+	 ] def
+      
+	/BEGINBITMAPCOLOR { 
+		BITMAPCOLOR} def
+	/BEGINBITMAPCOLORc { 
+		BITMAPCOLORc} def
+	/BEGINBITMAPTRUECOLOR { 
+		BITMAPTRUECOLOR } def
+	/BEGINBITMAPTRUECOLORc { 
+		BITMAPTRUECOLORc } def
+	/K { 
+		Colors exch get dup
+		0 get /HUE exch store 
+		1 get /BRIGHT exch store
+		  HUE 0 eq BRIGHT 0 eq and
+			{1.0 SAT sub setgray}
+			{HUE SAT BRIGHT sethsbcolor} 
+		  ifelse
+		} def
+	/FMsetgray { 
+		/SAT exch 1.0 exch sub store 
+		  HUE 0 eq BRIGHT 0 eq and
+			{1.0 SAT sub setgray}
+			{HUE SAT BRIGHT sethsbcolor} 
+		  ifelse
+		} bind def
+	}
+	
+	{
+	/BEGINBITMAPCOLOR { 
+		BITMAPGRAY} def
+	/BEGINBITMAPCOLORc { 
+		BITMAPGRAYc} def
+	/BEGINBITMAPTRUECOLOR { 
+		BITMAPTRUEGRAY } def
+	/BEGINBITMAPTRUECOLORc { 
+		BITMAPTRUEGRAYc } def
+	/FMsetgray {setgray} bind def
+	/K { 
+		pop
+		} def
+	}
+ifelse
+/normalize {
+	transform round exch round exch itransform
+	} bind def
+/dnormalize {
+	dtransform round exch round exch idtransform
+	} bind def
+/lnormalize { 
+	0 dtransform exch cvi 2 idiv 2 mul 1 add exch idtransform pop
+	} bind def
+/H { 
+	lnormalize setlinewidth
+	} bind def
+/Z {
+	setlinecap
+	} bind def
+	/fillvals FMLOCAL
+/X { 
+	fillvals exch get
+	dup type /stringtype eq
+	{8 1 setpattern} 
+	{grayness}
+	ifelse
+	} bind def
+/V { 
+	gsave eofill grestore
+	} bind def
+/N { 
+	stroke
+	} bind def
+/M {newpath moveto} bind def
+/E {lineto} bind def
+/D {curveto} bind def
+/O {closepath} bind def
+	/n FMLOCAL
+/L { 
+ 	/n exch def
+	newpath
+	normalize
+	moveto 
+	2 1 n {pop normalize lineto} for
+	} bind def
+/Y { 
+	L 
+	closepath
+	} bind def
+	/x1 FMLOCAL
+	/x2 FMLOCAL
+	/y1 FMLOCAL
+	/y2 FMLOCAL
+	/rad FMLOCAL
+/R { 
+	/y2 exch def
+	/x2 exch def
+	/y1 exch def
+	/x1 exch def
+	x1 y1
+	x2 y1
+	x2 y2
+	x1 y2
+	4 Y 
+	} bind def
+/RR { 
+	/rad exch def
+	normalize
+	/y2 exch def
+	/x2 exch def
+	normalize
+	/y1 exch def
+	/x1 exch def
+	newpath
+	x1 y1 rad add moveto
+	x1 y2 x2 y2 rad arcto
+	x2 y2 x2 y1 rad arcto
+	x2 y1 x1 y1 rad arcto
+	x1 y1 x1 y2 rad arcto
+	closepath
+	16 {pop} repeat
+	} bind def
+/C { 
+	grestore
+	gsave
+	R 
+	clip
+	} bind def
+	/FMpointsize FMLOCAL
+/F { 
+	FMfonts exch get
+	FMpointsize scalefont
+	setfont
+	} bind def
+/Q { 
+	/FMpointsize exch def
+	F 
+	} bind def
+/T { 
+	moveto show
+	} bind def
+/RF { 
+	rotate
+	0 ne {-1 1 scale} if
+	} bind def
+/TF { 
+	gsave
+	moveto 
+	RF
+	show
+	grestore
+	} bind def
+/P { 
+	moveto
+	0 32 3 2 roll widthshow
+	} bind def
+/PF { 
+	gsave
+	moveto 
+	RF
+	0 32 3 2 roll widthshow
+	grestore
+	} bind def
+/S { 
+	moveto
+	0 exch ashow
+	} bind def
+/SF { 
+	gsave
+	moveto
+	RF
+	0 exch ashow
+	grestore
+	} bind def
+/B { 
+	moveto
+	0 32 4 2 roll 0 exch awidthshow
+	} bind def
+/BF { 
+	gsave
+	moveto
+	RF
+	0 32 4 2 roll 0 exch awidthshow
+	grestore
+	} bind def
+/G { 
+	gsave
+	newpath
+	normalize translate 0.0 0.0 moveto 
+	dnormalize scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	closepath fill
+	grestore
+	} bind def
+/A { 
+	gsave
+	savematrix
+	newpath
+	2 index 2 div add exch 3 index 2 div sub exch 
+	normalize 2 index 2 div sub exch 3 index 2 div add exch 
+	translate 
+	scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	restorematrix
+	stroke
+	grestore
+	} bind def
+	/x FMLOCAL
+	/y FMLOCAL
+	/w FMLOCAL
+	/h FMLOCAL
+	/xx FMLOCAL
+	/yy FMLOCAL
+	/ww FMLOCAL
+	/hh FMLOCAL
+	/FMsaveobject FMLOCAL
+	/FMoptop FMLOCAL
+	/FMdicttop FMLOCAL
+/BEGINPRINTCODE { 
+	/FMdicttop countdictstack 1 add def 
+	/FMoptop count 4 sub def 
+	/FMsaveobject save def
+	userdict begin 
+	/showpage {} def 
+	FMNORMALIZEGRAPHICS 
+	3 index neg 3 index neg translate
+	} bind def
+/ENDPRINTCODE {
+	count -1 FMoptop {pop pop} for 
+	countdictstack -1 FMdicttop {pop end} for 
+	FMsaveobject restore 
+	} bind def
+/gn { 
+	0 
+	{	46 mul 
+		cf read pop 
+		32 sub 
+		dup 46 lt {exit} if 
+		46 sub add 
+		} loop
+	add 
+	} bind def
+	/str FMLOCAL
+/cfs { 
+	/str sl string def 
+	0 1 sl 1 sub {str exch val put} for 
+	str def 
+	} bind def
+/ic [ 
+	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0223
+	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0223
+	0
+	{0 hx} {1 hx} {2 hx} {3 hx} {4 hx} {5 hx} {6 hx} {7 hx} {8 hx} {9 hx}
+	{10 hx} {11 hx} {12 hx} {13 hx} {14 hx} {15 hx} {16 hx} {17 hx} {18 hx}
+	{19 hx} {gn hx} {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12}
+	{13} {14} {15} {16} {17} {18} {19} {gn} {0 wh} {1 wh} {2 wh} {3 wh}
+	{4 wh} {5 wh} {6 wh} {7 wh} {8 wh} {9 wh} {10 wh} {11 wh} {12 wh}
+	{13 wh} {14 wh} {gn wh} {0 bl} {1 bl} {2 bl} {3 bl} {4 bl} {5 bl} {6 bl}
+	{7 bl} {8 bl} {9 bl} {10 bl} {11 bl} {12 bl} {13 bl} {14 bl} {gn bl}
+	{0 fl} {1 fl} {2 fl} {3 fl} {4 fl} {5 fl} {6 fl} {7 fl} {8 fl} {9 fl}
+	{10 fl} {11 fl} {12 fl} {13 fl} {14 fl} {gn fl}
+	] def
+	/sl FMLOCAL
+	/val FMLOCAL
+	/ws FMLOCAL
+	/im FMLOCAL
+	/bs FMLOCAL
+	/cs FMLOCAL
+	/len FMLOCAL
+	/pos FMLOCAL
+/ms { 
+	/sl exch def 
+	/val 255 def 
+	/ws cfs 
+	/im cfs 
+	/val 0 def 
+	/bs cfs 
+	/cs cfs 
+	} bind def
+400 ms 
+/ip { 
+	is 
+	0 
+	cf cs readline pop 
+	{	ic exch get exec 
+		add 
+		} forall 
+	pop 
+	
+	} bind def
+/wh { 
+	/len exch def 
+	/pos exch def 
+	ws 0 len getinterval im pos len getinterval copy pop
+	pos len 
+	} bind def
+/bl { 
+	/len exch def 
+	/pos exch def 
+	bs 0 len getinterval im pos len getinterval copy pop
+	pos len 
+	} bind def
+/s1 1 string def
+/fl { 
+	/len exch def 
+	/pos exch def 
+	/val cf s1 readhexstring pop 0 get def
+	pos 1 pos len add 1 sub {im exch val put} for
+	pos len 
+	} bind def
+/hx { 
+	3 copy getinterval 
+	cf exch readhexstring pop pop 
+	} bind def
+	/h FMLOCAL
+	/w FMLOCAL
+	/d FMLOCAL
+	/lb FMLOCAL
+	/bitmapsave FMLOCAL
+	/is FMLOCAL
+	/cf FMLOCAL
+/wbytes { 
+	dup 
+	8 eq {pop} {1 eq {7 add 8 idiv} {3 add 4 idiv} ifelse} ifelse
+	} bind def
+/BEGINBITMAPBWc { 
+	1 {} COMMONBITMAPc
+	} bind def
+/BEGINBITMAPGRAYc { 
+	8 {} COMMONBITMAPc
+	} bind def
+/BEGINBITMAP2BITc { 
+	2 {} COMMONBITMAPc
+	} bind def
+/COMMONBITMAPc { 
+	/r exch def
+	/d exch def
+	gsave
+	translate rotate scale /h exch def /w exch def
+	/lb w d wbytes def 
+	sl lb lt {lb ms} if 
+	/bitmapsave save def 
+	r                    
+	/is im 0 lb getinterval def 
+	ws 0 lb getinterval is copy pop 
+	/cf currentfile def 
+	w h d [w 0 0 h neg 0 h] 
+	{ip} image 
+	bitmapsave restore 
+	grestore
+	} bind def
+/BEGINBITMAPBW { 
+	1 {} COMMONBITMAP
+	} bind def
+/BEGINBITMAPGRAY { 
+	8 {} COMMONBITMAP
+	} bind def
+/BEGINBITMAP2BIT { 
+	2 {} COMMONBITMAP
+	} bind def
+/COMMONBITMAP { 
+	/r exch def
+	/d exch def
+	gsave
+	translate rotate scale /h exch def /w exch def
+	/bitmapsave save def 
+	r                    
+	/is w d wbytes string def
+	/cf currentfile def 
+	w h d [w 0 0 h neg 0 h] 
+	{cf is readhexstring pop} image
+	bitmapsave restore 
+	grestore
+	} bind def
+	/proc1 FMLOCAL
+	/proc2 FMLOCAL
+	/newproc FMLOCAL
+/Fmcc {
+    /proc2 exch cvlit def
+    /proc1 exch cvlit def
+    /newproc proc1 length proc2 length add array def
+    newproc 0 proc1 putinterval
+    newproc proc1 length proc2 putinterval
+    newproc cvx
+} bind def
+/ngrayt 256 array def
+/nredt 256 array def
+/nbluet 256 array def
+/ngreent 256 array def
+	/gryt FMLOCAL
+	/blut FMLOCAL
+	/grnt FMLOCAL
+	/redt FMLOCAL
+	/indx FMLOCAL
+	/cynu FMLOCAL
+	/magu FMLOCAL
+	/yelu FMLOCAL
+	/k FMLOCAL
+	/u FMLOCAL
+/colorsetup {
+	currentcolortransfer
+	/gryt exch def
+	/blut exch def
+	/grnt exch def
+	/redt exch def
+	0 1 255 {
+		/indx exch def
+		/cynu 1 red indx get 255 div sub def
+		/magu 1 green indx get 255 div sub def
+		/yelu 1 blue indx get 255 div sub def
+		/k cynu magu min yelu min def
+		/u k currentundercolorremoval exec def
+		nredt indx 1 0 cynu u sub max sub redt exec put
+		ngreent indx 1 0 magu u sub max sub grnt exec put
+		nbluet indx 1 0 yelu u sub max sub blut exec put
+		ngrayt indx 1 k currentblackgeneration exec sub gryt exec put
+	} for
+	{255 mul cvi nredt exch get}
+	{255 mul cvi ngreent exch get}
+	{255 mul cvi nbluet exch get}
+	{255 mul cvi ngrayt exch get}
+	setcolortransfer
+	{pop 0} setundercolorremoval
+	{} setblackgeneration
+	} bind def
+	/tran FMLOCAL
+/fakecolorsetup {
+	/tran 256 string def
+	0 1 255 {/indx exch def 
+		tran indx
+		red indx get 77 mul
+		green indx get 151 mul
+		blue indx get 28 mul
+		add add 256 idiv put} for
+	currenttransfer
+	{255 mul cvi tran exch get 255.0 div}
+	exch Fmcc settransfer
+} bind def
+/BITMAPCOLOR { 
+	/d 8 def
+	gsave
+	translate rotate scale /h exch def /w exch def
+	/bitmapsave save def 
+	colorsetup
+	/is w d wbytes string def
+	/cf currentfile def 
+	w h d [w 0 0 h neg 0 h] 
+	{cf is readhexstring pop} {is} {is} true 3 colorimage 
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPCOLORc { 
+	/d 8 def
+	gsave
+	translate rotate scale /h exch def /w exch def
+	/lb w d wbytes def 
+	sl lb lt {lb ms} if 
+	/bitmapsave save def 
+	colorsetup
+	/is im 0 lb getinterval def 
+	ws 0 lb getinterval is copy pop 
+	/cf currentfile def 
+	w h d [w 0 0 h neg 0 h] 
+	{ip} {is} {is} true 3 colorimage
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPTRUECOLORc { 
+        gsave
+        translate rotate scale /h exch def /w exch def
+        /bitmapsave save def 
+        
+        /is w string def
+        
+        ws 0 w getinterval is copy pop 
+        /cf currentfile def 
+        w h 8 [w 0 0 h neg 0 h] 
+        {ip} {gip} {bip} true 3 colorimage
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPTRUECOLOR { 
+        gsave
+        translate rotate scale /h exch def /w exch def
+        /bitmapsave save def 
+        /is w string def
+        /gis w string def
+        /bis w string def
+        /cf currentfile def 
+        w h 8 [w 0 0 h neg 0 h] 
+        { cf is readhexstring pop } 
+        { cf gis readhexstring pop } 
+        { cf bis readhexstring pop } 
+        true 3 colorimage 
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPTRUEGRAYc { 
+        gsave
+        translate rotate scale /h exch def /w exch def
+        /bitmapsave save def 
+        
+        /is w string def
+        
+        ws 0 w getinterval is copy pop 
+        /cf currentfile def 
+        w h 8 [w 0 0 h neg 0 h] 
+        {ip gip bip w gray} image
+        bitmapsave restore 
+        grestore
+        } bind def
+/ww FMLOCAL
+/r FMLOCAL
+/g FMLOCAL
+/b FMLOCAL
+/i FMLOCAL
+/gray { 
+        /ww exch def
+        /b exch def
+        /g exch def
+        /r exch def
+        0 1 ww 1 sub { /i exch def r i get .299 mul g i get .587 mul
+			b i get .114 mul add add r i 3 -1 roll floor cvi put } for
+        r
+        } bind def
+/BITMAPTRUEGRAY { 
+        gsave
+        translate rotate scale /h exch def /w exch def
+        /bitmapsave save def 
+        /is w string def
+        /gis w string def
+        /bis w string def
+        /cf currentfile def 
+        w h 8 [w 0 0 h neg 0 h] 
+        { cf is readhexstring pop 
+          cf gis readhexstring pop 
+          cf bis readhexstring pop w gray}  image
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPGRAY { 
+	8 {fakecolorsetup} COMMONBITMAP
+	} bind def
+/BITMAPGRAYc { 
+	8 {fakecolorsetup} COMMONBITMAPc
+	} bind def
+/ENDBITMAP {
+	} bind def
+end 
+	/ALDsave FMLOCAL
+	/ALDmatrix matrix def ALDmatrix currentmatrix pop
+/StartALD {
+	/ALDsave save def
+	 savematrix
+	 ALDmatrix setmatrix
+	} bind def
+/InALD {
+	 restorematrix
+	} bind def
+/DoneALD {
+	 ALDsave restore
+	} bind def
+%%EndProlog
+%%BeginSetup
+(3.0) FMVERSION
+1 1 612 792 0 1 7 FMDOCUMENT
+0 0 /Times-Bold FMFONTDEFINE
+1 0 /Times-Roman FMFONTDEFINE
+2 0 /Courier FMFONTDEFINE
+3 0 /Courier-Oblique FMFONTDEFINE
+4 0 /Times-Italic FMFONTDEFINE
+32 FMFILLS
+0 0 FMFILL
+1 .1 FMFILL
+2 .3 FMFILL
+3 .5 FMFILL
+4 .7 FMFILL
+5 .9 FMFILL
+6 .97 FMFILL
+7 1 FMFILL
+8 <0f1e3c78f0e1c387> FMFILL
+9 <0f87c3e1f0783c1e> FMFILL
+10 <cccccccccccccccc> FMFILL
+11 <ffff0000ffff0000> FMFILL
+12 <8142241818244281> FMFILL
+13 <03060c183060c081> FMFILL
+14 <8040201008040201> FMFILL
+16 1 FMFILL
+17 .9 FMFILL
+18 .7 FMFILL
+19 .5 FMFILL
+20 .3 FMFILL
+21 .1 FMFILL
+22 0.03 FMFILL
+23 0 FMFILL
+24 <f0e1c3870f1e3c78> FMFILL
+25 <f0783c1e0f87c3e1> FMFILL
+26 <3333333333333333> FMFILL
+27 <0000ffff0000ffff> FMFILL
+28 <7ebddbe7e7dbbd7e> FMFILL
+29 <fcf9f3e7cf9f3f7e> FMFILL
+30 <7fbfdfeff7fbfdfe> FMFILL
+%%EndSetup
+%%Page: "1" 1
+%%BeginPaperSize: Letter
+%%EndPaperSize
+612 792 0 FMBEGINPAGE
+51.84 36.01 294.75 468 R
+7 X
+0 K
+V
+0 12 Q
+0 X
+( 1. Intr) 51.84 460 T
+(oduction) 87.27 460 T
+1 10 Q
+0.16 (The National Center for Atmospheric Research \050NCAR\051 has) 51.84 442.34 P
+3.57 (been using Cray Supercomputers since a Cray-1A was) 51.84 430.34 P
+0.06 (installed in late 1976. NCAR now has a CRA) 51.84 418.34 P
+0.06 (Y Y) 233.26 418.34 P
+0.06 (-MP 8/864,) 249.15 418.34 P
+1.28 (a CRA) 51.84 406.34 P
+1.28 (Y Y) 79.69 406.34 P
+1.28 (-MP 2D/216, and a CRA) 96.8 406.34 P
+1.28 (Y EL92/2-512 that are) 200.68 406.34 P
+2.45 (used for the bulk of computing by our user community) 51.84 394.34 P
+2.45 (.) 292.25 394.34 P
+2.41 (NCAR has an enormous amount of data in Cray format) 51.84 382.34 P
+-0.23 (stored on NCAR\325) 51.84 370.34 P
+-0.23 (s Mass Storage System. Currently) 121.34 370.34 P
+-0.23 (, there are) 255.53 370.34 P
+1.76 (40 terabytes of data on the NCAR Mass Storage System.) 51.84 358.34 P
+1.22 (Approximately 25 terabytes of that data in a Cray-blocked) 51.84 346.34 P
+(format.) 51.84 334.34 T
+0.9 (Cray computers use their own format to represent data. On) 51.84 317.34 P
+3.67 (Cray computers, a 64-bit word is used to de\336ne both) 51.84 305.34 P
+1.75 (\337oating-point values and integer values. In addition, Cray) 51.84 293.34 P
+0.51 (computers support a number of dif) 51.84 281.34 P
+0.51 (ferent \336le structures. The) 192.74 281.34 P
+0.03 (most common Cray \336le format is the Cray-blocked, or COS-) 51.84 269.34 P
+0.96 (blocked, \336le structure. This \336le structure, known as a Cray) 51.84 257.34 P
+2.2 (dataset, is used by default when a \336le is created from a) 51.84 245.34 P
+1.95 (Fortran unformatted WRITE statement. The Cray-blocked) 51.84 233.34 P
+1.11 (dataset contains various 8-byte control words which de\336ne) 51.84 221.34 P
+0.52 (512-word \0504096 byte\051 blocks, end-of-record \050EOR\051, end-of-) 51.84 209.34 P
+4.2 (\336le \050EOF\051, and end-of-data \050EOD\051. Cray also has an) 51.84 197.34 P
+3.37 (unblocked dataset structure that contains only data. No) 51.84 185.34 P
+3.03 (control words of any kind are present in an unblocked) 51.84 173.34 P
+(dataset.) 51.84 161.34 T
+1.28 (In contrast to Cray systems, a number of vendors of other) 51.84 144.34 P
+5.7 (platforms use Institute for Electrical and Electronics) 51.84 132.34 P
+7.33 (Engineers \050IEEE\051 binary \337oating-point standard for) 51.84 120.34 P
+0.33 (describing data in binary \336les. Generally) 51.84 108.34 P
+0.33 (, these vendors also) 215.49 108.34 P
+-0.17 (use the same \336le structure for Fortran unformatted sequential) 51.84 96.34 P
+1.64 (access binary \336les. This \336le structure consists of a 4-byte) 51.84 84.34 P
+-0.17 (control word, followed by data, terminated by another 4-byte) 51.84 72.34 P
+1.23 (control word for each record in the \336le. Because the same) 51.84 60.34 P
+-0.13 (\336le structure and data representation are used by a number of) 51.84 48.34 P
+317.25 36.01 575.99 466.56 R
+7 X
+V
+0 X
+5.32 (vendors, binary \336les created from Fortran programs are) 317.25 459.9 P
+(generally portable between these vendor) 317.25 447.9 T
+(\325) 479.15 447.9 T
+(s computers.) 481.93 447.9 T
+0.81 (In recent years, a number of IEEE-based compute servers have) 317.25 430.9 P
+0.04 (been added to our site. In particular) 317.25 418.9 P
+0.04 (, NCAR now has a four) 458.89 418.9 P
+0.04 (-node) 553.24 418.9 P
+0.94 (cluster of IBM RISC System/6000 model 550 workstations, an) 317.25 406.9 P
+4.53 (eight-node IBM Scalable POWERparallel 1 \050SP1\051, and a) 317.25 394.9 P
+-0.19 (Thinking Machines, Inc. CM-5. Since many of the users on these) 317.25 382.9 P
+0.46 (platforms also use our Cray systems, the ability to use the same) 317.25 370.9 P
+(data \336les on all systems is extremely important.) 317.25 358.9 T
+0.06 (One possible solution would be to use the Cray systems Flexible) 317.25 341.9 P
+0.26 (File I/O \050FFIO\051 package. This software allows the user to create) 317.25 329.9 P
+1.36 (data \336les in binary formats suitable for direct use on dif) 317.25 317.9 P
+1.36 (ferent) 552.69 317.9 P
+1.01 (vendors platforms. The FFIO solution works for users creating) 317.25 305.9 P
+0.55 (new data \336les on the Cray; however) 317.25 293.9 P
+0.55 (, we have over 25 terabytes) 463.91 293.9 P
+0.84 (of Cray-blocked data already in existence on our Mass Storage) 317.25 281.9 P
+1.61 (System. If FFIO were the only solution, users would spend a) 317.25 269.9 P
+3.93 (good deal of their computing allocations just reformatting) 317.25 257.9 P
+1.91 (datasets. In addition, these Cray jobs would consume a lar) 317.25 245.9 P
+1.91 (ge) 566.56 245.9 P
+3.86 (number of Cray cycles that would otherwise be used for) 317.25 233.9 P
+(compute-intensive work.) 317.25 221.9 T
+2.59 (Another solution would be to use formatted data \336les. This) 317.25 204.9 P
+0.35 (solution poses several problems: 1\051 formatted \336les are generally) 317.25 192.9 P
+2.31 (lar) 317.25 180.9 P
+2.31 (ger than their binary counterparts, 2\051 formatted I/O is the) 327.61 180.9 P
+1.95 (slowest form of I/O on any computer since the text must be) 317.25 168.9 P
+1.22 (interpreted and converted into binary format, and 3\051 formatted) 317.25 156.9 P
+(\336les can incur a loss of precision.) 317.25 144.9 T
+0.56 (A third solution would be to provide software that can interpret) 317.25 127.9 P
+0.04 (Cray \336le structures and convert the Cray data representation into) 317.25 115.9 P
+0.68 (the non-Cray data format. This solution has several bene\336ts for) 317.25 103.9 P
+-0.11 (the user) 317.25 91.9 P
+-0.11 (. One advantage is that the user can use the same datasets) 347.95 91.9 P
+0.03 (on both the Cray and non-Cray machines. Another bene\336t is that) 317.25 79.9 P
+-0.13 (even accounting for the data conversion, the I/O on the non-Cray) 317.25 67.9 P
+0.63 (platform is signi\336cantly faster then equivalent formatted I/O on) 317.25 55.9 P
+(the non-Cray platform.) 317.25 43.9 T
+53.28 485.28 575.99 767.52 R
+7 X
+V
+0 12 Q
+0 X
+(T) 192.9 748.22 T
+(OOLS FOR ACCESSING CRA) 200.69 748.22 T
+(Y DA) 363.17 748.22 T
+(T) 391.26 748.22 T
+(ASETS) 398.38 748.22 T
+( ON NON-CRA) 231.85 730.22 T
+(Y PLA) 311.36 730.22 T
+(TFORMS) 346.11 730.22 T
+1 10 Q
+(Peter W) 278.05 701.55 T
+(. Morreale) 309.6 701.55 T
+(National Center for Atmospheric Research) 229.15 682.25 T
+(Scienti\336c Computing Division) 253.55 670.95 T
+0 F
+(ABSTRACT) 296.43 632.35 T
+1 F
+-0.33 ( NCAR has a long history of using Cray computers and as a result, some 25 terabytes of data on our Mass Storage) 93.6 609.05 P
+-0.27 (System are in Cray-blocked format. W) 93.6 597.05 P
+-0.27 (ith the addition of several non-Cray compute servers, software was written) 246.74 597.05 P
+(to give users the ability to read and write Cray-blocked and unblocked \336les on these platforms. These non-Cray) 93.6 585.05 T
+(platforms conform to the Institute for Electrical and Electronics Engineers \050IEEE\051 standard describing \337oating-) 93.6 573.05 T
+(point data. Therefore, any tools for manipulating Cray datasets must also be able to convert between Cray data) 93.6 561.05 T
+(formats and IEEE data formats. While it is true that the Cray Flexible File I/O \050FFIO\051 software can provide this) 93.6 549.05 T
+-0.01 (capability on the Cray) 93.6 537.05 P
+-0.01 (, moving this non-essential function from the Cray allows more Cray cycles for other com-) 181.47 537.05 P
+(pute-intensive jobs. This paper will outline a library of routines that allow users to manipulate Cray datasets on) 93.6 525.05 T
+(non-Cray platforms. The routines are available for both C and Fortran programs. In addition, three utilities that) 93.6 513.05 T
+(also manipulate Cray datasets will be discussed.) 93.6 501.05 T
+FMENDPAGE
+%%EndPage: "1" 2
+%%Page: "2" 2
+612 792 0 FMBEGINPAGE
+34.56 34.57 289.44 756 R
+7 X
+0 K
+V
+1 10 Q
+0 X
+0.42 (At NCAR, we have implemented the third solution in the form) 34.56 749.33 P
+2.35 (of a library of routines that perform I/O to and from Cray) 34.56 737.33 P
+-0.24 (datasets. This paper describes the library named NCAR Utilities) 34.56 725.33 P
+0.25 (\050ncaru\051. The paper also describes three stand alone utilities that) 34.56 713.33 P
+(manipulate Cray datasets.) 34.56 701.33 T
+0 12 Q
+( 2. The ncaru softwar) 34.56 674 T
+(e package) 143.94 674 T
+1 10 Q
+3.37 (The ncaru library contains a complete set of routines for) 34.56 656.33 P
+2.63 (performing I/O on Cray datasets. In addition, a number of) 34.56 644.33 P
+3.2 (routines that convert data between Cray format and IEEE) 34.56 632.33 P
+(format are also included in the library) 34.56 620.33 T
+(.) 184.91 620.33 T
+0.51 (The user can use the Cray I/O routines to transfer data in Cray) 34.56 603.33 P
+0.23 (format or have the routine automatically convert the data to the) 34.56 591.33 P
+0.62 (native format. Having the option of converting data allows the) 34.56 579.33 P
+1.46 (user to read datasets that contain both numeric and character) 34.56 567.33 P
+(data records.) 34.56 555.33 T
+0.12 (The ncaru library is written in the C language. Since there is no) 34.56 538.33 P
+3.79 (standard for inter) 34.56 526.33 P
+3.79 (-language communication, the user entry) 110.78 526.33 P
+-0.21 (points to the library must be ported to the dif) 34.56 514.33 P
+-0.21 (ferent platforms for) 211.58 514.33 P
+0.67 (use in Fortran programs. The current implementation has been) 34.56 502.33 P
+0.66 (ported to IBM RISC System/6000 systems running AIX 3.2.2,) 34.56 490.33 P
+1 (Silicon Graphics Inc. Challenge-L running IRIX V5.1.1.2 and) 34.56 478.33 P
+(to Sun Microsystems, Inc. systems running SunOS 4.1.1.) 34.56 466.33 T
+0.1 (The ncaru software package also includes three utilities that aid) 34.56 449.33 P
+4.17 (the user in manipulating Cray-blocked \336les on non-Cray) 34.56 437.33 P
+3.85 (platforms: cos\336le, cosconvert, and cossplit. These utilities) 34.56 425.33 P
+1.37 (describe records and \336le structure of a Cray dataset \050cos\336le\051,) 34.56 413.33 P
+0.53 (strip Cray-blocking from a Cray dataset \050cosconvert\051, and split) 34.56 401.33 P
+(multi-\336le datasets into separate datasets \050cossplit\051.) 34.56 389.33 T
+1.54 (Documentation for the ncaru package consists of UNIX man) 34.56 372.33 P
+1.48 (pages for each routine and utility) 34.56 360.33 P
+1.48 (. There is also a ncaru man) 173.15 360.33 P
+0.64 (page that describes the library and lists all the user entry point) 34.56 348.33 P
+(routine names.) 34.56 336.33 T
+0 12 Q
+(3. The Cray I/O r) 34.56 309 T
+(outines) 123.96 309 T
+1 10 Q
+-0.25 (The Cray I/O routines in the ncaru library allow the user to read,) 34.56 291.33 P
+2.17 (create, or append to a Cray dataset. The user also speci\336es) 34.56 279.33 P
+0.15 (whether the dataset uses a Cray-blocked or Cray-unblocked \336le) 34.56 267.33 P
+(structure.) 34.56 255.33 T
+0.05 (The Cray I/O routines use a library buf) 34.56 238.33 P
+0.05 (fer to block I/O transfers) 190.44 238.33 P
+0.44 (to and from the disk \336le. This buf) 34.56 226.33 P
+0.44 (fer imitates the library buf) 171.84 226.33 P
+0.44 (fer) 278.34 226.33 P
+1.13 (used in Cray system I/O libraries. Use of a library buf) 34.56 214.33 P
+1.13 (fer can) 260.84 214.33 P
+1.37 (reduce the amount of system work necessary to perform I/O,) 34.56 202.33 P
+3.78 (with the trade-of) 34.56 190.33 P
+3.78 (f being increased memory usage for the) 108.55 190.33 P
+(program.) 34.56 178.33 T
+2.55 (The following is a list of the Cray I/O routines with their) 34.56 161.33 P
+(ar) 34.56 149.33 T
+(guments.) 42.15 149.33 T
+2 9 Q
+0.45 (   ier  = crayblocks\050) 34.56 132 S
+3 F
+0.45 (n) 157.25 132 S
+2 F
+0.45 (\051) 163.09 132 S
+0.45 (   icf  = crayopen\050) 34.56 121 S
+3 F
+0.45 (path) 145.56 121 S
+2 F
+0.45 (,) 168.93 121 S
+3 F
+0.45 (if) 180.62 121 S
+0.45 (lag) 192.3 121 S
+2 F
+0.45 (,) 209.83 121 S
+3 F
+0.45 (mode) 221.51 121 S
+2 F
+0.45 (\051) 244.88 121 S
+0.45 (   nwds = crayread\050) 34.56 110 S
+3 F
+0.45 (icf) 145.56 110 S
+2 F
+0.45 (,) 163.09 110 S
+3 F
+0.45 (loc) 174.78 110 S
+2 F
+0.45 (,) 192.3 110 S
+3 F
+0.45 (nwords) 203.99 110 S
+2 F
+0.45 (,) 239.04 110 S
+3 F
+0.45 (iconv) 250.73 110 S
+2 F
+0.45 (\051) 279.94 110 S
+-0.27 0.45 (   nwds = craywrite\050) 34.56 99 B
+3 F
+-0.27 0.45 (icf) 150.04 99 B
+2 F
+-0.27 0.45 (,) 167.57 99 B
+3 F
+-0.27 0.45 (loc) 178.98 99 B
+2 F
+-0.27 0.45 (,) 196.51 99 B
+3 F
+-0.27 0.45 (nwords) 207.92 99 B
+2 F
+-0.27 0.45 (,) 242.97 99 B
+3 F
+-0.27 0.45 (iconv) 254.38 99 B
+2 F
+-0.27 0.45 (\051) 283.6 99 B
+0.45 (   ier  = crayback\050) 34.56 88 S
+3 F
+0.45 (icf) 145.56 88 S
+2 F
+0.45 (\051) 163.09 88 S
+0.45 (   ier  = crayrew\050) 34.56 77 S
+3 F
+0.45 (icf) 139.72 77 S
+2 F
+0.45 (\051) 157.25 77 S
+0.45 (   ier  = crayweof\050) 34.56 66 S
+3 F
+0.45 (icf) 145.56 66 S
+2 F
+0.45 (\051) 163.09 66 S
+0.45 (   ier  = crayweod\050) 34.56 55 S
+3 F
+0.45 (icf) 145.56 55 S
+2 F
+0.45 (\051) 163.09 55 S
+0.45 (   ier  = crayclose\050) 34.56 44 S
+3 F
+0.45 (icf) 151.41 44 S
+2 F
+0.45 (\051) 168.93 44 S
+313.92 34.57 558.71 756 R
+7 X
+V
+1 10 Q
+0 X
+1.39 (The crayblocks routine allows the user to specify a library) 313.92 749.33 P
+1.46 (buf) 313.92 737.33 P
+1.46 (fer size. The ar) 327.06 737.33 P
+1.46 (gument) 391.19 737.33 P
+4 F
+1.46 (n) 425.13 737.33 P
+1 F
+1.46 ( speci\336es the number of 4096-) 430.12 737.33 P
+4.11 (byte blocks used by the buf) 313.92 725.33 P
+4.11 (fer) 443.93 725.33 P
+4.11 (. This library buf) 454.47 725.33 P
+4.11 (fer is) 534.35 725.33 P
+0.46 (dynamically allocated and is released when the \336le is closed) 313.92 713.33 P
+0.11 (with a crayclose routine. If the crayblocks routine is used, all) 313.92 701.33 P
+0.03 (Cray datasets opened with a crayopen use the speci\336ed block) 313.92 689.33 P
+4.52 (size until another crayblocks routine is executed. The) 313.92 677.33 P
+2.57 (crayblocks routine must be executed prior to a crayopen) 313.92 665.33 P
+0.23 (routine if something other than the default library buf) 313.92 653.33 P
+0.23 (fer size) 529.35 653.33 P
+(\0501 block\051 is desired.) 313.92 641.33 T
+1.51 (The crayopen routine opens a dataset for either reading or) 313.92 624.33 P
+-0.08 (writing. The) 313.92 612.33 P
+4 F
+-0.08 (path) 365.67 612.33 P
+1 F
+-0.08 ( ar) 383.44 612.33 P
+-0.08 (gument speci\336es the pathname to the \336le.) 393.45 612.33 P
+0.96 (The) 313.92 600.33 P
+4 F
+0.96 (i\337ag) 332.92 600.33 P
+1 F
+0.96 ( ar) 350.68 600.33 P
+0.96 (gument speci\336es the transfer mode, whether the) 361.73 600.33 P
+0.19 (\336le structure is blocked or unblocked, and the position of the) 313.92 588.33 P
+0.45 (\336le. The) 313.92 576.33 P
+4 F
+0.45 (mode) 350.62 576.33 P
+1 F
+0.45 ( ar) 372.27 576.33 P
+0.45 (gument speci\336es the \336le permissions and is) 382.8 576.33 P
+1.19 (used only if the \336le is being created. The crayopen routine) 313.92 564.33 P
+2.41 (dynamically allocates a data structure that contains \336elds) 313.92 552.33 P
+4.56 (used by the various I/O routines. The return from a) 313.92 540.33 P
+0.8 (successful crayopen is the address of this data structure. By) 313.92 528.33 P
+-0.14 (returning the address of the structure as an integer) 313.92 516.33 P
+-0.14 (, portability) 512.21 516.33 P
+(between Fortran and C is assured.) 313.92 504.33 T
+3.61 (The crayread routine reads data from an existing Cray) 313.92 487.33 P
+2.24 (dataset. The) 313.92 475.33 P
+4 F
+2.24 (icf) 369.18 475.33 P
+1 F
+2.24 ( ar) 379.18 475.33 P
+2.24 (gument is the return from a previously) 391.5 475.33 P
+0.68 (executed crayopen routine. The) 313.92 463.33 P
+4 F
+0.68 (loc) 445.14 463.33 P
+1 F
+0.68 ( ar) 457.35 463.33 P
+0.68 (gument is the location) 468.11 463.33 P
+0.12 (where the \336rst word of data is placed and must conform both) 313.92 451.33 P
+2.12 (in type and wordsize to the data being read. The) 313.92 439.33 P
+4 F
+2.12 (nwor) 529.65 439.33 P
+2.12 (ds) 549.83 439.33 P
+1 F
+2.48 (ar) 313.92 427.33 P
+2.48 (gument speci\336es the number of words being read. The) 321.5 427.33 P
+4 F
+(iconv) 313.92 415.33 T
+1 F
+( ar) 335.57 415.33 T
+(gument speci\336es the desired data conversion.) 345.65 415.33 T
+2.97 (For blocked \336les, crayread is fully record-oriented. This) 313.92 398.33 P
+0.95 (means that if the user speci\336es a read of a single word, the) 313.92 386.33 P
+2.35 (\336rst word of the record is transferred and the \336le is left) 313.92 374.33 P
+3.08 (positioned at the next record. This feature is useful for) 313.92 362.33 P
+1.19 (skipping records. The user can also specify a read of more) 313.92 350.33 P
+0.8 (words than the record actually contains, and only the actual) 313.92 338.33 P
+0.08 (number of words in the record are transferred. This feature is) 313.92 326.33 P
+0.32 (useful if the user is not sure of the exact number of words in) 313.92 314.33 P
+0.5 (the record. In all cases, crayread returns the number of Cray) 313.92 302.33 P
+(words actually transferred or an error code.) 313.92 290.33 T
+2.16 (The craywrite routine writes data to a Cray dataset. Like) 313.92 273.33 P
+5.72 (crayread, the ar) 313.92 261.33 P
+5.72 (guments) 387.05 261.33 P
+4 F
+5.72 (icf) 429.14 261.33 P
+1 F
+5.72 (,) 439.14 261.33 P
+4 F
+5.72 (loc) 449.86 261.33 P
+1 F
+5.72 (,) 462.07 261.33 P
+4 F
+5.72 (nwor) 472.79 261.33 P
+5.72 (ds) 492.96 261.33 P
+1 F
+5.72 (, and) 501.85 261.33 P
+4 F
+5.72 (iconv) 535.22 261.33 P
+1 F
+5.72 (,) 556.22 261.33 P
+0.43 (correspond to the crayopen return value, location of the data) 313.92 249.33 P
+4.04 (being written, the number of words to write, and the) 313.92 237.33 P
+-0.04 (conversion \337ag. Both the crayread and craywrite routines use) 313.92 225.33 P
+2.02 (a library buf) 313.92 213.33 P
+2.02 (fer to reduce the number of physical read or) 367.17 213.33 P
+0.65 (write requests to disk. For writing, when the buf) 313.92 201.33 P
+0.65 (fer is \336lled,) 511.61 201.33 P
+1.38 (the library buf) 313.92 189.33 P
+1.38 (fer is \337ushed to disk. This means that if the) 373.67 189.33 P
+0.05 (user does not close the \336le via a crayclose, the resulting Cray) 313.92 177.33 P
+(dataset may be unusable on the Cray computer) 313.92 165.33 T
+(.) 500.17 165.33 T
+0.94 (If the) 313.92 148.33 P
+4 F
+0.94 (iconv) 339.67 148.33 P
+1 F
+0.94 ( \337ag for both crayread and craywrite speci\336es a) 361.32 148.33 P
+0.34 (numeric conversion, than a conversion buf) 313.92 136.33 P
+0.34 (fer is dynamically) 485.86 136.33 P
+-0.19 (allocated. The initial size of the conversion buf) 313.92 124.33 P
+-0.19 (fer is set to the) 500.62 124.33 P
+0.97 (number of words in the request. The size of the conversion) 313.92 112.33 P
+-0.06 (buf) 313.92 100.33 P
+-0.06 (fer is then checked for each subsequent I/O request, and if) 327.06 100.33 P
+1.85 (a subsequent request is lar) 313.92 88.33 P
+1.85 (ger than the current size of the) 426.06 88.33 P
+0.08 (conversion buf) 313.92 76.33 P
+0.08 (fer) 373.49 76.33 P
+0.08 (, the buf) 384.18 76.33 P
+0.08 (fer is re-allocated to the lar) 417.18 76.33 P
+0.08 (ger size.) 525.34 76.33 P
+2.43 (On every request, every byte of the conversion buf) 313.92 64.34 P
+2.43 (fer is) 536.03 64.34 P
+(preset to zero to prevent bit conversion problems.) 313.92 52.34 T
+FMENDPAGE
+%%EndPage: "2" 3
+%%Page: "3" 3
+612 792 0 FMBEGINPAGE
+53.28 36.01 294.75 756 R
+7 X
+0 K
+V
+1 10 Q
+0 X
+0.03 (The crayback routine allows the user to backup a record in a) 53.28 749.33 P
+0.68 (Cray dataset. The crayback routine can be used on datasets) 53.28 737.33 P
+1.58 (opened for reading or writing. If the last operation to the) 53.28 725.33 P
+0.8 (dataset was a write, then crayback will truncate the dataset) 53.28 713.33 P
+0.98 (prior to positioning at the previous record. This allows the) 53.28 701.33 P
+-0.22 (user to overwrite a record if desired and mimics the behavior) 53.28 689.33 P
+(of a Cray Fortran BACKSP) 53.28 677.33 T
+(ACE.) 162.85 677.33 T
+-0.17 (The crayweof routine writes a Cray end-of-\336le control word.) 53.28 660.33 P
+2.66 (The crayweod routine writes a Cray end-of-data control) 53.28 648.33 P
+4.68 (word. These two routines are available for historical) 53.28 636.33 P
+2.4 (purposes and are seldom used directly by the user) 53.28 624.33 P
+2.4 (. One) 270.7 624.33 P
+0.89 (possible use of the crayweof routine would be the creation) 53.28 612.33 P
+(of a multi-\336le dataset.) 53.28 600.33 T
+0.45 (The crayclose routine properly terminates and, if necessary) 53.28 583.33 P
+0.45 (,) 292.25 583.33 P
+0.68 (\337ushes the library buf) 53.28 571.33 P
+0.68 (fer) 142.58 571.33 P
+0.68 (. The crayclose routine then closes) 153.12 571.33 P
+1.31 (the dataset and releases all dynamically allocated memory) 53.28 559.33 P
+(used for that \336le.) 53.28 547.33 T
+0 12 Q
+( 4. The numeric conversion r) 53.28 520 T
+(outines) 200.31 520 T
+1 10 Q
+0.2 (In addition to the Cray I/O routines, a number of routines to) 53.28 502.33 P
+-0.09 (convert Cray data formats to IEEE data formats are included) 53.28 490.33 P
+2.75 (in the ncaru library) 53.28 478.33 P
+2.75 (. These routines are implemented as) 137.21 478.33 P
+-0.1 (Fortran subroutine calls and in C as void functions. Here is a) 53.28 466.33 P
+(list of the routines and their ar) 53.28 454.33 T
+(guments:) 173.57 454.33 T
+2 9 Q
+0.45 (    ctodpf\050) 53.28 437 S
+3 F
+0.45 (carray) 117.54 437 S
+2 F
+0.45 (,) 152.6 437 S
+3 F
+0.45 (larray) 164.28 437 S
+2 F
+0.45 (,) 199.34 437 S
+3 F
+0.45 (n) 211.02 437 S
+2 F
+0.45 (\051) 216.87 437 S
+0.45 (    ctospf\050) 53.28 426 S
+3 F
+0.45 (carray) 117.54 426 S
+2 F
+0.45 (,) 152.6 426 S
+3 F
+0.45 (larray) 164.28 426 S
+2 F
+0.45 (,) 199.34 426 S
+3 F
+0.45 (n) 211.02 426 S
+2 F
+0.45 (\051) 216.87 426 S
+0.45 (    ctospi\050) 53.28 415 S
+3 F
+0.45 (carray) 117.54 415 S
+2 F
+0.45 (,) 152.6 415 S
+3 F
+0.45 (larray) 164.28 415 S
+2 F
+0.45 (,) 199.34 415 S
+3 F
+0.45 (n) 211.02 415 S
+2 F
+0.45 (,) 216.87 415 S
+3 F
+0.45 (zpad) 228.55 415 S
+2 F
+0.45 (\051) 251.92 415 S
+0.45 (    dptocf\050) 53.28 404 S
+3 F
+0.45 (larray) 117.54 404 S
+2 F
+0.45 (,) 152.6 404 S
+3 F
+0.45 (carray) 164.28 404 S
+2 F
+0.45 (,) 199.34 404 S
+3 F
+0.45 (n) 211.02 404 S
+2 F
+0.45 (\051) 216.87 404 S
+0.45 (    sptocf\050) 53.28 393 S
+3 F
+0.45 (larray) 117.54 393 S
+2 F
+0.45 (,) 152.6 393 S
+3 F
+0.45 (carray) 164.28 393 S
+2 F
+0.45 (,) 199.34 393 S
+3 F
+0.45 (n) 211.02 393 S
+2 F
+0.45 (\051) 216.87 393 S
+0.45 (    sptoci\050) 53.28 382 S
+3 F
+0.45 (larray) 117.54 382 S
+2 F
+0.45 (,) 152.6 382 S
+3 F
+0.45 (carray) 164.28 382 S
+2 F
+0.45 (,) 199.34 382 S
+3 F
+0.45 (n) 211.02 382 S
+2 F
+0.45 (,) 216.87 382 S
+3 F
+0.45 (zpad) 228.55 382 S
+2 F
+0.45 (\051) 251.92 382 S
+1 10 Q
+0.77 ( In all the routines, the \336rst ar) 53.28 364.33 P
+0.77 (gument is the location of the) 176.78 364.33 P
+0.35 (input values and the second ar) 53.28 352.33 P
+0.35 (gument is the location for the) 175.58 352.33 P
+1.19 (converted values. The third ar) 53.28 340.33 P
+1.19 (gument to all the routines is) 177.48 340.33 P
+0.81 (the number of words to convert. If the routine has a fourth) 53.28 328.33 P
+1.25 (ar) 53.28 316.33 P
+1.25 (gument, it is used to tell the conversion routine whether) 60.87 316.33 P
+1.38 (the IBM RISC System/6000 double-padded integer option) 53.28 304.33 P
+(was used during compilation.) 53.28 292.33 T
+1.68 (In all cases, the) 53.28 275.33 P
+4 F
+1.68 (carray) 124.12 275.33 P
+1 F
+1.68 ( ar) 150.76 275.33 P
+1.68 (gument is a pointer to an array) 162.53 275.33 P
+0.85 (containing 64-bit Cray values and the) 53.28 263.33 P
+4 F
+0.85 (larray) 211.05 263.33 P
+1 F
+0.85 ( ar) 236.03 263.33 P
+0.85 (gument is a) 246.96 263.33 P
+0.72 (pointer to an array containing the IEEE 32-bit or IEEE 64-) 53.28 251.33 P
+(bit values.) 53.28 239.33 T
+0.46 (The ctodpf, ctospf, and ctospi routines convert Cray data to) 53.28 222.33 P
+-0.24 (local DOUBLE PRECISION, REAL, and INTEGER values.) 53.28 210.33 P
+0.46 (The dptocf, sptocf, and sptoci routines convert local data to) 53.28 198.33 P
+(Cray REAL and INTEGER values.) 53.28 186.33 T
+-0.03 (For the routines that convert to IEEE format, any values that) 53.28 169.33 P
+0.21 (are too lar) 53.28 157.33 P
+0.21 (ge to be properly represented are set to the lar) 94.04 157.33 P
+0.21 (gest) 278.65 157.33 P
+2.1 (value that can be represented with the correct sign. Any) 53.28 145.33 P
+(values that are too small are set to 0 \050zero\051.) 53.28 133.33 T
+1.85 (Both the Sun Microsystems and IBM RISC System/6000) 53.28 116.33 P
+0.4 (Fortran compilers allow the user to specify a command line) 53.28 104.33 P
+2.68 (option that automatically promotes variables declared as) 53.28 92.33 P
+0.1 (REAL to DOUBLE PRECISION. This causes the word size) 53.28 80.33 P
+0.85 (to double from the default 4 bytes to 8 bytes. The routines) 53.28 68.33 P
+0.7 (with \322dpf\323 in their names should be used in these cases. In) 53.28 56.33 P
+0.19 (addition, the IBM xlf compiler has an option that allows the) 53.28 44.33 P
+317.25 36.01 575.99 756 R
+7 X
+V
+0 X
+0.16 (compiler to increase the size of Fortran INTEGERs to 8 bytes, 4) 317.25 749.33 P
+1.14 (bytes to hold the data and 4 bytes of alignment space. For the) 317.25 737.33 P
+0.15 (integer conversion routines, the) 317.25 725.33 P
+4 F
+0.15 (zpad) 446.35 725.33 P
+1 F
+0.15 ( ar) 465.23 725.33 P
+0.15 (gument is used to inform) 475.46 725.33 P
+(the routine whether the compiler option was used.) 317.25 713.33 T
+0.29 (The numeric conversion routines can either be executed directly) 317.25 696.33 P
+0 (from the user program or automatically called through the use of) 317.25 684.33 P
+1.63 (the Cray I/O routines via the) 317.25 672.33 P
+4 F
+1.63 (iconv) 443.64 672.33 P
+1 F
+1.63 ( ar) 465.29 672.33 P
+1.63 (gument to crayread and) 477 672.33 P
+(craywrite.) 317.25 660.33 T
+0 12 Q
+( 5. Example Fortran pr) 317.25 633 T
+(ogram) 435.96 633 T
+1 10 Q
+1.24 (The following sample Fortran program creates a Cray-blocked) 317.25 615.33 P
+0.7 (dataset with a single record. The IEEE 32-bit REAL values are) 317.25 603.33 P
+0.91 (converted to Cray single-precision REAL values prior to being) 317.25 591.33 P
+(written.) 317.25 579.33 T
+2 9 Q
+0.45 (    PROGRAM TST) 317.25 562 S
+0.45 (    REAL     a\0501024\051) 317.25 551 S
+0.45 (    INTEGER  CRAYOPEN, CRAYWRITE, CRAYCLOSE) 317.25 540 S
+0.45 (    INTEGER  ICF, NWDS, IER) 317.25 529 S
+0.45 (    ICF = CRAYOPEN\050\322data\323, 1, O\325660\325\051) 317.25 512 S
+0.45 (    IF \050ICF .LE. 0\051 THEN) 317.25 501 S
+0.45 (        PRINT*, \322Unable to open dataset\323) 317.25 490 S
+0.45 (        STOP) 317.25 479 S
+0.45 (    ENDIF) 317.25 468 S
+0.45 (    NWDS = CRAYWRITE\050ICF, A, 1024, 1\051) 317.25 451 S
+0.45 (    IF \050NWDS .LE. 0\051 THEN) 317.25 440 S
+0.45 (        PRINT*, \322Write failed\323) 317.25 429 S
+0.45 (        STOP) 317.25 418 S
+0.45 (    ENDIF) 317.25 407 S
+0.45 (    IER = CRAYCLOSE\050ICF\051) 317.25 390 S
+0.45 (    IF \050ICF .NE. 0\051 THEN) 317.25 379 S
+0.45 (         PRINT*,  \322Unable to close dataset\323) 317.25 368 S
+0.45 (         STOP) 317.25 357 S
+0.45 (    ENDIF) 317.25 346 S
+0.45 (    PRINT*, \322Success!\323) 317.25 329 S
+0.45 (    END) 317.25 318 S
+0 12 Q
+( 6. Cray dataset utilities) 317.25 291 T
+1 10 Q
+1.51 (T) 317.25 273.33 P
+1.51 (o assist users with manipulating Cray datasets, three utilities) 322.65 273.33 P
+1.08 (that operate on Cray-blocked \336les were created. These utilities) 317.25 261.33 P
+(are cos\336le, cosconvert, and cossplit.) 317.25 249.33 T
+1.74 (The cos\336le utility veri\336es that the speci\336ed \336le is in a Cray-) 317.25 232.33 P
+0.77 (blocked format and gives information about the contents of the) 317.25 220.33 P
+0.54 (dataset. The number of records and their sizes are displayed for) 317.25 208.33 P
+0.11 (each \336le in the dataset. In addition, cos\336le attempts to determine) 317.25 196.33 P
+1.23 (whether the \336le contains ASCII or binary data and reports the) 317.25 184.33 P
+0.92 (percentages of each. Here is a sample cos\336le command and its) 317.25 172.33 P
+(resulting output:) 317.25 160.33 T
+2 8 Q
+0.4 (% cosf) 317.25 143.67 S
+0.4 (ile -v /tmp/data) 348.43 143.67 S
+0.4 (  Processing dataset: /tmp/data) 317.25 123.67 S
+0.4 (    Rec#    Bytes) 317.25 113.67 S
+0.4 (       1      800) 317.25 103.67 S
+0.4 (       2     8000) 317.25 93.67 S
+-0.9 0.4 ( EOF 1: Recs=2 Min=800 Max=8000 Avg=4400 Bytes=8800) 317.25 83.67 B
+-0.49 0.4 (     Type=Binary or mixed -- Binary= 99% ASCII=  1%) 317.25 73.67 B
+0.4 ( EOD. Min=800 Max=8000 Bytes=8800) 317.25 63.67 S
+1 10 Q
+0.06 ( The cosconvert utility converts a Cray-blocked data set into one) 317.25 46.33 P
+FMENDPAGE
+%%EndPage: "3" 4
+%%Page: "4" 4
+612 792 0 FMBEGINPAGE
+36 34.57 289.44 756 R
+7 X
+0 K
+V
+1 10 Q
+0 X
+0.19 (of several formats. Most often, cosconvert is used to strip Cray) 36 749.33 P
+0.22 (control words from a dataset, leaving only data. In some cases,) 36 737.33 P
+2.53 (Cray datasets may contain character data with Blank Field) 36 725.33 P
+0.09 (Initiation \050BFI\051. BFI was used under COS to compress datasets) 36 713.33 P
+0.72 (by replacing three or more blanks in a row with a special two) 36 701.33 P
+1.33 (character code. The cosconvert utility can be used to expand) 36 689.33 P
+(the blanks in those datasets.) 36 677.33 T
+0.43 (The cossplit utility creates single \336le datasets from a multi-\336le) 36 660.33 P
+-0.19 (dataset. Each output single \336le dataset will have a unique name.) 36 648.33 P
+0 12 Q
+(7. Acknowledgments) 36 621 T
+1 10 Q
+0.21 (The ncaru software package is the result of the work of several) 36 603.33 P
+0.46 (people at NCAR. Charles D\325Ambra of the Climate and Global) 36 591.33 P
+1 (Dynamics \050CGD\051 division of NCAR wrote the original Cray-) 36 579.33 P
+0.23 (IEEE numeric conversion routines. Craig Ruf) 36 567.33 P
+0.23 (f of the Scienti\336c) 219.62 567.33 P
+4.52 (Computing Division \050SCD\051 wrote the original Cray I/O) 36 555.33 P
+0.31 (routines for the purpose of adding and stripping Cray-blocking) 36 543.33 P
+0.86 (from \336les. Dan Anderson and Greg W) 36 531.33 P
+0.86 (oods of SCD combined) 193.3 531.33 P
+-0.19 (both the numeric conversion routines and the Cray routines into) 36 519.33 P
+0.89 (a single interface. T) 36 507.33 P
+0.89 (om Parker \050SCD\051 originally wrote cos\336le,) 117.34 507.33 P
+0.94 (cosconvert, and cossplit for use on Cray systems. The author) 36 495.33 P
+0.94 (,) 286.94 495.33 P
+3.79 (also of SCD, modi\336ed the library code to handle Cray-) 36 483.33 P
+1.45 (unblocked \336les, added backspacing functionality) 36 471.33 P
+1.45 (, rewrote the) 236.3 471.33 P
+(utilities to use the library) 36 459.33 T
+(, and added other enhancements.) 135.29 459.33 T
+0 12 Q
+(8. A) 36 432 T
+(vailability) 55.76 432 T
+1 10 Q
+1.69 (This package is available to interested or) 36 414.33 P
+1.69 (ganizations without) 209.18 414.33 P
+2.73 (char) 36 402.33 P
+2.73 (ge. Please contact Peter Morreale by sending email to) 53.02 402.33 P
+(morreale@ncar) 36 390.33 T
+(.ucar) 97.38 390.33 T
+(.edu for details.) 116.53 390.33 T
+319.41 34.57 575.99 756 R
+7 X
+V
+FMENDPAGE
+%%EndPage: "4" 5
+%%Page: "1" 5
+612 792 0 FMBEGINPAGE
+51.84 36.01 294.75 468 R
+7 X
+0 K
+V
+0 12 Q
+0 X
+( 1. Intr) 51.84 460 T
+(oduction) 87.27 460 T
+1 10 Q
+0.16 (The National Center for Atmospheric Research \050NCAR\051 has) 51.84 442.34 P
+3.57 (been using Cray Supercomputers since a Cray-1A was) 51.84 430.34 P
+0.06 (installed in late 1976. NCAR now has a CRA) 51.84 418.34 P
+0.06 (Y Y) 233.26 418.34 P
+0.06 (-MP 8/864,) 249.15 418.34 P
+1.28 (a CRA) 51.84 406.34 P
+1.28 (Y Y) 79.69 406.34 P
+1.28 (-MP 2D/216, and a CRA) 96.8 406.34 P
+1.28 (Y EL92/2-512 that are) 200.68 406.34 P
+2.45 (used for the bulk of computing by our user community) 51.84 394.34 P
+2.45 (.) 292.25 394.34 P
+2.41 (NCAR has an enormous amount of data in Cray format) 51.84 382.34 P
+-0.23 (stored on NCAR\325) 51.84 370.34 P
+-0.23 (s Mass Storage System. Currently) 121.34 370.34 P
+-0.23 (, there are) 255.53 370.34 P
+1.76 (40 terabytes of data on the NCAR Mass Storage System.) 51.84 358.34 P
+1.22 (Approximately 25 terabytes of that data in a Cray-blocked) 51.84 346.34 P
+(format.) 51.84 334.34 T
+0.9 (Cray computers use their own format to represent data. On) 51.84 317.34 P
+3.67 (Cray computers, a 64-bit word is used to de\336ne both) 51.84 305.34 P
+1.75 (\337oating-point values and integer values. In addition, Cray) 51.84 293.34 P
+0.51 (computers support a number of dif) 51.84 281.34 P
+0.51 (ferent \336le structures. The) 192.74 281.34 P
+0.03 (most common Cray \336le format is the Cray-blocked, or COS-) 51.84 269.34 P
+0.96 (blocked, \336le structure. This \336le structure, known as a Cray) 51.84 257.34 P
+2.2 (dataset, is used by default when a \336le is created from a) 51.84 245.34 P
+1.95 (Fortran unformatted WRITE statement. The Cray-blocked) 51.84 233.34 P
+1.11 (dataset contains various 8-byte control words which de\336ne) 51.84 221.34 P
+0.52 (512-word \0504096 byte\051 blocks, end-of-record \050EOR\051, end-of-) 51.84 209.34 P
+4.2 (\336le \050EOF\051, and end-of-data \050EOD\051. Cray also has an) 51.84 197.34 P
+3.37 (unblocked dataset structure that contains only data. No) 51.84 185.34 P
+3.03 (control words of any kind are present in an unblocked) 51.84 173.34 P
+(dataset.) 51.84 161.34 T
+1.28 (In contrast to Cray systems, a number of vendors of other) 51.84 144.34 P
+5.7 (platforms use Institute for Electrical and Electronics) 51.84 132.34 P
+7.33 (Engineers \050IEEE\051 binary \337oating-point standard for) 51.84 120.34 P
+0.33 (describing data in binary \336les. Generally) 51.84 108.34 P
+0.33 (, these vendors also) 215.49 108.34 P
+-0.17 (use the same \336le structure for Fortran unformatted sequential) 51.84 96.34 P
+1.64 (access binary \336les. This \336le structure consists of a 4-byte) 51.84 84.34 P
+-0.17 (control word, followed by data, terminated by another 4-byte) 51.84 72.34 P
+1.23 (control word for each record in the \336le. Because the same) 51.84 60.34 P
+-0.13 (\336le structure and data representation are used by a number of) 51.84 48.34 P
+317.25 36.01 575.99 466.56 R
+7 X
+V
+0 X
+5.32 (vendors, binary \336les created from Fortran programs are) 317.25 459.9 P
+(generally portable between these vendor) 317.25 447.9 T
+(\325) 479.15 447.9 T
+(s computers.) 481.93 447.9 T
+0.81 (In recent years, a number of IEEE-based compute servers have) 317.25 430.9 P
+0.04 (been added to our site. In particular) 317.25 418.9 P
+0.04 (, NCAR now has a four) 458.89 418.9 P
+0.04 (-node) 553.24 418.9 P
+0.94 (cluster of IBM RISC System/6000 model 550 workstations, an) 317.25 406.9 P
+4.53 (eight-node IBM Scalable POWERparallel 1 \050SP1\051, and a) 317.25 394.9 P
+-0.19 (Thinking Machines, Inc. CM-5. Since many of the users on these) 317.25 382.9 P
+0.46 (platforms also use our Cray systems, the ability to use the same) 317.25 370.9 P
+(data \336les on all systems is extremely important.) 317.25 358.9 T
+0.06 (One possible solution would be to use the Cray systems Flexible) 317.25 341.9 P
+0.26 (File I/O \050FFIO\051 package. This software allows the user to create) 317.25 329.9 P
+1.36 (data \336les in binary formats suitable for direct use on dif) 317.25 317.9 P
+1.36 (ferent) 552.69 317.9 P
+1.01 (vendors platforms. The FFIO solution works for users creating) 317.25 305.9 P
+0.55 (new data \336les on the Cray; however) 317.25 293.9 P
+0.55 (, we have over 25 terabytes) 463.91 293.9 P
+0.84 (of Cray-blocked data already in existence on our Mass Storage) 317.25 281.9 P
+1.61 (System. If FFIO were the only solution, users would spend a) 317.25 269.9 P
+3.93 (good deal of their computing allocations just reformatting) 317.25 257.9 P
+1.91 (datasets. In addition, these Cray jobs would consume a lar) 317.25 245.9 P
+1.91 (ge) 566.56 245.9 P
+3.86 (number of Cray cycles that would otherwise be used for) 317.25 233.9 P
+(compute-intensive work.) 317.25 221.9 T
+2.59 (Another solution would be to use formatted data \336les. This) 317.25 204.9 P
+0.35 (solution poses several problems: 1\051 formatted \336les are generally) 317.25 192.9 P
+2.31 (lar) 317.25 180.9 P
+2.31 (ger than their binary counterparts, 2\051 formatted I/O is the) 327.61 180.9 P
+1.95 (slowest form of I/O on any computer since the text must be) 317.25 168.9 P
+1.22 (interpreted and converted into binary format, and 3\051 formatted) 317.25 156.9 P
+(\336les can incur a loss of precision.) 317.25 144.9 T
+0.56 (A third solution would be to provide software that can interpret) 317.25 127.9 P
+0.04 (Cray \336le structures and convert the Cray data representation into) 317.25 115.9 P
+0.68 (the non-Cray data format. This solution has several bene\336ts for) 317.25 103.9 P
+-0.11 (the user) 317.25 91.9 P
+-0.11 (. One advantage is that the user can use the same datasets) 347.95 91.9 P
+0.03 (on both the Cray and non-Cray machines. Another bene\336t is that) 317.25 79.9 P
+-0.13 (even accounting for the data conversion, the I/O on the non-Cray) 317.25 67.9 P
+0.63 (platform is signi\336cantly faster then equivalent formatted I/O on) 317.25 55.9 P
+(the non-Cray platform.) 317.25 43.9 T
+53.28 485.28 575.99 767.52 R
+7 X
+V
+0 12 Q
+0 X
+(T) 192.9 748.22 T
+(OOLS FOR ACCESSING CRA) 200.69 748.22 T
+(Y DA) 363.17 748.22 T
+(T) 391.26 748.22 T
+(ASETS) 398.38 748.22 T
+( ON NON-CRA) 231.85 730.22 T
+(Y PLA) 311.36 730.22 T
+(TFORMS) 346.11 730.22 T
+1 10 Q
+(Peter W) 278.05 701.55 T
+(. Morreale) 309.6 701.55 T
+(National Center for Atmospheric Research) 229.15 682.25 T
+(Scienti\336c Computing Division) 253.55 670.95 T
+0 F
+(ABSTRACT) 296.43 632.35 T
+1 F
+-0.33 ( NCAR has a long history of using Cray computers and as a result, some 25 terabytes of data on our Mass Storage) 93.6 609.05 P
+-0.27 (System are in Cray-blocked format. W) 93.6 597.05 P
+-0.27 (ith the addition of several non-Cray compute servers, software was written) 246.74 597.05 P
+(to give users the ability to read and write Cray-blocked and unblocked \336les on these platforms. These non-Cray) 93.6 585.05 T
+(platforms conform to the Institute for Electrical and Electronics Engineers \050IEEE\051 standard describing \337oating-) 93.6 573.05 T
+(point data. Therefore, any tools for manipulating Cray datasets must also be able to convert between Cray data) 93.6 561.05 T
+(formats and IEEE data formats. While it is true that the Cray Flexible File I/O \050FFIO\051 software can provide this) 93.6 549.05 T
+-0.01 (capability on the Cray) 93.6 537.05 P
+-0.01 (, moving this non-essential function from the Cray allows more Cray cycles for other com-) 181.47 537.05 P
+(pute-intensive jobs. This paper will outline a library of routines that allow users to manipulate Cray datasets on) 93.6 525.05 T
+(non-Cray platforms. The routines are available for both C and Fortran programs. In addition, three utilities that) 93.6 513.05 T
+(also manipulate Cray datasets will be discussed.) 93.6 501.05 T
+FMENDPAGE
+%%EndPage: "1" 6
+%%Page: "2" 6
+612 792 0 FMBEGINPAGE
+34.56 34.57 289.44 756 R
+7 X
+0 K
+V
+1 10 Q
+0 X
+0.42 (At NCAR, we have implemented the third solution in the form) 34.56 749.33 P
+2.35 (of a library of routines that perform I/O to and from Cray) 34.56 737.33 P
+-0.24 (datasets. This paper describes the library named NCAR Utilities) 34.56 725.33 P
+0.25 (\050ncaru\051. The paper also describes three stand alone utilities that) 34.56 713.33 P
+(manipulate Cray datasets.) 34.56 701.33 T
+0 12 Q
+( 2. The ncaru softwar) 34.56 674 T
+(e package) 143.94 674 T
+1 10 Q
+3.37 (The ncaru library contains a complete set of routines for) 34.56 656.33 P
+2.63 (performing I/O on Cray datasets. In addition, a number of) 34.56 644.33 P
+3.2 (routines that convert data between Cray format and IEEE) 34.56 632.33 P
+(format are also included in the library) 34.56 620.33 T
+(.) 184.91 620.33 T
+0.51 (The user can use the Cray I/O routines to transfer data in Cray) 34.56 603.33 P
+0.23 (format or have the routine automatically convert the data to the) 34.56 591.33 P
+0.62 (native format. Having the option of converting data allows the) 34.56 579.33 P
+1.46 (user to read datasets that contain both numeric and character) 34.56 567.33 P
+(data records.) 34.56 555.33 T
+0.12 (The ncaru library is written in the C language. Since there is no) 34.56 538.33 P
+3.79 (standard for inter) 34.56 526.33 P
+3.79 (-language communication, the user entry) 110.78 526.33 P
+-0.21 (points to the library must be ported to the dif) 34.56 514.33 P
+-0.21 (ferent platforms for) 211.58 514.33 P
+0.67 (use in Fortran programs. The current implementation has been) 34.56 502.33 P
+0.66 (ported to IBM RISC System/6000 systems running AIX 3.2.2,) 34.56 490.33 P
+1 (Silicon Graphics Inc. Challenge-L running IRIX V5.1.1.2 and) 34.56 478.33 P
+(to Sun Microsystems, Inc. systems running SunOS 4.1.1.) 34.56 466.33 T
+0.1 (The ncaru software package also includes three utilities that aid) 34.56 449.33 P
+4.17 (the user in manipulating Cray-blocked \336les on non-Cray) 34.56 437.33 P
+3.85 (platforms: cos\336le, cosconvert, and cossplit. These utilities) 34.56 425.33 P
+1.37 (describe records and \336le structure of a Cray dataset \050cos\336le\051,) 34.56 413.33 P
+0.53 (strip Cray-blocking from a Cray dataset \050cosconvert\051, and split) 34.56 401.33 P
+(multi-\336le datasets into separate datasets \050cossplit\051.) 34.56 389.33 T
+1.54 (Documentation for the ncaru package consists of UNIX man) 34.56 372.33 P
+1.48 (pages for each routine and utility) 34.56 360.33 P
+1.48 (. There is also a ncaru man) 173.15 360.33 P
+0.64 (page that describes the library and lists all the user entry point) 34.56 348.33 P
+(routine names.) 34.56 336.33 T
+0 12 Q
+(3. The Cray I/O r) 34.56 309 T
+(outines) 123.96 309 T
+1 10 Q
+-0.25 (The Cray I/O routines in the ncaru library allow the user to read,) 34.56 291.33 P
+2.17 (create, or append to a Cray dataset. The user also speci\336es) 34.56 279.33 P
+0.15 (whether the dataset uses a Cray-blocked or Cray-unblocked \336le) 34.56 267.33 P
+(structure.) 34.56 255.33 T
+0.05 (The Cray I/O routines use a library buf) 34.56 238.33 P
+0.05 (fer to block I/O transfers) 190.44 238.33 P
+0.44 (to and from the disk \336le. This buf) 34.56 226.33 P
+0.44 (fer imitates the library buf) 171.84 226.33 P
+0.44 (fer) 278.34 226.33 P
+1.13 (used in Cray system I/O libraries. Use of a library buf) 34.56 214.33 P
+1.13 (fer can) 260.84 214.33 P
+1.37 (reduce the amount of system work necessary to perform I/O,) 34.56 202.33 P
+3.78 (with the trade-of) 34.56 190.33 P
+3.78 (f being increased memory usage for the) 108.55 190.33 P
+(program.) 34.56 178.33 T
+2.55 (The following is a list of the Cray I/O routines with their) 34.56 161.33 P
+(ar) 34.56 149.33 T
+(guments.) 42.15 149.33 T
+2 9 Q
+0.45 (   ier  = crayblocks\050) 34.56 132 S
+3 F
+0.45 (n) 157.25 132 S
+2 F
+0.45 (\051) 163.09 132 S
+0.45 (   icf  = crayopen\050) 34.56 121 S
+3 F
+0.45 (path) 145.56 121 S
+2 F
+0.45 (,) 168.93 121 S
+3 F
+0.45 (if) 180.62 121 S
+0.45 (lag) 192.3 121 S
+2 F
+0.45 (,) 209.83 121 S
+3 F
+0.45 (mode) 221.51 121 S
+2 F
+0.45 (\051) 244.88 121 S
+0.45 (   nwds = crayread\050) 34.56 110 S
+3 F
+0.45 (icf) 145.56 110 S
+2 F
+0.45 (,) 163.09 110 S
+3 F
+0.45 (loc) 174.78 110 S
+2 F
+0.45 (,) 192.3 110 S
+3 F
+0.45 (nwords) 203.99 110 S
+2 F
+0.45 (,) 239.04 110 S
+3 F
+0.45 (iconv) 250.73 110 S
+2 F
+0.45 (\051) 279.94 110 S
+-0.27 0.45 (   nwds = craywrite\050) 34.56 99 B
+3 F
+-0.27 0.45 (icf) 150.04 99 B
+2 F
+-0.27 0.45 (,) 167.57 99 B
+3 F
+-0.27 0.45 (loc) 178.98 99 B
+2 F
+-0.27 0.45 (,) 196.51 99 B
+3 F
+-0.27 0.45 (nwords) 207.92 99 B
+2 F
+-0.27 0.45 (,) 242.97 99 B
+3 F
+-0.27 0.45 (iconv) 254.38 99 B
+2 F
+-0.27 0.45 (\051) 283.6 99 B
+0.45 (   ier  = crayback\050) 34.56 88 S
+3 F
+0.45 (icf) 145.56 88 S
+2 F
+0.45 (\051) 163.09 88 S
+0.45 (   ier  = crayrew\050) 34.56 77 S
+3 F
+0.45 (icf) 139.72 77 S
+2 F
+0.45 (\051) 157.25 77 S
+0.45 (   ier  = crayweof\050) 34.56 66 S
+3 F
+0.45 (icf) 145.56 66 S
+2 F
+0.45 (\051) 163.09 66 S
+0.45 (   ier  = crayweod\050) 34.56 55 S
+3 F
+0.45 (icf) 145.56 55 S
+2 F
+0.45 (\051) 163.09 55 S
+0.45 (   ier  = crayclose\050) 34.56 44 S
+3 F
+0.45 (icf) 151.41 44 S
+2 F
+0.45 (\051) 168.93 44 S
+313.92 34.57 558.71 756 R
+7 X
+V
+1 10 Q
+0 X
+1.39 (The crayblocks routine allows the user to specify a library) 313.92 749.33 P
+1.46 (buf) 313.92 737.33 P
+1.46 (fer size. The ar) 327.06 737.33 P
+1.46 (gument) 391.19 737.33 P
+4 F
+1.46 (n) 425.13 737.33 P
+1 F
+1.46 ( speci\336es the number of 4096-) 430.12 737.33 P
+4.11 (byte blocks used by the buf) 313.92 725.33 P
+4.11 (fer) 443.93 725.33 P
+4.11 (. This library buf) 454.47 725.33 P
+4.11 (fer is) 534.35 725.33 P
+0.46 (dynamically allocated and is released when the \336le is closed) 313.92 713.33 P
+0.11 (with a crayclose routine. If the crayblocks routine is used, all) 313.92 701.33 P
+0.03 (Cray datasets opened with a crayopen use the speci\336ed block) 313.92 689.33 P
+4.52 (size until another crayblocks routine is executed. The) 313.92 677.33 P
+2.57 (crayblocks routine must be executed prior to a crayopen) 313.92 665.33 P
+0.23 (routine if something other than the default library buf) 313.92 653.33 P
+0.23 (fer size) 529.35 653.33 P
+(\0501 block\051 is desired.) 313.92 641.33 T
+1.51 (The crayopen routine opens a dataset for either reading or) 313.92 624.33 P
+-0.08 (writing. The) 313.92 612.33 P
+4 F
+-0.08 (path) 365.67 612.33 P
+1 F
+-0.08 ( ar) 383.44 612.33 P
+-0.08 (gument speci\336es the pathname to the \336le.) 393.45 612.33 P
+0.96 (The) 313.92 600.33 P
+4 F
+0.96 (i\337ag) 332.92 600.33 P
+1 F
+0.96 ( ar) 350.68 600.33 P
+0.96 (gument speci\336es the transfer mode, whether the) 361.73 600.33 P
+0.19 (\336le structure is blocked or unblocked, and the position of the) 313.92 588.33 P
+0.45 (\336le. The) 313.92 576.33 P
+4 F
+0.45 (mode) 350.62 576.33 P
+1 F
+0.45 ( ar) 372.27 576.33 P
+0.45 (gument speci\336es the \336le permissions and is) 382.8 576.33 P
+1.19 (used only if the \336le is being created. The crayopen routine) 313.92 564.33 P
+2.41 (dynamically allocates a data structure that contains \336elds) 313.92 552.33 P
+4.56 (used by the various I/O routines. The return from a) 313.92 540.33 P
+0.8 (successful crayopen is the address of this data structure. By) 313.92 528.33 P
+-0.14 (returning the address of the structure as an integer) 313.92 516.33 P
+-0.14 (, portability) 512.21 516.33 P
+(between Fortran and C is assured.) 313.92 504.33 T
+3.61 (The crayread routine reads data from an existing Cray) 313.92 487.33 P
+2.24 (dataset. The) 313.92 475.33 P
+4 F
+2.24 (icf) 369.18 475.33 P
+1 F
+2.24 ( ar) 379.18 475.33 P
+2.24 (gument is the return from a previously) 391.5 475.33 P
+0.68 (executed crayopen routine. The) 313.92 463.33 P
+4 F
+0.68 (loc) 445.14 463.33 P
+1 F
+0.68 ( ar) 457.35 463.33 P
+0.68 (gument is the location) 468.11 463.33 P
+0.12 (where the \336rst word of data is placed and must conform both) 313.92 451.33 P
+2.12 (in type and wordsize to the data being read. The) 313.92 439.33 P
+4 F
+2.12 (nwor) 529.65 439.33 P
+2.12 (ds) 549.83 439.33 P
+1 F
+2.48 (ar) 313.92 427.33 P
+2.48 (gument speci\336es the number of words being read. The) 321.5 427.33 P
+4 F
+(iconv) 313.92 415.33 T
+1 F
+( ar) 335.57 415.33 T
+(gument speci\336es the desired data conversion.) 345.65 415.33 T
+2.97 (For blocked \336les, crayread is fully record-oriented. This) 313.92 398.33 P
+0.95 (means that if the user speci\336es a read of a single word, the) 313.92 386.33 P
+2.35 (\336rst word of the record is transferred and the \336le is left) 313.92 374.33 P
+3.08 (positioned at the next record. This feature is useful for) 313.92 362.33 P
+1.19 (skipping records. The user can also specify a read of more) 313.92 350.33 P
+0.8 (words than the record actually contains, and only the actual) 313.92 338.33 P
+0.08 (number of words in the record are transferred. This feature is) 313.92 326.33 P
+0.32 (useful if the user is not sure of the exact number of words in) 313.92 314.33 P
+0.5 (the record. In all cases, crayread returns the number of Cray) 313.92 302.33 P
+(words actually transferred or an error code.) 313.92 290.33 T
+2.16 (The craywrite routine writes data to a Cray dataset. Like) 313.92 273.33 P
+5.72 (crayread, the ar) 313.92 261.33 P
+5.72 (guments) 387.05 261.33 P
+4 F
+5.72 (icf) 429.14 261.33 P
+1 F
+5.72 (,) 439.14 261.33 P
+4 F
+5.72 (loc) 449.86 261.33 P
+1 F
+5.72 (,) 462.07 261.33 P
+4 F
+5.72 (nwor) 472.79 261.33 P
+5.72 (ds) 492.96 261.33 P
+1 F
+5.72 (, and) 501.85 261.33 P
+4 F
+5.72 (iconv) 535.22 261.33 P
+1 F
+5.72 (,) 556.22 261.33 P
+0.43 (correspond to the crayopen return value, location of the data) 313.92 249.33 P
+4.04 (being written, the number of words to write, and the) 313.92 237.33 P
+-0.04 (conversion \337ag. Both the crayread and craywrite routines use) 313.92 225.33 P
+2.02 (a library buf) 313.92 213.33 P
+2.02 (fer to reduce the number of physical read or) 367.17 213.33 P
+0.65 (write requests to disk. For writing, when the buf) 313.92 201.33 P
+0.65 (fer is \336lled,) 511.61 201.33 P
+1.38 (the library buf) 313.92 189.33 P
+1.38 (fer is \337ushed to disk. This means that if the) 373.67 189.33 P
+0.05 (user does not close the \336le via a crayclose, the resulting Cray) 313.92 177.33 P
+(dataset may be unusable on the Cray computer) 313.92 165.33 T
+(.) 500.17 165.33 T
+0.94 (If the) 313.92 148.33 P
+4 F
+0.94 (iconv) 339.67 148.33 P
+1 F
+0.94 ( \337ag for both crayread and craywrite speci\336es a) 361.32 148.33 P
+0.34 (numeric conversion, than a conversion buf) 313.92 136.33 P
+0.34 (fer is dynamically) 485.86 136.33 P
+-0.19 (allocated. The initial size of the conversion buf) 313.92 124.33 P
+-0.19 (fer is set to the) 500.62 124.33 P
+0.97 (number of words in the request. The size of the conversion) 313.92 112.33 P
+-0.06 (buf) 313.92 100.33 P
+-0.06 (fer is then checked for each subsequent I/O request, and if) 327.06 100.33 P
+1.85 (a subsequent request is lar) 313.92 88.33 P
+1.85 (ger than the current size of the) 426.06 88.33 P
+0.08 (conversion buf) 313.92 76.33 P
+0.08 (fer) 373.49 76.33 P
+0.08 (, the buf) 384.18 76.33 P
+0.08 (fer is re-allocated to the lar) 417.18 76.33 P
+0.08 (ger size.) 525.34 76.33 P
+2.43 (On every request, every byte of the conversion buf) 313.92 64.34 P
+2.43 (fer is) 536.03 64.34 P
+(preset to zero to prevent bit conversion problems.) 313.92 52.34 T
+FMENDPAGE
+%%EndPage: "2" 7
+%%Page: "3" 7
+612 792 0 FMBEGINPAGE
+53.28 36.01 294.75 756 R
+7 X
+0 K
+V
+1 10 Q
+0 X
+0.03 (The crayback routine allows the user to backup a record in a) 53.28 749.33 P
+0.68 (Cray dataset. The crayback routine can be used on datasets) 53.28 737.33 P
+1.58 (opened for reading or writing. If the last operation to the) 53.28 725.33 P
+0.8 (dataset was a write, then crayback will truncate the dataset) 53.28 713.33 P
+0.98 (prior to positioning at the previous record. This allows the) 53.28 701.33 P
+-0.22 (user to overwrite a record if desired and mimics the behavior) 53.28 689.33 P
+(of a Cray Fortran BACKSP) 53.28 677.33 T
+(ACE.) 162.85 677.33 T
+-0.17 (The crayweof routine writes a Cray end-of-\336le control word.) 53.28 660.33 P
+2.66 (The crayweod routine writes a Cray end-of-data control) 53.28 648.33 P
+4.68 (word. These two routines are available for historical) 53.28 636.33 P
+2.4 (purposes and are seldom used directly by the user) 53.28 624.33 P
+2.4 (. One) 270.7 624.33 P
+0.89 (possible use of the crayweof routine would be the creation) 53.28 612.33 P
+(of a multi-\336le dataset.) 53.28 600.33 T
+0.45 (The crayclose routine properly terminates and, if necessary) 53.28 583.33 P
+0.45 (,) 292.25 583.33 P
+0.68 (\337ushes the library buf) 53.28 571.33 P
+0.68 (fer) 142.58 571.33 P
+0.68 (. The crayclose routine then closes) 153.12 571.33 P
+1.31 (the dataset and releases all dynamically allocated memory) 53.28 559.33 P
+(used for that \336le.) 53.28 547.33 T
+0 12 Q
+( 4. The numeric conversion r) 53.28 520 T
+(outines) 200.31 520 T
+1 10 Q
+0.2 (In addition to the Cray I/O routines, a number of routines to) 53.28 502.33 P
+-0.09 (convert Cray data formats to IEEE data formats are included) 53.28 490.33 P
+2.75 (in the ncaru library) 53.28 478.33 P
+2.75 (. These routines are implemented as) 137.21 478.33 P
+-0.1 (Fortran subroutine calls and in C as void functions. Here is a) 53.28 466.33 P
+(list of the routines and their ar) 53.28 454.33 T
+(guments:) 173.57 454.33 T
+2 9 Q
+0.45 (    ctodpf\050) 53.28 437 S
+3 F
+0.45 (carray) 117.54 437 S
+2 F
+0.45 (,) 152.6 437 S
+3 F
+0.45 (larray) 164.28 437 S
+2 F
+0.45 (,) 199.34 437 S
+3 F
+0.45 (n) 211.02 437 S
+2 F
+0.45 (\051) 216.87 437 S
+0.45 (    ctospf\050) 53.28 426 S
+3 F
+0.45 (carray) 117.54 426 S
+2 F
+0.45 (,) 152.6 426 S
+3 F
+0.45 (larray) 164.28 426 S
+2 F
+0.45 (,) 199.34 426 S
+3 F
+0.45 (n) 211.02 426 S
+2 F
+0.45 (\051) 216.87 426 S
+0.45 (    ctospi\050) 53.28 415 S
+3 F
+0.45 (carray) 117.54 415 S
+2 F
+0.45 (,) 152.6 415 S
+3 F
+0.45 (larray) 164.28 415 S
+2 F
+0.45 (,) 199.34 415 S
+3 F
+0.45 (n) 211.02 415 S
+2 F
+0.45 (,) 216.87 415 S
+3 F
+0.45 (zpad) 228.55 415 S
+2 F
+0.45 (\051) 251.92 415 S
+0.45 (    dptocf\050) 53.28 404 S
+3 F
+0.45 (larray) 117.54 404 S
+2 F
+0.45 (,) 152.6 404 S
+3 F
+0.45 (carray) 164.28 404 S
+2 F
+0.45 (,) 199.34 404 S
+3 F
+0.45 (n) 211.02 404 S
+2 F
+0.45 (\051) 216.87 404 S
+0.45 (    sptocf\050) 53.28 393 S
+3 F
+0.45 (larray) 117.54 393 S
+2 F
+0.45 (,) 152.6 393 S
+3 F
+0.45 (carray) 164.28 393 S
+2 F
+0.45 (,) 199.34 393 S
+3 F
+0.45 (n) 211.02 393 S
+2 F
+0.45 (\051) 216.87 393 S
+0.45 (    sptoci\050) 53.28 382 S
+3 F
+0.45 (larray) 117.54 382 S
+2 F
+0.45 (,) 152.6 382 S
+3 F
+0.45 (carray) 164.28 382 S
+2 F
+0.45 (,) 199.34 382 S
+3 F
+0.45 (n) 211.02 382 S
+2 F
+0.45 (,) 216.87 382 S
+3 F
+0.45 (zpad) 228.55 382 S
+2 F
+0.45 (\051) 251.92 382 S
+1 10 Q
+0.77 ( In all the routines, the \336rst ar) 53.28 364.33 P
+0.77 (gument is the location of the) 176.78 364.33 P
+0.35 (input values and the second ar) 53.28 352.33 P
+0.35 (gument is the location for the) 175.58 352.33 P
+1.19 (converted values. The third ar) 53.28 340.33 P
+1.19 (gument to all the routines is) 177.48 340.33 P
+0.81 (the number of words to convert. If the routine has a fourth) 53.28 328.33 P
+1.25 (ar) 53.28 316.33 P
+1.25 (gument, it is used to tell the conversion routine whether) 60.87 316.33 P
+1.38 (the IBM RISC System/6000 double-padded integer option) 53.28 304.33 P
+(was used during compilation.) 53.28 292.33 T
+1.68 (In all cases, the) 53.28 275.33 P
+4 F
+1.68 (carray) 124.12 275.33 P
+1 F
+1.68 ( ar) 150.76 275.33 P
+1.68 (gument is a pointer to an array) 162.53 275.33 P
+0.85 (containing 64-bit Cray values and the) 53.28 263.33 P
+4 F
+0.85 (larray) 211.05 263.33 P
+1 F
+0.85 ( ar) 236.03 263.33 P
+0.85 (gument is a) 246.96 263.33 P
+0.72 (pointer to an array containing the IEEE 32-bit or IEEE 64-) 53.28 251.33 P
+(bit values.) 53.28 239.33 T
+0.46 (The ctodpf, ctospf, and ctospi routines convert Cray data to) 53.28 222.33 P
+-0.24 (local DOUBLE PRECISION, REAL, and INTEGER values.) 53.28 210.33 P
+0.46 (The dptocf, sptocf, and sptoci routines convert local data to) 53.28 198.33 P
+(Cray REAL and INTEGER values.) 53.28 186.33 T
+-0.03 (For the routines that convert to IEEE format, any values that) 53.28 169.33 P
+0.21 (are too lar) 53.28 157.33 P
+0.21 (ge to be properly represented are set to the lar) 94.04 157.33 P
+0.21 (gest) 278.65 157.33 P
+2.1 (value that can be represented with the correct sign. Any) 53.28 145.33 P
+(values that are too small are set to 0 \050zero\051.) 53.28 133.33 T
+1.85 (Both the Sun Microsystems and IBM RISC System/6000) 53.28 116.33 P
+0.4 (Fortran compilers allow the user to specify a command line) 53.28 104.33 P
+2.68 (option that automatically promotes variables declared as) 53.28 92.33 P
+0.1 (REAL to DOUBLE PRECISION. This causes the word size) 53.28 80.33 P
+0.85 (to double from the default 4 bytes to 8 bytes. The routines) 53.28 68.33 P
+0.7 (with \322dpf\323 in their names should be used in these cases. In) 53.28 56.33 P
+0.19 (addition, the IBM xlf compiler has an option that allows the) 53.28 44.33 P
+317.25 36.01 575.99 756 R
+7 X
+V
+0 X
+0.16 (compiler to increase the size of Fortran INTEGERs to 8 bytes, 4) 317.25 749.33 P
+1.14 (bytes to hold the data and 4 bytes of alignment space. For the) 317.25 737.33 P
+0.15 (integer conversion routines, the) 317.25 725.33 P
+4 F
+0.15 (zpad) 446.35 725.33 P
+1 F
+0.15 ( ar) 465.23 725.33 P
+0.15 (gument is used to inform) 475.46 725.33 P
+(the routine whether the compiler option was used.) 317.25 713.33 T
+0.29 (The numeric conversion routines can either be executed directly) 317.25 696.33 P
+0 (from the user program or automatically called through the use of) 317.25 684.33 P
+1.63 (the Cray I/O routines via the) 317.25 672.33 P
+4 F
+1.63 (iconv) 443.64 672.33 P
+1 F
+1.63 ( ar) 465.29 672.33 P
+1.63 (gument to crayread and) 477 672.33 P
+(craywrite.) 317.25 660.33 T
+0 12 Q
+( 5. Example Fortran pr) 317.25 633 T
+(ogram) 435.96 633 T
+1 10 Q
+1.24 (The following sample Fortran program creates a Cray-blocked) 317.25 615.33 P
+0.7 (dataset with a single record. The IEEE 32-bit REAL values are) 317.25 603.33 P
+0.91 (converted to Cray single-precision REAL values prior to being) 317.25 591.33 P
+(written.) 317.25 579.33 T
+2 9 Q
+0.45 (    PROGRAM TST) 317.25 562 S
+0.45 (    REAL     a\0501024\051) 317.25 551 S
+0.45 (    INTEGER  CRAYOPEN, CRAYWRITE, CRAYCLOSE) 317.25 540 S
+0.45 (    INTEGER  ICF, NWDS, IER) 317.25 529 S
+0.45 (    ICF = CRAYOPEN\050\322data\323, 1, O\325660\325\051) 317.25 512 S
+0.45 (    IF \050ICF .LE. 0\051 THEN) 317.25 501 S
+0.45 (        PRINT*, \322Unable to open dataset\323) 317.25 490 S
+0.45 (        STOP) 317.25 479 S
+0.45 (    ENDIF) 317.25 468 S
+0.45 (    NWDS = CRAYWRITE\050ICF, A, 1024, 1\051) 317.25 451 S
+0.45 (    IF \050NWDS .LE. 0\051 THEN) 317.25 440 S
+0.45 (        PRINT*, \322Write failed\323) 317.25 429 S
+0.45 (        STOP) 317.25 418 S
+0.45 (    ENDIF) 317.25 407 S
+0.45 (    IER = CRAYCLOSE\050ICF\051) 317.25 390 S
+0.45 (    IF \050ICF .NE. 0\051 THEN) 317.25 379 S
+0.45 (         PRINT*,  \322Unable to close dataset\323) 317.25 368 S
+0.45 (         STOP) 317.25 357 S
+0.45 (    ENDIF) 317.25 346 S
+0.45 (    PRINT*, \322Success!\323) 317.25 329 S
+0.45 (    END) 317.25 318 S
+0 12 Q
+( 6. Cray dataset utilities) 317.25 291 T
+1 10 Q
+1.51 (T) 317.25 273.33 P
+1.51 (o assist users with manipulating Cray datasets, three utilities) 322.65 273.33 P
+1.08 (that operate on Cray-blocked \336les were created. These utilities) 317.25 261.33 P
+(are cos\336le, cosconvert, and cossplit.) 317.25 249.33 T
+1.74 (The cos\336le utility veri\336es that the speci\336ed \336le is in a Cray-) 317.25 232.33 P
+0.77 (blocked format and gives information about the contents of the) 317.25 220.33 P
+0.54 (dataset. The number of records and their sizes are displayed for) 317.25 208.33 P
+0.11 (each \336le in the dataset. In addition, cos\336le attempts to determine) 317.25 196.33 P
+1.23 (whether the \336le contains ASCII or binary data and reports the) 317.25 184.33 P
+0.92 (percentages of each. Here is a sample cos\336le command and its) 317.25 172.33 P
+(resulting output:) 317.25 160.33 T
+2 8 Q
+0.4 (% cosf) 317.25 143.67 S
+0.4 (ile -v /tmp/data) 348.43 143.67 S
+0.4 (  Processing dataset: /tmp/data) 317.25 123.67 S
+0.4 (    Rec#    Bytes) 317.25 113.67 S
+0.4 (       1      800) 317.25 103.67 S
+0.4 (       2     8000) 317.25 93.67 S
+-0.9 0.4 ( EOF 1: Recs=2 Min=800 Max=8000 Avg=4400 Bytes=8800) 317.25 83.67 B
+-0.49 0.4 (     Type=Binary or mixed -- Binary= 99% ASCII=  1%) 317.25 73.67 B
+0.4 ( EOD. Min=800 Max=8000 Bytes=8800) 317.25 63.67 S
+1 10 Q
+0.06 ( The cosconvert utility converts a Cray-blocked data set into one) 317.25 46.33 P
+FMENDPAGE
+%%EndPage: "3" 8
+%%Page: "4" 8
+612 792 0 FMBEGINPAGE
+36 34.57 289.44 756 R
+7 X
+0 K
+V
+1 10 Q
+0 X
+0.19 (of several formats. Most often, cosconvert is used to strip Cray) 36 749.33 P
+0.22 (control words from a dataset, leaving only data. In some cases,) 36 737.33 P
+2.53 (Cray datasets may contain character data with Blank Field) 36 725.33 P
+0.09 (Initiation \050BFI\051. BFI was used under COS to compress datasets) 36 713.33 P
+0.72 (by replacing three or more blanks in a row with a special two) 36 701.33 P
+1.33 (character code. The cosconvert utility can be used to expand) 36 689.33 P
+(the blanks in those datasets.) 36 677.33 T
+0.43 (The cossplit utility creates single \336le datasets from a multi-\336le) 36 660.33 P
+-0.19 (dataset. Each output single \336le dataset will have a unique name.) 36 648.33 P
+0 12 Q
+(7. Acknowledgments) 36 621 T
+1 10 Q
+0.21 (The ncaru software package is the result of the work of several) 36 603.33 P
+0.46 (people at NCAR. Charles D\325Ambra of the Climate and Global) 36 591.33 P
+1 (Dynamics \050CGD\051 division of NCAR wrote the original Cray-) 36 579.33 P
+0.23 (IEEE numeric conversion routines. Craig Ruf) 36 567.33 P
+0.23 (f of the Scienti\336c) 219.62 567.33 P
+4.52 (Computing Division \050SCD\051 wrote the original Cray I/O) 36 555.33 P
+0.31 (routines for the purpose of adding and stripping Cray-blocking) 36 543.33 P
+0.86 (from \336les. Dan Anderson and Greg W) 36 531.33 P
+0.86 (oods of SCD combined) 193.3 531.33 P
+-0.19 (both the numeric conversion routines and the Cray routines into) 36 519.33 P
+0.89 (a single interface. T) 36 507.33 P
+0.89 (om Parker \050SCD\051 originally wrote cos\336le,) 117.34 507.33 P
+0.94 (cosconvert, and cossplit for use on Cray systems. The author) 36 495.33 P
+0.94 (,) 286.94 495.33 P
+3.79 (also of SCD, modi\336ed the library code to handle Cray-) 36 483.33 P
+1.45 (unblocked \336les, added backspacing functionality) 36 471.33 P
+1.45 (, rewrote the) 236.3 471.33 P
+(utilities to use the library) 36 459.33 T
+(, and added other enhancements.) 135.29 459.33 T
+0 12 Q
+(8. A) 36 432 T
+(vailability) 55.76 432 T
+1 10 Q
+1.69 (This package is available to interested or) 36 414.33 P
+1.69 (ganizations without) 209.18 414.33 P
+2.73 (char) 36 402.33 P
+2.73 (ge. Please contact Peter Morreale by sending email to) 53.02 402.33 P
+(morreale@ncar) 36 390.33 T
+(.ucar) 97.38 390.33 T
+(.edu for details.) 116.53 390.33 T
+319.41 34.57 575.99 756 R
+7 X
+V
+FMENDPAGE
+%%EndPage: "4" 9
+%%Page: "1" 9
+612 792 0 FMBEGINPAGE
+51.84 36.01 294.75 468 R
+7 X
+0 K
+V
+0 12 Q
+0 X
+( 1. Intr) 51.84 460 T
+(oduction) 87.27 460 T
+1 10 Q
+0.16 (The National Center for Atmospheric Research \050NCAR\051 has) 51.84 442.34 P
+3.57 (been using Cray Supercomputers since a Cray-1A was) 51.84 430.34 P
+0.06 (installed in late 1976. NCAR now has a CRA) 51.84 418.34 P
+0.06 (Y Y) 233.26 418.34 P
+0.06 (-MP 8/864,) 249.15 418.34 P
+1.28 (a CRA) 51.84 406.34 P
+1.28 (Y Y) 79.69 406.34 P
+1.28 (-MP 2D/216, and a CRA) 96.8 406.34 P
+1.28 (Y EL92/2-512 that are) 200.68 406.34 P
+2.45 (used for the bulk of computing by our user community) 51.84 394.34 P
+2.45 (.) 292.25 394.34 P
+2.41 (NCAR has an enormous amount of data in Cray format) 51.84 382.34 P
+-0.23 (stored on NCAR\325) 51.84 370.34 P
+-0.23 (s Mass Storage System. Currently) 121.34 370.34 P
+-0.23 (, there are) 255.53 370.34 P
+1.76 (40 terabytes of data on the NCAR Mass Storage System.) 51.84 358.34 P
+1.22 (Approximately 25 terabytes of that data in a Cray-blocked) 51.84 346.34 P
+(format.) 51.84 334.34 T
+0.9 (Cray computers use their own format to represent data. On) 51.84 317.34 P
+3.67 (Cray computers, a 64-bit word is used to de\336ne both) 51.84 305.34 P
+1.75 (\337oating-point values and integer values. In addition, Cray) 51.84 293.34 P
+0.51 (computers support a number of dif) 51.84 281.34 P
+0.51 (ferent \336le structures. The) 192.74 281.34 P
+0.03 (most common Cray \336le format is the Cray-blocked, or COS-) 51.84 269.34 P
+0.96 (blocked, \336le structure. This \336le structure, known as a Cray) 51.84 257.34 P
+2.2 (dataset, is used by default when a \336le is created from a) 51.84 245.34 P
+1.95 (Fortran unformatted WRITE statement. The Cray-blocked) 51.84 233.34 P
+1.11 (dataset contains various 8-byte control words which de\336ne) 51.84 221.34 P
+0.52 (512-word \0504096 byte\051 blocks, end-of-record \050EOR\051, end-of-) 51.84 209.34 P
+4.2 (\336le \050EOF\051, and end-of-data \050EOD\051. Cray also has an) 51.84 197.34 P
+3.37 (unblocked dataset structure that contains only data. No) 51.84 185.34 P
+3.03 (control words of any kind are present in an unblocked) 51.84 173.34 P
+(dataset.) 51.84 161.34 T
+1.28 (In contrast to Cray systems, a number of vendors of other) 51.84 144.34 P
+5.7 (platforms use Institute for Electrical and Electronics) 51.84 132.34 P
+7.33 (Engineers \050IEEE\051 binary \337oating-point standard for) 51.84 120.34 P
+0.33 (describing data in binary \336les. Generally) 51.84 108.34 P
+0.33 (, these vendors also) 215.49 108.34 P
+-0.17 (use the same \336le structure for Fortran unformatted sequential) 51.84 96.34 P
+1.64 (access binary \336les. This \336le structure consists of a 4-byte) 51.84 84.34 P
+-0.17 (control word, followed by data, terminated by another 4-byte) 51.84 72.34 P
+1.23 (control word for each record in the \336le. Because the same) 51.84 60.34 P
+-0.13 (\336le structure and data representation are used by a number of) 51.84 48.34 P
+317.25 36.01 575.99 466.56 R
+7 X
+V
+0 X
+5.32 (vendors, binary \336les created from Fortran programs are) 317.25 459.9 P
+(generally portable between these vendor) 317.25 447.9 T
+(\325) 479.15 447.9 T
+(s computers.) 481.93 447.9 T
+0.81 (In recent years, a number of IEEE-based compute servers have) 317.25 430.9 P
+0.04 (been added to our site. In particular) 317.25 418.9 P
+0.04 (, NCAR now has a four) 458.89 418.9 P
+0.04 (-node) 553.24 418.9 P
+0.94 (cluster of IBM RISC System/6000 model 550 workstations, an) 317.25 406.9 P
+4.53 (eight-node IBM Scalable POWERparallel 1 \050SP1\051, and a) 317.25 394.9 P
+-0.19 (Thinking Machines, Inc. CM-5. Since many of the users on these) 317.25 382.9 P
+0.46 (platforms also use our Cray systems, the ability to use the same) 317.25 370.9 P
+(data \336les on all systems is extremely important.) 317.25 358.9 T
+0.06 (One possible solution would be to use the Cray systems Flexible) 317.25 341.9 P
+0.26 (File I/O \050FFIO\051 package. This software allows the user to create) 317.25 329.9 P
+1.36 (data \336les in binary formats suitable for direct use on dif) 317.25 317.9 P
+1.36 (ferent) 552.69 317.9 P
+1.01 (vendors platforms. The FFIO solution works for users creating) 317.25 305.9 P
+0.55 (new data \336les on the Cray; however) 317.25 293.9 P
+0.55 (, we have over 25 terabytes) 463.91 293.9 P
+0.84 (of Cray-blocked data already in existence on our Mass Storage) 317.25 281.9 P
+1.61 (System. If FFIO were the only solution, users would spend a) 317.25 269.9 P
+3.93 (good deal of their computing allocations just reformatting) 317.25 257.9 P
+1.91 (datasets. In addition, these Cray jobs would consume a lar) 317.25 245.9 P
+1.91 (ge) 566.56 245.9 P
+3.86 (number of Cray cycles that would otherwise be used for) 317.25 233.9 P
+(compute-intensive work.) 317.25 221.9 T
+2.59 (Another solution would be to use formatted data \336les. This) 317.25 204.9 P
+0.35 (solution poses several problems: 1\051 formatted \336les are generally) 317.25 192.9 P
+2.31 (lar) 317.25 180.9 P
+2.31 (ger than their binary counterparts, 2\051 formatted I/O is the) 327.61 180.9 P
+1.95 (slowest form of I/O on any computer since the text must be) 317.25 168.9 P
+1.22 (interpreted and converted into binary format, and 3\051 formatted) 317.25 156.9 P
+(\336les can incur a loss of precision.) 317.25 144.9 T
+0.56 (A third solution would be to provide software that can interpret) 317.25 127.9 P
+0.04 (Cray \336le structures and convert the Cray data representation into) 317.25 115.9 P
+0.68 (the non-Cray data format. This solution has several bene\336ts for) 317.25 103.9 P
+-0.11 (the user) 317.25 91.9 P
+-0.11 (. One advantage is that the user can use the same datasets) 347.95 91.9 P
+0.03 (on both the Cray and non-Cray machines. Another bene\336t is that) 317.25 79.9 P
+-0.13 (even accounting for the data conversion, the I/O on the non-Cray) 317.25 67.9 P
+0.63 (platform is signi\336cantly faster then equivalent formatted I/O on) 317.25 55.9 P
+(the non-Cray platform.) 317.25 43.9 T
+53.28 485.28 575.99 767.52 R
+7 X
+V
+0 12 Q
+0 X
+(T) 192.9 748.22 T
+(OOLS FOR ACCESSING CRA) 200.69 748.22 T
+(Y DA) 363.17 748.22 T
+(T) 391.26 748.22 T
+(ASETS) 398.38 748.22 T
+( ON NON-CRA) 231.85 730.22 T
+(Y PLA) 311.36 730.22 T
+(TFORMS) 346.11 730.22 T
+1 10 Q
+(Peter W) 278.05 701.55 T
+(. Morreale) 309.6 701.55 T
+(National Center for Atmospheric Research) 229.15 682.25 T
+(Scienti\336c Computing Division) 253.55 670.95 T
+0 F
+(ABSTRACT) 296.43 632.35 T
+1 F
+-0.33 ( NCAR has a long history of using Cray computers and as a result, some 25 terabytes of data on our Mass Storage) 93.6 609.05 P
+-0.27 (System are in Cray-blocked format. W) 93.6 597.05 P
+-0.27 (ith the addition of several non-Cray compute servers, software was written) 246.74 597.05 P
+(to give users the ability to read and write Cray-blocked and unblocked \336les on these platforms. These non-Cray) 93.6 585.05 T
+(platforms conform to the Institute for Electrical and Electronics Engineers \050IEEE\051 standard describing \337oating-) 93.6 573.05 T
+(point data. Therefore, any tools for manipulating Cray datasets must also be able to convert between Cray data) 93.6 561.05 T
+(formats and IEEE data formats. While it is true that the Cray Flexible File I/O \050FFIO\051 software can provide this) 93.6 549.05 T
+-0.01 (capability on the Cray) 93.6 537.05 P
+-0.01 (, moving this non-essential function from the Cray allows more Cray cycles for other com-) 181.47 537.05 P
+(pute-intensive jobs. This paper will outline a library of routines that allow users to manipulate Cray datasets on) 93.6 525.05 T
+(non-Cray platforms. The routines are available for both C and Fortran programs. In addition, three utilities that) 93.6 513.05 T
+(also manipulate Cray datasets will be discussed.) 93.6 501.05 T
+FMENDPAGE
+%%EndPage: "1" 10
+%%Page: "2" 10
+612 792 0 FMBEGINPAGE
+34.56 34.57 289.44 756 R
+7 X
+0 K
+V
+1 10 Q
+0 X
+0.42 (At NCAR, we have implemented the third solution in the form) 34.56 749.33 P
+2.35 (of a library of routines that perform I/O to and from Cray) 34.56 737.33 P
+-0.24 (datasets. This paper describes the library named NCAR Utilities) 34.56 725.33 P
+0.25 (\050ncaru\051. The paper also describes three stand alone utilities that) 34.56 713.33 P
+(manipulate Cray datasets.) 34.56 701.33 T
+0 12 Q
+( 2. The ncaru softwar) 34.56 674 T
+(e package) 143.94 674 T
+1 10 Q
+3.37 (The ncaru library contains a complete set of routines for) 34.56 656.33 P
+2.63 (performing I/O on Cray datasets. In addition, a number of) 34.56 644.33 P
+3.2 (routines that convert data between Cray format and IEEE) 34.56 632.33 P
+(format are also included in the library) 34.56 620.33 T
+(.) 184.91 620.33 T
+0.51 (The user can use the Cray I/O routines to transfer data in Cray) 34.56 603.33 P
+0.23 (format or have the routine automatically convert the data to the) 34.56 591.33 P
+0.62 (native format. Having the option of converting data allows the) 34.56 579.33 P
+1.46 (user to read datasets that contain both numeric and character) 34.56 567.33 P
+(data records.) 34.56 555.33 T
+0.12 (The ncaru library is written in the C language. Since there is no) 34.56 538.33 P
+3.79 (standard for inter) 34.56 526.33 P
+3.79 (-language communication, the user entry) 110.78 526.33 P
+-0.21 (points to the library must be ported to the dif) 34.56 514.33 P
+-0.21 (ferent platforms for) 211.58 514.33 P
+0.67 (use in Fortran programs. The current implementation has been) 34.56 502.33 P
+0.66 (ported to IBM RISC System/6000 systems running AIX 3.2.2,) 34.56 490.33 P
+1 (Silicon Graphics Inc. Challenge-L running IRIX V5.1.1.2 and) 34.56 478.33 P
+(to Sun Microsystems, Inc. systems running SunOS 4.1.1.) 34.56 466.33 T
+0.1 (The ncaru software package also includes three utilities that aid) 34.56 449.33 P
+4.17 (the user in manipulating Cray-blocked \336les on non-Cray) 34.56 437.33 P
+3.85 (platforms: cos\336le, cosconvert, and cossplit. These utilities) 34.56 425.33 P
+1.37 (describe records and \336le structure of a Cray dataset \050cos\336le\051,) 34.56 413.33 P
+0.53 (strip Cray-blocking from a Cray dataset \050cosconvert\051, and split) 34.56 401.33 P
+(multi-\336le datasets into separate datasets \050cossplit\051.) 34.56 389.33 T
+1.54 (Documentation for the ncaru package consists of UNIX man) 34.56 372.33 P
+1.48 (pages for each routine and utility) 34.56 360.33 P
+1.48 (. There is also a ncaru man) 173.15 360.33 P
+0.64 (page that describes the library and lists all the user entry point) 34.56 348.33 P
+(routine names.) 34.56 336.33 T
+0 12 Q
+(3. The Cray I/O r) 34.56 309 T
+(outines) 123.96 309 T
+1 10 Q
+-0.25 (The Cray I/O routines in the ncaru library allow the user to read,) 34.56 291.33 P
+2.17 (create, or append to a Cray dataset. The user also speci\336es) 34.56 279.33 P
+0.15 (whether the dataset uses a Cray-blocked or Cray-unblocked \336le) 34.56 267.33 P
+(structure.) 34.56 255.33 T
+0.05 (The Cray I/O routines use a library buf) 34.56 238.33 P
+0.05 (fer to block I/O transfers) 190.44 238.33 P
+0.44 (to and from the disk \336le. This buf) 34.56 226.33 P
+0.44 (fer imitates the library buf) 171.84 226.33 P
+0.44 (fer) 278.34 226.33 P
+1.13 (used in Cray system I/O libraries. Use of a library buf) 34.56 214.33 P
+1.13 (fer can) 260.84 214.33 P
+1.37 (reduce the amount of system work necessary to perform I/O,) 34.56 202.33 P
+3.78 (with the trade-of) 34.56 190.33 P
+3.78 (f being increased memory usage for the) 108.55 190.33 P
+(program.) 34.56 178.33 T
+2.55 (The following is a list of the Cray I/O routines with their) 34.56 161.33 P
+(ar) 34.56 149.33 T
+(guments.) 42.15 149.33 T
+2 9 Q
+0.45 (   ier  = crayblocks\050) 34.56 132 S
+3 F
+0.45 (n) 157.25 132 S
+2 F
+0.45 (\051) 163.09 132 S
+0.45 (   icf  = crayopen\050) 34.56 121 S
+3 F
+0.45 (path) 145.56 121 S
+2 F
+0.45 (,) 168.93 121 S
+3 F
+0.45 (if) 180.62 121 S
+0.45 (lag) 192.3 121 S
+2 F
+0.45 (,) 209.83 121 S
+3 F
+0.45 (mode) 221.51 121 S
+2 F
+0.45 (\051) 244.88 121 S
+0.45 (   nwds = crayread\050) 34.56 110 S
+3 F
+0.45 (icf) 145.56 110 S
+2 F
+0.45 (,) 163.09 110 S
+3 F
+0.45 (loc) 174.78 110 S
+2 F
+0.45 (,) 192.3 110 S
+3 F
+0.45 (nwords) 203.99 110 S
+2 F
+0.45 (,) 239.04 110 S
+3 F
+0.45 (iconv) 250.73 110 S
+2 F
+0.45 (\051) 279.94 110 S
+-0.27 0.45 (   nwds = craywrite\050) 34.56 99 B
+3 F
+-0.27 0.45 (icf) 150.04 99 B
+2 F
+-0.27 0.45 (,) 167.57 99 B
+3 F
+-0.27 0.45 (loc) 178.98 99 B
+2 F
+-0.27 0.45 (,) 196.51 99 B
+3 F
+-0.27 0.45 (nwords) 207.92 99 B
+2 F
+-0.27 0.45 (,) 242.97 99 B
+3 F
+-0.27 0.45 (iconv) 254.38 99 B
+2 F
+-0.27 0.45 (\051) 283.6 99 B
+0.45 (   ier  = crayback\050) 34.56 88 S
+3 F
+0.45 (icf) 145.56 88 S
+2 F
+0.45 (\051) 163.09 88 S
+0.45 (   ier  = crayrew\050) 34.56 77 S
+3 F
+0.45 (icf) 139.72 77 S
+2 F
+0.45 (\051) 157.25 77 S
+0.45 (   ier  = crayweof\050) 34.56 66 S
+3 F
+0.45 (icf) 145.56 66 S
+2 F
+0.45 (\051) 163.09 66 S
+0.45 (   ier  = crayweod\050) 34.56 55 S
+3 F
+0.45 (icf) 145.56 55 S
+2 F
+0.45 (\051) 163.09 55 S
+0.45 (   ier  = crayclose\050) 34.56 44 S
+3 F
+0.45 (icf) 151.41 44 S
+2 F
+0.45 (\051) 168.93 44 S
+313.92 34.57 558.71 756 R
+7 X
+V
+1 10 Q
+0 X
+1.39 (The crayblocks routine allows the user to specify a library) 313.92 749.33 P
+1.46 (buf) 313.92 737.33 P
+1.46 (fer size. The ar) 327.06 737.33 P
+1.46 (gument) 391.19 737.33 P
+4 F
+1.46 (n) 425.13 737.33 P
+1 F
+1.46 ( speci\336es the number of 4096-) 430.12 737.33 P
+4.11 (byte blocks used by the buf) 313.92 725.33 P
+4.11 (fer) 443.93 725.33 P
+4.11 (. This library buf) 454.47 725.33 P
+4.11 (fer is) 534.35 725.33 P
+0.46 (dynamically allocated and is released when the \336le is closed) 313.92 713.33 P
+0.11 (with a crayclose routine. If the crayblocks routine is used, all) 313.92 701.33 P
+0.03 (Cray datasets opened with a crayopen use the speci\336ed block) 313.92 689.33 P
+4.52 (size until another crayblocks routine is executed. The) 313.92 677.33 P
+2.57 (crayblocks routine must be executed prior to a crayopen) 313.92 665.33 P
+0.23 (routine if something other than the default library buf) 313.92 653.33 P
+0.23 (fer size) 529.35 653.33 P
+(\0501 block\051 is desired.) 313.92 641.33 T
+1.51 (The crayopen routine opens a dataset for either reading or) 313.92 624.33 P
+-0.08 (writing. The) 313.92 612.33 P
+4 F
+-0.08 (path) 365.67 612.33 P
+1 F
+-0.08 ( ar) 383.44 612.33 P
+-0.08 (gument speci\336es the pathname to the \336le.) 393.45 612.33 P
+0.96 (The) 313.92 600.33 P
+4 F
+0.96 (i\337ag) 332.92 600.33 P
+1 F
+0.96 ( ar) 350.68 600.33 P
+0.96 (gument speci\336es the transfer mode, whether the) 361.73 600.33 P
+0.19 (\336le structure is blocked or unblocked, and the position of the) 313.92 588.33 P
+0.45 (\336le. The) 313.92 576.33 P
+4 F
+0.45 (mode) 350.62 576.33 P
+1 F
+0.45 ( ar) 372.27 576.33 P
+0.45 (gument speci\336es the \336le permissions and is) 382.8 576.33 P
+1.19 (used only if the \336le is being created. The crayopen routine) 313.92 564.33 P
+2.41 (dynamically allocates a data structure that contains \336elds) 313.92 552.33 P
+4.56 (used by the various I/O routines. The return from a) 313.92 540.33 P
+0.8 (successful crayopen is the address of this data structure. By) 313.92 528.33 P
+-0.14 (returning the address of the structure as an integer) 313.92 516.33 P
+-0.14 (, portability) 512.21 516.33 P
+(between Fortran and C is assured.) 313.92 504.33 T
+3.61 (The crayread routine reads data from an existing Cray) 313.92 487.33 P
+2.24 (dataset. The) 313.92 475.33 P
+4 F
+2.24 (icf) 369.18 475.33 P
+1 F
+2.24 ( ar) 379.18 475.33 P
+2.24 (gument is the return from a previously) 391.5 475.33 P
+0.68 (executed crayopen routine. The) 313.92 463.33 P
+4 F
+0.68 (loc) 445.14 463.33 P
+1 F
+0.68 ( ar) 457.35 463.33 P
+0.68 (gument is the location) 468.11 463.33 P
+0.12 (where the \336rst word of data is placed and must conform both) 313.92 451.33 P
+2.12 (in type and wordsize to the data being read. The) 313.92 439.33 P
+4 F
+2.12 (nwor) 529.65 439.33 P
+2.12 (ds) 549.83 439.33 P
+1 F
+2.48 (ar) 313.92 427.33 P
+2.48 (gument speci\336es the number of words being read. The) 321.5 427.33 P
+4 F
+(iconv) 313.92 415.33 T
+1 F
+( ar) 335.57 415.33 T
+(gument speci\336es the desired data conversion.) 345.65 415.33 T
+2.97 (For blocked \336les, crayread is fully record-oriented. This) 313.92 398.33 P
+0.95 (means that if the user speci\336es a read of a single word, the) 313.92 386.33 P
+2.35 (\336rst word of the record is transferred and the \336le is left) 313.92 374.33 P
+3.08 (positioned at the next record. This feature is useful for) 313.92 362.33 P
+1.19 (skipping records. The user can also specify a read of more) 313.92 350.33 P
+0.8 (words than the record actually contains, and only the actual) 313.92 338.33 P
+0.08 (number of words in the record are transferred. This feature is) 313.92 326.33 P
+0.32 (useful if the user is not sure of the exact number of words in) 313.92 314.33 P
+0.5 (the record. In all cases, crayread returns the number of Cray) 313.92 302.33 P
+(words actually transferred or an error code.) 313.92 290.33 T
+2.16 (The craywrite routine writes data to a Cray dataset. Like) 313.92 273.33 P
+5.72 (crayread, the ar) 313.92 261.33 P
+5.72 (guments) 387.05 261.33 P
+4 F
+5.72 (icf) 429.14 261.33 P
+1 F
+5.72 (,) 439.14 261.33 P
+4 F
+5.72 (loc) 449.86 261.33 P
+1 F
+5.72 (,) 462.07 261.33 P
+4 F
+5.72 (nwor) 472.79 261.33 P
+5.72 (ds) 492.96 261.33 P
+1 F
+5.72 (, and) 501.85 261.33 P
+4 F
+5.72 (iconv) 535.22 261.33 P
+1 F
+5.72 (,) 556.22 261.33 P
+0.43 (correspond to the crayopen return value, location of the data) 313.92 249.33 P
+4.04 (being written, the number of words to write, and the) 313.92 237.33 P
+-0.04 (conversion \337ag. Both the crayread and craywrite routines use) 313.92 225.33 P
+2.02 (a library buf) 313.92 213.33 P
+2.02 (fer to reduce the number of physical read or) 367.17 213.33 P
+0.65 (write requests to disk. For writing, when the buf) 313.92 201.33 P
+0.65 (fer is \336lled,) 511.61 201.33 P
+1.38 (the library buf) 313.92 189.33 P
+1.38 (fer is \337ushed to disk. This means that if the) 373.67 189.33 P
+0.05 (user does not close the \336le via a crayclose, the resulting Cray) 313.92 177.33 P
+(dataset may be unusable on the Cray computer) 313.92 165.33 T
+(.) 500.17 165.33 T
+0.94 (If the) 313.92 148.33 P
+4 F
+0.94 (iconv) 339.67 148.33 P
+1 F
+0.94 ( \337ag for both crayread and craywrite speci\336es a) 361.32 148.33 P
+0.34 (numeric conversion, than a conversion buf) 313.92 136.33 P
+0.34 (fer is dynamically) 485.86 136.33 P
+-0.19 (allocated. The initial size of the conversion buf) 313.92 124.33 P
+-0.19 (fer is set to the) 500.62 124.33 P
+0.97 (number of words in the request. The size of the conversion) 313.92 112.33 P
+-0.06 (buf) 313.92 100.33 P
+-0.06 (fer is then checked for each subsequent I/O request, and if) 327.06 100.33 P
+1.85 (a subsequent request is lar) 313.92 88.33 P
+1.85 (ger than the current size of the) 426.06 88.33 P
+0.08 (conversion buf) 313.92 76.33 P
+0.08 (fer) 373.49 76.33 P
+0.08 (, the buf) 384.18 76.33 P
+0.08 (fer is re-allocated to the lar) 417.18 76.33 P
+0.08 (ger size.) 525.34 76.33 P
+2.43 (On every request, every byte of the conversion buf) 313.92 64.34 P
+2.43 (fer is) 536.03 64.34 P
+(preset to zero to prevent bit conversion problems.) 313.92 52.34 T
+FMENDPAGE
+%%EndPage: "2" 11
+%%Page: "3" 11
+612 792 0 FMBEGINPAGE
+53.28 36.01 294.75 756 R
+7 X
+0 K
+V
+1 10 Q
+0 X
+0.03 (The crayback routine allows the user to backup a record in a) 53.28 749.33 P
+0.68 (Cray dataset. The crayback routine can be used on datasets) 53.28 737.33 P
+1.58 (opened for reading or writing. If the last operation to the) 53.28 725.33 P
+0.8 (dataset was a write, then crayback will truncate the dataset) 53.28 713.33 P
+0.98 (prior to positioning at the previous record. This allows the) 53.28 701.33 P
+-0.22 (user to overwrite a record if desired and mimics the behavior) 53.28 689.33 P
+(of a Cray Fortran BACKSP) 53.28 677.33 T
+(ACE.) 162.85 677.33 T
+-0.17 (The crayweof routine writes a Cray end-of-\336le control word.) 53.28 660.33 P
+2.66 (The crayweod routine writes a Cray end-of-data control) 53.28 648.33 P
+4.68 (word. These two routines are available for historical) 53.28 636.33 P
+2.4 (purposes and are seldom used directly by the user) 53.28 624.33 P
+2.4 (. One) 270.7 624.33 P
+0.89 (possible use of the crayweof routine would be the creation) 53.28 612.33 P
+(of a multi-\336le dataset.) 53.28 600.33 T
+0.45 (The crayclose routine properly terminates and, if necessary) 53.28 583.33 P
+0.45 (,) 292.25 583.33 P
+0.68 (\337ushes the library buf) 53.28 571.33 P
+0.68 (fer) 142.58 571.33 P
+0.68 (. The crayclose routine then closes) 153.12 571.33 P
+1.31 (the dataset and releases all dynamically allocated memory) 53.28 559.33 P
+(used for that \336le.) 53.28 547.33 T
+0 12 Q
+( 4. The numeric conversion r) 53.28 520 T
+(outines) 200.31 520 T
+1 10 Q
+0.2 (In addition to the Cray I/O routines, a number of routines to) 53.28 502.33 P
+-0.09 (convert Cray data formats to IEEE data formats are included) 53.28 490.33 P
+2.75 (in the ncaru library) 53.28 478.33 P
+2.75 (. These routines are implemented as) 137.21 478.33 P
+-0.1 (Fortran subroutine calls and in C as void functions. Here is a) 53.28 466.33 P
+(list of the routines and their ar) 53.28 454.33 T
+(guments:) 173.57 454.33 T
+2 9 Q
+0.45 (    ctodpf\050) 53.28 437 S
+3 F
+0.45 (carray) 117.54 437 S
+2 F
+0.45 (,) 152.6 437 S
+3 F
+0.45 (larray) 164.28 437 S
+2 F
+0.45 (,) 199.34 437 S
+3 F
+0.45 (n) 211.02 437 S
+2 F
+0.45 (\051) 216.87 437 S
+0.45 (    ctospf\050) 53.28 426 S
+3 F
+0.45 (carray) 117.54 426 S
+2 F
+0.45 (,) 152.6 426 S
+3 F
+0.45 (larray) 164.28 426 S
+2 F
+0.45 (,) 199.34 426 S
+3 F
+0.45 (n) 211.02 426 S
+2 F
+0.45 (\051) 216.87 426 S
+0.45 (    ctospi\050) 53.28 415 S
+3 F
+0.45 (carray) 117.54 415 S
+2 F
+0.45 (,) 152.6 415 S
+3 F
+0.45 (larray) 164.28 415 S
+2 F
+0.45 (,) 199.34 415 S
+3 F
+0.45 (n) 211.02 415 S
+2 F
+0.45 (,) 216.87 415 S
+3 F
+0.45 (zpad) 228.55 415 S
+2 F
+0.45 (\051) 251.92 415 S
+0.45 (    dptocf\050) 53.28 404 S
+3 F
+0.45 (larray) 117.54 404 S
+2 F
+0.45 (,) 152.6 404 S
+3 F
+0.45 (carray) 164.28 404 S
+2 F
+0.45 (,) 199.34 404 S
+3 F
+0.45 (n) 211.02 404 S
+2 F
+0.45 (\051) 216.87 404 S
+0.45 (    sptocf\050) 53.28 393 S
+3 F
+0.45 (larray) 117.54 393 S
+2 F
+0.45 (,) 152.6 393 S
+3 F
+0.45 (carray) 164.28 393 S
+2 F
+0.45 (,) 199.34 393 S
+3 F
+0.45 (n) 211.02 393 S
+2 F
+0.45 (\051) 216.87 393 S
+0.45 (    sptoci\050) 53.28 382 S
+3 F
+0.45 (larray) 117.54 382 S
+2 F
+0.45 (,) 152.6 382 S
+3 F
+0.45 (carray) 164.28 382 S
+2 F
+0.45 (,) 199.34 382 S
+3 F
+0.45 (n) 211.02 382 S
+2 F
+0.45 (,) 216.87 382 S
+3 F
+0.45 (zpad) 228.55 382 S
+2 F
+0.45 (\051) 251.92 382 S
+1 10 Q
+0.77 ( In all the routines, the \336rst ar) 53.28 364.33 P
+0.77 (gument is the location of the) 176.78 364.33 P
+0.35 (input values and the second ar) 53.28 352.33 P
+0.35 (gument is the location for the) 175.58 352.33 P
+1.19 (converted values. The third ar) 53.28 340.33 P
+1.19 (gument to all the routines is) 177.48 340.33 P
+0.81 (the number of words to convert. If the routine has a fourth) 53.28 328.33 P
+1.25 (ar) 53.28 316.33 P
+1.25 (gument, it is used to tell the conversion routine whether) 60.87 316.33 P
+1.38 (the IBM RISC System/6000 double-padded integer option) 53.28 304.33 P
+(was used during compilation.) 53.28 292.33 T
+1.68 (In all cases, the) 53.28 275.33 P
+4 F
+1.68 (carray) 124.12 275.33 P
+1 F
+1.68 ( ar) 150.76 275.33 P
+1.68 (gument is a pointer to an array) 162.53 275.33 P
+0.85 (containing 64-bit Cray values and the) 53.28 263.33 P
+4 F
+0.85 (larray) 211.05 263.33 P
+1 F
+0.85 ( ar) 236.03 263.33 P
+0.85 (gument is a) 246.96 263.33 P
+0.72 (pointer to an array containing the IEEE 32-bit or IEEE 64-) 53.28 251.33 P
+(bit values.) 53.28 239.33 T
+0.46 (The ctodpf, ctospf, and ctospi routines convert Cray data to) 53.28 222.33 P
+-0.24 (local DOUBLE PRECISION, REAL, and INTEGER values.) 53.28 210.33 P
+0.46 (The dptocf, sptocf, and sptoci routines convert local data to) 53.28 198.33 P
+(Cray REAL and INTEGER values.) 53.28 186.33 T
+-0.03 (For the routines that convert to IEEE format, any values that) 53.28 169.33 P
+0.21 (are too lar) 53.28 157.33 P
+0.21 (ge to be properly represented are set to the lar) 94.04 157.33 P
+0.21 (gest) 278.65 157.33 P
+2.1 (value that can be represented with the correct sign. Any) 53.28 145.33 P
+(values that are too small are set to 0 \050zero\051.) 53.28 133.33 T
+1.85 (Both the Sun Microsystems and IBM RISC System/6000) 53.28 116.33 P
+0.4 (Fortran compilers allow the user to specify a command line) 53.28 104.33 P
+2.68 (option that automatically promotes variables declared as) 53.28 92.33 P
+0.1 (REAL to DOUBLE PRECISION. This causes the word size) 53.28 80.33 P
+0.85 (to double from the default 4 bytes to 8 bytes. The routines) 53.28 68.33 P
+0.7 (with \322dpf\323 in their names should be used in these cases. In) 53.28 56.33 P
+0.19 (addition, the IBM xlf compiler has an option that allows the) 53.28 44.33 P
+317.25 36.01 575.99 756 R
+7 X
+V
+0 X
+0.16 (compiler to increase the size of Fortran INTEGERs to 8 bytes, 4) 317.25 749.33 P
+1.14 (bytes to hold the data and 4 bytes of alignment space. For the) 317.25 737.33 P
+0.15 (integer conversion routines, the) 317.25 725.33 P
+4 F
+0.15 (zpad) 446.35 725.33 P
+1 F
+0.15 ( ar) 465.23 725.33 P
+0.15 (gument is used to inform) 475.46 725.33 P
+(the routine whether the compiler option was used.) 317.25 713.33 T
+0.29 (The numeric conversion routines can either be executed directly) 317.25 696.33 P
+0 (from the user program or automatically called through the use of) 317.25 684.33 P
+1.63 (the Cray I/O routines via the) 317.25 672.33 P
+4 F
+1.63 (iconv) 443.64 672.33 P
+1 F
+1.63 ( ar) 465.29 672.33 P
+1.63 (gument to crayread and) 477 672.33 P
+(craywrite.) 317.25 660.33 T
+0 12 Q
+( 5. Example Fortran pr) 317.25 633 T
+(ogram) 435.96 633 T
+1 10 Q
+1.24 (The following sample Fortran program creates a Cray-blocked) 317.25 615.33 P
+0.7 (dataset with a single record. The IEEE 32-bit REAL values are) 317.25 603.33 P
+0.91 (converted to Cray single-precision REAL values prior to being) 317.25 591.33 P
+(written.) 317.25 579.33 T
+2 9 Q
+0.45 (    PROGRAM TST) 317.25 562 S
+0.45 (    REAL     a\0501024\051) 317.25 551 S
+0.45 (    INTEGER  CRAYOPEN, CRAYWRITE, CRAYCLOSE) 317.25 540 S
+0.45 (    INTEGER  ICF, NWDS, IER) 317.25 529 S
+0.45 (    ICF = CRAYOPEN\050\322data\323, 1, O\325660\325\051) 317.25 512 S
+0.45 (    IF \050ICF .LE. 0\051 THEN) 317.25 501 S
+0.45 (        PRINT*, \322Unable to open dataset\323) 317.25 490 S
+0.45 (        STOP) 317.25 479 S
+0.45 (    ENDIF) 317.25 468 S
+0.45 (    NWDS = CRAYWRITE\050ICF, A, 1024, 1\051) 317.25 451 S
+0.45 (    IF \050NWDS .LE. 0\051 THEN) 317.25 440 S
+0.45 (        PRINT*, \322Write failed\323) 317.25 429 S
+0.45 (        STOP) 317.25 418 S
+0.45 (    ENDIF) 317.25 407 S
+0.45 (    IER = CRAYCLOSE\050ICF\051) 317.25 390 S
+0.45 (    IF \050ICF .NE. 0\051 THEN) 317.25 379 S
+0.45 (         PRINT*,  \322Unable to close dataset\323) 317.25 368 S
+0.45 (         STOP) 317.25 357 S
+0.45 (    ENDIF) 317.25 346 S
+0.45 (    PRINT*, \322Success!\323) 317.25 329 S
+0.45 (    END) 317.25 318 S
+0 12 Q
+( 6. Cray dataset utilities) 317.25 291 T
+1 10 Q
+1.51 (T) 317.25 273.33 P
+1.51 (o assist users with manipulating Cray datasets, three utilities) 322.65 273.33 P
+1.08 (that operate on Cray-blocked \336les were created. These utilities) 317.25 261.33 P
+(are cos\336le, cosconvert, and cossplit.) 317.25 249.33 T
+1.74 (The cos\336le utility veri\336es that the speci\336ed \336le is in a Cray-) 317.25 232.33 P
+0.77 (blocked format and gives information about the contents of the) 317.25 220.33 P
+0.54 (dataset. The number of records and their sizes are displayed for) 317.25 208.33 P
+0.11 (each \336le in the dataset. In addition, cos\336le attempts to determine) 317.25 196.33 P
+1.23 (whether the \336le contains ASCII or binary data and reports the) 317.25 184.33 P
+0.92 (percentages of each. Here is a sample cos\336le command and its) 317.25 172.33 P
+(resulting output:) 317.25 160.33 T
+2 8 Q
+0.4 (% cosf) 317.25 143.67 S
+0.4 (ile -v /tmp/data) 348.43 143.67 S
+0.4 (  Processing dataset: /tmp/data) 317.25 123.67 S
+0.4 (    Rec#    Bytes) 317.25 113.67 S
+0.4 (       1      800) 317.25 103.67 S
+0.4 (       2     8000) 317.25 93.67 S
+-0.9 0.4 ( EOF 1: Recs=2 Min=800 Max=8000 Avg=4400 Bytes=8800) 317.25 83.67 B
+-0.49 0.4 (     Type=Binary or mixed -- Binary= 99% ASCII=  1%) 317.25 73.67 B
+0.4 ( EOD. Min=800 Max=8000 Bytes=8800) 317.25 63.67 S
+1 10 Q
+0.06 ( The cosconvert utility converts a Cray-blocked data set into one) 317.25 46.33 P
+FMENDPAGE
+%%EndPage: "3" 12
+%%Page: "4" 12
+612 792 0 FMBEGINPAGE
+36 34.57 289.44 756 R
+7 X
+0 K
+V
+1 10 Q
+0 X
+0.19 (of several formats. Most often, cosconvert is used to strip Cray) 36 749.33 P
+0.22 (control words from a dataset, leaving only data. In some cases,) 36 737.33 P
+2.53 (Cray datasets may contain character data with Blank Field) 36 725.33 P
+0.09 (Initiation \050BFI\051. BFI was used under COS to compress datasets) 36 713.33 P
+0.72 (by replacing three or more blanks in a row with a special two) 36 701.33 P
+1.33 (character code. The cosconvert utility can be used to expand) 36 689.33 P
+(the blanks in those datasets.) 36 677.33 T
+0.43 (The cossplit utility creates single \336le datasets from a multi-\336le) 36 660.33 P
+-0.19 (dataset. Each output single \336le dataset will have a unique name.) 36 648.33 P
+0 12 Q
+(7. Acknowledgments) 36 621 T
+1 10 Q
+0.21 (The ncaru software package is the result of the work of several) 36 603.33 P
+0.46 (people at NCAR. Charles D\325Ambra of the Climate and Global) 36 591.33 P
+1 (Dynamics \050CGD\051 division of NCAR wrote the original Cray-) 36 579.33 P
+0.23 (IEEE numeric conversion routines. Craig Ruf) 36 567.33 P
+0.23 (f of the Scienti\336c) 219.62 567.33 P
+4.52 (Computing Division \050SCD\051 wrote the original Cray I/O) 36 555.33 P
+0.31 (routines for the purpose of adding and stripping Cray-blocking) 36 543.33 P
+0.86 (from \336les. Dan Anderson and Greg W) 36 531.33 P
+0.86 (oods of SCD combined) 193.3 531.33 P
+-0.19 (both the numeric conversion routines and the Cray routines into) 36 519.33 P
+0.89 (a single interface. T) 36 507.33 P
+0.89 (om Parker \050SCD\051 originally wrote cos\336le,) 117.34 507.33 P
+0.94 (cosconvert, and cossplit for use on Cray systems. The author) 36 495.33 P
+0.94 (,) 286.94 495.33 P
+3.79 (also of SCD, modi\336ed the library code to handle Cray-) 36 483.33 P
+1.45 (unblocked \336les, added backspacing functionality) 36 471.33 P
+1.45 (, rewrote the) 236.3 471.33 P
+(utilities to use the library) 36 459.33 T
+(, and added other enhancements.) 135.29 459.33 T
+0 12 Q
+(8. A) 36 432 T
+(vailability) 55.76 432 T
+1 10 Q
+1.69 (This package is available to interested or) 36 414.33 P
+1.69 (ganizations without) 209.18 414.33 P
+2.73 (char) 36 402.33 P
+2.73 (ge. Please contact Peter Morreale by sending email to) 53.02 402.33 P
+(morreale@ncar) 36 390.33 T
+(.ucar) 97.38 390.33 T
+(.edu for details.) 116.53 390.33 T
+319.41 34.57 575.99 756 R
+7 X
+V
+FMENDPAGE
+%%EndPage: "4" 13
+%%Trailer
+%%BoundingBox: 0 0 612 792
+%%Pages: 12 1
+%%DocumentFonts: Times-Bold
+%%+ Times-Roman
+%%+ Courier
+%%+ Courier-Oblique
+%%+ Times-Italic
