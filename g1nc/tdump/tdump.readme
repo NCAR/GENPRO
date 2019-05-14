@@ -1,0 +1,33 @@
+Information for tdump.f
+
+The GENPRO tape dump program was written many years ago for the NCAR Cray
+machines to verify data written to GENPRO data tapes.
+
+Output from the program was an ASCII-formatted table of measurements set up
+for a 120-column line printer.
+
+The program reads configuration information from stdin.  A template
+configuration file is "tdump.ref."
+
+GENPRO data are read from unit 9.
+
+Since the program was written for a Cray, there are some routines unique
+to COS (Cray Operating System) that one will need to change if the program
+is to run on other systems.  The most prominent of these is the "BUFFER IN"
+command which was used to directly read COS-blocked files.
+  
+NCAR library routines used in this program:
+  BUFFER IN -- read COS-blocked data record
+  UNIT    -- BUFFER IN status check
+  GBYTES  -- decode bytes across word boundaries
+  SBYTES  -- encode bytes across word boundaries
+  ABORT   -- abort program
+  SCONV   -- converts  CDC-7600 records to Cray-1 Records according to single
+              specified mode
+I'll have to find information on these for you.
+
+SCONV can be found in the file fconv.f (in this directory)
+GBYTES/SBYTES routines can be found at the URL:
+     http://dss.ucar.edu/libraries/gbytes/
+
+Ronald L. Ruth    9 November 1999
