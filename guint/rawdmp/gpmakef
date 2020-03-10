@@ -1,0 +1,21 @@
+# makefile for GUINT
+# usage: Make <target>
+#
+# use to make the GUINT executable programs --
+#
+# define installation directories
+#
+#
+#
+# set compile flags, for driver
+#
+FLAGSD = -g -v
+#
+# set list of object files
+ofiles = $(gutil)/gpgtyear.o $(gutil)/gplcaps.o $(gutil)/gpcaps.o
+#
+#
+#
+# rawdmp is an independant driver
+gprawdmp.out: gprawdmp.f $(ofiles)
+	f77 $(FLAGSD) -o gprawdmp.out gprawdmp.f $(ofiles)

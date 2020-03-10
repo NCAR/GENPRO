@@ -1,0 +1,16 @@
+#
+#  GPJOBCHK <project num> <flight number> <work path> <pr. name>
+#   -- assumes the log file from a Genpro process is named, e.g.,
+#   FIFE RF04LOG, for RF04 in the FIFE project.  'Work Disk' is the
+#   working disk for the project; 'Disk' is optional (temporary?)
+#   disk where Log file is found (omit if same as workdisk)....
+#  invoke w/ GPJOBCHK FIFE RF04 C to check flight 4 from FIFE, with
+#   JOBCHK file on C
+#
+/bin/mv $3/$4.jobchk $3/$4.tempr
+$jobchk/gpjobchk.out $1 $2 $3 $4
+chmod 755 $3/$4.jobchk
+cat $3/$4.tempr >> $3/$4.jobchk
+/bin/rm $3/$4.tempr
+vi $3/$4.jobchk
+exit

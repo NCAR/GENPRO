@@ -1,0 +1,26 @@
+                     GUINT plan
+                  rlr <900719.0930>
+
+1.	Learn how GUINT software works (Rick and Ron)
+2.	Move GUINT directories to group-oriented structure, if feasible
+3.	Document all known GUINT bugs
+4.	Fix known bugs (about 8, as of this date)
+5.	Identify weak areas which should be changed (places in the
+         GUINT software that can cause endless loops or undefined results)
+6.	Change GUINT code to strengthen weak areas and make menu
+         selections easier to understand
+7.	Redo GUINT scripts to use Cray Y-MP
+
+There are no resources available for a large effort to develop GUINT into a
+window-oriented or extremely streamlined processor.  There is no forseeable way
+for GUINT to be able to handle all the complexities of processing project data
+without the need for some manual intervention.  Therefore, it seems best to
+take a modest approach and make GUINT bug-free and easy to use.  There will
+always be a need for GENPRO and GUINT experts to provide assistance.  As new
+instruments become operational, GUINT and GENPRO must be modified to handle
+them automatically.
+
+GUINT's PMS-2D capabilities are extremely limited and must now be set up by a
+GUINT expert to be used.  It may be more prudent to eliminate the PMS-2D
+options from GUINT altogether and develop new software for this purpose.
+

@@ -1,0 +1,24 @@
+# usage: GPFLTSEG projno working path        
+# -- use to modify the COMPFLT file to reflect any time gaps
+# -- intended for use after GPGTSEGS EXEC and after GPEDTSUM EXEC
+# verify input file exists
+if (! -r $2/compflt.$1) then
+   echo " " 
+   echo "GPFLTSEG Error: COMPFLT file does not exist; contact GUINT expert"
+   echo "-- hit <r> to continue"
+   echo " " 
+   line       
+elseif (! -r $2/segmnts.$1) then
+# verify input file exists
+   echo " " 
+   echo "GPFLTSEG Error: SEGMNTS file does not exist; contact GUINT expert"
+   echo "-- hit <r> to continue"
+   echo " " 
+   line
+else
+#invoke fortran
+#  mdb $fltseg/gpfltseg.out
+   $fltseg/gpfltseg.out $1 $2
+endif
+/bin/cp $2/modcomp.$1 $2/compflt.$1                
+exit

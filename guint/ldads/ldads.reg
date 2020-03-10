@@ -1,0 +1,138 @@
+#
+# GPLDADS <project number> <workdisk>
+#
+# Use after the file getuds.<projno>log returns, to perform following tasks:
+#
+#  --load SHSP####.##### file associated with getuds.<projno>log onto <workdisk>
+#  --create compflt.<projno> file from summary.<projno> and segmnts.<projno>
+#     files
+#
+# Use after tp2ms.<projno>job returns, to perform following tasks:
+#
+#  --load SHSP####.##### file associated with tp2ms.<projno>log onto <workdisk>
+#  --load all files named SHSP####.##### onto <workdisk>, appending each
+#     to file <workdisk>/tpstage.<projno>log 
+#
+if ($#argv < 2) then
+  echo " Usage: gpldads <project #> <workdisk>"
+  echo "  Hit <r> to continue"
+  exit
+endif
+set workpath = $2
+set projno = $1
+#  Set first prefix to that of Cray.
+set prefixc = 'SH'
+#  Set next prefix to that of Mass Store.
+set prefixm = 'MS'
+#find the sequence numbers for the 3 operations:  tp2ms, getuds & gtsegs
+if (-r $workpath/tp2ms.seq) then
+  set seqtp2ms  = `cat $workpath/tp2ms.seq`
+  set seqtp2ms = $seqtp2ms[1]
+else
+  set seqtp2ms  = 'f'
+endif
+if (-r $workpath/getuds.seq) then
+  set seqgetuds  = `cat $workpath/getuds.seq`
+  set seqgetuds = $seqgetuds[1]
+else
+  set seqgetuds = 'f'
+endif
+if (-r $workpath/gtsegs.seq) then
+  set seqgtsegs  = `cat $workpath/gtsegs.seq`
+  set seqgtsegs = $seqgtsegs[1]
+else
+  set seqgtsegs = 'f'
+endif
+echo "All relevant files will now be copied from your MIGS directory to"
+echo "your working directory."
+echo "Please note any system messages; they are indicative of a problem."
+#echo "If you are asked if you wish to overwrite a file, type y if you do."
+echo "If you get a file-not-found type of message, wait, and try this option"
+echo "again later.  If you still find yourself short of files, restage the"
+echo "tapes or talk to GUINT expert."
+echo " "
+if ($seqtp2ms != 'f') then
+  echo "Attempt to copy shavano's tp2ms job-summary file"
+  /bin/cp  $migs/$prefixc$seqtp2ms.* $workpath/.
+#  /bin/cp  $migs/${prefixc}${seqtp2ms}.* $workpath/.
+  if ($status != 0) then
+    echo "Could not copy $migs/$prefixc$seqtp2ms.*"
+#    echo "Could not copy $migs/{$prefixc}${seqtp2ms}.*"
+    echo  "to your $workpath directory."
+    echo "Hit <r> to continue"
+    line
+  else
+    (/bin/rm $migs/$prefixc$seqtp2ms.* > /dev/null) >& /dev/null
+  endif
+endif
+if ($seqgetuds != 'f') then
+  echo "Attempt to copy shavano's getuds job-summary file"
+  /bin/cp  $migs/$prefixc$seqgetuds.* $workpath/.
+  if ($status != 0) then
+    echo Could not copy $migs/$prefixc$seqgetuds.*
+    echo   to your $workpath directory.
+    echo Hit <r> to continue
+    line
+  else
+    (/bin/rm $migs/$prefixc$seqgetuds.* > /dev/null) >& /dev/null
+  endif
+endif
+if ($seqgtsegs != 'f') then
+  echo "Attempt to copy shavano's gtsegs job-summary file"
+  /bin/cp  $migs/$prefixc$seqgtsegs.* $workpath/.
+  if ($status != 0) then
+    echo Could not copy $migs/$prefixc$seqgtsegs.*
+    echo   to your $workpath directory.
+    echo Hit <r> to continue
+    line
+  else
+    (/bin/rm $migs/$prefixc$seqgtsegs.* > /dev/null) >& /dev/null
+  endif
+endif
+#
+# The following code used to copy files from the $migs directory.
+#  Under the present implementation of GUINT, these are remotely
+#  copied from shavano directly to $workpath
+#if (-r $workpath/segmnts.${projno}) then
+#   set segm = 't'
+#endif
+#echo "Attempt to load segmnts.${projno}"
+#/bin/cp  $migs/segmnts.${projno} $workpath
+#echo " Hit <r> to continue"
+#line
+#echo "Attempt to load adsud.${projno}"
+#/bin/cp  $migs/adsud.${projno} $workpath
+#echo " Hit <r> to continue"
+#line
+#echo "Attempt to load calcoe.${projno}"
+#/bin/cp  $migs/calcoe.${projno} $workpath
+#echo " Hit <r> to continue"
+#line
+#echo "Attempt to load header.${projno}"
+#/bin/cp $migs/header.${projno} $workpath
+#echo " Hit <r> to continue"
+#line
+#echo "Attempt to load tp2ms.${projno}log"
+#/bin/cp $migs/tp2ms.${projno}log $workpath
+#echo " Hit <r> to continue"
+#line
+echo "Attempt to copy msimport output files of form $prefixm$seqtp2ms.#####"
+foreach file (`ls $migs/$prefixm$seqtp2ms.*`)
+  echo  "Complete this by writing all these to one file"
+  /bin/cp $file ${workpath}/.
+  if ($status != 0) then
+    echo Could not copy file $file
+    echo " <r> to continue"
+    line
+  else
+    (/bin/rm $file > /dev/null) >& /dev/null
+  endif
+end
+echo " Hit <r> to continue"
+line
+if (-r $workpath/segmnts.${projno}) then
+#if ($segm == 't') then
+   $edtsum/gpedtsum $projno $workpath
+   $fltseg/gpfltseg $projno $workpath
+endif
+exit

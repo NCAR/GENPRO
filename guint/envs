@@ -1,0 +1,21 @@
+# don't forget, you must "source envs"
+# establish environment variables for guint development
+setenv adsraw  /users/raf/source/guint/adsraw
+setenv edtsum  /users/raf/source/guint/edtsum
+setenv fltseg  /users/raf/source/guint/fltseg
+setenv fltsum  /users/raf/source/guint/fltsum
+setenv genset  /users/raf/source/guint/genset
+setenv getuds  /users/raf/source/guint/getuds
+setenv gtsegs  /users/raf/source/guint/gtsegs
+setenv guint   /users/raf/source/guint
+setenv jobchk  /users/raf/source/guint/jobchk
+setenv ldads   /users/raf/source/guint/ldads
+setenv gmisc    /users/raf/source/guint/misc
+setenv outdmp  /users/raf/source/guint/outdmp
+setenv rawdmp  /users/raf/source/guint/rawdmp
+setenv savfil  /users/raf/source/guint/savfil
+setenv scales  /users/raf/source/guint/scales
+setenv gsetup   /users/raf/source/guint/setup
+setenv submit  /users/raf/source/guint/submit
+setenv taplog  /users/raf/source/guint/taplog
+setenv tp2ms   /users/raf/source/guint/tp2ms

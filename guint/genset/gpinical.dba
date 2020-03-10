@@ -1,0 +1,21 @@
+DEI     DNI                              2 AZMUTH                               
+ALON                                     1 DECP3                                
+ALON                                     1 DECP4                                
+DEI     DNI                              2 DIST                                 
+DEI     DNI                              2 DISTJE                               
+DEI     DNI                              2 DISTJN                               
+ALON    ALAT                             2 DISTRE                               
+ALAT                                     1 DISTRN                               
+ALAT                                     1 DNCP3                                
+ALAT                                     1 DNCP4                                
+ALON    ALAT                             2 DRCP3                                
+ALON    ALAT                             2 DRCP4                                
+HGME                                     1 HGME                                 
+PTIME                                    1 PGTIME                               
+TSEC    THNDS   SEC                      3 TMLAG                                
+HR      MIN     SEC                      3 TPTIME                               
+XVI1    XVI2                             2 XVI                                  
+YVI1    YVI2                             2 YVI                                  
+PHDG    ALPHA                            2 THF                                  
+ALON    ALAT                             2 DEI                                  
+ALAT                                     1 DNI                                  

@@ -1,0 +1,42 @@
+This Directory is the Guint Directory
+The Guint Directory Structure is Shown Below
+
+
+                    guint
+             ---------|----------------
+             |                        |
+          various                   SCCS
+          functional
+          directories
+
+The guint directory contains the overall scripts for the guint 'shell'.
+It contains the various menus:
+Main
+Processing
+Setup
+Miscellaneous
+Tape Staging
+
+Each of the menus calls independant routines located in the various guint
+sub-directories, as well as some short system-type calls inline.
+
+Programmers Notes:
+
+
+The various menus are located in different files because UNIX does not allow (or
+at least I couldn't figure how to make it allow) nested case statements.  
+
+
+The transportation amongst the files is via numbered exits, that is exit codes.
+
+There is also a file called gpinstl.doc, this is a list of changes that will 
+need to be made, if an install is to be done.
+
+
+
+General Comments:
+
+These scripts are mostly straight-forward switches.
+
+gpmiscmen, the miscellaneous menu, contains a higher proportion of utility
+routines which are not complicated enough to warrant a sub-directory.

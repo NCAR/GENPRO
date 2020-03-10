@@ -1,0 +1,217 @@
+ECHO,OFF.                                                              
+*.                                                                          
+*  GPADSRAW JOB -- used to:                                                
+*              (1) get user directives for Genpro                       
+*              (2) get Segmnts file (valid time segments for each flight)      
+*              (3) get raw dump of selected variables on given tape            
+*                                                                       
+* -- use GPGETUDS, and GPGTSEGS EXEC to set up this deck        
+* -- fortran files GPADSRAW and GPGTSEGS are used on Cray                      
+* -- fortran file GPSETADS is used on IBM                                    
+*                                                                         
+SET,G0=0.                                                                      
+PROC.                                                                      
+GETVOL,TAPE,INPUT,VOLUME,YEAR,PROJNO,FLTNO,REMOVE,NFILES.                       
+ECHO,ON.                                                                         
+IF ('&REMOVE'.EQ.'REMOVE')                                                
+ REMOVE,PDN=&TAPE.                                                         
+ENDIF.                                                                      
+ACQUIRE,DN=&TAPE,MF=MS,^                                                        
+TEXT='ONLINE,FLNM=/RAF/&YEAR/&PROJNO/&FLTNO/&TAPE,MVN=CTRAFDMG'.                                    
+COPYR,I=&TAPE,O=&VOLUME,NR.                                                                         
+ECHO,OFF.                                                                                           
+ENDPROC.                                                                                            
+PROC.                                                                                               
+ADSRAW,USER,YEAR,PROJNO,FLTNO,^                                                                     
+INPUT=MS:MS,NFILES=1:1,^                                                           
+REMOVE=RETAIN:REMOVE,RAWDUMP=NO:YES,TPTIME=NO:YES,UDS=NO:YES,^                                      
+TAPE=NONE:,^                                                                                        
+TAPEA=NONE:,TAPEB=NONE:,TAPEC=NONE:,TAPED=NONE:,TAPEE=NONE:,^                                       
+TAPEF=NONE:,TAPEG=NONE:,TAPEH=NONE:,TAPEI=NONE:,TAPEJ=NONE:,^                                       
+TAPEK=NONE:,TAPEL=NONE:,TAPEM=NONE:,TAPEN=NONE:,TAPEO=NONE:,^                                       
+TAPEP=NONE:,TAPEQ=NONE:,TAPER=NONE:,TAPES=NONE:,TAPET=NONE:.                                        
+*.                                                                                                  
+* Since MIMPORT replaced the C1 tape connection, INPUT is assumed to be  
+* from Mass Store.  If data is not there yet, it must be staged first         
+* with MIMPORT (see GPTP2MS EXEC). Staging can no longer be done here,          
+* and must now be completed separately before User Files or Time Segments
+* can be obtained.                                                    
+*                                                                                                   
+IF (G0.EQ.0)                                                           
+* defer dispose of batch output   -- once only                       
+ DISPOSE,DN=$OUT,MF=NG,DC=ST,DEFER,^                          
+ TEXT='HOST=spock.atd.ucar.edu,FLNM=adsraw.&PROJNO_log'.         
+ENDIF.                                                                   
+*.   Get input files from Mass Store                                            
+*.                                                                    
+*. &PROJNO - &FLTNO                                                     
+*                                                                     
+RELEASE,DN=VOLUME1.                                                     
+ASSIGN,DN=VOLUME1,A=FT03,LM=50000.         
+ECHO,OFF.                                                               
+IF('&TAPE_'.NE.'NONE')                                                          
+ GETVOL,&TAPE,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO,&REMOVE,&NFILES.         
+ENDIF.                                                                          
+IF('&TAPEA_'.NE.'NONE')                                                         
+ GETVOL,&TAPEA,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_A,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF('&TAPEB_'.NE.'NONE')                                                                             
+ GETVOL,&TAPEB,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_B,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPEC_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEC,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_C,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPED_'.NE.'NONE')                                                                            
+ GETVOL,&TAPED,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_D,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPEE_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEE,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_E,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPEF_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEF,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_F,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPEG_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEG,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_G,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPEH_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEH,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_H,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPEI_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEI,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_I,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPEJ_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEJ,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_J,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPEK_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEK,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_K,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPEL_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEL,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_L,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPEM_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEM,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_M,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPEN_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEN,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_N,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPEO_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEO,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_O,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPEP_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEP,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_P,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPEQ_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEQ,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_Q,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPER_'.NE.'NONE')                                                                            
+ GETVOL,&TAPER,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_R,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPES_'.NE.'NONE')                                                                            
+ GETVOL,&TAPES,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_S,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+IF ('&TAPET_'.NE.'NONE')                                                                            
+ GETVOL,&TAPET,&INPUT,VOLUME1,&YEAR,&PROJNO,&FLTNO_T,&REMOVE,&NFILES.                               
+ENDIF.                                                                                              
+ECHO,ON.                                                                                            
+REWIND,DN=VOLUME1.                                                                                  
+*.                                                                                                  
+*.  Get Fortran, compile and run                                                                    
+*.                                                                                                  
+*                                                                                                   
+*.  Assign logical units                                                                            
+*.                                                                                                  
+IF (G0.EQ.0)                                                                                        
+ IF ('&UDS'.EQ.'YES')                                                                               
+* prepare for user directives                                                                       
+  ASSIGN,DN=INPUT,A=FT05.                                                                           
+  ASSIGN,DN=CALCOE,A=FT07,BFI=OFF.                                                                  
+  ASSIGN,DN=ADSUD,A=FT08,BFI=OFF.                                                                   
+  ASSIGN,DN=GENSET,A=FT09,BFI=OFF.                                                                  
+* get user directives -- once only                                     
+  REMOVE,PDN=GETUDS.                                              
+  RELEASE,DN=GETUDS.                                              
+ACQUIRE,MF=NG,DN=GETUDS,DF=CH,UQ, ^                                     
+TEXT='HOST=spock.atd.ucar.edu,FLNM=/users/tpspool/gpadsraw.f'.
+  CFT,I=GETUDS,ON=AZ,L=0.                                            
+  COPYF,I=INPUT,O=$OUT,NF=1.                                            
+  REWIND,DN=INPUT.                                                      
+  LDR,MAP,L=0,SET=ZERO.                                                 
+* dispose output                                                             
+ DISPOSE,DN=CALCOE,MF=NG,DC=ST,DEFER,^                                          
+ TEXT='HOST=spock.atd.ucar.edu,FLNM=calcoe.&PROJNO'.         
+  DISPOSE,DN=ADSUD,DC=ST,MF=NG,^                                                
+ TEXT='HOST=spock.atd.ucar.edu,FLNM=adsud.&PROJNO'.         
+  DISPOSE,DN=GENSET,DC=ST,MF=NG,DEFER,^                                     
+ TEXT='HOST=spock.atd.ucar.edu,FLNM=header.&PROJNO'.         
+  REWIND,DN=VOLUME1.                                                                                
+ ENDIF.                                                                                             
+ IF ('&RAWDUMP'.EQ.'YES')                                                                           
+* prepare for user directives                                                                       
+  ASSIGN,DN=INPUT,A=FT05.                                                                           
+  ASSIGN,DN=CALCOE,A=FT07,BFI=OFF.                                                                  
+  ASSIGN,DN=ADSUD,A=FT08,BFI=OFF.                                                                   
+  ASSIGN,DN=GENSET,A=FT09,BFI=OFF.                                                                  
+* get raw tape dump -- once only                                                                    
+  REMOVE,PDN=RAWDMP.                
+  RELEASE,DN=RAWDMP.                
+ACQUIRE,MF=NG,DN=RAWDMP,DF=CH,UQ, ^                                     
+TEXT='HOST=spock.atd.ucar.edu,FLNM=/users/tpspool/gpadsraw.f'.
+  CFT,I=RAWDMP,ON=AZ,L=0.                                                                           
+  COPYF,I=INPUT,O=$OUT,NF=1.                                                                        
+  REWIND,DN=INPUT.                                                                                  
+  SET,G0=G0+1.                                                                                      
+  LDR,MAP,L=0,SET=ZERO.                                                                             
+  REWIND,DN=VOLUME1.                                                                                
+ ENDIF.                                                                                             
+ IF ('&TPTIME'.EQ.'YES')                                                                            
+*  prepare for getting time segments                                                                
+DISPOSE,DN=SEGMNTS,DC=ST,MF=NG,DEFER,^                               
+TEXT='HOST=spock.atd.ucar.edu,FLNM=segmnts.&PROJNO'.         
+ASSIGN,DN=SEGMNTS,A=FT04,BFI=OFF.                                             
+* get compflt file for reference to correct flight numbers (not always       
+* recorded correctly on headers)                                         
+  REMOVE,PDN=SUMMARY.                                        
+  RELEASE,DN=SUMMARY.                                        
+ACQUIRE,MF=NG,DN=SUMMARY,DF=CH,UQ, ^                                     
+TEXT='HOST=spock.atd.ucar.edu,FLNM=/users/tpspool/compflt.&PROJNO'.
+  ASSIGN,DN=SUMMARY,A=FT05.                                                                         
+  SKIPR,DN=SUMMARY,NR=1.                                                                            
+* compile time segments code -- once only                                                           
+  REMOVE,PDN=GTSEGS.             
+  RELEASE,DN=GTSEGS.             
+ACQUIRE,MF=NG,DN=GTSEGS,DF=CH,UQ, ^                                     
+TEXT='HOST=spock.atd.ucar.edu,FLNM=/users/tpspool/gpgtsegs.f'.
+  CFT,I=GTSEGS,ON=AZ,L=0.                                                                           
+  LDR,MAP,NX,AB=GETSEGS,SET=ZERO,L=0.                                                               
+  SET,G0=G0+1.                                                                                      
+ ENDIF.                                                                                             
+ENDIF.                                                                                              
+IF ('&TPTIME'.EQ.'YES')                                                                             
+* get time segments                                                                                 
+ GETSEGS.                                                                                           
+ENDIF.                                                                                              
+*.                                                                                                  
+*.  Give values for these arguments, except for UNIT NUMBER:                                        
+*                                                                                                   
+&DATA INPUT.                                                                                        
+ UNIT NUMBER   (I5)                                                                                 
+    3                                                                                               
+ DO YOU WANT A RAW TAPE DUMP (1)  OR NOT (0) (I5)                                                   
+0                                                                                                   
+ DO YOU WANT THE DUMP BEFORE SCALING (0) OR AFTER SCALING (1)  ((I5))                               
+1                                                                                                   
+ DO YOU WANT TO DUMP BY RECORD NUMBER (0) OR TIME (1) ((I5))                                        
+0                                                                                                   
+HR    MI   SE                                                                                       
+15    30   00                                                                                       
+15    31   00                                                                                       
+START STOP  (RECORD NUMBERS)                                                                        
+1     99999                                                                                         
+ DO YOU WANT THE DATA PRINTED BY COLUMN (0) OR HORIZONTALLY (1)                                     
+0                                                                                                   
+ HOW MANY VARIABLES DO YOU WANT TO DUMP (I5)                                                        
+3                                                                                                   
+ VAR1     VAR2     VAR3     VAR4     VAR5     VAR6     VAR7     VAR8                                
+ HR       MIN      SEC                                                                              
+ENDPROC.                                                                                            
+ECHO,ON.                                                                                            

@@ -1,0 +1,72 @@
+#
+# GPLDADS <project number> <workdisk>
+#
+# Use after ADSRAW <projno>LOG returns, to perform following tasks:
+#
+#  --load ADSRAW <projno>LOG onto <workdisk>
+#  --load SEGMNTS, ADSUD, CALCOE, and HEADER files (F-80 format)
+#  --create COMPFLT file from SUMMARY and SEGMNTS files
+#
+# Use after TP2MS <project number> returns, to perform following tasks:
+#
+#  --load TP2MS <projno>LOG onto <workdisk>
+#  --load all files named <machine> IO* onto <workdisk>, appending each
+#    to file TPSTAGE <projno>LOG <workdisk>
+#
+if ($#argv < 2) then
+  echo " Usage: GPLDADS <project #> <workdisk>"
+  echo  "<cr> to continue"
+endif
+set workpath = $2
+set projno = $1
+#find the sp number
+set spno = `cat $workpath/seq.num`
+set spno = $spno[4]
+echo "The relevant files will now be moved from your MIGS directory to"
+echo "the working directory"
+echo "Please note any system messages"
+echo "Any system message is indicative of a problem"
+echo "If you are asked if you wish to overwrite a file type y if you do"
+echo "If you get a file not found type of message, wait and try this option"
+echo "later, if you still find yourself short of files, restage the tapes"
+echo "or talk to GUINT expert."
+set segm = 'f'
+echo "Attempt to load adsraw.${projno}log"
+/bin/cp  $migs/adsraw.${projno}log $workpath
+echo " <cr> to continue"
+line
+echo "Attempt to load segmnts.${projno}"
+/bin/cp  $migs/segmnts.${projno} $workpath
+if (-r $workpath/segmnts.${projno}) then
+   set segm = 't'
+endif
+echo " <cr> to continue"
+line
+echo "Attempt to load adsud.${projno}"
+/bin/cp  $migs/adsud.${projno} $workpath
+echo " <cr> to continue"
+line
+echo "Attempt to load calcoe.${projno}"
+/bin/cp  $migs/calcoe.${projno} $workpath
+echo " <cr> to continue"
+line
+echo "Attempt to load header.${projno}"
+/bin/cp $migs/header.${projno} $workpath
+echo " <cr> to continue"
+line
+echo "Attempt to load tp2ms.${projno}log"
+/bin/cp $migs/tp2ms.${projno}log $workpath
+echo " <cr> to continue"
+line
+echo "Attempt to load mimport output files of form MSSP####.#####"
+foreach file (`ls ${migs}/MS${spno}.*`)
+  /bin/cat $file >> ${workpath}/tp2ms.${projno}log
+end
+echo " <cr> to continue"
+line
+if ($segm == 't') then
+   $edtsum/gpedtsum $projno $workpath
+   $fltseg/gpfltseg $projno $workpath
+endif
+clear
+exit

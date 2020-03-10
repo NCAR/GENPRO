@@ -1,0 +1,925 @@
+                                                                                
+               AIRCRAFT POSITION VARIABLES                                      
+                                                                                
+      DESCRIPTOR                         UNITS    VARIABLE NAME                 
+INS LATITUDE                             DEG      ALAT     STD                  
+INS LONGITUDE                            DEG      ALON     STD                  
+LORAN C LATITUDE                         DEG      CLAT     STD                  
+LORAN C LONGITUDE                        DEG      CLON     STD                  
+DME DERIVED LATITUDE                     DEG      DLAT     STD                  
+DME DERIVED LONGITUDE                    DEG      DLON     STD                  
+DISTANCE EAST OF START                   KM       DEI      STD                  
+DISTANCE NORTH OF START                  KM       DNI      STD                  
+DME CHANNEL                              MHZ      DMECH    STD                  
+DME DISTANCE                             KM       DMEDI    STD                  
+                                                                                
+               ATMOSPHERIC STATE VARIABLES                                      
+                                                                                
+      DESCRIPTOR                         UNITS    VARIABLE NAME                 
+CORRECTED STATIC PRESSURE (FUSELAGE DI)  MB       PSFDC    STD                  
+CORRECTED STATIC PRESSURE (FUSELAGE)     MB       PSFC     STD                  
+CORRECTED STATIC PRESSURE (BOOM)         MB       PSBC     STD                  
+CORRECTED STATIC PRESSURE (WING)         MB       PSWC     STD                  
+AMBIENT TEMPERATURE (BOOM)               C        ATB      STD                  
+AMBIENT TEMPERATURE RADOME ALTERNATE     C        ATB1                          
+AMBIENT TEMPERATURE (BOOM HEATED)        C        ATBH     STD                  
+AMBIENT TEMPERATURE (FUSELAGE)           C        ATF      STD                  
+AMBIENT TEMPERATURE (FUSELAGE HEATED)    C        ATFH     STD                  
+AMBIENT TEMPERATURE (FRIEHE PROBE)       C        ATFR                          
+AMBIENT TEMPERATURE (WING)               C        ATW      STD                  
+AMBIENT TEMPERATURE (WING HEATED)        C        ATWH     STD                  
+AMBIENT TEMPERATURE (REVERSE FLOW)       C        ATRF     STD                  
+AMBIENT TEMPERATURE (FAST RESPONSE)      C        ATKP     STD                  
+AMBIENT TEMPERATURE RADOME, LEFT         C        ATR9                          
+AMBIENT TEMPERATURE RADOME, RIGHT        C        ATR3                          
+AMBIENT TEMPERATURE RADOME, BOTTOM       C        ATR6                          
+DEW POINT TEMPERATURE (THERMOELEC) (TOP) C        DPTC     STD                  
+DEW POINT TEMPERATURE (THERMOELEC) (BOT) C        DPBC     STD                  
+CORRECTED DIFF.  PRESSURE, TRAILING CONE MB       DPSFC                         
+CORRECTED CYROGENIC DEW POINT TEMP       C        DPCRC                         
+                                                                                
+               WIND VARIABLES                                                   
+                                                                                
+      DESCRIPTOR                         UNITS    VARIABLE NAME                 
+KEYWORD                                           GUSTO    STD                  
+KEYWORD                                           GUSTR    STD                  
+HORIZONTAL WIND DIRECTION                DEG      WD       STD                  
+HORIZONTAL WIND SPEED                    M/S      WS       STD                  
+WIND EAST COMPONENT                      M/S      UI       STD                  
+WIND NORTH COMPONENT                     M/S      VI       STD                  
+WIND VERTICAL COMPONENT                  M/S      WI       STD                  
+WIND LONGITUDINAL COMPONENT              M/S      UX       STD                  
+WIND LATERAL COMPONENT                   M/S      VY       STD                  
+HORIZONTAL WIND DIRECTION (RADOME)       DEG      WDR      STD                  
+HORIZONTAL WIND SPEED (RADOME)           M/S      WSR      STD                  
+WIND EAST COMPONENT (RADOME)             M/S      UIR      STD                  
+WIND NORTH COMPONENT (RADOME)            M/S      VIR      STD                  
+WIND VERTICAL COMPONENT (RADOME)         M/S      WIR      STD                  
+WIND LONGITUDINAL COMPONENT (RADOME)     M/S      UXR      STD                  
+WIND LATERAL COMPONENT (RADOME)          M/S      VYR      STD                  
+HORIZONTAL WIND DIRECTION (858)          DEG      WDD                           
+HORIZONTAL WIND SPEED  (858)             M/S      WSD                           
+WIND EAST COMPONENT (858)                M/S      UID                           
+WIND NORTH COMPONENT (858)               M/S      VID                           
+WIND VERTICAL COMPONENT (858)            M/S      WID                           
+WIND LONGITUDINAL COMPONENT (858)        M/S      UXD                           
+WIND LATERAL COMPONENT (858)             M/S      VYD                           
+                                                                                
+               ALTITUDE VARIABLES                                               
+                                                                                
+      DESCRIPTOR                         UNITS    VARIABLE NAME                 
+GEOMETRIC (RADIO) ALTITUDE               M        HGM      STD                  
+GEOMETRIC (RADAR) ALTITUDE (APN-159)     M        HGME     STD                  
+COARSE GEOMETRIC ALTITUDE (APN-159)      M        CHGME    STD                  
+NACA PRESSURE ALTITUDE                   M        PALT     STD                  
+PRESSURE-DAMPED INERTIAL ALTITUDE        M        HI3      STD                  
+D-VALUE (HGME - PALT)                    M        DVALU    STD                  
+                                                                                
+               THERMODYNAMIC VARIABLES                                          
+                                                                                
+      DESCRIPTOR                         UNITS    VARIABLE NAME                 
+SURFACE PRESSURE                         MB       PSURF    STD                  
+POTENTIAL TEMPERATURE                    K        THETA    STD                  
+POTENTIAL TEMPERATURE, FAST RESPONSE     K        THETAK                        
+EQUIVALENT POTENTIAL TEMPERATURE         K        THETAE   STD                  
+VIRTUAL POTENTIAL TEMPERATURE            K        THETAV   STD                  
+VIRTUAL TEMPERATURE                      C        TVIR     STD                  
+ABSOLUTE HUMIDITY (THERMOELEC) (TOP)     G/M3     RHODT    STD                  
+ABSOLUTE HUMIDITY (THERMOELEC) (BOT)     G/M3     RHODB    STD                  
+ABSOLUTE HUMIDITY (REFRACTOMETER)        G/M3     RHORF                         
+RELATIVE HUMIDITY                        PCT      RHUM     STD                  
+MIXING RATIO                             G/KG     MR       STD                  
+SPECIFIC HUMIDITY                        G/KG     SPHUM    STD                  
+WET EQUIVALENT POTENTIAL TEMPERATURE     K        THETAQ                        
+                                                                                
+               LIQUID WATER VARIABLES                                           
+                                                                                
+      DESCRIPTOR                         UNITS    VARIABLE NAME                 
+CORRECTED PMS-KING LIQUID WATER CONTENT  G/M3     PLWCC    STD                  
+CORRECTED C-T LIQUID WATER CONTENT       G/M3     LWCC     STD                  
+CORRECTED PMS-KING LIQUID WATER CONTENT  G/M3     PLWCCZ                        
+CORRECTED C-T LIQUID WATER CONTENT       G/M3     LWCCZ                         
+CORRECTED PMS-KING LIQUID WATER CONTENT  G/M3     PLWCCF                        
+CORRECTED C-T LIQUID WATER CONTENT       G/M3     LWCCF                         
+SUPERCOOLED LIQUID WATER CONTENT         G/M3     SCLWC    STD                  
+                                                                                
+               PMS PROBE VARIABLES                                              
+                                                                                
+      DESCRIPTOR                         UNITS    VARIABLE NAME                 
+PMS ASAS PROBE (TOTAL COUNTS)            CNTS     SUM15A   STD                  
+PMS ASAS PROBE                           CNTS     ASAS                          
+ASAS PROBE CONCENTRATION                 N/CM3    CONCA    STD                  
+ASASP MEAN DIAMETER                      MICRON   DBARA    STD                  
+ASASP DISPERSION (SIGMA/DBARA)                    DISPA    STD                  
+ASASP RAW ACTIVITY COUNTS                         AACT     STD                  
+ASAS CALCULATED ACTIVITY                 PCT      CAACT                         
+PMS FSSP PROBE (TOTAL COUNTS)            CNTS     SUM15F   STD                  
+PMS FSSP PROBE                           CNTS     FSSP                          
+FSSP PROBE CONCENTRATION                 N/CM3    CONCF    STD                  
+FSSP MEAN DIAMETER                       MICRON   DBARF    STD                  
+FSSP DISPERSION (SIGMA/DBARF)                     DISPF    STD                  
+FSSP LIQUID WATER CONTENT                G/M3     PLWCF    STD                  
+FSSP CALCULATED ACTIVITY FRACTION                 FACT     STD                  
+FSSP BEAM FRACTION (FSSP/FSTROB)                  FBMFR    STD                  
+FSSP RANGE                                        FRANGE   STD                  
+FSSP FAST RESETS                         CNTS     FRESET   STD                  
+FSSP TOTAL STROBES                       CNTS     FSTROB   STD                  
+TOTAL STROBES, FSSP                      CNTS     STROBE                        
+PMS 200X PROBE (TOTAL COUNTS)            CNTS     SUM15X   STD                  
+PMS 200X PROBE                           CNTS     X200                          
+200X PROBE CONCENTRATION                 N/L      CONCX    STD                  
+200X MEAN DIAMETER                       MICRON   DBARX    STD                  
+200X DISPERSION (SIGMA/DBARX)                     DISPX    STD                  
+200X WATER/ICE CONTENT                   G/M3     PLWCX    STD                  
+200X REFLECTIVITY FACTOR                 DB(Z)    DBZX     STD                  
+PMS 260X PROBE (TOTAL COUNTS)            CNTS     SUMX6    STD                  
+PMS 260X PROBE                           CNTS     X260                          
+260X PROBE CONCENTRATION (CELL 1-62)     N/L      CONC6    STD                  
+ACCUMULATED RAW COUNT (CELL 1-62)        CNTS     ACCUMX6                       
+260X MEAN DIAMETER                       MICRON   DBAR6    STD                  
+260X DISPERSION (SIGMA/DBAR6)                     DISP6    STD                  
+260X WATER/ICE CONTENT                   G/M3     PLWC6    STD                  
+260X REFLECTIVITY FACTOR                 DB(Z)    DBZ6     STD                  
+PMS 200Y PROBE (TOTAL COUNTS)            CNTS     SUM15Y   STD                  
+PMS 200Y PROBE                           CNTS     Y200     STD                  
+200Y PROBE CONCENTRATION                 N/L      CONCY    STD                  
+200Y MEAN DIAMETER                       MICRON   DBARY    STD                  
+200Y DISPERSION (SIGMA/DBARY)                     DISPY    STD                  
+200Y WATER/ICE CONTENT                   G/M3     PLWCY    STD                  
+200Y REFLECTIVITY FACTOR                 DB(Z)    DBZY     STD                  
+PMS 2DC PROBE (COUNTS)                   CNTS     SHDWRC                        
+2D-C SHADOW-OR SIGNAL                    CNTS     SDWRC                         
+2D-P SHADOW-OR SIGNAL                    CNTS     SDWRP                         
+2D-P2 SHADOW-OR SIGNAL                   CNTS     SDWRP2                        
+SHADOW-OR, 2D-C, PROBE 1                 CNTS     SDWC1                         
+SHADOW-OR, 2D-P, PROBE 1                 CNTS     SDWP1                         
+SHADOW-OR, 2D-P, PROBE 2                 CNTS     SDWP2                         
+PMS 2DC PROBE CONCENTRATION              N/L      CONC2C                        
+PMS 2DP PROBE CONCENTRATION              N/L      CONC2P                        
+PMS 2DP2 PROBE CONCENTRATION             N/L      CONC2P2                       
+PMS-2D-C1 HOUSEKEEPING                   VDC      TWDA1                         
+PMS-2D-P1 HOUSEKEEPING                   VDC      TWDB1                         
+PMS-2D PROBE 1 HOUSEKEEPING              VDC      TWCH1                         
+PMS-2D-C2 HOUSEKEEPING                   VDC      TWDA2                         
+PMS-2D-P2 HOUSEKEEPING                   VDC      TWDB2                         
+PMS-2D PROBE 2 HOUSEKEEPING              VDC      TWCH2                         
+                                                                                
+               RADIATION VARIABLES                                              
+                                                                                
+      DESCRIPTOR                         UNITS    VARIABLE NAME                 
+RADIOMETRIC SKY TEMPERATURE              C        RSTT     STD                  
+RADIOMETRIC SURFACE TEMPERATURE          C        RSTB     STD                  
+TOP SHORTWAVE IRRADIANCE                 W/M2     SWT      STD                  
+BOTTOM SHORTWAVE IRRADIANCE              W/M2     SWB      STD                  
+TOP INFRARED CORRECTED IRRADIANCE        W/M2     IRTC     STD                  
+BOTTOM INFRARED CORRECTED IRRADIANCE     W/M2     IRBC     STD                  
+TOP ULTRAVIOLET IRRADIANCE               W/M2     UVT      STD                  
+BOTTOM ULTRAVIOLET IRRADIANCE            W/M2     UVB      STD                  
+                                                                                
+               AIRCRAFT STATE VARIABLES                                         
+                                                                                
+      DESCRIPTOR                         UNITS    VARIABLE NAME                 
+PLATFORM HEADING                         DEG      PHDG                          
+AIRCRAFT TRUE HEADING (ARINC)            DEG      THI      STD                  
+AIRCRAFT TRUE HEADING                    DEG      THF      STD                  
+INS WANDER ANGLE                         DEG      ALPHA                         
+AIRCRAFT ROLL ATTITUDE ANGLE             DEG      ROLL     STD                  
+AIRCRAFT COARSE ROLL ANGLE               DEG      CROLL                         
+AIRCRAFT PITCH ATTITUDE ANGLE            DEG      PITCH    STD                  
+AIRCRAFT INS ACCELERATION                M/S2     ACINS    STD                  
+RAW INS VERTICAL VELOCITY                M/S      VZI      STD                  
+DAMPED AIRCRAFT VERTICAL VELOCITY        M/S      WP3      STD                  
+INS GROUND SPEED (ARINC)                 M/S      GSI                           
+INS GROUND SPEED                         M/S      GSF      STD                  
+INS GROUND SPEED EAST COMPONENT          M/S      VEW      STD                  
+INS GROUND SPEED NORTH COMPONENT         M/S      VNS      STD                  
+INS GROUND SPEED X COMPONENT             M/S      XVI      STD                  
+INS GROUND SPEED Y COMPONENT             M/S      YVI      STD                  
+AIRCRAFT TRACK (ARINC)                   DEG      TRKI                          
+AIRCRAFT TRUE AIRSPEED (FUSELAGE)        M/S      TASF     STD                  
+AIRCRAFT TRUE AIRSPEED (BOOM)            M/S      TASB     STD                  
+AIRCRAFT TRUE AIRSPEED (GUST)            M/S      TASG     STD                  
+AIRCRAFT TRUE AIRSPEED (WING)            M/S      TASW     STD                  
+AIRCRAFT TRUE AIRSPEED (RADOME)          M/S      TASR     STD                  
+AIRCRAFT TRUE SPEED (858)                M/S      TASD                          
+CORRECTED DYNAMIC PRESSURE (FUSELAGE)    MB       QCFC     STD                  
+CORRECTED DYNAMIC PRESSURE (BOOM)        MB       QCBC     STD                  
+CORRECTED DYNAMIC PRESSURE (GUST)        MB       QCGC     STD                  
+CORRECTED DYNAMIC PRESSURE (WING)        MB       QCWC     STD                  
+CORRECTED DYNAMIC PRESSURE (RADOME)      MB       QCRC     STD                  
+CORRECTED DYNAMIC PRESSURE (858)         MB       QCDC                          
+RAW DYNAMIC PRESSURE (FUSELAGE)          MB       QCF      STD                  
+RAW DYNAMIC PRESSURE (BOOM)              MB       QCB      STD                  
+RAW DYNAMIC PRESSURE (GUST)              MB       QCG      STD                  
+RAW DYNAMIC PRESSURE (WING)              MB       QCW      STD                  
+RAW DYNAMIC PRESSURE (RADOME)            MB       QCR      STD                  
+RAW DYNAMIC PRESSURE (858)               MB       QCD                           
+RADOME TOTAL PRESSURE                    MB       PTR      STD                  
+CABIN PRESSURE                           MB       PCAB     STD                  
+ATTACK ANGLE (DIFFERENTIAL PRESSURE)     DEG      AKDF     STD                  
+ATTACK ANGLE (RADOME)                    DEG      AKRD     STD                  
+ATTACK ANGLE (FUSELAGE)                  DEG      AKRD2                         
+ATTACK ANGLE (FIXED VANE, LEFT)          DEG      AKFXL    STD                  
+ATTACK ANGLE (FIXED VANE, RIGHT)         DEG      AKFXR    STD                  
+SIDESLIP ANGLE (DIFFERENTIAL PRESSURE)   DEG      SSDF     STD                  
+SIDESLIP ANGLE (RADOME)                  DEG      SSRD     STD                  
+SIDESLIP - BETA REFERENCE                DEG      SSRD1                         
+SIDESLIP ANGLE (FUSELAGE)                DEG      SSRD2                         
+SIDESLIP ANGLE (FIXED VANE) (TOP)        DEG      SSFXT    STD                  
+SIDESLIP ANGLE (FIXED VANE) (BOT)        DEG      SSFXB    STD                  
+ATTACK DIFFERENTIAL PRESSURE             MB       ADIF     STD                  
+ATTACK DIFFERENTIAL PRESSURE (RADOME)    MB       ADIFR    STD                  
+RAW ATTACK (FIXED VANE, LEFT)            G        AFIXL    STD                  
+RAW ATTACK (FIXED VANE, RIGHT)           G        AFIXR    STD                  
+SIDESLIP DIFFERENTIAL PRESSURE           MB       BDIF     STD                  
+SIDESLIP DIFFERENTIAL PRESSURE (RADOME)  MB       BDIFR    STD                  
+RAW SIDESLIP (FIXED VANE, TOP)           G        BFIXT    STD                  
+RAW SIDESLIP (FIXED VANE, BOTTOM)        G        BFIXB    STD                  
+                                                                                
+               MISCELLANEOUS UNCORRECTED "RAW" VARIABLES                        
+                                                                                
+      DESCRIPTOR                         UNITS    VARIABLE NAME                 
+RAW STATIC PRESSURE (FUSELAGE DI)        MB       PSFD     STD                  
+RAW STATIC PRESSURE (FUSELAGE)           MB       PSF      STD                  
+RAW STATIC PRESSURE (BOOM)               MB       PSB      STD                  
+RAW STATIC PRESSURE (WING)               MB       PSW      STD                  
+TOTAL TEMPERATURE (BOOM)                 C        TTB      STD                  
+TOTAL TEMPERATURE (BOOM HEATED)          C        TTBH     STD                  
+TOTAL TEMPERATURE (FUSELAGE)             C        TTF      STD                  
+TOTAL TEMPERATURE (FUSELAGE HEATED)      C        TTFH     STD                  
+TOTAL TEMPERATURE (FRIEHE PROBE)         C        TTFR                          
+TOTAL TEMPERATURE (WING)                 C        TTW      STD                  
+TOTAL TEMPERATURE (WING HEATED)          C        TTWH     STD                  
+TOTAL TEMPERATURE (REVERSE FLOW)         C        TTRF     STD                  
+TOTAL AIR TEMPERATURE                    C        TTRW                          
+TOTAL TEMPERATURE (FAST RESPONSE)        C        TTKP     STD                  
+TOTAL TEMPERATURE RADOME, LEFT           C        TTR9                          
+TOTAL TEMPERATURE RADOME, RIGHT          C        TTR3                          
+TOTAL TEMPERATURE RADOME, BOTTOM         C        TTR6                          
+DEW/FROST POINT TEMP (THERMOELEC) (TOP)  C        DPT      STD                  
+DEW/FROST POINT TEMP (THERMOELEC) (BOT)  C        DPB      STD                  
+RAW LYMAN-ALPHA VOLTAGE                  VDC      VLA      STD                  
+CORRECTED L-A ABSOLUTE HUMIDITY          GM-3     RHOLA                         
+FLAG=-1.0,((RHOLA-RHOTD)/RHOTD) > .20             RFLAG                         
+RAW LYMAN-ALPHA VOLTAGE                  VDC      VLA1                          
+ABSOLUTE HUMIDITY (LYMAN ALPHA - VLA)    G/M3     RHOLA1                        
+FLAG=-1.0,((RHOLA1-RHOTD)/RHOTD) > .20            RFLAG1                        
+RAW TOP INFRARED IRRADIANCE              W/M2     IRT      STD                  
+RAW BOTTOM INFRARED IRRADIANCE           W/M2     IRB      STD                  
+TOP PYRGEOMETER DOME TEMPERATURE         C        DTT      STD                  
+TOP PYRGEOMETER SINK TEMPERATURE         C        STT      STD                  
+BOTTOM PYRGEOMETER DOME TEMPERATURE      C        DTB      STD                  
+BOTTOM PYRGEOMETER SINK TEMPERATURE      C        STB      STD                  
+RAW PMS-KING POWER                       W        PLWC     STD                  
+RAW C-T LIQUID WATER CONTENT             G/M3     LWC      STD                  
+RAW ICING RATE INDICATOR                 VDC      RICE     STD                  
+                                                                                
+               MISCELLANEOUS UNCORRECTED "RAW" VARIABLES                        
+                                                                                
+      DESCRIPTOR                         UNITS    VARIABLE NAME                 
+10-V REFERENCE                           VDC      V10      STD                  
+10-V REFERENCE THROUGH RESISTOR          VDC      V10R     STD                  
+AIR TEMP ADS INTERFACE                   C        TADS     STD                  
+TEMP OF VOLTAGE REFERENCE                C        TV10     STD                  
+TEMP OF VOLTAGE REFERENCE (EX. CHASSIS)  C        XTV10    STD                  
+AIR TEMP FLOW MONITOR - ADS              C        FLOADS   STD                  
+AIR TEMP FLOW MONITOR - ADS(EX. CHASSIS) C        XFLOAD   STD                  
+FIXED ZERO VOLTAGE                       VDC      FZV      STD                  
+FIXED ZERO VOLTAGE THRU RESISTOR         VDC      FZVR     STD                  
+DIFFERENCE OF 10-V REFERENCES            VDC      VDREF    STD                  
+COCKPIT EVENT (BITS 0-5)                          CKEVP    STD                  
+EVENT PAD (1)                                     EV1      STD                  
+EVENT PAD (2)                                     EV2      STD                  
+EVENT PAD (3)                                     EV3      STD                  
+EVENT PAD (4)                                     EV4      STD                  
+UNALTERED TAPE TIME                      HR       HR       STD                  
+UNALTERED TAPE TIME                      MIN      MIN      STD                  
+UNALTERED TAPE TIME                      S        SEC      STD                  
+PROCESSOR TIME                           S        PTIME    STD                  
+RAW TAPE TIME                            S        TPTIME   STD                  
+ARINC TIME LAG                           S        TMLAG    STD                  
+TIME OF DAY IN SECONDS AFTER MIDNIGHT    S        TSEC     STD                  
+                                                                                
+               DIFFERENCE VARIABLES                                             
+                                                                                
+      DESCRIPTOR                         UNITS    VARIABLE NAME                 
+AKFXL   -  PITCH                         DEG      DFAKLPH                       
+AKFXR   -  PITCH                         DEG      DFAKRPH                       
+AKFXL   -  AKFXR                         DEG      DFAKLR   STD                  
+AKFXR   -  AKFXL                         DEG      DFAKRL                        
+AKRD    -  AKDF                          DEG      DFAKDF                        
+ATB     -  ATKP                          C        DFATBK   STD                  
+ATB     -  ATBH                          C        DFATBBH                       
+ATB     -  ATF                           C        DFATBF                        
+ATB     -  ATFH                          C        DFATBFH                       
+ATB     -  ATOPH                         C        DFATBO                        
+ATB     -  ATRF                          C        DFATBR                        
+ATB     -  ATW                           C        DFATBW                        
+ATB     -  ATWH                          C        DFATBWH                       
+ATRF    -  ATWH                          DEG      DFATRH                        
+ATRF    -  ATOPH                         C        DFATRO                        
+ATWH    -  ATB                           C        DFATWHB                       
+ATWH    -  ATF                           C        DFATWHF                       
+ATWH    -  ATFH                          C        DFATWHFH                      
+ATWH    -  ATKP                          C        DFATWHK                       
+ATWH    -  ATRF                          C        DFATWHR                       
+ATWH    -  ATW                           C        DFATWHW                       
+ATF     -  ATB                           C        DFATFB                        
+ATF     -  ATBH                          C        DFATFBH                       
+ATF     -  ATFH                          C        DFATFH   STD                  
+ATF     -  ATKP                          C        DFATFK                        
+ATF     -  ATRF                          C        DFATFR                        
+ATF     -  ATW                           C        DFATFW                        
+ATF     -  ATWH                          C        DFATFWH                       
+ATFH    -  ATB                           C        DFATFHB                       
+ATFH    -  ATBH                          C        DFATFHBH                      
+ATFH    -  ATF                           C        DFATFHF                       
+ATFH    -  ATKP                          C        DFATFHK                       
+ATFH    -  ATRF                          C        DFATFHR                       
+ATFH    -  ATW                           C        DFATFHW                       
+ATFH    -  ATWH                          C        DFATFHWH                      
+ATKP    -  ATB                           C        DFATKB                        
+ATKP    -  ATBH                          C        DFATKBH                       
+ATKP    -  ATF                           C        DFATKF                        
+ATKP    -  ATFH                          C        DFATKFH                       
+ATKP    -  ATRF                          C        DFATKR                        
+ATKP    -  ATW                           C        DFATKW                        
+ATKP    -  ATWH                          C        DFATKWH                       
+ATRF    -  ATB                           C        DFATRB                        
+ATRF    -  ATBH                          C        DFATRBH                       
+ATRF    -  ATF                           C        DFATRF                        
+ATRF    -  ATFH                          C        DFATRFH                       
+ATRF    -  ATKP                          C        DFATRK                        
+ATRF    -  ATW                           C        DFATRW                        
+ATRF    -  ATWH                          C        DFATRWH                       
+ATW     -  ATB                           C        DFATWB                        
+ATW     -  ATBH                          C        DFATWBH                       
+ATW     -  ATF                           C        DFATWF                        
+ATW     -  ATFH                          C        DFATWFH                       
+ATW     -  ATKP                          C        DFATWK                        
+ATW     -  ATR                           C        DFATWR                        
+ATW     -  ATWH                          C        DFATWWH                       
+ATWH    -  ATB                           C        DFATWHB                       
+ATWH    -  ATBH                          C        DFATWHBH                      
+ATWH    -  ATF                           C        DFATWHF                       
+ATWH    -  ATFH                          C        DFATWHFH                      
+ATWH    -  ATKP                          C        DFATWHK                       
+ATWH    -  ATRF                          C        DFATWHR                       
+ATWH    -  ATW                           C        DFATWHW                       
+DPBC    -  DPC                           C        DFDPBC                        
+DPBC    -  GEDPC                         C        DFDPBG                        
+DPBC    -  DPTC                          C        DFDPBTC                       
+DPT     -  DPB                           C        DFDPBT                        
+DPTC    -  DPBC                          C        DFDPTB   STD                  
+DPTC    -  DPCRC                         C        DFDPTRC                       
+DPC     -  DPBC                          C        DFDPCB                        
+DPC     -  GEDPC                         C        DFDPCG                        
+DPC     -  DPTC                          C        DFDPCT                        
+GEDPC   -  DPBC                          C        DFDPGB                        
+GEDPC   -  DPC                           C        DFDPGC                        
+GEDPC   -  DPTC                          C        DFDPGT                        
+DPTC    -  DPCRC                         C        DFDPTC                        
+DPTC    -  GEDPC                         C        DFDPTG                        
+FMRL    -  FMRR                          VDC      DFFMLR                        
+FMRL    -  FMRB                          VDC      DFFMTB                        
+GSF     -  CGS                           M/S      DFGSFC                        
+GSF     -  CGS                           M/S      DFGSIC                        
+HGM     -  HGME                          M        DFHGHE                        
+DAMPED INS ALTITUDE ERROR SIGNAL         M        DFH3                          
+PITCH   -  AKFXL                         DEG      DFPHAKL                       
+PITCH   -  AKFXR                         DEG      DFPHAKR                       
+PITCH   -  AKDF                          DEG      DFPHAKF  STD                  
+PITCH   -  AKRD                          DEG      DFPHAKD                       
+PSBC    -  PSDF                          MB       DFPSBD                        
+PSBC    -  PSWC                          MB       DFPSBW                        
+PSBC    -  PSFC                          MB       DFPSBF   STD                  
+PSFC    -  PSFDC                         MB       DFPSFD                        
+PSFDC   -  PSBC                          MB       DFPSDB                        
+PSFDC   -  PSWC                          MB       DFPSFW                        
+PSFDC   -  PSFC                          MB       DFPSDF                        
+PSWC    -  PSBC                          MB       DFPSWB                        
+PSWC    -  PSFDC                         MB       DFPSWD   STD                  
+QCBC    -  QCGC                          MB       DFQCBG                        
+QCBC    -  QCWC                          MB       DFQCBW                        
+QCBC    -  QCFC                          MB       DFQCBF   STD                  
+QCFC    -  QCBC                          MB       DFQCFB                        
+QCFC    -  QCGC                          MB       DFQCFG                        
+QCFC    -  QCWC                          MB       DFQCFW                        
+QCFC    -  QCRC                          MB       DFQCFR                        
+QCGC    -  QCBC                          MB       DFQCGB                        
+QCGC    -  QCFC                          MB       DFQCGF                        
+QCGC    -  QCWC                          MB       DFQCGW                        
+QCRC    -  QCWC                          MB       DFQCRW                        
+QCWC    -  QCBC                          MB       DFQCWB                        
+QCWC    -  QCFC                          MB       DFQCWF                        
+QCWC    -  QCGC                          MB       DFQCWG                        
+SSFXB   -  SSFXT                         DEG      DFSSBT                        
+SSFXT   -  SSFXB                         DEG      DFSSTB   STD                  
+SSRD    -  SSDF                          DEG      DFSSDF                        
+TASB    -  TASF                          M/S      DFTABF                        
+TASB    -  TASG                          M/S      DFTABG                        
+TASB    -  TASW                          M/S      DFTABW   STD                  
+TASF    -  TASB                          M/S      DFTAFB                        
+TASF    -  TASG                          M/S      DFTAFG                        
+TASF    -  TASW                          M/S      DFTAFW                        
+TASF    -  TASR                          M/S      DFTAFR                        
+TASG    -  TASB                          M/S      DFTAGB                        
+TASG    -  TASF                          M/S      DFTAGF                        
+TASG    -  TASW                          M/S      DFTAGW                        
+TASW    -  TASB                          M/S      DFTAWB                        
+TASW    -  TASF                          M/S      DFTAWF                        
+TASW    -  TASG                          M/S      DFTAWG                        
+VLA     -  VLA2                          VDC      DFVLA12                       
+                                                                                
+               IN HOUSE VARIABLES                                               
+                                                                                
+      DESCRIPTOR                         UNITS    VARIABLE NAME                 
+GAP FILL INDICATOR (0=OFF ; 99999=ON)             GAP                           
+COCKPIT EVENT (BITS 0-5)                 CKEV1    CKEVP1                        
+CAMERA INTERVAL (FRAME COUNT) (BIT 12)   VDC      CMFMC                         
+DEVICE SWITCH (BIT 11)                   VDC      DISW                          
+EVENT PAD 1                              EVP1     EVP1                          
+COMPUTER CABINET AIR FLOW                VDC      FCBADS                        
+FIXED ZERO VOLTAGE (EXT. CHASSIS)        VDC      XFZV                          
+ID WORD                                  IDWD     IDWD                          
+SQUAT SWITCH (BIT 10)                    VDC      SQSW                          
+AIR TEMP ADS INTERFACE (EXT. CHASSIS)    C        XTADS                         
+AIR TEMP COMPUTER CABINET                C        TCBADS                        
+1/250THS OF SECONDS                      1/250S   THNDS                         
+DIFFERENCE OF 10-V REFS (EXT. CHASSIS)   VDC      XVDREF                        
+LYMAN ALPHA #2                           VDC      VLA2                          
+-15V ANALOG VOLTAGE                      VDC      VM15A                         
++15V ANALOG VOLTAGE                      VDC      VP15A                         
++15V DIGITAL VOLTAGE                     VDC      VP15D                         
+10V REFERENCE (EXT. CHASSIS)             VDC      XV10                          
+AIRCRAFT DC VOLTAGE SUPPLY               VDC      V28                           
+DEVICE BUS CURRENT                       VDC      XIDICE                        
+EXTERNAL CURRENT                         VDC      XIEXT                         
+LEFT GENERATOR CURRENT                   VDC      XILGEN                        
+RIGHT GENERATOR CURRENT                  VDC      XIRGEN                        
+400 HZ USER CURRENT                      VDC      XIU400                        
+28V DATA SYSTEM CURRENT                  VDC      XI28D                         
+28V DC USER CURRENT                      VDC      XI28U                         
+400 HZ DATA SYSTEM CURRENT               VDC      XI400D                        
+60 HZ DATA SYSTEM CURRENT                VDC      XI60D                         
+60 HZ USER CURRENT                       VDC      XI60U                         
+RAW INS GROUND SPEED X COMPONENT(1)      M/S      XVI1                          
+RAW INS GROUND SPEED X COMPONENT(2)      M/S      XVI2                          
+RAW INS GROUND SPEED Y COMPONENT(1)      M/S      YVI1                          
+RAW INS GROUND SPEED Y COMPONENT(2)      M/S      YVI2                          
+KDM-7000 DME (312)                       VDC      DME                           
+DME FREQUENCY                            MHZ      FREQ                          
+DME FLAG                                 VDC      FLAG                          
+DME RANGE                                NAU.MI   RANG                          
+UPDATED INS LATITUDE                     DEG      ALATC                         
+UPDATED INS LONGITUDE                    DEG      ALONC                         
+INS LATITUDE CORRECTION                  KM       XCORR                         
+INS LONGITUDE CORRECTION                 KM       YCORR                         
+DISTANCE FROM RADAR                      KM       DIST                          
+RADIAL FROM RADAR                        DEG      RDIAL                         
+KEYWORD                                           DMEC                          
+                                                                                
+               USER PARAMETER LIST                                              
+                                                                                
+      DESCRIPTOR                         UNITS    VARIABLE NAME                 
+DUMMY VARIABLE = 1                                DUM                           
+DUMMY VARIABLE = 1                                DUMMY                         
+AEROSOL FILTER PACK-FLOW RATE            VDC      AFLOW                         
+RAW OZONE OUTPUT                         PPB      DO3                           
+CORRECTED OZONE CONCENTRATIONS           PPB      DO3C                          
+RAW CARBON MONOXIDE OUTPUT               VDC      CO                            
+CARBON MONOXIDE DETECTER, STATUS         VDC      CMODE                         
+NOX DIGITAL OUTPUT                       VDC      PMT                           
+NOX DETECTOR PRESSURE                    VDC      PRS                           
+NOX DETECTOR - STATUS LINE 1             VDC      XNOM                          
+NOX DETECTOR - STATUS LINE 2             VDC      ZRO                           
+NOX DETECTOR - STATUS LINE 3             VDC      XNOF                          
+NOX DETECTOR - TEMPERATURE               VDC      TMP                           
+NOX DETECTOR - FLOW                      VDC      FLO                           
+NITROGEN OXIDES DETECTOR-CAL.GAS FLOW    VDC      CNOX                          
+NITROGEN OXIDES DETECTOR-FLOW            VDC      FNOX                          
+NITROGEN OXIDES DETECTOR-RANGE           VDC      RNOX                          
+NITROGEN OXIDES DETECTOR-STATUS          VDC      SNOX                          
+NITROGEN OXIDES DETECTOR-VACUUM          VDC      VNOX                          
+NITROGEN OXIDES DETECTOR-OUTPUT          VDC      XNOX                          
+                                                                                
+               ADDED PARAMETERS                                                 
+                                                                                
+      DESCRIPTOR                         UNITS    VARIABLE NAME                 
+LORAN C GROUND SPEED                     M/S      CGS                           
+LORAN C CIRC ERROR OF PROBABILITY        NMI      CCEP                          
+POS DIF INS - LORAN C                    NMI      POSDF                         
+TEN VOLT REF / RESISTOR                  V        XV10R                         
+FIXED ZERO VOLTAGE / RESISTOR            V        XFZVR                         
+MANIFOLD PRESSURE                        TORR     MANP                          
+MANIFOLD FLOW                            VDC      MANF                          
+H2O2 TOTAL SIGNAL                        VDC      HOTS                          
+H2O2 CATAL SIGNAL                        VDC      HOCS                          
+H2O2 FLOW RATE: TOTAL                    VDC      HOFRT                         
+H2O2 FLOW RATE: CATAL                    VDC      HOFRC                         
+H2O2 MODE MONITOR                        VDC      HOMM                          
+HCHO B SIGNAL                            VDC      HCB                           
+HCHO FLOW RATE B                         VDC      HCFRB                         
+HCHO MODE MONITOR                        VDC      HCMM                          
+NO SIGNAL                                VDC      SNO                           
+SO2 SIGNAL                               VDC      SO2                           
+RADIOMETER OUTPUT VOLTAGE                VDC      RADT                          
+RADIOMETER DETECTOR BIAS SIGNAL          VDC      DTECB                         
+DETECTOR TEMPERATURE (OPHIR)             C        DTECT                         
+BLACK BODY TEMP-CONE OPENING(DOWN)       C        BBWDT                         
+BLACK BODY TEMP-CONE OPENING(UP)         C        BBWUT                         
+BLACK BODY TEMP-CONE TIP(DOWN)           C        BBTDT                         
+BLACK BODY TEMP-CONE TIP(UP)             C        BBTUT                         
+SAPPHIRE WINDOW TEMP(OPHIR)              C        SWINT                         
+INLET AIR TEMPERATURE(OPHIR)             C        NAIRT                         
+CHOPPER TEMP (OPHIR)                     C        CHOPT                         
+AMBIENT TEMP (OPHIR RADIOMETER)          C        ATOPH                         
+CHOPPER SPEED (OPHIR)                    HZ       CHOPSP                        
+OPHIR INSTRUMENT  STATUS                          STATUS                        
+OZONE                                    VDC      OZONE                         
+WET TEMP PROBE                           C        WETT                          
+PROTOTYPE TEMP                           C        PROTT                         
+SPARE 1                                  VDC      SPAR1                         
+SPARE 2                                  VDC      SPAR2                         
+TEST PRES                                VDC      TPRES                         
+UNKNOWN                                  UNK      ACCV                          
+UNKNOWN                                  UNK      ACCL                          
+FAST RESPONSE OZONE MIXING RATIO         PPBV     O3F50                         
+RADIOMETRIC NEAR FIELD TEMPERATURE       C        PRT6                          
+OZONE PMT TEMPERATURE                    VDC      O3PMT                         
+REACTION CHAMBER PRESSURE                VDC      O3RXP                         
+REACTION CHAMBER TEMPERATURE             VDC      O3RXT                         
+DASIBI MANIFOLD FLOW                     SLPM     O3HV                          
+NITRIC OXIDE FLOW                        SCCM     O3NOF                         
+MEAN OZONE MIXING RATIO                  PPBV     O3M                           
+DASIBI OZONE MIXING RATIO                PPBV     DASO3                         
+AEROSOL SAMPLE FLOW 1                    VDC      BH1                           
+AEROSOL SAMPLE FLOW 2                    VDC      BH2                           
+CARBON MONOXIDE (105)                    VDC      CO1                           
+CARBON MONOXIDE (305)                    VDC      CO2                           
+UNKNOWN                                  UNK      XNO                           
+DASIBI INSTRUMENT PRESSURE               MB       DASPR                         
+UNKNOWN                                  UNK      DAST                          
+PULSE WIDTH/PENETRATION DEPTH            M        CLDEP                         
+STENGTH OF RETURN (RELATIVE POWER)       VDC      CLSTR                         
+LIDAR RANGE TO CLOUD                     M        CLRAN                         
+CLOUD RANGE FLAG                         VDC      CFLAG                         
+TOTAL WATER MIXING RATIO                 G/KG     QMR                           
+HEIGHT TO CLOUD BOUNDARY                 M        CLDHT                         
+FIELD MILL, FUSELAGE BOTTOM              KV       FMB
+FIELD MILL, RADOME TOP                   KV       FMRT
+FIELD MILL, RADOME LEFT                  KV       FMRL
+FIELD MILL, RADOME BOTTOM                KV       FMRB
+FIELD MILL, RADOME RIGHT                 KV       FMRR
+FIELD MILL, FUSELAGE TOP                 KV       FMT
+SENSITIVE FIELD MILL, FUSELAGE BOTTOM    KV       SFMB
+SENSITIVE FIELD MILL, RADOME TOP         KV       SFMRT
+SENSITIVE FIELD MILL, RADOME LEFT        KV       SFMRL
+SENSITIVE FIELD MILL, RADOME BOTTOM      KV       SFMRB
+SENSITIVE FIELD MILL, RADOME RIGHT       KV       SFMRR
+SENSITIVE FIELD MILL, FUSELAGE TOP       KV       SFMT
+VOLTAGE DROP, HV LINE                    VOLTS    HVLT                          
+HIGH VOLTAGE CURRENT                     VOLTS    HVI
+PRESSURE, REVERSE FLOW LYMAN ALPHA       MB       PLA                           
+TORQUE, LEFT ENGINE (UNCALIBRATED)       UNK      TORQ                          
+                                                                                
+               PMS CELL-BY-CELL VARIABLES                                       
+                                                                                
+      DESCRIPTOR                         UNITS    VARIABLE NAME                 
+PMS PROBE ASAS RAW COUNT CELL 01         CNTS     AASS01   STD                  
+PMS PROBE ASAS RAW COUNT CELL 02         CNTS     AASS02   STD                  
+PMS PROBE ASAS RAW COUNT CELL 03         CNTS     AASS03   STD                  
+PMS PROBE ASAS RAW COUNT CELL 04         CNTS     AASS04   STD                  
+PMS PROBE ASAS RAW COUNT CELL 05         CNTS     AASS05   STD                  
+PMS PROBE ASAS RAW COUNT CELL 06         CNTS     AASS06   STD                  
+PMS PROBE ASAS RAW COUNT CELL 07         CNTS     AASS07   STD                  
+PMS PROBE ASAS RAW COUNT CELL 08         CNTS     AASS08   STD                  
+PMS PROBE ASAS RAW COUNT CELL 09         CNTS     AASS09   STD                  
+PMS PROBE ASAS RAW COUNT CELL 10         CNTS     AASS10   STD                  
+PMS PROBE ASAS RAW COUNT CELL 11         CNTS     AASS11   STD                  
+PMS PROBE ASAS RAW COUNT CELL 12         CNTS     AASS12   STD                  
+PMS PROBE ASAS RAW COUNT CELL 13         CNTS     AASS13   STD                  
+PMS PROBE ASAS RAW COUNT CELL 14         CNTS     AASS14   STD                  
+PMS PROBE ASAS RAW COUNT CELL 15         CNTS     AASS15   STD                  
+PMS PROBE FSSP RAW COUNT CELL 01         CNTS     AFSP01   STD                  
+PMS PROBE FSSP RAW COUNT CELL 02         CNTS     AFSP02   STD                  
+PMS PROBE FSSP RAW COUNT CELL 03         CNTS     AFSP03   STD                  
+PMS PROBE FSSP RAW COUNT CELL 04         CNTS     AFSP04   STD                  
+PMS PROBE FSSP RAW COUNT CELL 05         CNTS     AFSP05   STD                  
+PMS PROBE FSSP RAW COUNT CELL 06         CNTS     AFSP06   STD                  
+PMS PROBE FSSP RAW COUNT CELL 07         CNTS     AFSP07   STD                  
+PMS PROBE FSSP RAW COUNT CELL 08         CNTS     AFSP08   STD                  
+PMS PROBE FSSP RAW COUNT CELL 09         CNTS     AFSP09   STD                  
+PMS PROBE FSSP RAW COUNT CELL 10         CNTS     AFSP10   STD                  
+PMS PROBE FSSP RAW COUNT CELL 11         CNTS     AFSP11   STD                  
+PMS PROBE FSSP RAW COUNT CELL 12         CNTS     AFSP12   STD                  
+PMS PROBE FSSP RAW COUNT CELL 13         CNTS     AFSP13   STD                  
+PMS PROBE FSSP RAW COUNT CELL 14         CNTS     AFSP14   STD                  
+PMS PROBE FSSP RAW COUNT CELL 15         CNTS     AFSP15   STD                  
+PMS PROBE 200X RAW COUNT CELL 01         CNTS     A20X01   STD                  
+PMS PROBE 200X RAW COUNT CELL 02         CNTS     A20X02   STD                  
+PMS PROBE 200X RAW COUNT CELL 03         CNTS     A20X03   STD                  
+PMS PROBE 200X RAW COUNT CELL 04         CNTS     A20X04   STD                  
+PMS PROBE 200X RAW COUNT CELL 05         CNTS     A20X05   STD                  
+PMS PROBE 200X RAW COUNT CELL 06         CNTS     A20X06   STD                  
+PMS PROBE 200X RAW COUNT CELL 07         CNTS     A20X07   STD                  
+PMS PROBE 200X RAW COUNT CELL 08         CNTS     A20X08   STD                  
+PMS PROBE 200X RAW COUNT CELL 09         CNTS     A20X09   STD                  
+PMS PROBE 200X RAW COUNT CELL 10         CNTS     A20X10   STD                  
+PMS PROBE 200X RAW COUNT CELL 11         CNTS     A20X11   STD                  
+PMS PROBE 200X RAW COUNT CELL 12         CNTS     A20X12   STD                  
+PMS PROBE 200X RAW COUNT CELL 13         CNTS     A20X13   STD                  
+PMS PROBE 200X RAW COUNT CELL 14         CNTS     A20X14   STD                  
+PMS PROBE 200X RAW COUNT CELL 15         CNTS     A20X15   STD                  
+PMS PROBE 260X RAW COUNT CELL 01         CNTS     A26X01   STD                  
+PMS PROBE 260X RAW COUNT CELL 02         CNTS     A26X02   STD                  
+PMS PROBE 260X RAW COUNT CELL 03         CNTS     A26X03   STD                  
+PMS PROBE 260X RAW COUNT CELL 04         CNTS     A26X04   STD                  
+PMS PROBE 260X RAW COUNT CELL 05         CNTS     A26X05   STD                  
+PMS PROBE 260X RAW COUNT CELL 06         CNTS     A26X06   STD                  
+PMS PROBE 260X RAW COUNT CELL 07         CNTS     A26X07   STD                  
+PMS PROBE 260X RAW COUNT CELL 08         CNTS     A26X08   STD                  
+PMS PROBE 260X RAW COUNT CELL 09         CNTS     A26X09   STD                  
+PMS PROBE 260X RAW COUNT CELL 10         CNTS     A26X10   STD                  
+PMS PROBE 260X RAW COUNT CELL 11         CNTS     A26X11   STD                  
+PMS PROBE 260X RAW COUNT CELL 12         CNTS     A26X12   STD                  
+PMS PROBE 260X RAW COUNT CELL 13         CNTS     A26X13   STD                  
+PMS PROBE 260X RAW COUNT CELL 14         CNTS     A26X14   STD                  
+PMS PROBE 260X RAW COUNT CELL 15         CNTS     A26X15   STD                  
+PMS PROBE 260X RAW COUNT CELL 16         CNTS     A26X16   STD                  
+PMS PROBE 260X RAW COUNT CELL 17         CNTS     A26X17   STD                  
+PMS PROBE 260X RAW COUNT CELL 18         CNTS     A26X18   STD                  
+PMS PROBE 260X RAW COUNT CELL 19         CNTS     A26X19   STD                  
+PMS PROBE 260X RAW COUNT CELL 20         CNTS     A26X20   STD                  
+PMS PROBE 260X RAW COUNT CELL 21         CNTS     A26X21   STD                  
+PMS PROBE 260X RAW COUNT CELL 22         CNTS     A26X22   STD                  
+PMS PROBE 260X RAW COUNT CELL 23         CNTS     A26X23   STD                  
+PMS PROBE 260X RAW COUNT CELL 24         CNTS     A26X24   STD                  
+PMS PROBE 260X RAW COUNT CELL 25         CNTS     A26X25   STD                  
+PMS PROBE 260X RAW COUNT CELL 26         CNTS     A26X26   STD                  
+PMS PROBE 260X RAW COUNT CELL 27         CNTS     A26X27   STD                  
+PMS PROBE 260X RAW COUNT CELL 28         CNTS     A26X28   STD                  
+PMS PROBE 260X RAW COUNT CELL 29         CNTS     A26X29   STD                  
+PMS PROBE 260X RAW COUNT CELL 30         CNTS     A26X30   STD                  
+PMS PROBE 260X RAW COUNT CELL 31         CNTS     A26X31   STD                  
+PMS PROBE 260X RAW COUNT CELL 32         CNTS     A26X32   STD                  
+PMS PROBE 260X RAW COUNT CELL 33         CNTS     A26X33   STD                  
+PMS PROBE 260X RAW COUNT CELL 34         CNTS     A26X34   STD                  
+PMS PROBE 260X RAW COUNT CELL 35         CNTS     A26X35   STD                  
+PMS PROBE 260X RAW COUNT CELL 36         CNTS     A26X36   STD                  
+PMS PROBE 260X RAW COUNT CELL 37         CNTS     A26X37   STD                  
+PMS PROBE 260X RAW COUNT CELL 38         CNTS     A26X38   STD                  
+PMS PROBE 260X RAW COUNT CELL 39         CNTS     A26X39   STD                  
+PMS PROBE 260X RAW COUNT CELL 40         CNTS     A26X40   STD                  
+PMS PROBE 260X RAW COUNT CELL 41         CNTS     A26X41   STD                  
+PMS PROBE 260X RAW COUNT CELL 42         CNTS     A26X42   STD                  
+PMS PROBE 260X RAW COUNT CELL 43         CNTS     A26X43   STD                  
+PMS PROBE 260X RAW COUNT CELL 44         CNTS     A26X44   STD                  
+PMS PROBE 260X RAW COUNT CELL 45         CNTS     A26X45   STD                  
+PMS PROBE 260X RAW COUNT CELL 46         CNTS     A26X46   STD                  
+PMS PROBE 260X RAW COUNT CELL 47         CNTS     A26X47   STD                  
+PMS PROBE 260X RAW COUNT CELL 48         CNTS     A26X48   STD                  
+PMS PROBE 260X RAW COUNT CELL 49         CNTS     A26X49   STD                  
+PMS PROBE 260X RAW COUNT CELL 50         CNTS     A26X50   STD                  
+PMS PROBE 260X RAW COUNT CELL 51         CNTS     A26X51   STD                  
+PMS PROBE 260X RAW COUNT CELL 52         CNTS     A26X52   STD                  
+PMS PROBE 260X RAW COUNT CELL 53         CNTS     A26X53   STD                  
+PMS PROBE 260X RAW COUNT CELL 54         CNTS     A26X54   STD                  
+PMS PROBE 260X RAW COUNT CELL 55         CNTS     A26X55   STD                  
+PMS PROBE 260X RAW COUNT CELL 56         CNTS     A26X56   STD                  
+PMS PROBE 260X RAW COUNT CELL 57         CNTS     A26X57   STD                  
+PMS PROBE 260X RAW COUNT CELL 58         CNTS     A26X58   STD                  
+PMS PROBE 260X RAW COUNT CELL 59         CNTS     A26X59   STD                  
+PMS PROBE 260X RAW COUNT CELL 60         CNTS     A26X60   STD                  
+PMS PROBE 260X RAW COUNT CELL 61         CNTS     A26X61   STD                  
+PMS PROBE 260X RAW COUNT CELL 62         CNTS     A26X62   STD                  
+PMS PROBE 200Y RAW COUNT CELL 01         CNTS     A20Y01   STD                  
+PMS PROBE 200Y RAW COUNT CELL 02         CNTS     A20Y02   STD                  
+PMS PROBE 200Y RAW COUNT CELL 03         CNTS     A20Y03   STD                  
+PMS PROBE 200Y RAW COUNT CELL 04         CNTS     A20Y04   STD                  
+PMS PROBE 200Y RAW COUNT CELL 05         CNTS     A20Y05   STD                  
+PMS PROBE 200Y RAW COUNT CELL 06         CNTS     A20Y06   STD                  
+PMS PROBE 200Y RAW COUNT CELL 07         CNTS     A20Y07   STD                  
+PMS PROBE 200Y RAW COUNT CELL 08         CNTS     A20Y08   STD                  
+PMS PROBE 200Y RAW COUNT CELL 09         CNTS     A20Y09   STD                  
+PMS PROBE 200Y RAW COUNT CELL 10         CNTS     A20Y10   STD                  
+PMS PROBE 200Y RAW COUNT CELL 11         CNTS     A20Y11   STD                  
+PMS PROBE 200Y RAW COUNT CELL 12         CNTS     A20Y12   STD                  
+PMS PROBE 200Y RAW COUNT CELL 13         CNTS     A20Y13   STD                  
+PMS PROBE 200Y RAW COUNT CELL 14         CNTS     A20Y14   STD                  
+PMS PROBE 200Y RAW COUNT CELL 15         CNTS     A20Y15   STD                  
+ASASP CORRECTED CONCENTRATION CELL 01    N/CM3    CASS01   STD                  
+ASASP CORRECTED CONCENTRATION CELL 02    N/CM3    CASS02   STD                  
+ASASP CORRECTED CONCENTRATION CELL 03    N/CM3    CASS03   STD                  
+ASASP CORRECTED CONCENTRATION CELL 04    N/CM3    CASS04   STD                  
+ASASP CORRECTED CONCENTRATION CELL 05    N/CM3    CASS05   STD                  
+ASASP CORRECTED CONCENTRATION CELL 06    N/CM3    CASS06   STD                  
+ASASP CORRECTED CONCENTRATION CELL 07    N/CM3    CASS07   STD                  
+ASASP CORRECTED CONCENTRATION CELL 08    N/CM3    CASS08   STD                  
+ASASP CORRECTED CONCENTRATION CELL 09    N/CM3    CASS09   STD                  
+ASASP CORRECTED CONCENTRATION CELL 10    N/CM3    CASS10   STD                  
+ASASP CORRECTED CONCENTRATION CELL 11    N/CM3    CASS11   STD                  
+ASASP CORRECTED CONCENTRATION CELL 12    N/CM3    CASS12   STD                  
+ASASP CORRECTED CONCENTRATION CELL 13    N/CM3    CASS13   STD                  
+ASASP CORRECTED CONCENTRATION CELL 14    N/CM3    CASS14   STD                  
+ASASP CORRECTED CONCENTRATION CELL 15    N/CM3    CASS15   STD                  
+FSSP CORRECTED CONCENTRATION CELL 01     N/CM3    CFSP01   STD                  
+FSSP CORRECTED CONCENTRATION CELL 02     N/CM3    CFSP02   STD                  
+FSSP CORRECTED CONCENTRATION CELL 03     N/CM3    CFSP03   STD                  
+FSSP CORRECTED CONCENTRATION CELL 04     N/CM3    CFSP04   STD                  
+FSSP CORRECTED CONCENTRATION CELL 05     N/CM3    CFSP05   STD                  
+FSSP CORRECTED CONCENTRATION CELL 06     N/CM3    CFSP06   STD                  
+FSSP CORRECTED CONCENTRATION CELL 07     N/CM3    CFSP07   STD                  
+FSSP CORRECTED CONCENTRATION CELL 08     N/CM3    CFSP08   STD                  
+FSSP CORRECTED CONCENTRATION CELL 09     N/CM3    CFSP09   STD                  
+FSSP CORRECTED CONCENTRATION CELL 10     N/CM3    CFSP10   STD                  
+FSSP CORRECTED CONCENTRATION CELL 11     N/CM3    CFSP11   STD                  
+FSSP CORRECTED CONCENTRATION CELL 12     N/CM3    CFSP12   STD                  
+FSSP CORRECTED CONCENTRATION CELL 13     N/CM3    CFSP13   STD                  
+FSSP CORRECTED CONCENTRATION CELL 14     N/CM3    CFSP14   STD                  
+FSSP CORRECTED CONCENTRATION CELL 15     N/CM3    CFSP15   STD                  
+200X CORRECTED CONCENTRATION CELL 01     N/L      C20X01   STD                  
+200X CORRECTED CONCENTRATION CELL 02     N/L      C20X02   STD                  
+200X CORRECTED CONCENTRATION CELL 03     N/L      C20X03   STD                  
+200X CORRECTED CONCENTRATION CELL 04     N/L      C20X04   STD                  
+200X CORRECTED CONCENTRATION CELL 05     N/L      C20X05   STD                  
+200X CORRECTED CONCENTRATION CELL 06     N/L      C20X06   STD                  
+200X CORRECTED CONCENTRATION CELL 07     N/L      C20X07   STD                  
+200X CORRECTED CONCENTRATION CELL 08     N/L      C20X08   STD                  
+200X CORRECTED CONCENTRATION CELL 09     N/L      C20X09   STD                  
+200X CORRECTED CONCENTRATION CELL 10     N/L      C20X10   STD                  
+200X CORRECTED CONCENTRATION CELL 11     N/L      C20X11   STD                  
+200X CORRECTED CONCENTRATION CELL 12     N/L      C20X12   STD                  
+200X CORRECTED CONCENTRATION CELL 13     N/L      C20X13   STD                  
+200X CORRECTED CONCENTRATION CELL 14     N/L      C20X14   STD                  
+200X CORRECTED CONCENTRATION CELL 15     N/L      C20X15   STD                  
+260X CORRECTED CONCENTRATION CELL 01     N/L      C26X01   STD                  
+260X CORRECTED CONCENTRATION CELL 02     N/L      C26X02   STD                  
+260X CORRECTED CONCENTRATION CELL 03     N/L      C26X03   STD                  
+260X CORRECTED CONCENTRATION CELL 04     N/L      C26X04   STD                  
+260X CORRECTED CONCENTRATION CELL 05     N/L      C26X05   STD                  
+260X CORRECTED CONCENTRATION CELL 06     N/L      C26X06   STD                  
+260X CORRECTED CONCENTRATION CELL 07     N/L      C26X07   STD                  
+260X CORRECTED CONCENTRATION CELL 08     N/L      C26X08   STD                  
+260X CORRECTED CONCENTRATION CELL 09     N/L      C26X09   STD                  
+260X CORRECTED CONCENTRATION CELL 10     N/L      C26X10   STD                  
+260X CORRECTED CONCENTRATION CELL 11     N/L      C26X11   STD                  
+260X CORRECTED CONCENTRATION CELL 12     N/L      C26X12   STD                  
+260X CORRECTED CONCENTRATION CELL 13     N/L      C26X13   STD                  
+260X CORRECTED CONCENTRATION CELL 14     N/L      C26X14   STD                  
+260X CORRECTED CONCENTRATION CELL 15     N/L      C26X15   STD                  
+260X CORRECTED CONCENTRATION CELL 16     N/L      C26X16   STD                  
+260X CORRECTED CONCENTRATION CELL 17     N/L      C26X17   STD                  
+260X CORRECTED CONCENTRATION CELL 18     N/L      C26X18   STD                  
+260X CORRECTED CONCENTRATION CELL 19     N/L      C26X19   STD                  
+260X CORRECTED CONCENTRATION CELL 20     N/L      C26X20   STD                  
+260X CORRECTED CONCENTRATION CELL 21     N/L      C26X21   STD                  
+260X CORRECTED CONCENTRATION CELL 22     N/L      C26X22   STD                  
+260X CORRECTED CONCENTRATION CELL 23     N/L      C26X23   STD                  
+260X CORRECTED CONCENTRATION CELL 24     N/L      C26X24   STD                  
+260X CORRECTED CONCENTRATION CELL 25     N/L      C26X25   STD                  
+260X CORRECTED CONCENTRATION CELL 26     N/L      C26X26   STD                  
+260X CORRECTED CONCENTRATION CELL 27     N/L      C26X27   STD                  
+260X CORRECTED CONCENTRATION CELL 28     N/L      C26X28   STD                  
+260X CORRECTED CONCENTRATION CELL 29     N/L      C26X29   STD                  
+260X CORRECTED CONCENTRATION CELL 30     N/L      C26X30   STD                  
+260X CORRECTED CONCENTRATION CELL 31     N/L      C26X31   STD                  
+260X CORRECTED CONCENTRATION CELL 32     N/L      C26X32   STD                  
+260X CORRECTED CONCENTRATION CELL 33     N/L      C26X33   STD                  
+260X CORRECTED CONCENTRATION CELL 34     N/L      C26X34   STD                  
+260X CORRECTED CONCENTRATION CELL 35     N/L      C26X35   STD                  
+260X CORRECTED CONCENTRATION CELL 36     N/L      C26X36   STD                  
+260X CORRECTED CONCENTRATION CELL 37     N/L      C26X37   STD                  
+260X CORRECTED CONCENTRATION CELL 38     N/L      C26X38   STD                  
+260X CORRECTED CONCENTRATION CELL 39     N/L      C26X39   STD                  
+260X CORRECTED CONCENTRATION CELL 40     N/L      C26X40   STD                  
+260X CORRECTED CONCENTRATION CELL 41     N/L      C26X41   STD                  
+260X CORRECTED CONCENTRATION CELL 42     N/L      C26X42   STD                  
+260X CORRECTED CONCENTRATION CELL 43     N/L      C26X43   STD                  
+260X CORRECTED CONCENTRATION CELL 44     N/L      C26X44   STD                  
+260X CORRECTED CONCENTRATION CELL 45     N/L      C26X45   STD                  
+260X CORRECTED CONCENTRATION CELL 46     N/L      C26X46   STD                  
+260X CORRECTED CONCENTRATION CELL 47     N/L      C26X47   STD                  
+260X CORRECTED CONCENTRATION CELL 48     N/L      C26X48   STD                  
+260X CORRECTED CONCENTRATION CELL 49     N/L      C26X49   STD                  
+260X CORRECTED CONCENTRATION CELL 50     N/L      C26X50   STD                  
+260X CORRECTED CONCENTRATION CELL 51     N/L      C26X51   STD                  
+260X CORRECTED CONCENTRATION CELL 52     N/L      C26X52   STD                  
+260X CORRECTED CONCENTRATION CELL 53     N/L      C26X53   STD                  
+260X CORRECTED CONCENTRATION CELL 54     N/L      C26X54   STD                  
+260X CORRECTED CONCENTRATION CELL 55     N/L      C26X55   STD                  
+260X CORRECTED CONCENTRATION CELL 56     N/L      C26X56   STD                  
+260X CORRECTED CONCENTRATION CELL 57     N/L      C26X57   STD                  
+260X CORRECTED CONCENTRATION CELL 58     N/L      C26X58   STD                  
+260X CORRECTED CONCENTRATION CELL 59     N/L      C26X59   STD                  
+260X CORRECTED CONCENTRATION CELL 60     N/L      C26X60   STD                  
+260X CORRECTED CONCENTRATION CELL 61     N/L      C26X61   STD                  
+260X CORRECTED CONCENTRATION CELL 62     N/L      C26X62   STD                  
+200Y CORRECTED CONCENTRATION CELL 01     N/L      C20Y01   STD                  
+200Y CORRECTED CONCENTRATION CELL 02     N/L      C20Y02   STD                  
+200Y CORRECTED CONCENTRATION CELL 03     N/L      C20Y03   STD                  
+200Y CORRECTED CONCENTRATION CELL 04     N/L      C20Y04   STD                  
+200Y CORRECTED CONCENTRATION CELL 05     N/L      C20Y05   STD                  
+200Y CORRECTED CONCENTRATION CELL 06     N/L      C20Y06   STD                  
+200Y CORRECTED CONCENTRATION CELL 07     N/L      C20Y07   STD                  
+200Y CORRECTED CONCENTRATION CELL 08     N/L      C20Y08   STD                  
+200Y CORRECTED CONCENTRATION CELL 09     N/L      C20Y09   STD                  
+200Y CORRECTED CONCENTRATION CELL 10     N/L      C20Y10   STD                  
+200Y CORRECTED CONCENTRATION CELL 11     N/L      C20Y11   STD                  
+200Y CORRECTED CONCENTRATION CELL 12     N/L      C20Y12   STD                  
+200Y CORRECTED CONCENTRATION CELL 13     N/L      C20Y13   STD                  
+200Y CORRECTED CONCENTRATION CELL 14     N/L      C20Y14   STD                  
+200Y CORRECTED CONCENTRATION CELL 15     N/L      C20Y15   STD                  
+KEYWORD                                           DLA                           
+KEYWORD                                           DLA1                          
+RAW DEW POINT, TOP FUSELAGE               C       DPGEO                         
+CORRECTED DEW POINT, TOP FUSELAGE        UNK      DPGC                          
+RAW MICROWAVE REFRACTOMETER VOLTAGE      VDC      RFI                           
+RADIOMETRIC SURFACE TEMP-CAVITY TEMP      C       PRTCT                         
+SIDESLIP REFERENCE, RIGHT                MB       BREFR                         
+SIDESLIP REFERENCE, LEFT                 MB       BREFL                         
+TRAILING CONE, DIFFERENTIAL PRESSURE     MB       DPSF                          
+CORRECTED OZONE CONCENTRATION            PPB      TEO3C                         
+RAW OZONE OUTPUT                         PPB      TEO3                          
+VHRT DYNAMIC PRESSURE, RADOME            MB       QCR25                         
+VHRT DYNAMIC PRESSURE, FUSELAGE          MB       QCF25                         
+VHRT ATTACK DIFFERENTIAL PRESSURE        MB       ADF25                         
+VHRT SIDESLIP DIFFERENTIAL PRESSURE      MB       BDF25                         
+VHRT SIDESLIP REFERENCE, RIGHT           MB       BRR25                         
+VHRT SIDESLIP REFERENCE, LEFT            MB       BRL25                         
+GOD KNOWS                                MB       PSFD2                         
+INTERMEDIATE ATTACK VALUE                DEG      ATK4                          
+INTERMEDIATE ATTACK VALUE                DEG      ATK3                          
+QCFC/QCRC                                N        QRATIO                        
+TRAILING CONE, STATIC PRESSURE           MB       PTC                           
+PSFDC   -  PTC                           MB       DFPSFTC                       
+ATOPH   -  ATB                           C        DFATOB                        
+CORRECTED DIFF.  PRESSURE, TRAILING CONE MB       DPSFC                         
+PMS-2DC DROPLET CONCENTRATION            N/1      CNCC1                         
+RAW CYROGENIC DEW POINT TEMP             C        VCRH                          
+CYROGENIC INLET TEMPERATURE              C        CRHT                          
+CYROGENIC INLET PRESSURE                 MB       CRHP                          
+RADOME DUTY CYCLE                        N        RDS                           
+RADOME POWER DENSITY                     W/IN2    PD                            
+OPHIR RADIOMETER VOLTAGE                 VDC      TAIRV                         
+OPHIR BB REFERENCE 1                     C        TREF1                         
+OPHIR BB REFERENCE 2                     C        TREF2                         
+OPHIR BB REFERENCE 3                     C        TREF3                         
+FAST OZONE VOLTAGE                       VDC      FO3                           
+FAST OZONE FLOW                          N/MIN    FLO3                          
+FAST OZONE TEMPERATURE                   C        TFO3                          
+TEMPERATURE OUTSIDE RADOME               C        XTTRO                         
+TEMPERATURE INSIDE RADOME                C        XTTRI                         
+EQUIV. POTENTIAL TEMP. EMANUEL           K        ETHETAK                       
+RADOME REFERENCE PRESSURE                MB       PREFR                         
+TOTAL TEMPERATURE (ALT. RADOME)          C        TTB1                          
+OZONE NITRIC OXIDE FLOW                  VDC      FLONO                         
+BLEEDAIR MANIFOLD PRESSURE               MB       RDS                           
+AEROSOL INLET FLOW (INLET 1)             VDC      FLOW1                         
+AEROSOL INLET FLOW (INLET 2)             VDC      FLOW2                         
+AEROSOL INLET FLOW (INLET 3)             VDC      FLOW3                         
+AEROSOL INLET FLOW (INLET 4)             VDC      FLOW4                         
+AEROSOL INLET FLOW (INLET 5)             VDC      FLOW5                         
+AEROSOL INLET FLOW (INLET 6)             VDC      FLOW6                         
+AEROSOL INLET FLOW (INLET 7)             VDC      FLOW7                         
+CLARKE CN SAMPLER OUTPUT                 COUNTS   CNTS                          
+CLARKE CN SAMPLER STATUS                 VDC      CNMOD                         
+FAST SGC2 - DETECT SIGNAL (X5)           VDC      DETX5                         
+FAST SGC2 - DETECT SIGNAL (RAW)          VDC      DET                           
+SGC2 TRAP 1 FLOW                         VDC      TRAP1                         
+SGC2 TRAP 2 FLOW                         VDC      TRAP2                         
+SGC2 CALIBRATION 1 FLOW                  VDC      CAL1                          
+SGC2 CALIBRATION 2 FLOW                  VDC      CAL2                          
+SGC2 MANIFOLD FLOW                       VDC      FMAN                          
+SGC2 ZERO AIR FLOW                       VDC      ZERO                          
+SGC2 RUN STATUS 1                        VDC      RUN1                          
+SGC2 RUN STATUS 2                        VDC      RUN2                          
+NO2 SIGNAL OUTPUT                        VDC      CLMA                          
+NO2 MANIFOLD FLOW                        VDC      CMAN                          
+NO2 ZERO AIR FLOW                        VDC      CZERO                         
+NO2 TRAP FLOW                            VDC      CTRAP                         
+NO2 CALIBRATION FLOW                     VDC      CCAL                          
+GCMS SAMPLE 1 SIGNAL                     VDC      SAMP1                         
+GCMS SAMPLE 2 SIGNAL                     VDC      SAMP2                         
+GCMS MANIFOLD FLOW                       VDC      GMAN                          
+GCMS ZERO MONITOR                        VDC      GZERO                         
+GCMS CALIBRATION 1 FLOW                  VDC      GCAL1                         
+GCMS CALIBRATION 2 FLOW                  VDC      GCAL2                         
+CORRECTED CRYOGENIC DEW POINT TEMP       C        DPCRC                         
+CORRECTED OZONE CONCENTRATION            PPB      TEO3C                         
+NITROGEN OXIDES DETECTOR OUTPUT          VDC      XNOX                          
+CARBON MONOXIDE DETECTOR OUTPUT          VDC      CO                            
+CO/XNOX ANALYZER STATUS                  VDC      CMODE                         
+CORRECTED OZONE CONCENTRATION            PPB      TEO3C                         
+NITROGEN OXIDES DETECTOR OUTPUT          VDC      XNOX                          
+CARBON MONOXIDE DETECTOR OUTPUT          VDC      CO                            
+CO/XNOX ANALYZER STATUS                  VDC      CMODE                         
+MBAR                                              INTERNAL                      
+CAVITY TEMPERATURE: TOP PRT5             C        TCAVT
+CAVITY TEMPERATURE: BOTTOM PRT5          C        TCAVB   
+HIGH RATE FLOW RATE                      VDC      O3FF    
+HIGH RATE OZONE TEMPERATURE              VDC      O3FT    
+TECO OZONE CONCENTRATION, RAW MEAN       PPB      TEO3    
+OZONE CONCENTRATION, HIGH RATE           PPB      O3F     
+TECO INTERNAL OZONE SAMPLING TEMPERATURE C        TET     
+TECO INTERNAL OZONE SAMPLING PRESSURE    MB       TEP     

@@ -1,0 +1,33 @@
+# makefile for GUINT
+# usage: Make <target>
+#
+# use to make the GUINT executable programs --
+#
+# % make install
+#
+#      - will install new version on /users/raf/absolute
+#
+# define directory with development files
+#
+#
+# define installation directories
+#
+#
+FLAGSO = -g -c -v
+#
+# set compile flags for development, driver files
+#
+FLAGSD = -g -v 
+#
+# set compile flags for installation
+#
+#
+#
+#
+# define object files for gpgenset:
+#
+JOBLOG.O = $(gutil)/gpextend.o gpjoblog.o $(gutil)/gpttime.o  
+#
+joblog: 	$(JOBLOG.O) 
+	f77 $(FLAGSD) -o gpjoblog.out $(JOBLOG.O)
+#

@@ -1,0 +1,74 @@
+file: GPLISTOF PROCSSRS -- list of processors. This is the list of              
+filenames, filetypes, machine names, and virtual addresses (and, in the         
+case of non-standard variables, the names of those variables) needed for        
+GENPRO processing. These files are referred to as 'processors'.                 
+                                                                                
+'Standard' processors are files that handle Bulletin 9 variables in the         
+standard way. 'Non-standard' processors include files that have mods            
+done to the Standard ones, or are routines created for new user vars.           
+                                                                                
+The files listed herein are extracted as dictated by the current set of         
+variables requested in the Parameters Menu, 'SE' option, IF AND ONLY IF         
+deck generation is also requested (i.e., either the 'GQ' or 'GC' option).       
+The extracted files are used to create a file called CALIBS <project #>         
+<workdisk> (CMS implementation), which is inserted into the JCL during          
+deck generation. This CALIBS file is also used in the Archive option            
+(Processing Menu) to designate the source files to be saved to Mass             
+Store as the Calibration files for the project. THEREFORE: it is                
+necessary to ensure that the COMPLETE SET OF ALL SOURCE FILES USED IN ANY       
+FLIGHTS are present in the final CALIBS file created; i.e., given a             
+scenario in which the final production run uses a subset of variables,          
+e.g., Lyman-Alpha is used on all flights but this one, the file SDLA            
+IFTV3 will not be picked up. While this is fine for the processing of           
+that flight, it will preclude the Archiving of that file since the final        
+CALIBS file does not designate it. At present (8/8/88) an adequate              
+algorithm to automate this process has not been developed.                      
+                                                                                
+A copy of this file is placed on the WORKDISK of the current project. If        
+the user wishes to alter any of the designated processors, s/he may do so       
+by simply editing this copy to suit his/her needs.                              
+                                                                                
+Conventions that MUST be followed in altering this file include:                
+                                                                                
+ -- BEGIN LIST is the last record before the list begins                        
+ -- fileids are written in (3(A8,1X),A3) format                                 
+ -- the NON-STD record indicates the start of non-standard processors           
+ -- the next record indicates how many non-standard processors there are        
+ -- the 1st non-standard processor starts at the next record                    
+ -- # of variables that indicate the need for each non-std processors           
+    follows the virtual address of that processor, and those variables          
+    names appear in subsequent records                                          
+ -- the positioning of non-standard processors is placed before the             
+    CALIB IFTV3 file to insure they will be acquired before that file           
+    and thus supersede any entry points of same name                            
+ -- the symbols &A and &R indicate variable file naming as function of          
+    the aircraft number and use of Radome in the given project.                 
+ -- follow these conventions in modifying this file or lose your next           
+    paycheck.                                                                   
+                                                                                
+BEGIN LIST                                                                      
+REPSAV   IFTRAN   GENPRO2  191                                                  
+SAVBLK   CALIB    GENPRO2  191                                                  
+ACTSAV   &A&R     GENPRO2  191                                                  
+CALS&AR  IFTV3    GENPRO2  191                                                  
+CALPMS   IFTV3    GENPRO2  191                                                  
+NON-STD                                                                         
+2                                                                               
+SDLA     IFT      GENPRO2  191  4                                               
+RHOLA1                                                                          
+RHOLA                                                                           
+RFLAG1                                                                          
+RFLAG                                                                           
+SDMEC    IFT      GENPRO2  191  7                                               
+ALATC                                                                           
+ALONC                                                                           
+XCORR                                                                           
+YCORR                                                                           
+ELVANG                                                                          
+DIST                                                                            
+RDIAL                                                                           
+CALIB    IFTV3    GENPRO2  191                                                  
+INICAL   IFTV3    GENPRO2  191                                                  
+CALSUBI  IFTV3    GENPRO2  191                                                  
+CALSUBG  IFTV3    GENPRO2  191                                                  
+CALSUBS  IFTV3    GENPRO2  191                                                  

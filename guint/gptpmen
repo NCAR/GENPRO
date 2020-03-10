@@ -1,0 +1,73 @@
+#
+# Usage: GPGUINT <project name> <proj. #> <working path> <version>
+#        Tape Staging menu sub-driver
+########################################################################
+#                                                                      #
+#                 TAPE STAGING MENU                                    #
+#                                                                      #
+########################################################################
+# project/flight initiation, setup, tape staging
+# stage a tape to the Cray
+            if ($preamble != "off") then
+              echo " " 
+              echo "Welcome to the Tape Staging Process. To properly utilize this utility,"
+              echo "you must have (1) Logged Flight Tapes (Setup Menu option L) to enter"
+              echo "summary data for research flights and (2) delivered the physical tapes"
+              echo "listed in that summary to the tape operator. The actual staging in of"
+              echo "those tapes to the Mass Store is accomplished here. The menu below"
+              echo "offers 6 choices; start with  S--Stage in tape(s).  User Files may"
+              echo "be obtained after at least one tape has been successfully staged; Time"
+              echo "segments may be done as well at that time.  It is most efficient to"
+              echo "stage all tapes first, then proceed with  B--User Files and Time Segs."
+              echo " "
+              echo "In each option, further information and instructions are provided after"
+              echo "selection."
+              echo " "
+            endif
+            unset tploop
+            set tploop = "y"
+            while ($tploop == "y")
+              echo "                Tape Staging Menu"
+              echo " " 
+              echo "              s   Stage in Tapes"
+              echo "              u   Get User Files for Genpro"
+              echo "              t   Get Time Segments for all flights"
+              echo "              b   Both User Files and Time Segments"
+#               echo "              f   Get Raw Tape Dump"
+              echo "              c   Complete the Staging"
+              echo "             <cr> Return to Setup Menu"
+              unset bchoice
+              set bchoice = $<
+              set bchoice = `echo $bchoice | dd conv=lcase`
+              switch($bchoice)
+              case ""
+               exit
+              case s
+               # stage a tape to Mass Store
+               $tp2ms/gptp2ms $prnum $workpath  
+	       breaksw
+              case u
+               # get user directives from tape header via Adsraw program
+               $getuds/gpgetuds $prnum $workpath
+	       breaksw
+              case t
+               # get valid time segments for all flights via Adsraw program
+               $gtsegs/gpgtsegs $prnum $workpath 
+	       breaksw 
+              case b
+               # get user directives AND valid time segments via Adsraw program
+		set both = "yes"
+               $gtsegs/gpgtsegs $prnum $workpath $both
+	       breaksw 
+#               case f
+#                # obtain a dump of the raw variables
+#                $rawdmp/gprawdmp $prnum $workpath
+#                breaksw
+              case c
+          # download reader files after a staging/UD/time seg job has completed
+               $ldads/gpldads $prnum $workpath
+	       breaksw
+              default
+               exit
+              endsw
+            end

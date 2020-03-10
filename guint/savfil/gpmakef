@@ -1,0 +1,25 @@
+# makefile for GUINT
+# usage: Make <target>
+#
+# use to make the GUINT executable programs --
+#
+#
+#
+#
+# set compile flags for development, driver files
+#
+FLAGSD = -g -v
+#
+#
+#
+#
+# define object files for gpjobchk:
+#
+#
+savfil: 	gpsavfil.f 
+	f77 $(FLAGSD) -o gpsavfil.out gpsavfil.f 
+
+
+
+getsrc: 	gpgetsrc.f   
+	f77 $(FLAGSD) -o gpgetsrc.out gpgetsrc.f 

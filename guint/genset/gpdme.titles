@@ -1,0 +1,4 @@
+LETVAR='DME DISTANCE                            ','      ',%FOR,RANG            
+LETVAR='DME FREQUENCY                           ','      ',%FOR,FREQ            
+LETVAR='DME FLAG                                ','      ',%FOR,FLAG            
+/                                                                               

@@ -1,0 +1,230 @@
+# makefile for GUINT
+# usage: Make <target>
+#
+# use to make the GUINT executable programs --
+#
+# % make install
+#
+#      - will install new version on /users/raf/absolute
+#
+# define directory with development files
+#
+#  DIRD = /users/raf/source/dguint/src   <---  old environment--not used ??
+#
+# define installation directories
+#
+#  INSTALL = /users/raf/absolute/
+#  FILES = /users/raf/misc/
+#
+# set compile flags for development, object files
+#
+FLAGSO = -g -c -v
+#
+# set compile flags for development, driver files
+#
+FLAGSD = -g -v
+#
+#
+#
+# genset is the main driver for the interactive setup program
+#  UTIL = /home/local/guint/util
+#
+# header files for gpgenset.f
+GENSET.H = gpio.h gppdata.h gpifile.h gpdictn.h 
+#gpusrvar.h 
+#
+#
+#GENSET.O = gpblnks.o gpcalvar.o gpcalvec.o ${UTIL}/gpcaptl.o gpchgcal.o\
+#${UTIL}/gphms2sx.o gpusrvar.o  \
+# above is from Masscomp
+#
+# define object files for gpgenset:
+GENSET.O = gpblnks.o gpcalvar.o gpcalvec.o ${gutil}/gpcaptl.o gpchgcal.o \
+gpchkint.o gpchgord.o gpcmod3.o gpderive.o gpdirect.o gpextend.o gpfile.o \
+gpfltgen.o gpfndun.o gpgenset.o gpgetdic.o gpgetord.o gpgetsnp.o \
+${gutil}/gphms2sx.o gpusrvar.o \
+gpiniflt.o gpinipro.o gpnseg1.o gpparm.o gprdhdr.o gpresflt.o gprespro.o \
+$(gutil)/gplcaps.o $(gutil)/gpcaps.o \
+gpselect.o gpserch.o gpserch2.o gptaplen.o gptmseg.o gpttime.o gpverif.o 
+#
+genset: 	$(GENSET.O) 
+	f77 $(FLAGSD) $(GENSET.O) -o gpgenset.out
+#
+# object files referenced by gpgenset
+#
+#   Main driver
+gpgenset.o:	$(GENSET.H) gpgenset.f
+	f77 $(FLAGSO) gpgenset.f
+#
+#   if the first NUM characters of IARRAY are not blanks, assign VIN to VOUT; 
+#    else do nothing
+gpblnks.o:      gpblnks.f
+	f77 $(FLAGSO) gpblnks.f
+#
+#
+#  output the current selection of calibration variables to the DIRECT file
+CALVAR.H = gpdictn.h
+gpcalvar.o:   $(CALVAR.H)   gpcalvar.f
+	f77 $(FLAGSO) gpcalvar.f
+#
+#   Create the vecvar for the Calib operation.
+CALVEC.H = gppdata.h gpifile.h                                      
+gpcalvec.o:   $(CALVEC.H)   gpcalvec.f
+	f77 $(FLAGSO) gpcalvec.f
+#
+#   change the CALCOE file based on info in SDINAM, C1, C2, and C3
+CHGCAL.H = gpio.h gppdata.h                                        
+gpchgcal.o:   $(CHGCAL.H)   gpchgcal.f
+	f77 $(FLAGSO) gpchgcal.f
+#
+#  return either EBCDIC value of ICHAR(CH(1:1)) if that char is a character;
+#    else return the value of an integer
+gpchkint.o:    gpchkint.f
+	f77 $(FLAGSO) gpchkint.f
+#
+#    display and offer changes to the output order of variable names
+CHGORD.H = gpifile.h gpio.h gpdictn.h                                 
+gpchgord.o:   $(CHGORD.H)   gpchgord.f
+	f77 $(FLAGSO) gpchgord.f
+#
+#   get derived vars that are implied by all present sampled vars
+CMOD3.H = gppdata.h                                                       
+gpcmod3.o:   $(CMOD3.H) gpcmod3.f
+	f77 $(FLAGSO) gpcmod3.f
+#
+#    Get list of all possible derived variable names as a function of variables
+#     already present. Separate Keywords into Keywords array.
+DERIVE.H = gppdata.h                                                       
+gpderive.o:   $(DERIVE.H) gpderive.f
+	f77 $(FLAGSO) gpderive.f
+#
+#  Direct downstream processing
+#    EXEC is true only if execution is to continue;
+#     if so: if calibrations have been changed, revise the CALCOE file.
+#     Also output the calibration variables and any other needed info
+DIRECT.H = gpifile.h gppdata.h 
+#gpusrvar.h                           
+gpdirect.o:   $(DIRECT.H) gpdirect.f
+	f77 $(FLAGSO) gpdirect.f
+#
+#   Position a file pointer for unit LU at end of file to extend the file.
+gpextend.o:    gpextend.f
+	f77 $(FLAGSO) gpextend.f
+#
+#    Save or restore project specific information to SETSAV <projno> or
+#      save/restore flight specific info to FLTSAV <projno>, in each case
+#      to the specified <workdisk>  (IBM 4381 implementation)
+FILE.H = gppdata.h gpifile.h gpio.h
+# gpusrvar.h                   
+gpfile.o:   $(FILE.H) gpfile.f
+	f77 $(FLAGSO) gpfile.f
+#
+#   generate a flight deck
+FLTGEN.H = gppdata.h gpio.h gpifile.h 
+#gpusrvar.h
+gpfltgen.o:   $(FLTGEN.H) gpfltgen.f
+	f77 $(FLAGSO) gpfltgen.f
+#
+#   fill UNITS array with the correct value corresponding to the variable
+FNDUN.H = gppdata.h gpifile.h gpio.h 
+gpfndun.o:   $(FNDUN.H) gpfndun.f
+	f77 $(FLAGSO) gpfndun.f
+#
+#   Write the extract command to temporary EXEC file
+#gpgetchk.o:    gpgetchk.f
+#f77 $(FLAGSO) gpgetchk.f
+#
+#   fill up the variable names and units dictionaries
+GETDIC.H = gpifile.h gpio.h 
+gpgetdic.o:   $(GETDIC.H) gpgetdic.f
+	f77 $(FLAGSO) gpgetdic.f
+#
+#    Get the output order from the current lists in all output arrays arranged
+#      as function of dictionary VNAME
+GETORD.H = gpifile.h gppdata.h   
+gpgetord.o:   $(GETORD.H) gpgetord.f
+	f77 $(FLAGSO) gpgetord.f
+#
+#    create the snapshots for input or output operations
+GETSNP.H = gpifile.h 
+gpgetsnp.o:   $(GETSNP.H) gpgetsnp.f
+	f77 $(FLAGSO) gpgetsnp.f
+#
+#     do flight setups
+INIFLT.H = gpifile.h gpio.h  
+gpiniflt.o:   $(INIFLT.H) gpiniflt.f
+	f77 $(FLAGSO) gpiniflt.f
+#
+#    do initial project setup
+INIPRO.H = gpifile.h gppdata.h gpio.h 
+gpinipro.o:   $(INIPRO.H) gpinipro.f
+	f77 $(FLAGSO) gpinipro.f
+#
+#   This routine contains most of the interactive setup
+NSEG1.H = gpifile.h gppdata.h gpio.h  
+#gpusrvar.h                
+gpnseg1.o:   $(NSEG1.H) gpnseg1.f
+	f77 $(FLAGSO) gpnseg1.f
+#
+#  Determine Defaults for Attack and Sideslip sensors
+PARM.H = gpifile.h gppdata.h   
+gpparm.o:   $(PARM.H) gpparm.f
+	f77 $(FLAGSO) gpparm.f
+#
+#   read header info prepared by ADSRAW from HEADER
+RDHDR.H = gppdata.h gpifile.h
+gprdhdr.o:   $(RDHDR.H) gprdhdr.f
+	f77 $(FLAGSO) gprdhdr.f
+#
+#   restore a flight setup
+RESFLT.H = gpifile.h gpio.h gppdata.h
+gpresflt.o:   $(RESFLT.H) gpresflt.f
+	f77 $(FLAGSO) gpresflt.f
+#
+#   restore a project setup
+RESPRO.H = gpifile.h gpio.h gppdata.h
+gprespro.o:   $(RESPRO.H) gprespro.f
+	f77 $(FLAGSO) gprespro.f
+#
+#   supply list of all possible variables for selection;
+#   allow user to specify which ones are desired
+SELECT.H = gpdictn.h gpio.h
+gpselect.o:   $(SELECT.H) gpselect.f
+	f77 $(FLAGSO) gpselect.f
+#
+#   search for KEY in ARRAY of length LEN; return its position in the array
+#     in INDX
+gpserch.o:   gpserch.f
+	f77 $(FLAGSO) gpserch.f
+#
+#    search for KEY in ARRAY indirectly through pointer array IPTR; # of
+#      words is LEN; return its position ,IPTR(J), in INDX
+gpserch2.o:   gpserch2.f
+	f77 $(FLAGSO) gpserch2.f
+#
+#   use information from Taplog file to determine the length in seconds
+#    of output snapshots needed for current project (NSXOUT)
+gptaplen.o:   gptaplen.f
+	f77 $(FLAGSO) gptaplen.f
+#
+#   add / modify time segments
+TMSEG.H = gpio.h gppdata.h gpifile.h
+gptmseg.o:   $(TMSEG.H) gptmseg.f
+	f77 $(FLAGSO) gptmseg.f
+#
+#   Given a CHARACTER*14 (minimum) string DATE, return the date and time
+#    in 'mm/dd/yy hh:mm' format
+gpttime.o:   gpttime.f
+	f77 $(FLAGSO) gpttime.f
+#
+#     add user defined variables to array DERIV, and obtain accompanying
+#      title, units, and derivations
+USRVAR.H = gpio.h gppdata.h gpifile.h 
+#gpusrvar.h
+gpusrvar.o:  $(USRVAR.H) gpusrvar.f
+	f77 $(FLAGSO) gpusrvar.f
+#
+#   if SNAM1 is present in SDINAM, add DNAME to the list of derived vars
+VERIF.H = gppdata.h 
+gpverif.o:   $(VERIF.H) gpverif.f
+	f77 $(FLAGSO) gpverif.f

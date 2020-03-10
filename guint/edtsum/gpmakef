@@ -1,0 +1,19 @@
+# makefile for fltseg
+# usage: Make <target>
+#
+# use to make the GUINT executable programs --
+#
+# define installation directories
+#
+#
+#
+# set compile flags, for driver
+#
+FLAGSD = -g -v
+#
+#
+#
+#
+# edtsum is an independant driver
+gpedtsum.out: gpedtsum.f
+	f77 $(FLAGSD) -o gpedtsum.out gpedtsum.f 

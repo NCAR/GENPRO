@@ -1,0 +1,73 @@
+Rick,
+
+Comments on Masscomp Guint Users Guide, Version 2, Draft 1
+----------------------------------------------------------
+
+Page 1
+Masscomp Guint User's Guide  <-- add apostrophe
+
+Good to have information on logins, MIGS and .rhosts files.
+
+I wouldn't use the directory name 'stud.'  Pick something else, please.
+
+I think Jeff Berry's manual mentioned all the information needed to start a
+GUINT processor.  If not, I think it would be good if you could include it
+here in the manual (instead of:  such as ... ).
+
+Page 2
+I see that some of this info is on page 2.  It may be a good idea to summarize
+all the information needed to set up GUINT for a project and put it into some
+sort of table.
+
+spelling of "explanitory" (bottom of page 2)?
+
+When entering flight tapes, I'd recommend that the user do a "save & continue"
+reasonably often.  If something should happen to the system while entering
+these data, all data entered up until then will be lost.
+
+Page 3
+Wording explaining the three options (submit, examine, abandon) could use some
+editing for clarity.  The basic information is OK.  (I could help, if there is
+an electronic version of the file I can get my hands on.)
+
+After the user submits the job to stage tapes, it could take quite a while for
+those e-mail messages having the staging results.  If there is a backlog, or
+a lot of tapes, or if the MSS is down, it could be well into the next day for
+all the tapes to get staged.  It would be well to tell that to the user.
+
+I don't think you should have to explain anything about how email or elm works.
+
+You mention that the user needs sequence numbers (SP####) to complete the
+staging, but you don't say where to find them.
+
+Page 4
+Toward the bottom of the "complete staging" in the getuds/tsegs section, you
+ask for a sequence number then tell the user to write it down for later.  Is
+there a way you could have GUINT save it for him/her?
+I see at the bottom, that they are saved.  All we have to do is figure out
+a way to have the user be able to enter 'vi' automatically using these
+sequence numbers.
+
+Page 5
+When exiting 'vi' include some code for the return key, e.g. [r].
+
+Page 8
+When you tell the user that "this is the place where all the work is done,"
+you may want to mention that it could take awhile (even though the screen
+tell you it is "processing").
+
+Page 9
+It should be an easy matter to write a little script that will take your
+reference conv.scr file, ask the user for the needed pieces of info (proj#,
+directory and project name), create a modified version of the conv.scr file
+and copy the gen.01 file to the user's directory.
+
+------------------
+General comments
+
+Looks very good as a first step.  As you are aware, there are spelling and
+grammar errors which should be edited.  It looks complete enough to me that
+someone (like me) can take it and edit it into a final draft.
+
+Ron
+.

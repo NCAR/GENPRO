@@ -1,0 +1,168 @@
+SOURCE VARIABLES                         NS NAMVAR NAMC                         
+                                                                                
+AFIXL   QCXC                             2 AKFXL                                
+AFIXR   QCXC                             2 AKFXR                                
+BFIXB   QCXC                             2 SSFXB                                
+BFIXT   QCXC                             2 SSFXT                                
+ADIFR   QCRC                             2 AKRD     BIAS 312 DEG        0.00    
+ADIFR   QCRC    QCXC    PSXC             4 AKRD     BIAS 307 DEG        0.00    
+ADIFR   QCRC                             2 AKRD     BIAS 308 DEG        0.00    
+ADIFR   QCFC                             2 AKRD2    BIAS 308 DEG        0.00    
+AVOLF                                    1 AMASS                                
+ADIFR   QCR                              2 ATK3                                 
+ATK3                                     1 ATK4                                 
+TTRF    QCXC    PSXC                     31ATRF     RECF     ND         0.60    
+TTB     QCXC    PSXC                     31ATB      RECF     ND         0.95    
+TTF     QCXC    PSXC                     31ATF      RECF     ND         0.95    
+TTKP    QCXC    PSXC                     31ATKP     RECF     ND         0.80    
+TTR3    QCXC    PSXC                     31ATR3     RECF     ND         0.95    
+TTR6    QCXC    PSXC                     31ATR6     RECF     ND         0.95    
+TTR9    QCXC    PSXC                     31ATR9     RECF     ND         0.80    
+TTW     QCXC    PSXC                     31ATW      RECF     ND                 
+TTBH    QCXC    PSXC                     31ATBH     RECF     ND                 
+TTFH    QCXC    PSXC                     31ATFH     RECF     ND         0.98    
+TTWH    QCXC    PSXC                     31ATWH     RECF     ND         0.98    
+AFLOW   PSXC    ATRF                     3 AVOLF                                
+BDIFR   QCR                              2 BETA3                                
+QCRC    AKRD    SSRD    ADIFR            4 BRE                                  
+SPARE                                    1 COUNTS                               
+THF     TRK                              2 DA                                   
+VAR1    VAR2                             2 DFVARS                               
+DO3     PALT    PCAB                     3 DO3C     COEFF             112.8     
+TEO3    TEP     TET                      3 TEO3C                                
+DPB                                      11DPBC                                 
+DPT                                      11DPTC                                 
+VCRH    PSXC    ATX     CRHT    CRHP     5 DPCRC                                
+RICE    TASX                             2 DRICE                                
+RICE    TASX                             2 SCLWC                                
+XVI     YVI                              2 GSF                                  
+THF     TASX    TASX    AKDF    SSDF     5 GUSTO    BOOMLN 2 M          4.38    
+THF     TASX    TASX    AKDF    SSDF     5 GUSTO    BOOMLN 7 M          7.87    
+THF     TASX    TASX    AKDF    SSDF     5 GUSTO    BOOMLN 8 M          4.38    
+THF     TASX    TASX    AKRD    SSRD     5 GUSTR    BOOMLN 2 M          5.80    
+THF     TASX    TASX    AKRD    SSRD     5 GUSTR    BOOMLN 7 M          4.95    
+THF     TASX    TASX    AKRD    SSRD     5 GUSTR    BOOMLN 8 M          5.80    
+QCXC                                     11IAS                                  
+DTB     STB     IRB                      31IRBC     XKB                 5.5     
+DTT     STT     IRT                      31IRTC     XKT                 5.5     
+ADIFR   QCRC    PITCH                    3 KR                                   
+LWC     TASX                             2 LWCC     AIRSPD 2 MPH     230.0      
+LWC     TASX                             2 LWCC     AIRSPD 7 KTS     200.0      
+LWC     TASX                             2 LWCC     AIRSPD 8 KTS     200.0      
+LWC     TASX    CONCF                    3 LWCCZ    AIRSPD   MPH     200.0      
+PSXC    ATX     RHODX   DPX     TASX     5 LYAP1                                
+PSXC    ATX     RHODX   DPX     TASX     5 LYAP2                                
+VLA     ATX     PSXC    RHODX            4 DLA      THRSH    PERCENT 20.0       
+VLA1    ATX     PSXC    RHODX            4 DLA1     THRSH    PERCENT 20.0       
+DPXC    PSXC                             2 MR                                   
+PSXC                                     1 PALT     ASTG     MB      1013.24    
+PSXC                                     1 PALTF    ASTG     MB      1013.24    
+DPXC    ATX     PSXC                     3 PLCL                                 
+PLWC    ATX     PSXC    TASX             4 PLWCC                                
+PLWC    ATX     PSXC    TASX    CONCF    5 PLWCCZ                               
+ATX     MR      PSXC    HGM              4 PSURF                                
+ATX     MR      HGM     PSXC             4 P210M                                
+PSXC    ATX     PLWCC   MR               4 QRM                                  
+VAR1    VAR2                             2 RATIO                                
+PSXC    ATX     TASX                     3 RE                                   
+DPSF    QCX                              2 RESERR                               
+DPBC    ATX     PSXC                     31RHODB                                
+DPGC    ATX     PSXC                     31RHODG                                
+DPTC    ATX     PSXC                     31RHODT                                
+DPXC    ATX     PSXC                     3 RHUM                                 
+DPXC    PSXC                             2 SPHUM                                
+BDIFR   QCRC                             2 SSRD     BIAS 312 DEG        0.0     
+BDIFR   QCRC    QCXC    PSXC             4 SSRD     BIAS 307 DEG        0.0     
+BDIFR   QCRC                             2 SSRD     BIAS 308 DEG        0.0     
+BDIFR   QCFC                             2 SSRD2    BIAS 308 DEG        0.0     
+VAR1    VAR2                             2 SUM2                                 
+TTX     QCFC    PSXC                     32TASF     RECF     ND         0.95    
+TTX     QCBC    PSXC                     32TASB     RECF     ND         0.95    
+TTX     QCGC    PSXC                     32TASG     RECF     ND         0.95    
+TTX     QCWC    PSXC                     32TASW     RECF     ND         0.95    
+TTX     QCRC    PSXC                     32TASR     RECF     ND         0.95    
+ATX     PSXC                             2 THETA                                
+DPXC    ATX     PSXC    MR               4 THETAE                               
+ATX     MR      PSXC                     3 THETAV                               
+ATKP    PSXC                             2 THETAK                               
+DPXC    ATX     PSXC    MR      QRM      5 QTHETA                               
+DPXC    ATX                              2 TLCL                                 
+QCF                                      11QCFC                                 
+QCB                                      11QCBC                                 
+QCG                                      11QCGC                                 
+QCW                                      11QCWC                                 
+QCD                                      11QCDC                                 
+QCR     ADIFR   BDIFR                    31QCRC     OFFSET 8 MB                 
+QCR     ADIFR   BDIFR   QCX              41QCRC     OFFSET 7 MB                 
+QCR     ADIFR   BDIFR                    31QCRC     OFFSET 2 MB                 
+PSF     QCX                              21PSFC                                 
+PSFD    QCX                              21PSFDC                                
+PSW     QCX                              21PSWC                                 
+PSB     QCX                              21PSBC                                 
+VEW     VNS                              2 TRKI                                 
+ATX     MR                               2 TVIR                                 
+PSXC    QCBC                             2 BMACH                                
+PSXC    QCFC                             2 FMACH                                
+PSXC    QCRC                             2 RMACH                                
+PSXC    QCGC                             2 GMACH                                
+PSXC    QCWC                             2 WMACH                                
+PSXC    QCBC                             2 BMACH2                               
+PSXC    QCFC                             2 FMACH2                               
+PSXC    QCRC                             2 RMACH2                               
+PSXC    QCGC                             2 GMACH2                               
+PSXC    QCWC                             2 WMACH2                               
+ALAT    HGME                             2 ZPG                                  
+ADIF    QCXC    PSXC    QCX              4 AKDF     BIAS     DEG        0.0     
+BDIF    QCXC    PSXC    QCX              4 SSDF     BIAS   2 DEG        0.0     
+BDIF    QCXC    PSXC    QCX              4 SSDF     BIAS   7 DEG        -0.7    
+BDIF    QCXC    PSXC    QCX              4 SSDF     BIAS   8 DEG        0.0     
+CO      PCAB                             2 COC                                  
+HGME    PALT                             2 DVALU                                
+DFLAT   DFLON                            2 DINSLR                               
+TPTIME  TASX                             2 FSSP     HISTOG   SEC        60.0    
+TPTIME  TASX                             2 Y200     HISTOG   SEC        60.0    
+TPTIME  TASX                             2 X200     HISTOG   SEC        60.0    
+TPTIME  TASX                             2 X260     HISTOG   SEC        60.0    
+TPTIME  TASX                             2 ASAS     HISTOG   SEC        60.0    
+DO3     PALT    PSFDC                    3 DO3C                                 
+SDWRC   TASX                             2 CONC2C                               
+SDWRP   TASX                             2 CONC2P                               
+SDWRP2  TASX                             2 CONC2P2                              
+ALAT    ALON    PALT    FREQ    RANG     5 DMEC     TAU                 150.0   
+DPGEO                                    1 DPGC                                 
+BDIFR   BREFR   BREFL                    3 SSRD1                                
+ALAT    ALON    CLAT    CLON             4 POSDF                                
+QCRC    QCFC                             2 QRATIO                               
+ATF     ATFH                             2 DFATFH                               
+ATRF    ATWH                             2 DFATRH                               
+ATB     ATKP                             2 DFATBK                               
+ATB     ATRF                             2 DFATBR                               
+ATRF    ATKP                             2 DFATRK                               
+ATB     ATOPH                            2 DFATBO                               
+ATRF    ATOPH                            2 DFATRO                               
+DPTC    DPBC                             2 DFDPTB                               
+DPTC    DPCRC                            2 DFDPTRC                              
+DPGC    DPBC                             2 DFDPGB                               
+PSBC    PSFC                             2 DFPSBF                               
+PSFDC   PCAB                             2 DFPSFCAB                             
+PSWC    PSFDC                            2 DFPSWD                               
+PSFDC   PSWC                             2 DFPSDW                               
+PSFDC   PSFC                             2 DFPSDF                               
+PSFDC   PSBC                             2 DFPSDB                               
+QCBC    QCFC                             2 DFQCBF                               
+QCRC    QCWC                             2 DFQCRW                               
+QCFC    QCRC                             2 DFQCFR                               
+QCFC    QCBC                             2 DFQCFB                               
+TASB    TASF                             2 DFTABF                               
+TASF    TASB                             2 DFTAFB                               
+GSF     CGS                              2 DFGSFC                               
+FMRT    FMRB                             2 DFFMTB                               
+FMRL    FMRR                             2 DFFMLR                               
+PITCH   AKFXL                            2 DFPHAKL                              
+PITCH   AKFXR                            2 DFPHAKR                              
+PITCH   AKDF                             2 DFPHAKF                              
+PITCH   AKRD                             2 DFPHAKD                              
+AKRD    AKDF                             2 DFAKDF                               
+SSRD    SSDF                             2 DFSSDF                               
+QCRC    QCFC                             2 QRATIO                               
+PSFDC   PTC                              2 DFPSFTC                              

@@ -1,0 +1,57 @@
+#
+#  Invoke with GPTAPLOG <projname> <projno> <disk letter> <IOsequence #>
+#  ... this will read file named <projname> JOBCHK <disk letter> and
+#  search for the <IOsequence> string, and proceed, if found, to extract
+#  information as written by GPJOBCHK FORTRAN and write that information
+#  to  TAPLOG <project number> <disk letter>
+#
+set prname = $1
+set projno = $2
+set workpath = $3
+set ioseq = $4
+# if taplog already started, don't bother with header program
+if (! -r $workpath/taplog.${projno}hd) then
+# if header not started yet, tape output dump file must exist
+   if (! -r $workpath/tdump.${projno}log) then
+      $outdmp/gpoutdmp $projno $workpath
+      echo " "
+      echo "  Return to this tape log operation after you have downloaded the"
+      echo "  Tape Dump logfile mentioned above  ... hit <r> to continue"
+      echo " "
+      line
+      exit 1
+   endif
+   # get info from Tdump logfile and start prod. tape log header
+   $taplog/gptlghdr.out $projno $workpath $prname
+endif
+# log successful run to prod. tape log
+$taplog/gptaplog.out $projno $workpath $ioseq $prname
+# sort file by flight number
+if (! -r $workpath/taplog.${projno}bt)  then
+   /bin/mv $workpath/taplog.${projno}tp $workpath/taplog.${projno}bt
+else
+   /bin/cat $workpath/taplog.${projno}tp >> $workpath/taplog.${projno}bt
+   /bin/rm $workpath/taplog.${projno}tp
+   sort -fdib +0.0 -o$workpath/taplog.${projno}bt $workpath/taplog.${projno}bt
+endif
+while 1
+echo "Do you wish to 1) Change the taplog header  2) Change the flight entries"
+echo "3) view the whole log  <r> Exit"
+set fred = $<
+if ($fred == "") then
+   break
+endif
+if ($fred == '1') then
+   vi $workpath/taplog.${projno}hd
+endif
+if ($fred == '2') then
+   vi $workpath/taplog.${projno}bt
+   sort -fdib +0.0 -o$workpath/taplog.${projno}bt $workpath/taplog.${projno}bt
+endif
+if ($fred == '3') then
+/bin/rm $workpath/taplog.$projno
+/bin/cat $workpath/taplog.${projno}hd $workpath/taplog.${projno}bt > $workpath/taplog.$projno
+vi -R $workpath/taplog.$projno
+endif
+end
+exit

@@ -1,0 +1,123 @@
+UNICOS GUINT (uguint) conversion plan.   RLR <900913.1200mdt>
+                              updated        <901106.1600mst>
+
+Present file structure on the Masscomp for GUINT is as follows:
+  /users/raf/source/guint   <--- current COS-JCL version of GUINT
+  /users/raf/source/dguint  <--- current COS-JCL version of GUINT modified
+                                  module-by-module to UNICOS
+  /users/raf/source/uguint  <--- UNICOS version of GUINT assembled in
+                                  pieces from .../dguint
+
+We plan to reinstate SCCS on GUINT after the UNICOS coversion is complete.
+
+Steps in GUINT conversion.
+1)  Determine which GUINT modules should need no conversion.
+  a)  Log flight tapes
+1)  Set up HaRP GENPRO processor on the X-MP and acquire a reference data set.
+2)  Convert COS-JCL GUINT modules to UNICOS one at a time.  First conversions
+     will be from JCL to UNICOS scripts.  There are ____ main areas where
+     COS-JCL is submitted to the X-MP:  
+  a)  Read raw ADS tapes and descend the data to the MSS
+  b)  Acquire ADS header and calibration information from a raw ADS
+       data set on the MSS
+    .)  user directives -- runs adsraw
+    ..) time segments -- runs gtsegs
+    ...) both -- in effect, runs each of above options
+  c)  Get a sample tape dump of a raw ADS data tape from the MSS
+  d)  Build batch processing files
+  e)  Run GENPRO to produce processed data sets
+  f)  Get a sample tape dump of the processed data set from the MSS
+  g)  Archive log files and other pertinent data to the MSS
+3)  Convert GUINT modules (which read COS output files) to read newly-formatted
+     UNICOS output data.  These modules are in the following areas:
+  a)  Interpret results of staging ADS tapes to the MSS
+  b)  Interpret results of raw ADS dumps
+  c)  Interpret results of GENPRO processing runs
+  d)  Interpret results of processed data set dumps from the MSS
+  e)  Prepare log files and other pertinent data for archiving on the MSS
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+List of GUINT directories and their purposes:
+edtsum/  edit the summary file?
+fltseg/  get flight segments
+fltsum/  compose flight summary file?
+genset/  genpro deck setup
+getuds/  acquire GENPRO directives from ADS header
+gpmiscmen*  menu for miscellaneous functions
+gpprocmen*  processing menu
+gpsetmen*   setup menu
+gptpmen*    tape staging menu
+gtsegs/  acquire time segments from all raw ADS data sets on the MSS
+jobchk/  check output from a GENPRO run
+ldads/   process ADS header data and time segments files
+misc/    miscellaneous GUINT utilities and library files
+outdmp/  processed data dump
+rawdmp/  acquire raw ADS data dump and ADS header data
+savfil/  archive appropriate data on the MSS
+scales/  function to prevent scaling errors on output data sets (discouraged)
+setup/   start setting up new GUINT processor
+submit/  submit GENPRO job to the Cray
+taplog/  log final processed data for archival purposes
+tharp/   HaRP test directory (COS-JCL version)
+tp2ms/   stage raw ADS tapes to the MSS
+util/    utility functions
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Plan for output tape dump (after processing)
+make gpoutdmp.f using copied makefile from dguint directory
+copy appropriate files needed to run it (summary,  compflt, output).
+test run it manually
+edit gpoutdmp script to reflect current changes (may also want to include
+  some status checking)
+test entire operation by manually running gpoutdmp script
+
+NOTE:  must capitalize MSS file name before creating script file
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+It has become apparent that GUINT in its present form will be difficult to
+completely convert to UNICOS in a short amount of time.  Since the Cray Y-MP
+has come on board (October 1), we have succeeded in getting the first of three
+GUINT sections running.  This section is largely responsible for setting
+initial data, for logging and staging flight tapes, for acquiring GENPRO's ADS
+header UDs and for getting time segments for all the data sets.
+
+It is now possible to use this portion of GUINT with an unaltered second
+section, the section that creates a Cray JCL job file.  It is in a preliminary
+form, however, which needs much revision (not to mention conversion to a
+UNICOS script).  GUINT has not been updated to include new variables which
+are becoming commonplace, e.g., cryogenic hygrometer and CVI.  Once we learn
+where to add these new variables, GUINT should be able to handle them, as
+well.
+
+Of most concern is the third section.  It is responsible for relieving a
+user from doing a lot of busy work.  For example, this section will scan a
+returned job log file looking for errors and other problems.  Once the
+log file is scanned, it can use the data to create and update a tape log
+and to handle data archiving to the MSS.
+
+Since GENPRO will be with us for quite some time (measured in years), Gary,
+Celia and I think that some of the tasks that GUINT can perform will save us
+a lot of time and effort.  The problem is that, in its present form, GUINT
+cannot do many of those jobs.  Celia finds these GUINT capabilities most
+useful:
+   1)  ability to import tapes/Exabyte cartridges to the SCD MSS
+   2)  ability to read the ADS header and generate the GENPRO INPUT UDs
+   3)  ability to obtain time segments for each flight
+   4)  ability to generate a set of UDs for GENPRO operations
+   5)  ability to examine the output log file from each GENPRO production run
+   6)  ability to use output log files to generate an output tape log file
+To these I would add the ability to check an output log file for obvious
+errors.
+
+Because a short-term investment in development should produce a future long-
+term benefit, I propose to conduct a 3 man-week study of GUINT (also using
+Celia and Gary as resource persons) to determine the best way to update GUINT.
+In our short meetings this week, it was apparent that we could not reach any
+definite conclusions about what to do.  What I am proposing is to answer the
+questions of how much work we should put into GUINT development and exactly
+what we want the "new" GUINT to do.  After HaRP processing is underway, I'd
+like to spend essentially full RAF time on it to minimize the other
+distractions which could delay my work.

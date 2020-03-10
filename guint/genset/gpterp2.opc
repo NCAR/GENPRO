@@ -1,0 +1,29 @@
+/----------------------------------------------------------INTERP PD01          
+FETCH 241,262                                                                   
+LIST                                                                            
+BEGINUD                                                                         
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                           
+/                    X    TERP   OPERATION          X                           
+/                    X    USER DIRECTIVE FILE       X                           
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                           
+TRPTYP = 3                                                                      
+VECVAR = %T                                                                     
+REMVAR = FSSP, ASAS, Y200, X200, Y260                                           
+/ ATTENTION:                                                                    
+/  terp as follows: any vars terp'd from low to 20 for CALIB: terp to 1         
+/                   any vars set to rate 20 in CALIB that were also             
+/                   derived from rate 5 vars in INPUT: terp to 1                
+/                   vars derived from both low and hi rate INPUT vars           
+/                   get terp'd to 20                                            
+/                   always terp to 20: THETA, XVI, YVI, VEW, VNS                
+/                   always terp to 1: PSURF, RHODT, RHODB, TVIR, MR,            
+/                   SPHUM, RHUM                                                 
+RATE = %T                                                                       
+RATE = 1,%FOR,                                                                  
+ PSFD, PSFDC, DPB, DPT, HGM, PALT, LWC, PLWC, PSFD2, PSW, DPTC, DPBC,           
+ PSURF, RHODT, RHODB, TVIR, MR, SPHUM, RHUM, PSWC, DVALU, PLWCC, LWCC           
+ENDUD                                                                           
+/                                                                               
+/                                                                               
+NOLIST                                                                          
+ENDUD

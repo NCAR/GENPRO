@@ -1,0 +1,51 @@
+---------------------------------------------------------------------------
+Report #1
+---------------------------------------------------------------------------
+Ron Ruth  5 May 1990 (0-881 Sodium Lidar, Dick Friesen)
+If a segments file exists and has entries, equivalent entries must exist
+in its corresponding summary file.  If not, the program hangs.
+Example:
+    A preliminary run of GUINT created a segments file for a test flight.
+    When the final processor was being set up, all the research flights
+     were entered and the test flight deleted.
+    When a "continue & save" was issued, GUINT reported one segment length
+     for a test flight which didn't appear in the summary file, a message
+     appeared telling the user of the (deleted) test flight length asking
+     if it was OK.  When the default (OK) response was given, GUINT hung up
+     until a ^C (interrupt) was issued.
+Program needs to be modified to warn the user of this condition (minimum)
+and/or ask user what steps to take (ignore, delete entry from segments file,
+add entry to summary file).
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+Report #2
+---------------------------------------------------------------------------
+Ron Ruth  16 May 1990  (from Celia Chen)
+---------------------------------------------------------------------------
+GUINT doesn't handle certain difference variables properly.
+examples are DFATBFH and DFATFHB
+the 'LETVAR= 3[   x, y, z  ], %FOR, DFATBH' portion in CALIB is missing.
+---------------------------------------------------------------------------
+Report #3
+---------------------------------------------------------------------------
+Ron Ruth  16 May 1990  (from Celia Chen)
+
+It appears that GUINT doesn't save enough files to allow a reprocess, if
+one is deemed necessary later.
+
+---------------------------------------------------------------------------
+Report #4
+---------------------------------------------------------------------------
+Ron Ruth  26 Jun 1990 
+
+GUINT saves some flight-related things in its project-related data base.
+For example:  Operations and Output Dispositions are selected in the
+  miscellaneous menu, saved in the project setup and put into individual
+  flight files.  if you restore a project and flight, the "saved" values
+  for these operations and dispositions come from the saved project's
+  data, not the flight's.
+
+---------------------------------------------------------------------------
+Report #5
+---------------------------------------------------------------------------
+Ron Ruth  26 Jun 1990 

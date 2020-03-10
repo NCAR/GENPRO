@@ -1,0 +1,2 @@
+# Driver for test
+$guint/gpguint test 253 /home/local/guint/setup 

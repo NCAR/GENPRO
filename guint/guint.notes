@@ -1,0 +1,483 @@
+Basic GUINT structure
+
+
+$guint/gpguint - controller having the Main menu -- shell script
+               - output Main menu and accept responses to do one of:
+                - run $guint/gpsetmen   <-- set-up menu
+                - run $guint/gpprocmen  <-- processing menu
+                - run $guint/gpmiscmen  <-- miscellaneous menu
+
+$guint/gpsetmen - setup menu processing -- shell script
+		- output Setup menu and accept responses to do one of:
+                 - run $fltsum/gpfltsum  <-- log flight tapes
+                 - run $guint/gptpmen    <-- tape-staging menu
+                 - run $genset/gpgenset  <-- invoke setup program
+                    (with parameters) after the following:
+                  - removes $workpath/fltdecks.$prnum
+                  - removes $workpath/fltfile
+                  - returns from gpgenset with returned word count
+                     and uses user response to decide whether or not to
+                     make decks:
+                   - run $genset/gpmkdeck $prname $prnum $workpath
+                   - stop here if (! -r $workpath/mod$prnum)
+                   - add x permission to the file $workpath/mod$prnum
+                   - run $workpath/mod$prnum
+
+~guint/gpprocmen - processing menu -- shell script
+                  - output Setup menu and accept responses to do one of:
+                  - process a flight by calling the procedure
+                     $submit/gpsubmit $prnam $prnum $workpath
+                     after choosing one of:
+                   - normal processing
+                   - 2-D processing (append "2d" to $prname)
+                  - copy a file to $workpath then remove it from the 
+                     MIGS directory
+                  - job check a log file in $workpath by:
+                   - listing all files having $workpath/$prnum.*f*log and
+                      accepting a flight number response
+                   - call $jobchk/gpjobchk $prnum $flt $workpath $prname
+                  - eliminate scaling errors by:
+                   - listing all $workpath/$prnum.*f*log files and
+                      accepting a flight number response
+
+~guint/gpmiscmen - miscellaneous menu -- shell script
+                 - set variable "misclp" = "y"
+                 - output "Miscellany" menu
+                 - accept response to menu options
+                  - "examine job.log file" (l option)
+                   - ask for normal or 2-d processing (append 2d to name)
+                   - "more" appropriate job.log file
+                  - "review job.check file" (c option)
+                   - "vi" the job.check file
+                  - "browse a log file" (b option)
+                   - search for files of form: $workpath/$prnum.*f*log
+                   - list files found and ask user for flight #
+                   - "vi" user-selected file
+                  - "dispose of plot file" (d option)
+                   - ask user for output medium (film/printer)
+                   - ask user for file name
+                   - ask user for plot title (nothing done with it)
+                   - if print - print to lpr1 (should be "plt")         <--- bug
+                   - if film - send nrnet job via MIGS
+                  - "remove a log file" (e option)
+                   - search for files of form: $workpath/$prnum.*f*log
+                   - list files found and ask user for flight #
+                   - remove requested file
+                  - "execute system command" (u option)
+                   - accept user entry and execute it as UNIX command
+                  - "toggle menus" (t option)
+                   - set local variable "preamble" to "on" or "off"
+                  - "processing menu" (p option)
+                   - exit with status -2
+                  - "setup menu" (s option)
+                   - exit with status -1
+                  - illegal option
+                   - set local variable "misclp" to "n"
+                   - exit script                                        <--- ???
+
+$fltsum/gpfltsum - Flight tape summary menu -- shell script
+                 - set local variable "exists" to "Y" or "N" depending upon
+                    existence of file $workpath/summary.$prnum
+                 - ask user if s/he wants to continue.  If yes, then:
+                  - remove file $workpath/summchgd.$prnum
+                  - run $fltsum/gpfltsum.out with parameters
+                  - if modifications were made to file $workpath/summchgd.$prnum
+                   - remove file $workpath/summchgd.$prnum
+                   - use "sed" and "sort" to sort $workpath/summary.$prnum by
+                      flight number using temp files $workpath/tempr &
+                      $workpath/temp2 and output file $workpath/sumtmp.$prnm
+                   - rename and remove the temporary files
+                   - create comp. flight file by running $edtsum/gpedtsum
+                   - if file $workpath/segmnts.$prnum exists:
+                    - run $fltseg/gpfltseg
+                    - ask user if s/he desires printed Summary file
+
+$guint/gptpmen - Tape staging menu -- shell script
+               - output menu if needed
+               - set local variable "tploop" = "y" (menu return flag)
+               - get user's menu choice
+                - "stage tape to MSS" (s option)
+                 - run $tp2ms/gptp2ms
+                - "get user files for Genpro" (u option)
+                 - run $getuds/gpgetuds $prnum $workpath
+                - "get time segments" (t option)
+                 - run $gtsegs/gpgtsegs $prnum $workpath
+                - "get user directives and time segments" b option)
+                 - run $gtsegs/gpgtsegs $prnum $workpath both
+                - "get dump of raw variables" (f option)
+                 - run $rawdmp/gprawdmp $prnum $workpath
+                - "download files" (c option)
+                 - run $ldads/gpldads $prnum $workpath
+                - null entry
+                 - exit script
+
+$genset/gpgenset - Setup menu -- shell script
+                 - Check for existence of files which are needed before this
+                    step can be done: $workpath/header.$projno
+                                      $workpath/compflt.$projno
+                  - exit if either file doesn't exist
+                 - remove file $workpath/fltdecks.$projno
+                 - if file $workpath/taplog.$projno exists, set local
+                    variable "exists" to "T"
+                 - remove file $workpath/direct.$projno
+                 - copy the following files to $workpath:
+                    $genset/gpvar.dba
+                    $genset/gpderive.dba
+                    $genset/gpgender.dba
+                 - append $workpath/gpvar.$projno to $workpath/gpvar.dba
+                 - append $workpath/gpderive.$projno to $workpath/gpderive.dba
+                 - append $workpath/gpgender.$projno to $workpath/gpgender.dba
+                 - run $genset/gpgenset.out $projno $prname $workpath $exists
+                 - if file $workpath/gpvar.$projno doesn't exist
+                    and if file $workpath/gpvar.temp does exist, then
+                    rename $workpath/gpvar.temp to $workpath/gpvar.$projno
+                 - if file $workpath/gpvar.$projno exists,
+                    append $workpath/gpvar.temp to $workpath/gpvar.$projno
+                 - if file $workpath/gpderive.$projno doesn't exist
+                    and if file $workpath/gpderive.temp does exist, then
+                    rename $workpath/gpderive.temp to $workpath/gpvar.$projno
+                 - if file $workpath/gpderive.$projno exists,
+                    append $workpath/gpderive.temp to $workpath/gpderive.$projno
+                 - if file $workpath/gpgender.$projno doesn't exist
+                    and if file $workpath/gpgender.temp does exist, then
+                    rename $workpath/gpgender.temp to $workpath/gpvar.$projno
+                 - if file $workpath/gpgender.$projno exists,
+                    append $workpath/gpgender.temp to $workpath/gpderive.$projno
+                 - remove the following files:
+                    $workpath/gpvar.temp
+                    $workpath/gpderive.temp
+                    $workpath/gpgender.temp
+                 - if file $workpath/fltdecks.$projno is empty, delete it.
+                 - if file $workpath/fltdecks.$projno exists, then
+                  - run $genset/gpmkflt2 $projno $prname $workpath
+                  - run awk -f $genset/gpmkflts b=$workpath \
+                     $workpath/fltdecks.projno
+                 - exit script
+
+$genset/gpmkdeck - Generate job deck -- shell script
+                 - remove and copy needed files from $genset directory:
+                  - gpvar.dba & gpgender.dba
+                 - run $genset/gpmkdeck.out
+                 - exit
+
+$submit/gpsubmit - prepare and submit GENPRO batch job -- shell script
+                 - set local variables based upon input arguments
+                    $prname $projno $workpath $machine $lllp
+                 - list available flights if user desires
+                 - ask for and receive flight number
+                  - convert data to lower case using "dd"
+                 - set local variables:  $fltno $flight $cray = "CXJOB"
+                    $filetype = 'job' $job = ${cray} = 'CXJOB'
+                 - if $prname has '2d' in it, set $word = '2d' and $job = 'CX2D'
+                 - remove $workpath/*.CXJOB and *.CX2D
+                 - copy $workpath/$prname.$filetype to \
+                    $workpath/${projno}${flight}.$job
+                 - use 'awk' to scan flight file to determine needed resources
+                  - create $workpath/temp.resc, if needed
+                 - if $workpath/temp.resc exists, add ',*D1' to JOB card in 
+                     file $workpath/${projno}${flight}.$job
+                 - append flight deck file to .$job deck
+                 - if file $workpath/termvars.$flight exists, edit file to
+                    insert termvars.$flight at proper place in '.$job' file
+                 - echo ${projno}${flight}.$job to user
+                 - use 'nrnet' to submit job ot Cray
+                 - intercept sequence number from 'nrnet'
+                 - run $submit/gpjoblog.out to add entry to the JobLog
+                 - tell user to "hit <r> to continue' and issue 'line'
+                 - exit
+
+$jobchk/gpjobchk - set up job check function -- shell script
+                 - run $jobchk/gpjobchk.out
+                 - make 'workpath/projname.jobchk' file writeable by user
+                 - run 'vi' on 'workpath/projname.jobchk' file
+                 - exit
+
+$fltsum/gpfltsum.out - add, delete, modify SUMMARY file -- FORTRAN program
+                     - open the following files:
+                        unit=37, '/summary.prnum'
+                        unit=38, '/summprt.prnum'
+                        unit=39, '/summchgd.prnum'
+                     - get the environment variable 'fltsum' in location 'miscp'
+                     - call subroutine INIT to:
+                      - call subroutine GETFIL to:
+                       - read file # and store it in array FLTREC saving # recs.
+                     - (if .not.GOTPRO) call subroutine PROSET(1)
+                     - clear screen and provide 'flight log' menu
+                     - read and uncapitalize user's entry
+                     - call a subroutine based upon user's entry:
+                      - LOOK ('f')       examine file
+                      - EDIT ('e')       edit file
+                      - FLTSET ('a')     add entry(ies)
+                      - DELETE ('z')     delete entry(ies)
+                      - SAVE ('c')       save entry(ies)
+                      - SAVE & RXIT (s)  save entry(ies) and exit
+                      - INIT ('d')       discard change(s) and continue
+                      - RXIT ('q')       discard changes and exit
+                      - return and ask for user's input again
+                     - if no entry (""), give user a choice: 's' or 'd'
+                      - if 's', call subroutine SAVE ('s')
+                      - call RXIT
+                     - Subroutine INIT
+                      - set NUMREC = 0
+                      - set PRJREC - ' '
+                      - clear FLTREC array
+                      - call GETFIL(37, '/summary.prnum')
+                      - return
+                     - Subroutine LOOK (edit,prj,start,last)
+                      - clear screen
+                      - if 'edit' is .TRUE.
+                       - write reference data from PRJREC array to stdout
+                      - else
+                       - if 'prj' is .TRUE.
+                        - write other reference data from PRJREC array to stdout
+                        - if more than one page, ask user to view next one, and
+                           display another page
+                      - pause on last screen (wait for user entry) before REUTRN
+                     - Subroutine EDIT 
+                       - call LOOK (one page at a time: project + flight recs)
+                      - ask for line number to modify
+                      - get user's response (give out-of-range message) (NUMREC)
+                         if no entry (""), return
+                      - if NUMREC=1
+                       - display project info with a call LOOK and give menu
+                           for changes
+                       - get user's response (give out-of-range message) (IOPT)
+                       - call PROSET (IOPT)
+                       - ask for more entries until user enters ("") after
+                           which return to previous menu
+                      - (NUMREC>1):  decrement NUMREC
+                      - display the NUMRECth flight record with a call LOOK
+                      - give user the 'flight entry change' menu
+                      - get user's response (give out-of-range message) (IOPT)
+                      - save current values of requested record
+                      - call FLTSET (NUMREC,IOPT,.FALSE.)
+                      - return to previous menu
+                     - Subroutine FLTSET (NREC,IOPT,INCR)
+                      - SOLO=IOPT.ne.1
+                      - set FULL=.FALSE.
+                      - if IOPT=1, clear screen
+                      - if IOPT=1 or 2;
+                       - display FLTREC(NREC) for user
+                       - ask for and recieve tape number from user
+                       - capitalize response
+                       - if SOLO=.TRUE. return
+                      - if IOPT = 1 or 3;
+                       - display record and ask for and receive flight date
+                       - if SOLO=.TRUE. return
+                      - if IOPT = 1 or 4;
+                       - display record and ask for and receive flight number
+                       - if SOLO=.TRUE. return
+                      - if IOPT = 1 or 5;
+                       - display record and ask for and receive begin time
+                       - if SOLO=.TRUE. return
+                      - if IOPT = 1 or 6;
+                       - display record and ask for and receive end time
+                       - if SOLO=.TRUE. return
+                      - if IOPT = 1 or 7;
+                       - display record and ask for and receive comment
+                       - if no comment, set comment to flight number
+                       - if SOLO=.TRUE. return
+                      - if IOPT = 1 or 8;
+                       - display record, set FULL=.TRUE. and ask to hit <r>
+                          to continue
+                      - if (INCR)
+                       - increment record number
+                       - if FULL is .TRUE., go through loop again
+                      - return
+                     - Subroutine DELETE 
+                      - call LOOK (.TRUE.,.TRUE.,1,NMREC) to display records
+                      - ask user for number to delete
+                      - if user enters '0' or "", return
+                      - pack rest of file beyond deleted record
+                      - decrement number of records in file
+                      - go back to beginning (display and ask again) 
+                     - Subroutine SAVE
+                      - rewind (37, '/summary.prnum')
+                      - write (37, '/summary.prnum') PRJREC
+                      - write (37, '/summary.prnum') (FLTREC(J),J=1,NMREC)
+                      - write (38, '/summprt.prnum') (FLTREC(J),J=1,NMREC)
+                         (formatted version of '/summary.prnum')
+                      - write (39, '/summchgd.prnum') "changes made"
+                         (flag file for later processing)
+                      -return
+                     - Subroutine RXIT
+                      - close (37, '/summary.prnum')
+                      - stop execution
+                     - Subroutine GETFIL (IUNIT)
+                      - rewind IUNIT
+                      - read a record from IUNIT into PRJREC
+                      - read a record from IUNIT into FLTREC(NMREC+1)
+                      - if record is not null, increment NMREC and read another
+                      - set FLTREC data above NMREC to blanks
+                      - return
+                     - Subroutine PROSET (IOPT)
+                      - set SOLO=IOPT.ne.1
+                      - display record for user
+                      - if IOPT = 1 or 2,
+                       - if .not.SOLO, tell user that this is initial
+                          project setup
+                       - ask for and receive user's login name
+                       - if user enters <r>, return
+                          except stop if GOTPRO=.FALSE.
+                       - ask for and receive turbulence rate
+                       - if user enters <r>, return
+                          except stop if GOTPRO=.FALSE.
+                       - ask for and receive user's scientist number
+                       - if user enters <r>, return
+                          except stop if GOTPRO=.FALSE.
+                       - if SOLO=.TRUE. return
+                      - if IOPT = 1 or 3,
+                       - display record for user
+                       - ask for and receive initial latitude
+                       - if user enters <r> or if SOLO=.TRUE. return
+                      - if IOPT = 1 or 4,
+                       - display record for user
+                       - ask for and receive initial longitude
+                       - if user enters <r> or if SOLO=.TRUE. return
+                      - if IOPT = 1 or 5,
+                       - display record for user
+                       - ask for and receive primary QC reference
+                       - capitalize response
+                       - if user enters <r> or if SOLO=.TRUE. return
+                      - if IOPT = 1 or 6,
+                       - display record for user
+                       - ask for and receive secondary QC reference
+                       - capitalize response
+                       - if user entere <r>, set secondary to primary
+                       - if SOLO=.TRUE. return
+                      - if IOPT = 1 or 7,
+                       - display record for user
+                       - ask for and receive temperature reference
+                       - capitalize response
+                       - if user enters <r> or if SOLO=.TRUE. return
+                      - if IOPT = 1 or 8,
+                       - display record for user
+                       - ask for and receive static pressure reference
+                       - capitalize response
+                       - if user enters <r> or if SOLO=.TRUE. return
+                      - if IOPT = 1 or 9,
+                       - display record for user
+                       - ask for and receive dew point reference
+                       - capitalize response
+                       - if user enters <r> or if SOLO=.TRUE. return
+                      - display record for user
+                      - ask user to hit <r> to continue
+                      - return
+
+$edtsum/gpedtsum - Create modified "flight entries" file -- shell script
+                 - if file '$2/summary.$1 doesn't exist, give user static
+                     and quit
+                 - run $edtsum/gpdetsum.out
+                 - quit
+
+$edtsum/gpedtsum.out - Create COMPFLT file -- FORTRAN program
+                       (COMPFLT = comprehensive "flight entries" file)
+                     - set midnit=.false
+                     - get run-time agruments
+                     - clear character variable 'fulpth' (prepare for file name)
+                     - open (77, '/summary.arg1')
+                     - open (88, '/compflt.arg1')
+                     - transfer first record from 77 to 88
+                     - read first flight record into formatted variables
+                     - if (stopt < start) stopt=stopt:240000 and midnit=.true.
+                     - write (88) reformatted record
+                     - loop entry point
+                      - read (77) flight record into formatted variables
+                      - if EOF, jump out of loop
+                      - if FLT2=FLT1 (same flight)
+                       - if midnit, stopt=stopt+240000; start=start+240000
+                       - else if stopt<start, stopt=stopt+240000; midnit=.true.
+                       - increment NUMVOL
+                       - write (88) reformatted data
+                       - set ENDIV=ITIME2 (second end time)
+                       - loop back
+                      - else
+                       - midnit=.false.
+                       - if stopt<start, stopt=stopt+240000; midnit=.true.
+                       - write (88) reformatted record with comprehensive info
+                          about previous flight
+                       - write (88) first tape volume for new flight
+                       - set NUMVOL=1; FLT1=FLT2; BEGIV=ITIME1; ENDIV=ITIME2
+                       - loop back
+                     - loop exit point
+                     - write (88) last entry of comprehensive flight info
+                     - Note: files are not closed before program ends
+
+$fltseg/gpfltseg - modify COMPFLT file to reflect gime gaps -- shell script
+                 - if '$2/compflt.$1' doesn't exist, give user message and exit
+                 - if '$2/segmnts.$1' doesn't exist, give user message and exit
+                 - run program $fltseg/gpfltseg.out
+                 - copy '$2/modcomp.$1 to $2/compflt.$1
+                 - exit
+
+$fltseg/gpfltseg.out - modify COMPFLT file for time gaps  -- FORTRAN program
+                     - get run string arguments
+                     - open file (55,'../compflt.$arg1')
+                     - open file (58,'../segmnts.$arg1')
+                     - open file (57,'../modcomp.$arg1')
+                     - open file (56,'../modsegs.$arg1')
+                     - read PROJ from 'compflt.$arg1'
+                     - write PROJ to 'modcomp.$arg1'
+                     - call ADJSEG (maxseg)
+                     - read flight number and interval from file 'modsegs.$arg1'
+                     - if SAVSEG.ne.FLTSEG, reset NUMSEG=1; SAVSEG=FLTSEG;
+                        NUMTAP=1
+                     - rewind 55 and read 55, PROJ
+                     - search records for a matching FLTSEG
+                      - if a match:
+                       - if segment isn't within tape's interval
+                         or the begin time is greater than end time, STOP
+                     - write info to 57
+                     - determine first input tape needed, if necessary
+                     - determine output G number, if necessary
+                     - if SEGEND.LE.ENDIV: write complete segment message
+                        to 57
+                     - save segment times for later adjustment
+                     - read 56 to get next segment
+                     - if SAVSEG.NE.FLTSEG:
+                      - skip remaining entries for completed flight
+                        -->  line 167 or so  <--
+       ######################################################
+                     - Subroutine ADJSEG(MAXSEG)
+
+$tp2ms/gptp2ms -
+$getuds/gpgetuds -
+$gtsegs/gpgtsegs -
+$rawdmp/gprawdmp -
+$ldads/gpldads -
+$genset/gpgenset.out -
+$genset/gpmkflt2 -
+$genset/gpmkdeck.out -
+$submit/gpjoblog.out -
+$jobchk/gpjobchk.out -
+
+
+
+GUINT installation.
+
+Install new version of GUINT (e.g., after a bug fix)
+Three versions exist: - development version in ~gary/guint
+                      - test version in ~badger/guint
+                      - working version in users/raf/source/guint
+All GUINT is controlled by SCCS.
+
+sccs info         - command to tell you what, if anything, is checked out
+                     within your current directory (need to do this for
+                     all directories for a true picture)
+sccs edit <file>  - checks out a file for editing
+sccs get <file>   - checks out a file for general use (no update allowed)
+sccs delta <file> - returns file for updating
+
+
+Install procedure
+   - gpinstl
+   - gpinstl.doc
+   - ~gary/guint/ginstall - moves all files from ~gary/guint to ~badger/guint
+                             (deletes all files in ~badger/guint; reads files
+                             in ~gary/guint; runs 'sed' on files to change
+                             directory pointers from ~gary to ~badger and
+                             copies the results to ~badger/guint directory)
+                          - using makefiles, recompiles and loads ALL the
+                             files in ~badger/guint and its subdirectories
+   - ~badger/guint/ginstall - same as the above except the from/to paths are:
+                               ~badger/guint and /users/raf/source/guint

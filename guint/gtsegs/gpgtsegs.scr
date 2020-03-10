@@ -1,0 +1,150 @@
+#! /bin/csh -f
+
+# QSUB -eo
+# q-class (premium-prem, regular-reg, economy-econ)
+# QSUB -q reg
+# To use c-shell
+# QSUB -s /bin/csh
+# To set time limit
+# QSUB -lt 600
+# QSUB -lT 600
+
+# Accounting stuff and environment variables get inserted here
+#newacct 41113307
+ja               # start accounting
+ 
+set SOURCE = /home/local/guint/gtsegs
+set DATA = /home/local/guint/gtsegs
+set DEST = /home/local/guint/gtsegs
+set PROGM = gpgtsegs
+set USER = ron
+set HOST = chinook.atd.ucar.edu
+set DATIN1 = compflt.761
+set DATOUT1 = segmnts.761
+set LOGFILE = gtsegs.761log
+set MSSPATH = /RAF/1989/761
+set MSSFLT = ( FF01 FF06 FF10A FF10B RF01A RF01B RF05A RF05B RF06 RF07 \
+               RF08 RF09A RF09B RF10A RF10B RF11A RF11B RF12A RF12B)
+set MSSTAPE = ( V52931 V52953 V52949 V52950 V52927 V52955 V52954 V52936 \
+                V52939 V52940 V52941 V52942 V52943 V52945 V52946 V52947 \
+                V52948 V52957 V52958 )
+@ numtapes = 19
+
+# Change to the working directory
+   cd $TMPDIR
+
+# Get remote FORTRAN program source code
+   rcp "$USER@$HOST":"$SOURCE/$PROGM.f" $PROGM.f
+     set return = $status
+     if ($return != "0") then
+       echo "error acquiring $PROGM.f, code = $return"
+       goto Done
+     endif
+
+# Get remote data file for program
+   rcp "$USER@$HOST":"$DATA/$DATIN1" $DATIN1
+     set return = $status
+     if ($return != "0") then
+       echo "error acquiring $DATIN1, code = $return"
+       goto Done
+     endif
+
+# Compile with 64-bit integer maximum option for source code
+   cft77 -a static -i 64 $PROGM.f
+     set return = $status
+     if ($return != "0") then
+       echo "error compiling $PROGM.f, code = $return"
+       goto Done
+     endif
+
+# Load the program
+   segldr -o $PROGM.exe $PROGM.o \
+                  -L /lib,/usr/lib,/usr/local/lib \
+                  -l ncaro,net,ncaru
+     set return = $status
+     if ($return != "0") then
+       echo "error loading $PROGM, code = $return"
+       goto Done
+     endif
+
+# Map I/O units for FORTRAN
+   assign -a $DATOUT1 fort.4
+     set return = $status
+     if ($return != "0") then
+       echo "error assiging FORTRAN unit 4, code = $return"
+       goto Done
+     endif
+
+   assign -a $DATIN1 fort.7
+     set return = $status
+     if ($return != "0") then
+       echo "error assiging FORTRAN unit 7, code = $return"
+       goto Done
+     endif
+
+# Get input file(s) from the MSS
+   @ cnt = 1
+   while ($numtapes >= $cnt)
+     lread local=$MSSTAPE[$cnt] remote=$MSSPATH/$MSSFLT[$cnt]/$MSSTAPE[$cnt] \
+       format=tr options=retry
+     set return = $status
+     if ($return != 0) then
+       echo "error acquiring $MSSPATH/$MSSFLT[$cnt]/$MSSTAPE[$cnt] from MSS"
+       echo " code = $return"
+     endif
+     @ cnt ++
+   end
+ 
+# Run the program (echo command since script won't echo stdout)
+   echo "$PROGM.exe > $LOGFILE"
+   $PROGM.exe > $LOGFILE
+     set return = $status
+     if ($return != "0") then
+       echo "error executing $PROGM, code = $return"
+     endif
+
+# Return output
+   if (-e $DATOUT1) then
+     rcp $DATOUT1 "$USER@$HOST":"$DEST/$DATOUT1"
+     set return = $status
+     if ($return != "0") then
+#        if this copy fails, perhaps we should try the MSS next
+#        put file on shavano's scratch space for now
+       if (! -e /usr/tmp/$LOGNAME) then
+         mkdir /usr/tmp/$LOGNAME
+       endif
+       cp $DATOUT1 /usr/tmp/$LOGNAME/$DATOUT1
+       if ($status == "0") then
+         echo "rcp failed. $DATOUT1 put on shavano:/usr/tmp/$LOGNAME/$DATOUT1"
+       else
+         echo $DATOUT1 file created but lost
+       endif
+     endif
+   else
+     echo no $DATOUT1 file created by this run
+   endif
+
+# Return current directory info (temporarily)
+   echo " "
+   echo "list of all temporary files"
+   ls -al >> $LOGFILE
+
+# Return log file
+   rcp $LOGFILE "$USER@$HOST":"$DEST/$LOGFILE"
+     set return = $status
+     if ($return != "0") then
+#        if this copy fails, perhaps we should try the MSS next
+#        put file on shavano's scratch space for now
+       if (! -e /usr/tmp/$LOGNAME) then
+         mkdir /usr/tmp/$LOGNAME
+       endif
+       cp $LOGFILE /usr/tmp/$LOGNAME/$LOGFILE
+       if ($status == "0") then
+         echo "rcp failed. $LOGFILE put on shavano:/usr/tmp/$LOGNAME/$LOGFILE"
+       else
+         echo $LOGFILE file created but lost
+       endif
+     endif
+
+Done:
+ja -cst

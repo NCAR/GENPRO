@@ -1,0 +1,82 @@
+#
+#  Usage: GPGENSET <project #> <project name> <workdisk> <version>
+#
+#  Run the setup program GPGENSET, given the project number, project
+#  name, user's workdisk letter, and requested version (either working
+#  version on Genpro2 or development version on Horton)
+#
+# save EXEC arguments
+set projno = $1
+set prname = $2
+set workpath = $3
+# setup file definitions
+if (! -r $workpath/header.$projno) then
+   echo "Please return to Tape Staging Menu and Select U--Get User Files"
+   echo "for Genpro option before attempting project setup...<cr> to continue"
+   line
+   exit
+endif
+if (! -r $workpath/compflt.$projno) then
+   echo "Please return to Main Menu and select L--Log Flight Tapes"
+   echo "option before attempting project setup...<cr> to continue"
+   line
+   exit
+endif
+echo " "
+echo " project name: $prname - $prnum path: $workpath"
+echo " "
+echo " Setup Program being loaded...."
+echo " "
+/bin/rm $workpath/fltdecks.$projno
+# tell fortran if Taplog exists (output tape length calc'n purposes)
+set exists = "F"
+if (-r $workpath/taplog.$projno) then
+   set exists = "T"
+endif
+/bin/rm $workpath/direct.$projno
+/bin/cp $genset/gpvar.dba $workpath/gpvar.dba
+/bin/cp $genset/gpderive.dba $workpath/gpderive.dba
+/bin/cp $genset/gpgender.dba $workpath/gpgender.dba
+cat $workpath/gpvar.$projno >> $workpath/gpvar.dba
+cat $workpath/gpderive.$projno >> $workpath/gpderive.dba
+cat $workpath/gpgender.$projno >> $workpath/gpgender.dba
+$genset/gpgenset.out $projno $prname $workpath $exists
+if (! -r $workpath/gpvar.$projno) then
+   if (-r $workpath/gpvar.temp) then
+      /bin/mv $workpath/gpvar.temp $workpath/gpvar.$projno
+   endif
+endif
+if (-r $workpath/gpvar.$projno) then
+   cat $workpath/gpvar.temp >> $workpath/gpvar.$projno
+endif
+if (! -r $workpath/gpderive.$projno) then
+   if (-r $workpath/gpderive.temp) then
+      /bin/mv $workpath/gpderive.temp $workpath/gpderive.$projno
+   endif
+endif
+if (-r $workpath/gpderive.$projno) then
+   cat $workpath/gpderive.temp >> $workpath/gpderive.$projno
+endif
+if (! -r $workpath/gpgender.$projno) then
+   if (-r $workpath/gpgender.temp) then
+      /bin/mv $workpath/gpgender.temp $workpath/gpgender.$projno
+   endif
+endif
+if (-r $workpath/gpgender.$projno) then
+   cat $workpath/gpgender.temp >> $workpath/gpgender.$projno
+endif
+/bin/rm $workpath/gpvar.temp
+/bin/rm $workpath/gpderive.temp 
+/bin/rm $workpath/gpgender.temp
+# if flight deck was created, break it up into correctly named files
+set texx =  `wc -c $workpath/fltdecks.$projno`
+if ($texx[1] < 1) then
+   /bin/rm $workpath/fltdecks.$projno
+endif
+if (-r $workpath/fltdecks.$projno) then
+   echo " "
+   echo " Processing flight setups... "
+   $genset/gpmkflt2 $projno $prname $workpath
+#  awk -f $genset/gpmkflts b=$workpath $workpath/fltdecks.$projno
+endif
+exit

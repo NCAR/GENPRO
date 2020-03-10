@@ -1,0 +1,128 @@
+#
+# Usage: GPGUINT <project name> <proj. #> <working path> <version>
+#
+# -- used to initiate, process, and wind up project processing via Genpro
+#
+#    It is assumed that this exec is called by a top level Exec created
+#    by running the GPSETUP Exec.
+#
+#   The following files are needed to run correctly:
+#
+#    CALIBS <prnum> <workdisk> -- list of special processing source
+#      files in the form
+#
+#       GETSRC,&PROJECT,<filename>,<filetype>,<user disk>.
+#
+#
+#  The following files are created here:
+#
+#    <prname> JOBLOG <workdisk> -- log of jobs submitted
+#    <prname> JOBCHK <workdisk> -- summary extract from logfiles
+#    <prname> TAPLOG <workdisk> -- production tape log
+#    TERMVARS <fltno> <workdisk> -- directives inserted to prevent
+#     scaling errors
+#
+#  Specify the disk mode used for GENPRO 191 or HORTON 191:
+# Begin: Project name, project #, user's working disk letter, version
+setenv prname  $1
+setenv prnum  $2
+setenv workpath  $3
+# menu decorations
+setenv header  "***************************"
+setenv trailer  "**********************************"
+# flag for writing explanatory raps before each operation
+setenv preamble  "off"
+# if not done already, copy needed database files to user's workdisk
+if (! -r $workpath/procssrs.$prnum) then
+	cp $gmisc/gplistof.proc $workpath/procssrs.$prnum
+endif
+#
+#  The entire gpguint structure is being rewritten, it will be implemented
+#  using nested while loops instead of the GOTOs required by CMS.
+#
+set mainlp = "y"
+while ($mainlp == "y")
+########################################################################
+#                                                                      #
+#                         MAIN MENU                                    #
+#                                                                      #
+########################################################################
+ 
+   echo " $header $prname  Main Menu $trailer"
+   echo " " 
+   echo "              h   Help"
+   echo "              s   Setup Menu"
+   echo "              p   Processing Menu"
+   echo "              m   Miscellaneous Menu"
+   echo "             <cr> Exit"
+   unset rchoice
+   set rchoice = $<
+   set rchoice = `echo $rchoice | dd conv=lcase`
+   switch ($rchoice)
+   case ""
+      set mainlp = "n"
+      breaksw
+   case h
+      echo "The Genpro User Interface (GUINT) is where you currently find yourself."
+      echo "This program is set up in menu form. The three other choices in the Main"
+      echo "Menu are nothing more than other menus, each with their own help"
+      echo "sections and additional choices. A carriage return, denoted throughout"
+      echo "as <r>, will suffice to return you to the menu 'above' the current one;"
+      echo "from the Main Menu, <r> will return you to the system prompt."
+      echo "The selections here are normally used in the order given, and include:"
+      echo " "
+      echo " entry   Menu                        explanation"
+      echo "========================================================================"
+      echo " "
+      echo "   s    Setup            use to setup the project, to include tape"
+      echo "                         staging, variable selection, calibrations, etc."
+      echo "   p    Processing       use to process the project after it is setup"
+      echo "                         the way you want it"
+      echo "   m    Miscellaneous    various housekeeping and post-processing tasks"
+      echo " "
+      echo "Hit <r> to return to Main Menu ..."
+      echo " "
+      line
+      breaksw
+   case s
+setup:
+#       return code = -1
+      unset alf
+      $guint/gpsetmen
+      set alf = $status
+      if ($alf == -2) then
+          goto procc
+      endif
+      if ($alf == -3) then
+          goto misc
+      endif
+      breaksw
+   case p
+procc:
+#       return code = -2
+      unset alf
+      csh $guint/gpprocmen
+      set alf = $status
+      if ($alf == -1) then
+          goto setup
+      endif
+      if ($alf == -3) then
+          goto misc
+      endif
+      breaksw
+   case m
+misc:
+#       return code = -3
+      unset alf
+      csh $guint/gpmiscmen
+      set alf = $status
+      if ($alf == -1) then
+          goto setup
+      endif
+      if ($alf == -2) then
+          goto procc
+      endif
+      breaksw
+ endsw
+end
+exit

@@ -1,0 +1,137 @@
+#
+# usage: GPGTSEGS <project number> <workdisk> <both>
+#
+#  -- set up and submit a Cray job (gpgtsegs.f, a modified ADSRAW) to
+#  extract valid time segments from all tapes listed in the SUMMARY
+#  file for this project number, merge segments for each flight, output
+#  a SEGMNTS file, ready for use by GPFLTSEG to adjust the SUMMARY file
+#  into a COMPFLT file.
+#
+if ($#argv < 2) then
+   echo " "
+   echo " usage: GPGTSEGS <project number> <workdisk>"
+   echo " Hit <r> to continue"
+   line
+   exit
+endif
+set projno = $1
+set workpath = $2
+if ($#argv == 3) then
+  set both = Y
+else
+  set both = N
+endif
+# verify that data input file exists
+if ( ! -r $workpath/summary.$projno) then
+   echo " "
+   echo " You must first use the L--Log Flight Tapes option before this option"
+   echo " Hit <r> to continue"
+   line
+   exit
+endif
+echo " "
+if ($both == 'Y') then
+  echo "                  GET BOTH USER FILES AND TIME SEGMENTS"
+  echo "Genpro User Files are generated from data on a flight tape whose"
+  echo "number you entered via the 'Log Flight Tapes' option."
+else
+  echo "                        GET TIME SEGMENTS"
+endif
+echo "Time Segments are the intervals on each tape that contain no time gaps,"
+echo "and, as such, can be processed by Genpro without problems."
+echo "This operation need be done only once, and if you have previously"
+echo "completed the B--Both User Files and Time Segments option in the"
+echo "Tape Staging Menu successfully, you have been here before.  Using that"
+echo "option is a good way to do everything you need to proceed with"
+echo "Processing.  If, however, tapes were staged by some other means, you"
+echo "still need these Time Segments, and this option will facilitate that."
+echo "It is suggested that you use this option after ALL tapes are staged."
+echo " "
+echo "Please indicate: (1) continue (2) return to Tape Staging Menu"
+echo " "
+unset choice
+set choice = $<
+if ($choice == 2) then
+   exit
+endif
+echo " A Job will now be created to get the Time Segments. At the"
+echo " next menu, selecting Submit Job is the usual choice if no"
+echo " strange messages appear and you wish to proceed."
+echo " "
+#call fortran
+$gtsegs/gpsetads.out $projno $workpath
+# if bad run, jump out after message
+if ($status != 0) then
+   echo gpsetads.out didn't run properly.  Contact a guint expert.
+   exit
+endif
+# existence of DATA file indicates successful program completion
+if (! -r $workpath/gtsegs.${projno}i) then
+   echo Could not find gtsegs.${projno}i file.  Contact a guint expert.
+   exit
+endif
+# build job-submission script file
+sed "13 r $workpath/gtsegs.${projno}i" $gtsegs/gpgtsegs.scref > $workpath/gtsegs.$$
+if ($status != 0) then
+  echo Could not build $workpath/gtsegs.${projno}job
+  echo Contact a guint expert.
+  exit
+endif
+# echo Successfully built $workpath/gtsegs.${projno}job
+set loop = "y"
+while 1
+   echo "(1) Submit Job  (2) Examine Job  (3) Abandon Job"
+   unset choice
+   set choice = $<
+   switch ($choice)
+   case 1
+      (/bin/rm $workpath/gtsegs.${projno}job > /dev/null) >& /dev/null
+      /bin/mv $workpath/gtsegs.$$ $workpath/gtsegs.${projno}job
+      $edtsum/gpedtsum $projno $workpath
+      if ($status != 0) then
+         echo Could not create compflt.$projno file.
+         echo Contact a guint expert.
+         exit
+      endif
+      set seq = `nrnet shjob $workpath/gtsegs.${projno}job`
+      echo $seq
+      if ($seq[1] == 'Sequence') then
+        set ngseq = $seq[4]
+#        (/bin/rm $workpath/gtsegs.seq > /dev/null) >& /dev/null
+#        echo $ngseq > $workpath/gtsegs.seq
+echo $ngseq " " `date '+ %m/%d/%y at %H:%M:%S'` "  time segs" >>! $workpath/gtsegs.seq
+      else
+        echo Could not submit job.
+        goto done
+      endif
+      echo " "
+      echo " After the file SH$ngseq.##### is put into your migs directory,"
+      echo " select the the C -- Complete Staging option from the Tape Staging"
+      echo " Menu.  For now, wait for a mail message to indicate that this job"
+      echo " has been transferred successfully."
+      echo " Hit <r> to continue"
+      line
+      set loop = "n"
+      breaksw
+   case 2
+      vi $workpath/gtsegs.$$
+      breaksw
+   case 3
+      set loop = "n"
+      breaksw
+   endsw  
+   if ($loop == "n") then
+      break
+   endif
+end
+done:
+# clean up
+      (/bin/rm $workpath/gtsegs.$$ > /dev/null) >& /dev/null
+      (/bin/rm $workpath/gtsegs.${projno}i > /dev/null) >& /dev/null
+# Get user files, if flag is set
+if ($both == 'Y') then
+  echo " "
+  echo "Now go get the USER FILES"
+  $getuds/gpgetuds $projno $workpath
+endif
+exit

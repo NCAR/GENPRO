@@ -1,0 +1,286 @@
+#
+# Usage: GPGUINT <project name> <proj. #> <working path> <version>
+#        proccessing menu subdriver
+########################################################################
+#                                                                      *
+#                    PROCESSING MENU                                   *
+#                                                                      *
+########################################################################
+ 
+      unset proclp
+      set proclp = "y"
+      while ($proclp == "y")
+      # process: submit, download, examine, prepare for production
+      echo " $header $prname  Process $trailer"
+      echo " " 
+      echo "              h   Help"
+      echo "              f   Process a flight"
+      echo "              r   Move a file from MIGS directory"
+      echo "              c   JOB CHECK a LOG FILE"
+      echo "              l   Log a CHECKED flight in TAPLOG"
+      echo "              a   Archive LOG FILE/CALIB FILE/SETUP files to MS/D1"
+      echo "              p   Prevent scaling errors in Output Operation"
+      echo "              d   Get Output Tape Dump"
+      echo "              s   Setup Menu"
+      echo "              m   Miscellaneous Menu"
+      echo "             <cr> Main Menu" 
+      unset dchoice
+      set dchoice = $<
+      set dchoice = `echo $dchoice | dd conv=lcase`
+      switch($dchoice)
+      case ""
+         set proclp = "n"
+         breaksw
+      case h
+         echo "The Process Menu offers the basic operations you need to proceed with"
+         echo "processing your project by Genpro. From this menu, the usual order of"
+         echo "selections is:"
+         echo " "
+         echo "                 F   Process a flight"
+         echo "                 R   Download file from reader"
+         echo "                 C   JOB CHECK a LOG FILE"
+         echo "                 P   Prevent scaling errors in Output Operation"
+         echo "                 L   Log Successful run on Production Tape Log"
+         echo "                 A   Archive LOG FILE/CALIB FILE/SETUP files to MS/ D1"
+         echo ""
+         echo "additional Help and Suggestions are available under each of these."
+         echo ""
+         echo "warnings extracted via  C--JOB CHECK will indicate if there are scaling"
+         echo "errors for a given flight; if not, the  P--Prevent Scaling Errors option"
+         echo "is not necessary.  To change the setup, select  S----Setup Menu. Various"
+         echo "often unneeded) options are available under  M---Miscellaneous Menu"
+         echo " "
+         echo "to return to the Processing Menu, hit <r> ...."
+         line
+         breaksw
+     case f
+         # Submit a project deck, with a specificied flight, to the Cray
+         #
+         if ($preamble != "off") then
+            echo" You may now submit one (or more) job(s) to either of the available"
+            echo " Crays. This job is assumed to have been created via the Setup Menu,"
+            echo " and may be either normal or 2-D processing. If you wish to continue,"
+            echo " enter <r>; else, enter any other character ..."
+         unset echoice
+         set echoice = $<
+         if ($echoice != "") then
+            breaksw 
+         endif
+         endif 
+         set prnam = $prname
+         echo " "
+         echo " Hit <r> for normal, enter 2 for two-d processing:"
+         unset twod
+         set twod = $<
+         if ($twod == 2) then
+            set prname = {$prname}2d
+         endif
+         # Submit Exec maintains a log of submitted jobs in JOBLOG file
+         $submit/gpsubmit $prnam $prnum $workpath 
+         breaksw
+      case r
+         # cp any file from the $migs directory to the working directory
+         if ($preamble != "off") then
+           echo " You may now download one (or more) file(s) from your reader to your"
+           echo " IBM disk. Usually this is done to get a logfile after the job has run"
+           echo " to completion on the Cray.  All files will be converted to"
+           echo " lower case"
+           echo " "
+           echo " If you wish to continue, enter <r>; else, enter any other character ..."
+         unset fchoice
+         set fchoice = $<
+         if ($fchoice != "")
+           breaksw
+         endif
+         endif
+         while 1
+            /bin/ls $migs
+           echo " "
+           echo "  Choose the name of the file to move:"
+           echo "  Enter literally (ie. Case is important)"
+           echo "         <cr> to exit"
+           unset id
+           set id = $< 
+           if ($id == "") then
+              break
+           endif
+           set lid = `echo $id | dd conv=lcase`
+           /bin/cp     $migs/$id $workpath/$lid
+           /bin/rm     $migs/$id 
+         end
+         breaksw
+      case c
+         # put relevant information, warnings, etc. from a Log File into
+         # the JOBCHK file, view in Xedit at specified Job
+         if ($preamble != "off") then
+            echo " You may now extract important information from any logfile you have"
+            echo " downloaded to your disk via the 'R  Download from Reader' operation."
+            echo " You will find yourself in the editor at the start of the info for the"
+            echo " flight # you choose. In the editor, use PF08/PF07 to page, and PF03 to"
+            echo " exit."
+            echo " "
+            echo " If you wish to continue, enter <r>; else, enter any other character ..."
+         unset gchoice
+         set gchoice = $<
+         if ($gchoice != "")
+           breaksw
+         endif
+         endif
+         set yes = "n"
+         foreach file (ls $workpath/$prnum.*f*log)
+            if (-r $file) then
+               set yes = "y"
+            endif
+         end
+         if ($yes != "y") then
+	    echo "No log files hit <cr>
+            line
+            break
+         endif
+         while 1
+           /bin/ls $workpath/$prnum.*f*log
+           echo "  Choose Flight Number"
+           unset flt 
+           set flt = $<
+           if ($flt == "") then
+              break
+           endif
+           set flt = `echo $flt | dd conv=lcase`
+           $jobchk/gpjobchk $prnum $flt $workpath $prname
+         end
+         breaksw
+      case p
+      # assumed to have logfile of complete run of given tape as input;
+      # read all statistics & create TERMVARS <fltno> <workdisk> file, which
+      # will be inserted by Submit Exec when given flight is submitted
+         if ($preamble != "off") then
+            echo " If, in the Job Check operation, warnings indicating  Scaling errors"
+            echo " were noticed, you must run that very same logfile through this operation"
+            echo " before its final production run is correct. If no warnings of that sort"
+            echo " were present, this operation is not needed for the given flight."
+            echo " "
+            echo " If you wish to continue, enter <r>; else, enter any other character ..."
+         unset hchoice
+         set hchoice = $<
+         if ($hchoice != "")
+           breaksw
+         endif
+         endif
+         set yes = "n"
+         foreach file ($workpath/$prname.*f*log)
+            if (-r $file) then
+               set yes = "y"
+            endif
+         end
+         if ($yes != "y") then
+            break
+         endif
+         while 1
+            /bin/ls $workpath/$prname.*f*log
+            echo " Choose Flight #"
+            unset flt
+            set flt = $<
+            if ($flt == "") then
+               break
+            endif
+            set flt = `echo $flt | dd conv=lcase`
+            $scales/gpscales $prname $prnum $flt $workpath $workpath
+         end
+         breaksw
+      case l
+      # log a completed production flight onto the TAPLOG file... this
+      # can be used as the Production Tape Log document
+      #
+         if ($preamble != "off") then
+            echo " After a 'successful' run -- i.e., the Job Check extract (q.v.) revealed"
+            echo " only benign warnings, output was written correctly, etc., this operation"
+            echo " will enter that flight on the Production Tape Log."
+            echo " "
+            echo " If you wish to continue, enter <r>; else, enter any other character ..."
+         unset ichoice
+         set ichoice = $<
+         if ($ichoice != "")
+           breaksw
+         endif
+         endif
+         echo " There are possibly more flights than one in the Job Check file with the"
+         echo " flight number you wish to enter in the Tape Log. Usually the last run"
+         echo " completed for that flight is the one you want. The desired run must be"
+         echo " identified with an IO sequence number corresponding to that run. If you"
+         echo " already know that number, enter N; if not, enter Y; to skip it entirely,"
+         echo " enter <r> ...."
+         echo " "
+         while 1
+         echo "  Flight for which list of IO Sequences wanted (<r> to pass ):"
+	 unset flt
+         set flt = $<
+         if ($flt != "") then
+            set flt = `echo $flt | dd conv=lcase`
+            awk /$flt/  $workpath/$prname.joblog
+         endif
+         echo " "
+         echo "Enter SP sequence (4 digits, excluding prefix 'SP'):"
+# permit use of disk other than default workdisk
+         set ioseq = $<
+         if ($ioseq == "") then
+            break
+         endif
+         set ioseq = 'SP'$ioseq
+         $taplog/gptaplog $prname $prnum $workpath $ioseq
+         end
+         breaksw
+ 
+######################################################################
+      case a  
+      # dispose log file, project deck, flight decks, special processing source
+      # files to MS and D1
+      #
+      if ($preamble != "off") then
+         echo " After you have logged a 'Successful' run into the Production Tape Log,"
+         echo " and in general after production is completed, you need to save various"
+         echo " files to microfiche and to the Mass Store. This also helps in keeping"
+         echo " enough space on your IBM disk to continue processing more flights. This"
+         echo " operation will facilitate that saving."
+         echo " "
+         echo " If you wish to continue, enter <r>; else, enter any other character ..."
+         unset jchoice
+         set jchoice = $<
+         if ($jchoice != "") then
+           breaksw
+         endif
+         endif
+         echo " Enter 2-digit Year of project ( <r> to exit ) :"
+         unset year
+         set year = $<
+         if ($year == "") then
+            breaksw
+         endif
+         $savfil/gpsavfil $prname $prnum $workpath $year
+         breaksw
+      case d
+      # Get Output Tape Dump
+      #
+         if ($preamble != "off") then
+            echo " Before starting Production, you need to run one flight with the output"
+            echo " operation turned on. If it completes successfully, you need to use this"
+            echo " option to get an output tape dump. This will tell you if the output tape"
+            echo " is being written correctly and assist the tape librarian in determining"
+            echo " the length of output tape snapshots, which value you must install via"
+            echo " Setup before moving on to production."
+            echo " "
+            echo " If you wish to continue, enter <r>; else, enter any other character ..."
+         unset kchoice
+         set kchoice = $<
+         if ($kchoice != "")
+           breaksw
+         endif
+         endif
+         $outdmp/gpoutdmp $prnum $workpath
+         breaksw
+      case s
+         exit -1   
+      case m
+         exit -3  
+      endsw
+      end
+   exit 0

@@ -1,0 +1,67 @@
+#
+# USAGE: gpsetup
+#
+# clear  
+echo ""
+echo "  GUINT -- rev. 1 for $HOST by RLR  [920213]"
+echo "You have invoked the initial project setup routine.  You should know"
+echo "the name of the project and its number.  Further, your current working"
+echo "directory should be the directory you wish to use for processing.  If"
+echo "this is not the case, or this information is not known yet, simply"
+echo "enter 2 at this time, go away and do your homework, and call again"
+echo "later.  (You may determine your current working directory in the unix"
+echo "environment with the pwd command.)"
+echo " "
+echo "If you have the needed information and are satisfied with your working"
+echo "directory, continue on and you will subsequently be quizzed.  Two"
+echo "questions will follow, with an explanation preceding each.  Abort the"
+echo "process at any question by entering <r>."
+echo " "
+echo "Please enter: (1) to continue, (2) to exit"
+set ready = $<
+if ($ready == "2") then
+   exit
+endif
+clear  
+echo " The Project Name should be six characters or less in length, and,"
+echo " upon completion of this routine, will be used as the string you should"
+echo " use to invoke GUINT."
+echo " REMEMBER: 6 characters or less, and no special characters"
+echo "  "
+echo " Enter Project Name:"
+set prname = $<
+if ($prname == "") then
+   exit
+endif
+clear  
+echo " The Project Number should not include the fiscal year prefix. It is"
+echo " expected to be a 3-digit number; e.g., project 8-274 should be entered"
+echo " simply as 274."
+echo "  "
+echo " Enter Project Number:"
+set projno = $<
+if ($projno == "") then
+   exit
+endif
+clear  
+#cho " The working path is the pathname of the directory to be used as a"
+#cho " workspace for the project. It should be entered in absolute form"
+#cho " Example:  /users/computing/gary/erica"
+#cho "  "
+#cho " Enter Workingpath:"
+set wpath = `pwd`
+#f ($wpath == "") then
+#  exit
+#ndif
+# erase old version, create new one with supplied info
+if (-r $wpath/$prname) then
+   chmod 777 $wpath/$prname
+endif
+/bin/rm $wpath/$prname
+echo "# Driver for $prname" > $wpath/$prname
+echo '$guint'"/gpguint $prname $projno $wpath " >> $wpath/$prname
+chmod 555 $wpath/$prname
+clear  
+echo " You are now ready to use GUINT: do so by entering"
+echo " $prname "
+exit

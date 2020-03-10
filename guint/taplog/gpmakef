@@ -1,0 +1,26 @@
+# makefile for GUINT
+# usage: Make <target>
+#
+# use to make the GUINT executable programs --
+#
+#
+#
+#
+# set compile flags for development, driver files
+#
+FLAGSD = -g -v
+#
+#
+#
+TAPLOG.O = ${gutil}/gpextend.o ${gutil}/gptaplen.o ${gutil}/gphms2sx.o
+#
+# define object files for gpjobchk:
+#
+#
+taplog: 	gptaplog.f  $(TAPLOG.O)
+	f77 $(FLAGSD) -o gptaplog.out gptaplog.f $(TAPLOG.O)
+
+
+
+tlghdr: 	gptlghdr.f  $(gutil)/gpgtyear.o 
+	f77 $(FLAGSD) -o gptlghdr.out gptlghdr.f $(gutil)/gpgtyear.o

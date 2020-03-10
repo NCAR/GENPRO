@@ -1,0 +1,27 @@
+Group processing file to run GENPRO Cray jobs via the 'runjob' script
+See 'runjob' listing for instructions        Ron Ruth March 1992
+Flight  ProcessGroup   PDUD file      MODCAL file
+RF01       1          pdud.276.1a
+RF02       3          pdud.276.2
+RF03       2          pdud.276.1
+RF04       2          pdud.276.1
+RF05       2          pdud.276.1
+RF06       2          pdud.276.1
+RF07       2          pdud.276.1
+RF08       2          pdud.276.1
+RF09       2          pdud.276.1
+RF10       3          pdud.276.2
+RF11       3          pdud.276.2
+RF12       3          pdud.276.2
+RF13       3          pdud.276.2
+RF14       4          pdud.276.3
+RF15       4          pdud.276.3
+RF16       3          pdud.276.2
+RF17       3          pdud.276.2
+RF18       3          pdud.276.2
+RF19       3          pdud.276.2
+RF20       3          pdud.276.2
+RF21       3          pdud.276.2
+RF24       3          pdud.276.2
+RF25       3          pdud.276.2
+RF26       3          pdud.276.2

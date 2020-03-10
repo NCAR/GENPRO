@@ -1,0 +1,16 @@
+      INTEGER MAXUVC                                                            
+      PARAMETER(MAXUVC=50)                                                      
+      COMMON / USRDEF / USRVEC(MAXUVC)
+      common/cusrdf/NMUSRV                                   
+      CHARACTER*128 USRVEC                                                      
+C                                                                               
+C USRVEC is the vector of user defined variables, and is packed thusly:         
+C                                                                               
+C      FIELD      DATA                                                          
+C      1:8        Variable name                                                 
+C     9:12        Units                                                         
+C    13:52        Title                                                         
+C    53:53        Number of Source Variables                                    
+C   54:125        Source Variable Names                                         
+C                                                                               
+C   NMUSRV is the number of valid words in the USRVEC array                     

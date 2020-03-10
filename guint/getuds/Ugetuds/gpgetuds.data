@@ -1,0 +1,19 @@
+ UNIT NUMBER   (I5)                                                                                 
+    9                                                                                               
+ DO YOU WANT A RAW TAPE DUMP (1)  OR NOT (0) (I5)                                                   
+0                                                                                                   
+ DO YOU WANT THE DUMP BEFORE SCALING (0) OR AFTER SCALING (1)  ((I5))                               
+1                                                                                                   
+ DO YOU WANT TO DUMP BY RECORD NUMBER (0) OR TIME (1) ((I5))                                        
+0                                                                                                   
+HR    MI   SE                                                                                       
+15    30   00                                                                                       
+15    31   00                                                                                       
+START STOP  (RECORD NUMBERS)                                                                        
+1     99999                                                                                         
+ DO YOU WANT THE DATA PRINTED BY COLUMN (0) OR HORIZONTALLY (1)                                     
+0                                                                                                   
+ HOW MANY VARIABLES DO YOU WANT TO DUMP (I5)                                                        
+3                                                                                                   
+ VAR1     VAR2     VAR3     VAR4     VAR5     VAR6     VAR7     VAR8                                
+ HR       MIN      SEC                                                                              

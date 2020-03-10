@@ -1,0 +1,81 @@
+#  
+# usage: GPRAWDMP projno workingpath            
+#
+#  -- set up and submit a Cray job (ADSRAW JOB) to obtain a raw tape
+#  dump of variables as specified via interaction with this exec and
+#  the program(s) called by this exec. The dump is returned on the
+#  logfile returned from the Cray.
+#
+if ($#argv == 0) then
+   echo "usage: GPRAWDMP <project number> <working_pathname>"
+   echo "hit <cr> to continue"
+   line       
+   exit
+endif
+# verify input file exists
+if (! -r $2/header.$1) then
+   set head = "F"
+else
+   set head = "T" 
+endif
+#
+echo "You may now specify a raw input tape and specific raw variables"
+echo "on that tape to be dumped for examination. The dump will be"
+echo "written to the migs directory and returned to your reader after the "
+echo "job has completed on the Cray."
+echo " "
+echo "Please enter (1): to continue,"
+echo "             (2): to return to the Tape Staging Menu."
+
+set choice = $<
+if ($choice == "2")  then
+   exit
+endif
+echo ""
+echo " A Job will now be created to get the Raw Tape Dump. Answer"
+echo " all the questions to follow, unless you wish to change your mind"
+echo " about this job, in which case enter <r> at any point..."
+echo " hit return <r> to continue"
+echo ""
+line
+# call fortran
+  $rawdmp/gprawdmp.out $1 $2 $head
+# existence of Append file indicates whether input completed or not
+if (! -r $2/adsraw.append) then
+   exit
+endif
+cat $2/adsraw.$1job $2/adsraw.append > $2/tempxx.$1job
+mv $2/tempxx.$1job $2/adsraw.$1job
+set loop = "y"
+while 1
+   echo "(1) Submit Job  (2) Examine Job  (3) Abandon Job"
+   unset choice
+   set choice = $<
+   switch ($choice)
+   case 1
+      cp $rawdmp/gpadsraw.f /users/tpspool
+      cp $gtsegs/gpgtsegs.f /users/tpspool
+      nrnet cxjob $2/adsraw.$1job
+      echo ""
+      echo " After the file ADSRAW $1job has returned to your migs directory"
+      echo " select the the C--------Complete Staging option from the Tape"
+      echo " Staging Menu. For now, wait for a mail message to indicate success."
+      echo " Hit <r> to continue"
+      line
+      set loop = "n"
+      breaksw
+   case 2
+      vi $2/adsraw.$1job
+      breaksw
+   case 3
+      set loop = "n"
+      breaksw
+   endsw  
+   if ($loop == "n") then
+      break
+   endif
+end
+      rm $2/adsraw.append
+      rm $2/adsraw.$1job
+      rm $2/tempxx.$1job
+exit

@@ -1,0 +1,255 @@
+#
+# GPLDADS <project number> <workdisk>
+#
+# Use after the file getuds.<projno>log returns, to perform following tasks:
+#
+#  --load SHSP####.##### file associated with getuds.<projno>log onto <workdisk>
+#  --create compflt.<projno> file from summary.<projno> and segmnts.<projno>
+#     files
+#
+# Use after tp2ms.<projno>job returns, to perform following tasks:
+#
+#  --load SHSP####.##### file associated with tp2ms.<projno>log onto <workdisk>
+#  --load all files named SHSP####.##### onto <workdisk>, appending each
+#     to file <workdisk>/tpstage.<projno>log 
+#
+if ($#argv < 2) then
+  echo " Usage: gpldads <project #> <workdisk>"
+  echo "  Hit <r> to continue"
+  exit
+endif
+
+set HOST = spock.atd.ucar.edu
+set projno = $1
+echo $projno
+set workpath = $2
+echo $workpath
+#  Set first prefix to that of Cray.
+set prefixc = 'SH'
+#  Set next prefix to that of Mass Store.
+set prefixm = 'MS'
+
+# insert some sort of message to user on what ldads does
+
+
+if ( ! -r $2/summary.$1) then
+   echo " "
+   echo "You must first use the 'L  Log Flight Tapes' option before this option"
+   echo "-- hit <r> to continue"
+   echo " "
+   line
+   exit
+endif
+set USER = `head -1 $2/summary.$1`
+echo $USER
+
+# everyone who uses this must have a shavano logon
+#find the sequence numbers for the 3 operations:  tp2ms, getuds & gtsegs
+
+
+echo  " "
+echo "Please enter sequence number for tape staging job you wish to complete"
+echo "(for example SP1234)"
+echo  " "
+set seqtp2ms = $<
+echo  " "
+echo "Please enter your shavano log on name (usually last name and no capitals)"
+echo "(for example smith)"
+echo  " "
+set shname = $<
+
+set shfiles = `rsh shavano -l $shname "grep $seqtp2ms rje/*print*" | awk -F: '{print $1}'`
+echo $shfiles
+set num = $#shfiles
+
+
+while ( $num )
+ rsh shavano -l $shname rcp $shfiles[1] "$USER"@"$HOST":$workpath
+ set result = $status
+ if ( $result != 0 ) then
+  echo "Could not rcp $shfiles[1] to your working directory"
+  echo "wait and try again later or see a Guint expert"
+ else
+  rsh shavano -l $shname rm $shfiles[1] 
+ endif
+
+shift shfiles
+@ num --
+end
+
+# now we check rcp'ed files to see if they are any good
+
+set num1 = `grep $seqtp2ms $workpath/*print* | awk -F: '{print $1}'`
+
+set count = $#num1
+
+
+#inorder to open the "good" file
+echo "Here is a list of the good files" > $2/good
+
+while ( $#num1 )
+
+   set bd = 0
+  set chk = `grep 'Huh' $num1[1]`
+#  set chk = `grep 'NORMAL TERMINATION' $num1[1]`
+   set result = $status
+   if ( $result != 0 ) then
+   @ bd = $bd + 1
+   cat $num1[1]  >> $2/bad
+   set result2 = $status
+      if ( $result2 == 0 ) then
+      (/bin/rm num1[1] > /dev/null) >& /dev/null
+      else
+      echo $num1[1] did not cat properly
+      endif
+   else
+    cat $num1[1] >> $2/good
+      set result3 = $status
+      if ( $result3 == 0 ) then
+       rm $num[1]
+      else
+       echo "File $num[1] did not copy into log file correctly."
+      endif
+   endif
+
+  shift num1
+
+end
+
+if ( $bd != 0 ) then
+echo " "
+echo "You have $bd bad file(s)."
+echo "They have been combined in a file named bad for your examination"
+echo " "
+echo "Would you like to peruse the bad file (y or n)?"
+set anw = $<
+  if ( $anw == 'y' ) then
+    vi $2/bad
+  endif
+endif
+
+ if ( -e $2/good ) then
+echo "Your staging log file is presently called -good-, look it over"
+echo "and move it into its stage##.log"
+ vi $2/good
+ endif
+
+
+
+#(/bin/rm $2/good > /dev/null) >& /dev/null
+
+# leave this covered, seqtp2ms is defined earlier
+# if (-r $workpath/tp2ms.seq) then
+#   set seqtp2ms  = `cat $workpath/tp2ms.seq`
+#   set seqtp2ms = $seqtp2ms[1]
+# else
+#   set seqtp2ms  = 'f'
+# endif
+
+if (-r $workpath/getuds.seq) then
+  set seqgetuds  = `cat $workpath/getuds.seq`
+  set seqgetuds = $seqgetuds[1]
+else
+  set seqgetuds = 'f'
+endif
+if (-r $workpath/gtsegs.seq) then
+  set seqgtsegs  = `cat $workpath/gtsegs.seq`
+  set seqgtsegs = $seqgtsegs[1]
+else
+  set seqgtsegs = 'f'
+endif
+echo "All relevant files will now be copied from your MIGS directory to"
+echo "your working directory."
+echo "Please note any system messages; they are indicative of a problem."
+#echo "If you are asked if you wish to overwrite a file, type y if you do."
+echo "If you get a file-not-found type of message, wait, and try this option"
+echo "again later.  If you still find yourself short of files, restage the"
+echo "tapes or talk to GUINT expert."
+echo " "
+
+
+ if ($seqtp2ms != 'f') then
+   echo "Attempt to copy shavano's tp2ms job-summary file"
+   /bin/cp  $migs/$prefixc$seqtp2ms.* $workpath/.
+#  /bin/cp  $migs/${prefixc}${seqtp2ms}.* $workpath/.
+   if ($status != 0) then
+     echo "Could not copy $migs/$prefixc$seqtp2ms.*"
+#    echo "Could not copy $migs/{$prefixc}${seqtp2ms}.*"
+     echo  "to your $workpath directory."
+     echo "Hit <r> to continue"
+     line
+   else
+     (/bin/rm $migs/$prefixc$seqtp2ms.* > /dev/null) >& /dev/null
+   endif
+ endif
+if ($seqgetuds != 'f') then
+  echo "Attempt to copy shavano's getuds job-summary file"
+  /bin/cp  $migs/$prefixc$seqgetuds.* $workpath/.
+  if ($status != 0) then
+    echo Could not copy $migs/$prefixc$seqgetuds.*
+    echo   to your $workpath directory.
+    echo Hit <r> to continue
+    line
+  else
+    (/bin/rm $migs/$prefixc$seqgetuds.* > /dev/null) >& /dev/null
+  endif
+endif
+if ($seqgtsegs != 'f') then
+  echo "Attempt to copy shavano's gtsegs job-summary file"
+  /bin/cp  $migs/$prefixc$seqgtsegs.* $workpath/.
+  if ($status != 0) then
+    echo Could not copy $migs/$prefixc$seqgtsegs.*
+    echo   to your $workpath directory.
+    echo Hit <r> to continue
+    line
+  else
+    (/bin/rm $migs/$prefixc$seqgtsegs.* > /dev/null) >& /dev/null
+  endif
+endif
+#
+# The following code used to copy files from the $migs directory.
+#  Under the present implementation of GUINT, these are remotely
+#  copied from shavano directly to $workpath
+#if (-r $workpath/segmnts.${projno}) then
+#   set segm = 't'
+#endif
+#echo "Attempt to load segmnts.${projno}"
+#/bin/cp  $migs/segmnts.${projno} $workpath
+#echo " Hit <r> to continue"
+#line
+#echo "Attempt to load adsud.${projno}"
+#/bin/cp  $migs/adsud.${projno} $workpath
+#echo " Hit <r> to continue"
+#line
+#echo "Attempt to load calcoe.${projno}"
+#/bin/cp  $migs/calcoe.${projno} $workpath
+#echo " Hit <r> to continue"
+#line
+#echo "Attempt to load header.${projno}"
+#/bin/cp $migs/header.${projno} $workpath
+#echo " Hit <r> to continue"
+#line
+#echo "Attempt to load tp2ms.${projno}log"
+#/bin/cp $migs/tp2ms.${projno}log $workpath
+#echo " Hit <r> to continue"
+#line
+# echo "Attempt to copy msimport output files of form $prefixm$seqtp2ms.#####"
+# foreach file (`ls $migs/$prefixm$seqtp2ms.*`)
+#   echo  "Complete this by writing all these to one file"
+#   /bin/cp $file ${workpath}/.
+#   if ($status != 0) then
+#     echo Could not copy file $file
+#     echo " <r> to continue"
+#     line
+#  else
+#    (/bin/rm $file > /dev/null) >& /dev/null
+#  endif
+#end
+#echo " Hit <r> to continue"
+#line
+##if (-r $workpath/segmnts.${projno}) then
+#if ($segm == 't') then
+#   $edtsum/gpedtsum $projno $workpath
+#   $fltseg/gpfltseg $projno $workpath
+#endif
+exit

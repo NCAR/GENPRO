@@ -1,0 +1,97 @@
+#
+# USAGE: gpsetup
+#
+# clear  
+echo ""
+echo "  GUINT -- rev. 2 for $HOST by RLR  [920420]"
+echo "You have invoked the initial project setup routine.  You should know"
+echo "the name of the project and its number.  Further, your current working"
+echo "directory should be the directory you wish to use for processing.  If"
+echo "this is not the case, or this information is not known yet, simply"
+echo "enter 2 at this time, go away, do your homework and call again"
+echo "later.  (You may determine your current working directory in the unix"
+echo "environment with the pwd command.)"
+echo " "
+echo "If you have the needed information and are satisfied with your working"
+echo "directory, continue on and you will subsequently be quizzed.  Two"
+echo "questions will follow, with an explanation preceding each.  Abort the"
+echo "process at any question by entering <r>."
+echo " "
+echo "Please enter: (1) to continue, (2) to exit"
+set ready = $<
+if ($ready == "2") then
+   exit
+endif
+clear  
+echo " The Project Name should be six characters or less in length, and,"
+echo " upon completion of this routine, will be used as the string you should"
+echo " use to invoke GUINT."
+echo " REMEMBER: 6 characters or less, and no special characters"
+echo "  "
+echo " Enter Project Name:"
+set prname = $<
+if ($prname == "") then
+   exit
+endif
+clear  
+echo " The Project Number should not include the fiscal year prefix. It is"
+echo " expected to be a 3-digit number; e.g., project 8-274 should be entered"
+echo " simply as 274."
+echo "  "
+echo " Enter Project Number:"
+set projno = $<
+if ($projno == "") then
+   exit
+endif
+clear  
+#cho " The working path is the pathname of the directory to be used as a"
+#cho " workspace for the project. It should be entered in absolute form"
+#cho " Example:  /users/computing/gary/erica"
+#cho "  "
+#cho " Enter Workingpath:"
+set wpath = `pwd`
+#f ($wpath == "") then
+#  exit
+#ndif
+# erase old version, create new one with supplied info
+if (-r $wpath/$prname) then
+   chmod 777 $wpath/$prname
+endif
+/bin/rm $wpath/$prname >& /dev/null
+echo "# Driver for $prname" > $wpath/$prname
+echo '$guint'"/gpguint $prname $projno $wpath " >> $wpath/$prname
+chmod 555 $wpath/$prname
+#clear  
+if ($projno >= 800) then
+#  Electra
+  set suffix = 8xx
+else if ($projno >= 700) then
+#  Sabreliner
+  set suffix = 7xx
+else
+#  KingAir
+  set suffix = 2xx
+endif
+cp $GPTEMPLATE/catrcp.$suffix catrcp.$projno
+chmod 775 catrcp.$projno
+cp $GPCALIBREF/caladd caladd.$projno
+chmod 664 caladd.$projno
+cp $GPTEMPLATE/drxx drxx.$projno
+chmod 664 drxx.$projno
+cp $GPTEMPLATE/group.xxx ngroup.$projno
+chmod 664 ngroup.$projno
+cp $GPTEMPLATE/latlon.ref nlatlon.$projno
+chmod 664 nlatlon.$projno
+cp $GPTEMPLATE/taplog.ref taplog.$projno
+chmod 664 taplog.$projno
+#
+echo " The newly-created files have permissions set to something reasonable,"
+echo "  but you may want to change them to be more meaningful for you."
+echo '  (Do not remove execute permission for the executable files.)'
+echo ' Since some of these files will not be needed, their names all start with '
+echo '  the letter n.  If you intend to use a file, rename it (without the n).'
+echo " "
+echo ' See the file /home/local/genpro/Cray/Procedure for instructions.'
+echo " "
+echo " You are now ready to use GUINT.  Do so by entering:  $prname "
+exit

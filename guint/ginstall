@@ -1,0 +1,187 @@
+#This install driver installs the working version of guint located at
+#/users/raf/source/guint in to the development version of
+#guint at /users/raf/source/nguint
+#all files to be transferred must be in readable versions in the requisite
+#directories.
+pushd /users/raf/source/guint
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/$file
+end
+chmod 755 /users/raf/source/nguint/*
+cd /users/raf/source/guint/edtsum
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/edtsum/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/edtsum/$file
+end
+chmod 755 /users/raf/source/nguint/edtsum/*
+cd /users/raf/source/nguint/edtsum
+/bin/rm *.out
+make -f gpmakef
+cd /users/raf/source/guint/fltseg
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/fltseg/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/fltseg/$file
+end
+chmod 755 /users/raf/source/nguint/fltseg/*
+cd /users/raf/source/nguint/fltseg
+/bin/rm *.out
+make -f gpmakef
+cd /users/raf/source/guint/fltsum
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/fltsum/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/fltsum/$file
+end
+chmod 755 /users/raf/source/nguint/fltsum/*
+cd /users/raf/source/nguint/fltsum
+/bin/rm *.out
+make -f gpmakef
+cd /users/raf/source/guint/genset
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/genset/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/genset/$file
+end
+chmod 755 /users/raf/source/nguint/genset/*
+cd /users/raf/source/nguint/genset
+/bin/rm *.out
+make -f gpmakef
+make -f gpmakef2
+# cd /users/raf/source/guint/get2d
+# foreach file  (gp*)
+#    /bin/rm  /users/raf/source/nguint/get2d/$file
+#    sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/get2d/$file
+# end
+# chmod 755 /users/raf/source/nguint/get2d/*
+# cd /users/raf/source/nguint/get2d
+# /bin/rm *.out
+# make -f gpmakef
+cd /users/raf/source/guint/getuds
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/getuds/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/getuds/$file
+end
+chmod 755 /users/raf/source/nguint/getuds/*
+cd /users/raf/source/nguint/getuds
+/bin/rm *.out
+make -f gpmakef
+cd /users/raf/source/guint/gtsegs
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/gtsegs/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/gtsegs/$file
+end
+chmod 755 /users/raf/source/nguint/gtsegs/*
+cd /users/raf/source/nguint/gtsegs 
+/bin/rm *.out
+make -f gpmakef
+cd /users/raf/source/guint/jobchk
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/jobchk/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/jobchk/$file
+end
+chmod 755 /users/raf/source/nguint/jobchk/*
+cd /users/raf/source/nguint/jobchk
+/bin/rm *.out
+make -f gpmakef
+cd /users/raf/source/guint/ldads
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/ldads/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/ldads/$file
+end
+chmod 755 /users/raf/source/nguint/ldads/*
+# cd /users/raf/source/guint/gmisc
+# foreach file  (gp*)
+#    /bin/rm  /users/raf/source/nguint/gmisc/$file
+#    sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/gmisc/$file
+# end
+# chmod 755 /users/raf/source/nguint/gmisc/*
+cd /users/raf/source/guint/misc
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/misc/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/misc/$file
+end
+chmod 755 /users/raf/source/nguint/misc/*
+cd /users/raf/source/guint/outdmp
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/outdmp/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/outdmp/$file
+end
+chmod 755 /users/raf/source/nguint/outdmp/*
+cd /users/raf/source/nguint/outdmp
+/bin/rm *.out
+make -f gpmakef
+cd /users/raf/source/guint/rawdmp
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/rawdmp/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/rawdmp/$file
+end
+chmod 755 /users/raf/source/nguint/rawdmp/*
+cd /users/raf/source/nguint/rawdmp
+/bin/rm *.out
+make -f gpmakef
+cd /users/raf/source/guint/savfil
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/savfil/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/savfil/$file
+end
+chmod 755 /users/raf/source/nguint/savfil/*
+cd /users/raf/source/nguint/savfil
+/bin/rm *.out
+make -f gpmakef
+cd /users/raf/source/guint/scales
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/scales/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/scales/$file
+end
+chmod 755 /users/raf/source/nguint/scales/*
+cd /users/raf/source/nguint/scales
+# possible makefiles here***
+cd /users/raf/source/guint/setup
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/setup/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/setup/$file
+end
+chmod 755 /users/raf/source/nguint/setup/*
+cd /users/raf/source/nguint/setup
+cd /users/raf/source/guint/submit
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/submit/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/submit/$file
+end
+chmod 755 /users/raf/source/nguint/submit/*
+cd /users/raf/source/nguint/submit
+/bin/rm *.out
+make -f gpmakef
+cd /users/raf/source/guint/taplog
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/taplog/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/taplog/$file
+end
+chmod 755 /users/raf/source/nguint/taplog/*
+cd /users/raf/source/nguint/taplog
+/bin/rm *.out
+make -f gpmakef
+cd /users/raf/source/guint/tp2ms
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/tp2ms/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/tp2ms/$file
+end
+chmod 755 /users/raf/source/nguint/tp2ms/*
+cd /users/raf/source/nguint/tp2ms
+/bin/rm *.out
+make -f gpmakef
+# cd /users/raf/source/guint/gutil
+# foreach file  (gp*)
+#    /bin/rm  /users/raf/source/nguint/gutil/$file
+#    sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/gutil/$file
+# end
+# chmod 755 /users/raf/source/nguint/gutil/*
+# cd /users/raf/source/nguint/gutil
+cd /users/raf/source/guint/util
+foreach file  (gp*)
+   /bin/rm  /users/raf/source/nguint/util/$file
+   sed -e sx/users/raf/source/guintx/users/raf/source/nguintxg $file > /users/raf/source/nguint/util/$file
+end
+chmod 755 /users/raf/source/nguint/util/*
+cd /users/raf/source/nguint/util
+popd
+exit

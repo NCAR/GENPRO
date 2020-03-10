@@ -1,0 +1,23 @@
+/  additional Despike operation to interpolate gaps in Rhola                                        
+NOLIST                                                                                              
+/----------------------------------------------------------DESPIKE PD01                             
+FETCH 139,177                                                                                       
+LIST                                                                                                
+BEGINUD                                                                                             
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/                    X     DESPIKE  OPERATION       X                                               
+/                    X    USER DIRECTIVE FILE       X                                               
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+BEGSNP  = &BEGSNP                                                                                   
+ENDSNP  = &ENDSNP                                                                                   
+FLUSHP = %D                                                                                         
+TRPTYP = 3                                                                                          
+/                                                                                                   
+VECVAR = %T                                                                                         
+UNITS = %T                                                                                          
+DELTOL =   2.5000  ,%FOR , RHOLA1                                                                   
+RATE  = %T                                                                                          
+NWIDTH = 5 , %FOR , RHOLA1                                                                          
+KOUT=(KPROC),(KPRINT)                                                                               
+ENDUD                                                                                               
+/                                                                                                   

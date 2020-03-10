@@ -1,0 +1,21 @@
+#allows one to check the file then submit it
+set thislp = 1
+while ($thislp == 1)
+   echo "(1) Submit Job  (2) Examine Job  (3) Abandon Job"
+   unset choice
+   set choice = $<
+   switch ($choice)
+   case 1
+      nrnet cxjob $2/savefile.$1
+      set thislp = 2
+      breaksw
+   case 2
+      vi $2/savefile.$1
+      breaksw
+   case 3
+      /bin/rm $2/savefile.$1
+      set thislp = 2
+      breaksw
+   endsw  
+end
+exit

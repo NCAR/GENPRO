@@ -1,0 +1,1118 @@
+JOB,JN=PRODUCT,US=XXXXXXXXXXXX,T=1299,OLM=490,CL=FG2,*MS.                 
+ACCOUNT,AC=XXXXXXXXXXXX.                                               
+ECHO,OFF.                                                                   
+*.                                                                             
+*. GENERIC CHECKOUT OR PRODUCTION DECK FOR GENPRO RUNS                   
+*.                                                                              
+PROC.                                                                  
+GETSRC,ID,FLNM,FLTY,USER,MINI.                                               
+*.                                                                           
+*.  -- GET FILE OF <flnm flty>, USER OF <user>, AND ID OF <id> FROM 191   
+*.  -- COPY (APPEND) TO LOCAL DATASET <id>                                     
+*.                                                                      
+RELEASE,DN=&USER.                                                    
+REMOVE,PDN=&FLNM,DN=&USER.                                              
+ACQUIRE,MF=IO,DN=&USER,PDN=&FLNM,ID=&ID,DF=CH,UQ, ^                      
+TEXT='FLNM=&FLNM,FLTY=&FLTY,USER=&USER,MINI=&MINI'.                       
+COPYR,I=&USER,O=&ID,NR.                                                  
+DELETE,DN=&USER.                                               
+RELEASE,DN=&USER.                                                      
+ENDPROC.                                                           
+PROC.                                                                           
+GETVOL,TAPE,INPUT,VOLUME,PRYEAR,PROJNO,FLTNO.                             
+RELEASE,DN=&TAPE.                                                                                   
+REMOVE,DN=&TAPE.                                                                                    
+IF ('&INPUT_'.NE.'MS')                                                                              
+ ACQUIRE,DN=&TAPE,DF=BB,MF=MT,^                                                                     
+ TEXT='ERRMAX=9,EOTP=YES,NFILES=1,DEN=1600,BLKSIZE=12000'.                                          
+ELSE.                                                                                               
+ ACQUIRE,DN=&TAPE,MF=MS,^                                                                           
+ TEXT='FLNM=/RAF/19&PRYEAR/&PROJNO/&FLTNO/&TAPE,MVN=CTRAFDMG'.               
+ENDIF.                                                                        
+COPYR,I=&TAPE,O=&VOLUME,NR.                                            
+ENDPROC.                                                                       
+PROC.                                                                       
+LGO,^                                                                     
+USER=:,PROJECT=:,PROJNO=:,FLTNO=:,TITLE=:,AIRCRAFT=:,IVTITLE=:,^        
+PRDAY=:,PRMON=:,PRYEAR=:,PRTIME=:,^                                     
+BEGIV=:,ENDIV=:,BEGSNP=:,ENDSNP=:,OUTBI=:,OUTEI=:,^                      
+INILAT=:,INILON=:,STSHFT1=:,STSHFT2=:,QCREF1=:,QCREF2=:,^                  
+VOLUMES='VOLUME1':,UNITS=11:,KPOS=((0,0)):,KEOF=1:0,INPUT=MS:MT,^             
+SEG=:,OUTPUT=:,TAPE=NONE:,TURBRT=HRT:HRT,^                                   
+TAPEA=NONE:,TAPEB=NONE:,TAPEC=NONE:,TAPED=NONE:,TAPEE=NONE:,^                   
+TAPEF=NONE:,TAPEG=NONE:,TAPEH=NONE:,TAPEI=NONE:,TAPEJ=NONE:,^                   
+TAPEK=NONE:,TAPEL=NONE:,TAPEM=NONE:,TAPEN=NONE:,TAPEO=NONE:,^                   
+TAPEP=NONE:,TAPEQ=NONE:,TAPER=NONE:,TAPES=NONE:,TAPET=NONE:,^                   
+FLUSHP=1800:1800,^                                                              
+CALCYC=0:-1,OUTCYC=0:-1,STATCYC=0:-1,^                                          
+PRTCYC=0:-1,PLTCYC=0:-1,PLTCYC2=0:-1,^                                          
+PR2D1=NO:YES,PR2MS=NO:YES,PR2IO=NO:YES,PL2IO=NO:YES,PL2D1=NO:YES,^              
+PL2MS=NO:YES,PL2MP=NO:YES,OUT2MS=NO:YES,^                                       
+PMS=:YES,WINDS=:R,^                                                             
+TAU1=(0.0000063):,TAU2=(0.0000038):,TAU3=(0.00):,^                              
+DOF=(2.74):(2.74),BDIA=(.180):(.180),^                                          
+TWIRE=(403.16):(403.16),CN1=(0.22):(0.22),EN1=(0.62):(0.62).                    
+*.                                                                              
+*                                                                               
+*  The following files are needed from the MS to resurrect this project:        
+*                                                                               
+* Logfile:       /RAF/LOGFILE/&PROJNO /&FLTNO /19&PRYEAR                        
+* 2D Logfiles:   /RAF/2D_LOGFILES/&PROJNO /&FLTNO /19&PRYEAR                    
+* Prod'n Deck:   /RAF/PRODUCTION/&PROJNO /19&PRYEAR                             
+* 2D Prod'n:     /RAF/2D_PRODUCTION/&PROJNO /19&PRYEAR                          
+* Source files:  /RAF/CALIBS/&PROJNO /19&PRYEAR                                 
+*                                                                               
+*   ...and the following CMS files are grouped in the following order:          
+*                                                                               
+* Summary, Taplog, Segmnts, Adsud, Calcoe, Header, [Termvars, Plot1,            
+* Plot2,] Flight Decks [,2D Flight Decks]                                       
+*                                                                               
+* ...and saved to                                                               
+*                                                                               
+*    /RAF/GUINT/&PROJECT /&PROJNO /19&PRYEAR                             
+*                                                                       
+*. dispose logfile                                                     
+DISPOSE,DN=$OUT,DF=CB,DC=ST,MF=NG,DEFER,^                
+TEXT='HOST=spock.atd.ucar.edu,FLNM=&PROJNO.&FLTNO_&SEG_LOG'.            
+*  get error message file and programmer directives file              
+ACQUIRE,DN=ERRS,MF=MS,^                                                         
+        TEXT='ONLINE,FLNM=/RAF/PSTORE/GENPRO/REL02/ERRS,MAXERR=0'.              
+ACQUIRE,DN=PD01,MF=MS,^                                                         
+        TEXT='ONLINE,FLNM=/RAF/PSTORE/GENPRO/V01/PD/PD01,MAXERR=0'.             
+*.                                                                              
+IF(JSR.LT.0)                                                                    
+EXIT.                                                                           
+ENDIF.                                                                          
+*.                                                                              
+REMOVE,DN=PUD&PROJNO.                                                           
+*.                                                                              
+EDITOR,I=INPUT.                                                                 
+*.                                                                              
+*                                                                               
+* ATTENTION: insert file CALIBS &PROJNO                                         
+*.                                                                              
+*.  Use this acquire to get unchanging source files from MS                     
+*.                                                                              
+ACQUIRE,DN=SOURCE,MF=MS,DF=CH,UQ,PDN=GENMOD,ID=JUN87,^                          
+TEXT='ONLINE,FLNM=/RAFDMG/GENPRO/OPMOD/JUN87/GENMOD'.                           
+COPYR,I=SOURCE,O=&PROJECT,NR.                                                   
+REWIND,DN=&PROJECT.                                                             
+*                                                                               
+ACQUIRE,DN=DRVL4B,MF=MS,^                                                       
+        TEXT='ONLINE,FLNM=/GENPRO2/BINLIB/VERS4/DRVL4B,MVN=CTRAFDMG'.           
+ACQUIRE,DN=OPRL4B,MF=MS,^                                                       
+        TEXT='ONLINE,FLNM=/GENPRO2/BINLIB/VERS4/OPRL4B,MVN=CTRAFDMG'.           
+*                                                                               
+IFTRAN,I=&PROJECT,L=0.                                                                              
+CFT,I=$FTN,L=0,ON=AZ.                                                           
+*.                                                                              
+*.  get the input tapes for &PROJNO - &FLTNO ..maximum 20 per flight            
+*. argument FLTNO should have no letter suffix; it is assumed that              
+*. input tapes are staged in with suffix only if there is more than one                             
+*. tape for entire flight.                                                                          
+IF ('&TAPE'.NE.'NONE')                                                                              
+ GETVOL,&TAPE,&INPUT,VOLUME1,&PRYEAR,&PROJNO,&FLTNO.                                                
+ENDIF.                                                                                              
+IF ('&TAPEA_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEA,&INPUT,VOLUME1,&PRYEAR,&PROJNO,&FLTNO_A.                                             
+ENDIF.                                                                                              
+IF ('&TAPEB_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEB,&INPUT,VOLUME1,&PRYEAR,&PROJNO,&FLTNO_B.                                             
+ENDIF.                                                                                              
+IF ('&TAPEC_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEC,&INPUT,VOLUME1,&PRYEAR,&PROJNO,&FLTNO_C.                                             
+ENDIF.                                                                                              
+IF ('&TAPED_'.NE.'NONE')                                                                            
+ GETVOL,&TAPED,&INPUT,VOLUME1,&PRYEAR,&PROJNO,&FLTNO_D.                                             
+ENDIF.                                                                                              
+IF ('&TAPEE_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEE,&INPUT,VOLUME1,&PRYEAR,&PROJNO,&FLTNO_E.                                             
+ENDIF.                                                                                              
+IF ('&TAPEF_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEF,&INPUT,VOLUME1,&PRYEAR,&PROJNO,&FLTNO_F.                                             
+ENDIF.                                                                                              
+IF ('&TAPEG_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEG,&INPUT,VOLUME1,&PRYEAR,&PROJNO,&FLTNO_G.                                             
+ENDIF.                                                                                              
+IF ('&TAPEH_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEH,&INPUT,VOLUME1,&PRYEAR,&PROJNO,&FLTNO_H.                                             
+ENDIF.                                                                                              
+IF ('&TAPEI_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEI,&INPUT,VOLUME1,&PRYEAR,&PROJNO,&FLTNO_I.                                             
+ENDIF.                                                                                              
+IF ('&TAPEJ_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEJ,&INPUT,VOLUME1,&PRYEAR,&PROJNO,&FLTNO_J.                                             
+ENDIF.                                                                                              
+IF ('&TAPEK_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEK,&INPUT,VOLUME2,&PRYEAR,&PROJNO,&FLTNO_K.                                             
+ENDIF.                                                                                              
+IF ('&TAPEL_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEL,&INPUT,VOLUME2,&PRYEAR,&PROJNO,&FLTNO_L.                                             
+ENDIF.                                                                                              
+IF ('&TAPEM_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEM,&INPUT,VOLUME2,&PRYEAR,&PROJNO,&FLTNO_M.                                             
+ENDIF.                                                                                              
+IF ('&TAPEN_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEN,&INPUT,VOLUME2,&PRYEAR,&PROJNO,&FLTNO_N.                                             
+ENDIF.                                                                                              
+IF ('&TAPEO_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEO,&INPUT,VOLUME2,&PRYEAR,&PROJNO,&FLTNO_O.                                             
+ENDIF.                                                                                              
+IF ('&TAPEP_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEP,&INPUT,VOLUME2,&PRYEAR,&PROJNO,&FLTNO_P.                                             
+ENDIF.                                                                                              
+IF ('&TAPEQ_'.NE.'NONE')                                                                            
+ GETVOL,&TAPEQ,&INPUT,VOLUME2,&PRYEAR,&PROJNO,&FLTNO_Q.                                             
+ENDIF.                                                                                              
+IF ('&TAPER_'.NE.'NONE')                                                                            
+ GETVOL,&TAPER,&INPUT,VOLUME2,&PRYEAR,&PROJNO,&FLTNO_R.                                             
+ENDIF.                                                                                              
+IF ('&TAPES_'.NE.'NONE')                                                                            
+ GETVOL,&TAPES,&INPUT,VOLUME2,&PRYEAR,&PROJNO,&FLTNO_S.                                             
+ENDIF.                                                                                              
+IF ('&TAPET_'.NE.'NONE')                                                                            
+ GETVOL,&TAPET,&INPUT,VOLUME2,&PRYEAR,&PROJNO,&FLTNO_T.                                             
+ENDIF.                                                                                              
+ ASSIGN,DN=VOLUME1,A=FT11.                                                                          
+ ASSIGN,DN=VOLUME2,A=FT12.                                                                          
+ ASSIGN,DN=VOLUME3,A=FT13.                                                                          
+ ASSIGN,DN=VOLUME4,A=FT14.                                                                          
+ASSIGN,DN=PUD&PROJNO,A=FT05.                                                                        
+ASSIGN,DN=OUTPUT,A=FT21.                                                                            
+ASSIGN,DN=KPRINT,A=FT04,BFI=OFF.                                                                    
+ASSIGN,DN=ERRS,A=FT98,MR,BS=11.                                                                     
+LDR,DN=$BLD:DRVL4B:OPRL4B,MAP=PART,L=MAPLIST,T=GENPRO.                                              
+*.  Output disposes                                                                                 
+* KPRINT to D1 and MS entotal                                                                       
+ECHO,OFF.                                                                                           
+IF ('&PR2D1'.EQ.'YES')                                                                              
+ ECHO,ON.                                                                                           
+ DISPOSE,DN=KPRINT,MF=D1,DC=PR,NRLS,^                                        
+ TEXT='DATA=TEXT,CAMERA=FILM,TITL=P&PROJNO - &FLTNO&SEG TBP'.                                       
+ ECHO,OFF.                                                                                          
+ENDIF.                                                                                              
+IF ('&PR2MS'.EQ.'YES')                                                          
+ ECHO,ON.                                                                  
+ DISPOSE,DN=KPRINT,RT=365,MF=MS,DC=ST,WAIT,^                                
+ TEXT='FLNM=/RAF/19&PRYEAR/&PROJNO/TEMPOUT/PRT/&FLTNO&SEG'.       
+ ECHO,OFF.                                                               
+ENDIF.                                                                                              
+*  KPRINT to IO                                                                                     
+IF ('&PR2IO'.EQ.'YES')                                                                              
+ ECHO,ON.                                                                                           
+ REWIND,DN=KPRINT.                                                                                  
+ DISPOSE,DN=KPRINT,DC=ST,DF=CH,MF=NG,NRLS,^                                    
+ TEXT='HOST=spock.atd.ucar.edu,FLNM=kprint.&PROJNO&FLTNO&SEG'.         
+ ECHO,OFF.                                                                                          
+ENDIF.                                                                                              
+* $PLT to IO and D1                                                                                 
+IF ('&PL2IO'.EQ.'YES')                                                                              
+ ECHO,ON.                                                                                           
+ DISPOSE,DN=$PLT,DC=ST,DF=BI,MF=NG,NRLS,^                                     
+ TEXT='HOST=spock.atd.ucar.edu,FLNM=plt.&PROJNO&FLTNO&SEG'.             
+ ECHO,OFF.                                                                                          
+ENDIF.                                                                                              
+IF ('&PL2D1'.EQ.'YES')                                                                              
+ ECHO,ON.                                                                                           
+ DISPOSE,DN=$PLT,DC=PT,DF=BI,MF=D1,NRLS,^                           
+ TEXT='CAMERA=FILM,TITL=P&PROJNO - &FLTNO&SEG PLT'.                   
+ ECHO,OFF.                                                            
+ENDIF.                                                                                              
+* $PLT to MS                                                                                        
+IF ('&PL2MS'.EQ.'YES')                                                                              
+ ECHO,ON.                                                                                           
+ DISPOSE,DN=$PLT,RT=365,MF=MS,WAIT,^                                  
+ TEXT='FLNM=/RAF/19&PRYEAR/&PROJNO/TEMPOUT/PLT/&FLTNO&SEG'.                    
+ ECHO,OFF.                                                            
+ENDIF.                                                                                              
+* $PLT to MP in sections                                                                            
+IF ('&PL2MP'.EQ.'YES')                                                                              
+ ECHO,ON.                                                                                           
+ MFSPLIT,I=$PLT,O=PLT1:PLT2,T.                                                                      
+ MFSPLIT,I=PLT1,O=PLT3:PLT4,T.                                                                      
+ MFSPLIT,I=PLT2,O=PLT5:PLT6,T.                                                                      
+ DISPOSE,DN=PLT3,DC=PT,DF=BI,MF=MP.                         
+ DISPOSE,DN=PLT4,DC=PT,DF=BI,MF=MP.                         
+ DISPOSE,DN=PLT5,DC=PT,DF=BI,MF=MP.                         
+ DISPOSE,DN=PLT6,DC=PT,DF=BI,MF=MP.                         
+ ECHO,OFF.                                                                                          
+ENDIF.                                                                                              
+* OUTPUT to MS                                                                                      
+IF ('&OUT2MS'.EQ.'YES')                                                                             
+ ECHO,ON.                                                                                           
+ DISPOSE,DN=OUTPUT,MF=MS,RT=4095,DC=ST,WAIT,^               
+ TEXT='FLNM=/RAF/19&PRYEAR/&PROJNO/&TURBRT/&FLTNO&SEG,MVN=CTRAFDMG'.   
+ ECHO,OFF.                                                                                          
+ENDIF.                                                                                              
+*                                                                                                   
+EXIT.                                                                                               
+DUMPJOB.                                                                                            
+DEBUG.                                                                                              
+*                                                                                                   
+DISPOSE,DN=KPRINT,DC=ST,MF=NG,^                                          
+TEXT='HOST=spock.atd.ucar.edu,FLNM=kprint.&PROJNO&FLTNO&SEG'.             
+DISPOSE,DN=$PLT,DC=ST,DF=BI,MF=NG,NRLS,^                                 
+TEXT='HOST=spock.atd.ucar.edu,FLNM=plt.&PROJNO&FLTNO&SEG'.                      
+RELEASE,DN=&PROJECT.                                                
+REMOVE,PDN=&PROJECT.                                            
+&DATA,INPUT.                                                         
+EDIT,S=PD01,D=PUD&PROJNO,OL=0                                             
+NOLIST                                                                                              
+/----------------------------------------------------------DRIVER PD01                              
+FETCH 1,57                                                                                          
+LIST                                                                                                
+BEGINUD                                                                                             
+/  &PROJNO-&FLTNO&SEG ---------------------------------------------------                           
+PROJECT=&TITLE                                                                                      
+PRDATE = ('&PRDAY','&PRMON','&PRYEAR')                                                              
+PRTIME = (&PRTIME)                                                                                  
+BEGIV = (&BEGIV)                                                                                    
+ENDIV = (&ENDIV)                                                                                    
+BEGSNP= &BEGSNP                                                                                     
+ENDSNP= &ENDSNP                                                                                     
+/----------------------------------------------------------------------                             
+FLUSHP = &FLUSHP                                                                                    
+LABIV = (HOURS,MINUTES,SECONDS)                                                                     
+IABORT = 5                                                                                          
+KPROC  = 6                                                                                          
+KPRINT = 4                                                                                          
+KERR   = 6                                                                                          
+KCHECK = 6                                                                                          
+KDUMP  = 6                                                                                          
+BITCHR = 8                                                                                          
+NUMBIT = 64                                                                                         
+BITNSU = 64                                                                                         
+ENDUD                                                                                               
+/                                                                                                   
+NOLIST                                                                                              
+/----------------------------------------------------------INPUT PD01                               
+FETCH 58,116                                                                                        
+LIST                                                                                                
+BEGINUD                                                                                             
+/                       #############################                                               
+/                       #     INPUT OPERATION       #                                               
+/                       #  USER DIRECTIVE FILE      #                                               
+/                       #############################                                               
+/                                                                                                   
+/ GENERAL  CONTROLS                                                                                 
+/                                                                                                   
+ORDGEN = FRTIM, IVTYPE ,IVPR                                                                        
+LETGEN =  1.0 ,   1    , 0                                                                          
+/                                                                                                   
+NUMCYC = -1                                                                                         
+/                                                                                                   
+IVNAM=[HR,MIN,SEC]                                                                                  
+CONV=[3600.,60.,1.]                                                                                 
+JCL = 'YES'                                                                                         
+/                                                                                                   
+/ MULTIPLE INPUT TAPES JOB -- no longer used: merge multiples into                                  
+/ one single dataset at tape staging time                                                           
+/ &PROJNO - &FLTNO&SEG                                                                              
+  KEOF = &KEOF                                                                                      
+  KIN =   &UNITS                                                                                    
+  KPOS = [&KPOS]                                                                                    
+  NWVOL=  &VOLUMES                                                                                  
+/                                                                                                   
+/  ATTENTION: insert ADSUD output from ADSRAW program here                                          
+/                                                                                                   
+ENDUD                                                                                               
+/                                                                                                   
+NOLIST                                                                                              
+BEGINPD                                                                                             
+/                                                                                                   
+/              XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                    
+/              X       GAPFIL OPERATION        X                                                    
+/              X  PROGRAMMER DIRECTIVE FILE    X                                                    
+/              XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                    
+/                                                                                                   
+/                                                                                                   
+DEFGEN = NAMEOP, NUMCYC, ITYPOP, OVERLAP                                                            
+DIMGEN = GAPFIL,   -2,     -1,       1                                                              
+MODGEN = NUMCYC,OVERLAP                                                                             
+/                                                                                                   
+DEFVAR = NAMVAR, INDGET, INRATE, INDPUT, RATE                                                       
+DIMVAR = NAMVAR,      0,      0,      0,    1                                                       
+DEFVAR = VTITLE                                                                                     
+DIMVAR = '                                        '                                                 
+DEFVAR =   UNITS                                                                                    
+DIMVAR = '        '                                                                                 
+DEFVAR = GAPF, GAPV                                                                                 
+DIMVAR = 0   , 99999.                                                                               
+MODVAR = NAMVAR, RATE, UNITS, VTITLE, GAPF, GAPV                                                    
+/                                                                                                   
+ENDPD                                                                                               
+/                                                                                                   
+LIST                                                                                                
+BEGINUD                                                                                             
+//               XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                  
+/               X       GAPFIL OPERATION         X                                                  
+/               X  USER       DIRECTIVE FILE    X                                                   
+/               XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                   
+/                                                                                                   
+/                                                                                                   
+OVERLAP = 5                                                                                         
+VECVAR = %T                                                                                         
+REMVAR = GAP                                                                                        
+GAPF   = 1          / LINEAR INTERPOLATION                                                          
+GAPV = 99999.                                                                                       
+RATE = %T                                                                                           
+ENDUD                                                                                               
+/                                                                                                   
+/                                                                                                   
+NOLIST                                                                                              
+/----------------------------------------------------------INTERP PD01                              
+FETCH 241,262                                                                                       
+LIST                                                                                                
+BEGINUD                                                                                             
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/                    X    TERP   OPERATION          X                                               
+/                    X    USER DIRECTIVE FILE       X                                               
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/ until needed at some future date, remove PSFD2 for now                                            
+/                                                                                                   
+VECVAR = %T                                                                                         
+REMVAR = PSFD2                                                                                      
+RATE = %T                                                                                           
+ENDUD                                                                                               
+/                                                                                                   
+NOLIST                                                                                              
+/----------------------------------------------------------SETRNG PD01                              
+FETCH 117,138                                                                                       
+LIST                                                                                                
+BEGINUD                                                                                             
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/                    X    SETRNG    OPERATION       X                                               
+/                    X    USER DIRECTIVE FILE       X                                               
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/                                                                                                   
+/ ATTENTION: append HGME and/or CHGME if either appears in VECVAR                                   
+/ ...following are always included:                                                                 
+VECVAR = ALPHA,PITCH,CROLL,ROLL,PHDG,VZI,THI                                                        
+/                                                                                                   
+DISJMP = 360.  , %FOR , THI,ALPHA,CROLL                                                             
+DISJMP =  45.  , %FOR , PITCH,ROLL,PHDG                                                             
+DISJMP = 399.05, %FOR , VZI                                                                         
+SLAVTO = CHGME , %FOR, HGME                                                                         
+SLVDEL = 14.4  , %FOR, HGME                                                                         
+/                                                                                                   
+NDELAY = 5,%FOR,CROLL                                                                               
+/OVRLAP=1                                                                                           
+RATE = %T                                                                                           
+ENDUD                                                                                               
+/                                                                                                   
+NOLIST                                                                                              
+/----------------------------------------------------------DESPIKE PD01                             
+FETCH 139,177                                                                                       
+LIST                                                                                                
+BEGINUD                                                                                             
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/                    X     DESPIKE  OPERATION       X                                               
+/                    X    USER DIRECTIVE FILE       X                                               
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+BEGSNP  = &BEGSNP                                                                                   
+ENDSNP  = &ENDSNP                                                                                   
+FLUSHP  = &FLUSHP                                                                                   
+TRPTYP = 3                                                                                          
+/                                                                                                   
+VECVAR = %T                                                                                         
+UNITS = %T                                                                                          
+/                                                                                                   
+/ ATTENTION: following are always included; specify more vars as noted                              
+/   in memo                                                                                         
+DELTOL =    .0028  ,%FOR , ALAT                                                                     
+DELTOL =    .0319  ,%FOR , ALON                                                                     
+DELTOL =   1.5000  ,%FOR , THI                                                                      
+DELTOL =   1.0000  ,%FOR , XVI1,XVI2,YVI1,YVI2                                                      
+DELTOL =    .2000  ,%FOR , ALPHA                                                                    
+DELTOL =  50.0000  ,%FOR , PITCH                                                                    
+DELTOL =  50.0000  ,%FOR , PHDG                                                                     
+DELTOL =  10.0000  ,%FOR , CROLL                                                                    
+DELTOL =  50.0000  ,%FOR , ROLL                                                                     
+DELTOL =  10.0000  ,%FOR , VZI                                                                      
+RATE  = %T                                                                                          
+/ NWIDTH always 1 for ALAT, ALON                                                                    
+NWIDTH = 1 , %FOR , ALAT,ALON                                                                       
+/ NWIDTH always 5 for XVI1,XVI2,YVI1,YVI2                                                           
+NWIDTH = 5 , %FOR , XVI1,XVI2,YVI1,YVI2                                                             
+/ ATTENTION: specify all others from above DELTOL's by setting NWIDTH to                            
+/ RATE as given in INPUT for each                                                                   
+KOUT=(KPROC),(KPRINT)                                                                               
+ENDUD                                                                                               
+/                                                                                                   
+/--------------------------------------------------------------- INI-PD                             
+LIST                                                                                                
+BEGINPD                                                                                             
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/                    X INI-CALIB PD (OCT. 04,1986)  X                                               
+/                    X      INICAL  OPERATION       X                                               
+/                    X  PROGRAMMER DIRECTIVE FILE   X                                               
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/  DEFGEN=1-NAMEOP;2-NAMPD;3-NAMLIB;4-NUMCYC;5-ITYPOP;6-PROJECT(5)                                  
+/         7-QCREF;                                                                                  
+/                                                                                                   
+/                                                                                                   
+DEFGEN=NAMEOP,   NAMPD,   NAMLIB,NUMCYC,ITYPOP                                                      
+DIMGEN= INICAL,'INICAL','INICAL.IF',  -1,   2                                                       
+DEFGEN= PROJECT                                                                                     
+DIMGEN= '                                    '                                                      
+DEFGEN = QCREF                                                                                      
+DIMGEN = ('QCX1','QCX2')                                                                            
+/                                                                                                   
+MODGEN=NUMCYC,NAMPD,NAMLIB,PROJECT,QCREF                                                            
+/                                                                                                   
+/                                                                                                   
+/ DEFVAR =1-NAMVAR;2-INDGET;3-INRATE;4-INDPUT;5-RATE;6-UNITS,7-TITLE;                               
+/ 8-CONS1;9-CONSN;10-CONSU;11-NUMSOU;12-DERIVE();13-CONVERT;14-KONVUF;                              
+/           15-KUTOFF;16-ITAB;17-CALDAT;18-NCFABV;19-NCFBLO;20-COEFS                                
+DEFVAR= NAMVAR,INDGET,INRATE,INDPUT,RATE,  UNITS                                                    
+DIMVAR= NAMVAR,   0  ,  0   ,   0  ,  1,'        '                                                  
+/                                                                                                   
+DEFVAR= TITLE                                                                                       
+DIMVAR= '                                        '                                                  
+/                                                                                                   
+DEFVAR = CONS1, CONSN     , CONSU    , NUMSOU                                                       
+DIMVAR = 99999.,'CONSNAME','CONSUNIT', 0                                                            
+/                                                                                                   
+DEFVAR= DERIVE                                                                                      
+DIMVAR= (NOLINK)                                                                                    
+LNKVAR= DERIVE                                                                                      
+/                                                                                                   
+DEFVAR = CONVERT,KONVUF    ,KUTOFF                                                                  
+DIMVAR =      1.,'        ',     0                                                                  
+/                                                                                                   
+DEFVAR= TABLE                                                                                       
+DIMVAR=(NOLINK)                                                                                     
+LNKFUN= TABLE                                                                                       
+/                                                                                                   
+DEFVAR= CALDATE,     NCFABV                                                                         
+DIMVAR='31DEC99',         0                                                                         
+/                                                                                                   
+DEFVAR= NCFBLO                                                                                      
+DIMVAR=     0                                                                                       
+DEFVAR= COEFS                                                                                       
+DIMVAR= [0.0]                                                                                       
+/                                                                                                   
+/ MODVAR - THE VARIABLE CONTROLS WHICH CAN BE MODIFIED IN UD                                        
+/                                                                                                   
+MODVAR= RATE,UNITS,TITLE,DERIVE,NUMSOU,CONS1,CONSN,CONSU,CONVERT,                                   
+        KUTOFF,TABLE,NCFABV,NCFBLO,CALDATE,COEFS,KONVUF                                             
+/FUNCTION                                                                                           
+/ DEFFUN=1-NAMFUN;2-LOOKUP TABLES;3-LENGTH OF EACH LOOKUP TABLE                                     
+DEFFUN = NAMFUN                                                                                     
+DIMFUN = NAMFUN                                                                                     
+/                                                                                                   
+DEFFUN=LOOKUP,     LENT                                                                             
+DIMFUN=(999.,999.), 0                                                                               
+/                                                                                                   
+MODFUN = LOOKUP,LENT                                                                                
+ENDPD                                                                                               
+/                                                                                                   
+LIST                                                                                                
+BEGINUD                                                                                             
+/*********************    INICAL  OPERATION    *************************                            
+/*********************    USER DIRECTIVE FILE  *************************                            
+/                                                                                                   
+/**********   GENERAL AREA                                                                          
+/                                                                                                   
+PROJECT = %D                                                                                        
+QCREF = ('&QCREF1','&QCREF2')                                                                       
+/                                                                                                   
+/*********************    VARIABLE AREA        *************************                            
+/                                                                                                   
+/ DEFVAR =1-NAMVAR;2-INDGET;3-INRATE;4-INDPUT;5-RATE;6-UNITS,7-TITLE;                               
+/ 8-CONS1;9-CONSN;10-CONSU;11-NUMSOU;12-DERIVE();13-CONVERT;14-KONVUF;                              
+/           15-KUTOFF;16-ITAB;17-CALDAT;18-NCFABV;19-NCFBLO;20-COEFS                                
+VECVAR = %T                                                                                         
+/ ATTENTION: if LORN is used, add CLAT, CLON, CCEP, CGS                                             
+/            if DME is used, add RANG, FLAG, FREQ                                                   
+APPVAR=TPTIME,PTIME,DUM,TMLAG,THF,XVI,YVI,                                                          
+DEI,DNI                                                                                             
+RATE = %T                                                                                           
+/ATTENTION: add FREQ,FLAG,RANG if DME is used                                                       
+RATE = 1,%FOR,TMLAG,TPTIME,PTIME,DUM,DEI,DNI                                                        
+/ATTENTION: set RATE for THF according to RATE of PHDG in INPUT                                     
+RATE = 5,%FOR,THF                                                                                   
+RATE =10,%FOR,XVI,YVI                                                                               
+/                                                                                                   
+/ ATTENTION: insert CALCOE output from ADSRAW here                                                  
+/                                                                                                   
+/                                                                                                   
+ORDVAR =  CONSN, CONSU,      CONS1       /VARNAME                                                   
+LETVAR = 'INI-LON',' DEG',&INILON   ,  %FOR, DEI  /PROJ.&PROJNO                                     
+LETVAR = 'INI-LAT',' DEG',&INILAT   ,  %FOR, DNI  /PROJ.&PROJNO                                     
+UNITS = %T                                                                                          
+TITLE = %T                                                                                          
+/                                                                                                   
+/ ATTENTION: insert LOOKUP TABLES A here if any of following                                        
+/  variables appear in INPUT but are excluded from CALCOE output:                                   
+/      STB STT DTB DTT                                                                              
+/ ATTENTION: insert INICAL TITLES here                                                              
+/ ATTENTION: if DME block is used, insert DME TITLES here                                           
+/                                                                                                   
+ENDUD                                                                                               
+/                                                                                                   
+/ ATTENTION:  insert DESPIKE LORN here if LORAN is used                                             
+/                                                                                                   
+NOLIST                                                                                              
+/----------------------------------------------------------SETRNG PD01                              
+FETCH 117,138                                                                                       
+LIST                                                                                                
+BEGINUD                                                                                             
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/                    X    SETRNG    OPERATION       X                                               
+/                    X    USER DIRECTIVE FILE       X                                               
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+VECVAR = ALPHA,PITCH,CROLL,ROLL,THI,THF                                                             
+/                                                                                                   
+SLAVTO = THI   , %FOR, THF                                                                          
+SLAVTO = CROLL , %FOR, ROLL                                                                         
+SLVDEL = 45.0  , %FOR, ROLL,THF                                                                     
+RATE = %T                                                                                           
+ENDUD                                                                                               
+/                                                                                                   
+NOLIST                                                                                              
+/----------------------------------------------------------FILTER PD01                              
+FETCH 178,218                                                                                       
+LIST                                                                                                
+BEGINUD                                                                                             
+/             XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                   
+/             X      FILTER OPERATION  U D      X                                                   
+/             XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                   
+/ ATTENTION: choose filter weights:                                                                 
+/ THE FOLLOWING WTS ARE FOR 4 POLE BUTTERWORTH,SPS/FC=2.5 FILTER,                                   
+/ USED IN QUEEN AIR 306 PROJECTS (ARIS IV)                                                          
+/  WTS1= [(-.00439873683772829),(.0342344577612603),(-.115221833111989),                            
+/          (.217207115545358),(.868178996643096)]                                                   
+/                                                                                                   
+/ THE FOLLOWING FILTER WEIGHTS ARE FOR 4 POLE BUTTERWORTH,                                          
+/ SPS/FC=5 FILTER, USED IN KING AIR AND ELECTRA PROJECTS (ADS)                                      
+/                                                                                                   
+WTS1= [(-.0423958346984659),(.289442679693826),(-.813136624064022),                                 
+       (1.17285101820862),(.393238760860040)]                                                       
+/                                                                                                   
+/                                                                                                   
+VECVAR=%T                                                                                           
+REMVAR = LORN, XVI1, XVI2, YVI1, YVI2, DME                                                          
+RATE=%T                                                                                             
+FILTER=FUN1, %FOR,PITCH,ROLL,THF,VZI,XVI,YVI                                                        
+VECFUN=FUN1                                                                                         
+NRAW=1                                                                                              
+NREC=4                                                                                              
+LOCWTS=WTS1                                                                                         
+FTITLE = ' FOUR POLE, LO PASS, BUTTERWORTH FILTER '                                                 
+ENDUD                                                                                               
+/                                                                                                   
+NOLIST                                                                                              
+/----------------------------------------------------------SHIFT PD01                               
+FETCH 219,240                                                                                       
+LIST                                                                                                
+BEGINUD                                                                                             
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/                    X       SHIFT  OPERATION       X                                               
+/                    X    USER DIRECTIVE FILE       X                                               
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/                                                                                                   
+VECVAR = %T                                                                                         
+/ ATTENTION: set DYMAX to 1 if ARIS IV data system is used (QUEEN AIR)                              
+ORDVAR = DYSHFT, DYMAX                                                                              
+LETVAR = TMLAG ,   2. , %FOR, ALAT,ALON,THI,XVI,YVI,ALPHA                                           
+/                                                                                                   
+/                                                                                                   
+STSHFT = &STSHFT1, %FOR, PITCH,ROLL,THF,VZI                                                         
+STSHFT = &STSHFT2,%FOR, XVI,YVI,THI                                                                 
+/                                                                                                   
+RATE  = %T                                                                                          
+ENDUD                                                                                               
+/                                                                                                   
+NOLIST                                                                                              
+/----------------------------------------------------------INTERP PD01                              
+FETCH 241,262                                                                                       
+LIST                                                                                                
+BEGINUD                                                                                             
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/                    X    TERP   OPERATION          X                                               
+/                    X    USER DIRECTIVE FILE       X                                               
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+TRPTYP = 3                                                                                          
+VECVAR = %T                                                                                         
+RATE = %T                                                                                           
+/ ATTENTION: -- PMS vars ALWAYS remain the same RATE (ASAS,FSSP,X200,                               
+/                Y200,X260); TPTIME always stays at 1                                               
+/            -- if LRT, all others go to RATE = 1,  set to LOWPAS                                   
+/            -- if HRT, first set derived vars in CALIB; then backtrack                             
+/               to terp source vars as needed here.  Any vars terp'd to                             
+/               rate 1 here must also be LOWPAS'd. All vars associated                              
+/               with GUSTIN in CALIB PD below must be terp'd to 20.                                 
+/               Any vars at rate 5 in INPUT that are not used as source                             
+/               vars in CALIB or assoc'd w/GUSTIN must get terp'd                                   
+/               to rate 1.                                                                          
+LOWPAS= YES ,%FOR,                                                                                  
+/ ATTENTION: insert list as described above                                                         
+RATE = 1,%FOR,                                                                                      
+/ ATTENTION: insert list as described above                                                         
+RATE = 20,%FOR,                                                                                     
+/ ATTENTION: insert list as described above                                                         
+ENDUD                                                                                               
+/                                                                                                   
+NOLIST                                                                                              
+/----------------------------------------------------------SETRNG PD01                              
+FETCH 117,138                                                                                       
+LIST                                                                                                
+BEGINUD                                                                                             
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/                    X    SETRNG    OPERATION       X                                               
+/                    X    USER DIRECTIVE FILE       X                                               
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+VECVAR = THI,PITCH,ROLL,THF,ALAT,ALON,ALPHA                                                         
+/                                                                                                   
+FIXRNG = 360.,%FOR,ALON,THI,ROLL,THF,ALPHA                                                          
+TOPVAL = 180.,%FOR,ALON,ROLL                                                                        
+TOPVAL = 360.,%FOR,THI,THF,ALPHA                                                                    
+FIXRNG = 180.,%FOR,ALAT,PITCH                                                                       
+TOPVAL =  90.,%FOR,ALAT,PITCH                                                                       
+RATE = %T                                                                                           
+ENDUD                                                                                               
+/                                                                                                   
+/                                                                                                   
+/                                                                                                   
+/---------------------------------------------------------------                                    
+/---------------------------------------------------------------                                    
+LIST                                                                                                
+BEGINPD                                                                                             
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/                    X CALIB PD - V2    (SEP  1987) X                                               
+/                    X      CALIB   OPERATION       X                                               
+/                    X  PROGRAMMER DIRECTIVE FILE   X                                               
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/  DEFGEN=1-NAMEOP;2-NAMPD;3-NAMLIB;4-NUMCYC;5-ITYPOP;6-PROJECT(5);                                 
+/         7-QCREF(3);8-GUSTIN(8):[(1)-LAT,(2)-ALPHA,(3)-XVI,(4)-YVI,                                
+/           (5)-PITCH,(6)-ROLL,(7)-VZI,(8)-PALT];9-GUSTR(8);                                        
+/ PMS FSSP PROBE:10-NCSUMF;11-THRESHF;12-TAU1;13-TAU2;14-TAU3;15-DOF;                               
+/                16-BDIA;17-CWD(4);18-CBIAS(4);19-KRANGE;20-KSTROB;                                 
+/                21-KRESET;22-MRATEF;23-MWORDF;24-MCELLF;                                           
+/ PMS ASAS PROBE:25-NCSUMA;26-THRESHA;27-MRATEA;28-MWORDA;29-MCELLA;                                
+/ PMS X200 PROBE:30-NCSUMX;31-THRESHX;32-MRATEX;33-MWORDX;34-MCELLX;                                
+/ PMS X260 PROBE:35-NCSUM6;36-THRESH6;37-MRATE6;38-MWORD6;39-MCELL6;                                
+/ PMS Y200 PROBE:40-NCSUMY;41-THRESHY;42-MRATEY;43-MWORDY;44-MCELLY;                                
+/ 45-TWIRE;46-CN1;47-EN1;48-SIZEF(15);49-SIZEX;50-SIZE6;51-SIZEY;                                   
+/ 52-CX(4);53-XC;54-CX1(4);55-XC1                                                                   
+/     NCSUM = THE NO OF CELLS TO BE SUM UP FOR THRESH CHECK                                         
+/     THRESH= THRESH FOR PLOTING HISTOGRAM                                                          
+/     TAU'S ARE MEASURED FSSP PROBE DELAYS IN SECONDS                                               
+/     DOF = FSSP MEASURED DEPTH OF FIELD (MM)                                                       
+/     BDIA = FSSP MEASURED BEAM DIAMETER(MM)                                                        
+/     FSSP CELL WIDTHS CORRESPONDING TO RANGES(IRANGE)1,2,3,4,(MICRONS)                             
+/     CBIAS = CALIBRATED CELL WIDTH OFFSET     (MICRONS)                                            
+/                                                                                                   
+DEFGEN=NAMEOP,   NAMPD,   NAMLIB,NUMCYC,ITYPOP                                                      
+DIMGEN= CALIB1,'CALPD','CALIB.IF',  -1,   2                                                         
+DEFGEN= PROJECT                                                                                     
+DIMGEN= '                                    '                                                      
+/                                                                                                   
+DEFGEN = QCREF                                                                                      
+DIMGEN = ('QCX1','QCX2')                                                                            
+/                                                                                                   
+DEFGEN = GUSTIN                                                                                     
+DIMGEN = ('ALAT','ALPHA','XVI','YVI','PITCH','ROLL','VZI','PALT')                                   
+DEFGEN = GUSTR                                                                                      
+DIMGEN = ('ALAT','ALPHA','XVI','YVI','PITCH','ROLL','VZI','PALT')                                   
+/ ----- PMS FSSP PROBE CONTROLS                                                                     
+DEFGEN =NCSUMF,THRESHF,     TAU1,     TAU2,TAU3                                                     
+DIMGEN =   15,     50.,0.0000063,0.0000038,0.02                                                     
+/                                                                                                   
+DEFGEN = DOF,  BDIA,              CWD,             CBIAS                                            
+DIMGEN =2.74, 0.180,(3.0,2.0,1.0,0.5),(0.5,1.0,0.5,0.25)                                            
+/                                                                                                   
+DEFGEN = KRANGE,KSTROB,KRESET,MRATEF,MWORDF,MCELLF                                                  
+DIMGEN =      1,     4,     5,     1,    21,    15                                                  
+/ ----- PMS ASAS PROBE CONTROLS                                                                     
+/MRATE CHANGED TO 1 AT CELIA'S REQUEST 2-22-88 JB                                                   
+DEFGEN = NCSUMA,THRESHA,MRATEA,MWORDA,MCELLA                                                        
+DIMGEN =     15,     50.,    1,   21, 15                                                            
+/ ----- PMS 200X PROBE CONTROLS                                                                     
+DEFGEN = NCSUMX,THRESHX,MRATEX,MWORDX,MCELLX                                                        
+DIMGEN =     15,     50.,    1,   21, 15                                                            
+/ ----- PMS X260 PROBE CONTROLS                                                                     
+DEFGEN = NCSUM6,THRESH6,MRATE6,MWORD6,MCELL6                                                        
+DIMGEN =     15,     50.,    1,   70, 62                                                            
+/ ----- PMS 200Y PROBE CONTROLS                                                                     
+DEFGEN = NCSUMY,THRESHY,MRATEY,MWORDY,MCELLY                                                        
+DIMGEN =     15,     50.,    1,   21, 15                                                            
+/ ----- PMS KING LIQUID WATER CONSTANTS    MODDED FOR 830 1985                                      
+DEFGEN = TWIRE, CN1 ,EN1                                                                            
+DIMGEN =  403.16,0.22 ,0.62                                                                         
+/                                                                                                   
+/ ----- PMS 1D CELL SIZE TABLE OR CALCULATION CONSTANT FEB1986                                      
+DEFGEN = SIZEF                                                                                      
+DIMGEN = (1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.)                                       
+DEFGEN = SIZEX, SIZE6, SIZEY                                                                        
+DIMGEN =   20.,   10.,  375.                                                                        
+/ ----- DLA/DLA1 CONSTANTS --SEP1987                                                                
+DEFGEN = CX                            ,XC                                                          
+DIMGEN = (4.156,0.8870,-0.00425,-0.0056),0.5                                                        
+DEFGEN = CX1                           ,XC1                                                         
+DIMGEN = (4.156,0.8870,-0.00425,-0.0056),0.5                                                        
+MODGEN=NUMCYC,NAMPD,NAMLIB,PROJECT,QCREF,GUSTIN,GUSTR,NCSUMF,THRESHF,                               
+       NCSUMY,THRESHY,TAU1,TAU2,TAU3,DOF,BDIA,CWD,CBIAS,NCSUMA,THRESHA,                             
+       KRANGE,KSTROB,KRESET,NCSUMX,THRESHX,NCSUM6,THRESH6,                                          
+       MRATEF,MWORDF,MCELLF,MRATEA,MWORDA,MCELLA,MRATEX,MWORDX,MCELLX,                              
+       MRATE6,MWORD6,MCELL6,MRATEY,MWORDY,MCELLY,TWIRE,CN1,EN1,                                     
+       SIZEF,SIZEX,SIZE6,SIZEY,CX,XC,CX1,XC1                                                        
+/                                                                                                   
+/   DEFVAR =1-NAMVAR;2-INDGET;3-INRATE;4-INDPUT;5-RATE;6-UNITS,7-TITLE;                             
+/           8-CONS1;9-CONSN;10-CONSU;11-NUMSOU;12-DERIVE();13-CONVERT;                              
+/           14-KONVUF                                                                               
+/                                                                                                   
+DEFVAR= NAMVAR,INDGET,INRATE,INDPUT,RATE,  UNITS                                                    
+DIMVAR= NAMVAR,   0  ,  0   ,   0  ,  1,'        '                                                  
+/                                                                                                   
+DEFVAR= TITLE                                                                                       
+DIMVAR= '                                        '                                                  
+/                                                                                                   
+DEFVAR = CONS1  ,CONSN     ,CONSU     ,NUMSOU                                                       
+DIMVAR = 99999.0,'CONSNAME','CONSUNIT',0                                                            
+/                                                                                                   
+DEFVAR= DERIVE                                                                                      
+DIMVAR= (NOLINK)                                                                                    
+LNKVAR= DERIVE                                                                                      
+/                                                                                                   
+DEFVAR = CONVERT,KONVUF                                                                             
+DIMVAR =      1.,'        '                                                                         
+/ MODVAR - THE VARIABLE CONTROLS WHICH CAN BE MODIFIED IN UD                                        
+/                                                                                                   
+MODVAR=RATE,UNITS,TITLE,DERIVE,NUMSOU,CONS1,CONSN,CONSU,CONVERT,KONVUF                              
+/                                                                                                   
+/FUNCTION                                                                                           
+/ DEFFUN=1-NAMFUN;2-PMS PLT NSIZE;                                                                  
+/        3-PMS PLT LOGLIN,4-PMS PLT MGRY;5-PMS PLT MINRY;6-PMS PLT BOT;                             
+/        7-PMS PLT TOP; 8-PMS PLT LABX;9-PMS PLT LABY                                               
+/       10-# OF STATIONS; 11-LONGITUDE; 12-LATITUDE; 13-ALTITUDE;                                   
+/       14-FREQUENCY;                                                                               
+/                                                                                                   
+DEFFUN = NAMFUN                                                                                     
+DIMFUN = NAMFUN                                                                                     
+/                                                                                                   
+/                                                                                                   
+DEFFUN=  NSIZE, LOGLIN, MGRY, MINRY, BOT,  TOP                                                      
+DIMFUN=  1    ,2     ,  0   ,0    ,  1. ,1000.                                                      
+/                                                                                                   
+DEFFUN= LABX                                                                                        
+DIMFUN= ' PMS PROBE      CELL SIZE IN MICRONS    '                                                  
+/                                                                                                   
+DEFFUN= LABY                                                                                        
+DIMFUN= ' PMS      RAW ACCUMMULATION (COUNTS)    '                                                  
+/                                                                                                   
+MODFUN = NSIZE,LOGLIN,MGRY,MINRY,BOT,TOP,LABX,LABY                                                  
+ENDPD                                                                                               
+/                                                                                                   
+/                                                                                                   
+LIST                                                                                                
+BEGINUD                                                                                             
+/*********************    CALIB   OPERATION    *************************                            
+/*********************    USER DIRECTIVE FILE  *************************                            
+/                                                                                                   
+/**********   GENERAL AREA                                                                          
+NUMCYC= -1                                                                                          
+PROJECT = %D                                                                                        
+QCREF = ('&QCREF1','&QCREF2')                                                                       
+/                                                                                                   
+/ ATTENTION: if MRATEx for given PMS probe does not concur with                                     
+/ SAMPLE as given in INPUT, reset here                                                              
+ORDGEN = TWIRE, CN1 ,EN1                                                                            
+LETGEN = &TWIRE,&CN1,&EN1                                                                           
+ORDGEN = DOF,  BDIA,  CWD,  CBIAS                                                                   
+LETGEN = &DOF,&BDIA,(3.0,2.0,1.0,0.5),(0.5,1.0,0.5,0.25)                                            
+ORDGEN = TAU1, TAU2, TAU3                                                                           
+LETGEN = &TAU1,&TAU2,&TAU3                                                                          
+ORDGEN = SIZEF                                                                                      
+LETGEN=(1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.)                                         
+/                                                                                                   
+/*********************    VARIABLE AREA        *************************                            
+/                                                                                                   
+/DEFVAR=1-NAMVAR,2-INDGET,3-INRATE,4-INDPUT,5-RATE,6-UNITS,7-CONS1,                                 
+/       8-CONSN,9-CONSU,10-DERIVE,11-NUMSOU,12-TITLE,13-IFLAG                                       
+/                                                                                                   
+/  ATTENTION: insert CALIB VECVAR here                                                              
+/                                                                                                   
+RATE= %T                                                                                            
+/  ATTENTION:                                                                                       
+/  set rates as follows: if any one of the source vars are at hi rate                               
+/  in INPUT, or if a source var or the derived var get used in some                                 
+/  other derivation that goes hi rate, then all source vars in                                      
+/  that derivation get terp'd to 20 in TERP1 and the derived var gets                               
+/  set to rate 20 here.  Else set derived var to rate 1 here and terp                               
+/  the source vars to 1 in TERP1.                                                                   
+/  Also set UI, VI, etc. to 20 here (GUSTR subroutine)                                              
+/                                                                                                   
+/  ATTENTION: insert CALPMS FUNCTONS here if any PMS probes are used                                
+/             and change names of probes as needed                                                  
+UNITS = %T                                                                                          
+TITLE = %T                                                                                          
+/                                                                                                   
+/  ATTENTION: insert CALIB TITLES here                                                              
+/  ATTENTION: insert ADSUD TITLES if it was generated FOR THIS PROJECT                              
+/                                                                                                   
+ENDUD                                                                                               
+/                                                                                                   
+/ ATTENTION: if HRT deck, insert here: TERP2 OPCODE                                                 
+/                                                                                                   
+NOLIST                                                                                              
+/----------------------------------------------------------OUTPUT PD01                              
+FETCH 330,392                                                                                       
+/                                                                                                   
+LIST                                                                                                
+BEGINUD                                                                                             
+/                       XXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/                       X    OUTPUT OPERATION       X                                               
+/                       X  USER DIRECTIVE FILE      X                                               
+/                       XXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+NUMCYC = &OUTCYC                                                                                    
+OUNIT   = 21                                                                                        
+/ &PROJNO - &FLTNO&SEG---------------------------------                                             
+BEGSNP= &OUTBI                                                                                      
+ENDSNP= &OUTEI                                                                                      
+PROJECT = %D                                                                                        
+COMMENT =('            NCAR RAF MAGNETIC TAPE FORMATS              '),                              
+('  THE CALIBRATED MAGNETIC TAPES ARE PRODUCED BY THE NCAR RAF DATA'),                              
+(' MANAGEMENT GROUP, WITH THE GENPRO-II DATA PROCESSING SOFTWARE.  '),                              
+(' THE FORMAT OF THESE TAPES INCLUDES A HEADER FILE AND A DATA FILE'),                              
+(' WHICH CORRESPONDS TO ALL OR PART OF A PARTICULAR AIRCRAFT FLIGHT'),                              
+(' - HEADER FILE DESCRIPTION                                       '),                              
+(' THE HEADER FILE DESCRIBING THE DATA FORMATS IS IN ASCII         '),                              
+(' CHARACTER FORMAT, 80 CHARACTERS TO A LOGICAL RECORD AND 10      '),                              
+(' LOGICAL RECORDS TO A PHYSICAL RECORD.                           '),                              
+(' THE HEADER FILE IS DIVIDED INTO THE FOLLOWING FIVE SECTIONS:    '),                              
+(' 1. THE GENERAL INFORMATION SECTION CONSISTS OF THREE PARTS:     '),                              
+('    A) THE TITLE LINE IS (BEGINHD).  THIS PART CONTAINS THE      '),                              
+('       INFORMATION PERTAINING TO HEADER FILE: HEADER RECORD OP-  '),                              
+('       TIONS(HDRDPT), LOGICAL HEADER RECORDS PER PHYSICAL RECORD '),                              
+('       (HDRLOG), PHYSICAL HEADER RECORD SIZE IN BITS(HDRSIZ),    '),                              
+('       RESEARCH FLIGHT PROJECT TITLE(PROJECT), RESEARCH FLIGHT   '),                              
+('       DATE(PRDATE), RESEARCH FLIGHT TIME(PRTIME), BEGINNING TIME'),                              
+('       (BEGSNP), AND ENDING TIME(ENDSNP).                        '),                              
+('     B) THE TITLE LINE IS (COMMENT= NCAR RAF MAGNETIC TAPE       '),                              
+('        FORMATS).  THIS PART DESCRIBES THE DATA FORMAT OF        '),                              
+('        GENPRO-II GENERATED DATA SETS.                           '),                              
+('     C) THIS PART CONTAINS INFORMATION PERTAINING TO DATA SET    '),                              
+('        GENERATION AND THE DATA FILE: PRODUCTION JOB EXECUTION   '),                              
+('        DATE(EXDATE), EXECUTION TIME(EXTIME), COMPUTER USED FOR  '),                              
+('        THE JOB(MACHINE), JOB IDENTIFICATION(JOBID), MEDIA NUMBER'),                              
+('        (MEDIA), DATA RECORD OPTIONS(DATOPT), BITS PER LOGICAL   '),                              
+('        DATA RECORD(LOGBIT), LOGICAL DATA RECORDS PER PHYSICAL   '),                              
+('        RECORD(DATLOG) AND PHYSICAL DATA RECORD SIZE IN BITS     '),                              
+('        (DATSIZ).                                                '),                              
+('  2. THE TITLE LINE OF THE VARIABLE NAME LIST SECTION IS         '),                              
+('     (/VARIABLE WRITTEN FOR THIS SNAPSHOT PERIOD).  VARIABLE     '),                              
+('     NAMES ARE LISTED ON THE FOLLOWING LINES THAT BEGIN WITH     '),                              
+('     (APPVAR=). THIS SECTION CONTAINS ALL THE VARIABLE NAMES THAT'),                              
+('     ARE ON THE DATA FILE.  A BRIEF DESCRIPTION OF EACH VARIABLE '),                              
+('     IS GIVEN IN SECTION 3.                                      '),                              
+('  3. THE TITLE LINE OF THIS SECTION IS (ORDVAR  = TITLE).  EACH  '),                              
+('     LINE FOLLOWING WILL BEGIN WITH (LETVAR=) AND BE FOLLOWED BY '),                              
+('     THE VARIABLE TITLE.  AT THE END OF THAT LINE, (%FOR,) IS    '),                              
+('     FOLLOWED BY THE VARIABLE NAME.                              '),                              
+('  4. THE TITLE LINE OF THIS SECTION IS (ORDVAR  = UNITS, SAMPLE, '),                              
+('     RATE, BITS, FSTBIT, SKIP).  EACH LINE FOLLOWING WILL BEGIN  '),                              
+('     WITH (LETVAR =), AND BE FOLLOWED BY THE VARIABLE UNITS      '),                              
+('     (UNITS),SAMPLING RATE(SAMPLE), OUTPUT RATE(RATE), BIT       '),                              
+('     LENGTH OF EACH DATA VALUE(BITS), FIRST BIT LOCATION OF EACH '),                              
+('     VARIABLE(FSTBIT) AND NUMBER OF BITS BETWEEN TWO SEQUENTIAL  '),                              
+('     DATA VALUES FOR THE SAME VARIABLE(SKIP).  AT THE END OF     '),                              
+('     THAT LINE, (%FOR,) IS FOLLOWED BY THE VARIABLE NAME.        '),                              
+('  5. THE TITLE LINE OF THIS SECTION IS (ORDVAR = CONKEY, SCLKEY, '),                              
+('     TERM, FACTOR).  EACH LINE FOLLOWING WILL BEGIN WITH         '),                              
+('     (LETVAR =) AND BE FOLLOWED BY THE CONVERSION CODE USED BY   '),                              
+('     GENPRO(CONKEY), THE SCALING ALGORITHM SELECTION(SCLKEY),    '),                              
+('     THE VALUE OF THE SCALING TERM(TERM), AND THE SCALING FACTOR '),                              
+('     (FACTOR).  AT THE END OF THAT LINE, (%FOR,) IS FOLLOWED BY  '),                              
+('     THE VARIABLE NAME.                                          '),                              
+(' - DATA FILE DESCRIPTION                                         '),                              
+('   THE DATA FILE CONTAINS DATA VALUES OF VARIABLES OVER A        '),                              
+(' SPECIFIED TIME PERIOD (FROM BEGSNP TO ENDSNP) OF A PROJECT      '),                              
+(' PRODUCTION FLIGHT.  A GENPRO CYCLE INTERVAL OF DATA IS OUTPUT AS'),                              
+(' A DATA LOGICAL RECORD, WHERE ONE GENPRO CYCLE INTERVAL IS 1     '),                              
+(' SECOND(S) FOR THIS PROJECT.  BEFORE THE DATA ARE WRITTEN TO THE '),                              
+(' OUTPUT DESTINATION, EACH DATA VALUE IS SCALED AND TRUNCATED TO A'),                              
+(' SPECIFIED NUMBER OF BINARY BITS ("BITS") AND THEN WRITTEN AS A  '),                              
+(' POSITIVE INTEGER. (I.E. A "TERM" IS ADDED TO EACH VALUE OF      '),                              
+(' VARIABLE AND THE RESULT IS MULTIPLED BY A "FACTOR".)            '),                              
+('   EACH VARIABLE IN THE DATA FILE HAS A CORRESPONDING "FSTBIT",  '),                              
+(' "BITS","RATE","TERM", AND "FACTOR".  A GIVEN VARIABLE CAN BE    '),                              
+(' CONVERTED FROM A PACKED INTEGER VALUE TO AN UNPACKED REAL VALUE '),                              
+(' BY FOLLOWING THIS PROCEDURE:                                    '),                              
+('       TAKE "BITS" NUMBER OF BITS STARTING AT "FSTBIT"           '),                              
+('       FROM THIS INTEGER VALUE DIVIDE BY THE "FACTOR"            '),                              
+('       AND THEN SUBTRACT THE BIAS "TERM" FROM THE RESULT.        '),                              
+('   IF THE VARIABLE HAS MORE THAN ONE SAMPLE PER GENPRO CYCLE     '),                              
+(' INTERVAL IN A LOGICAL RECORD, THE PROCEDURE MUST BE REPEATED    '),                              
+(' "RATE" TIMES IN A LOOP WHERE I=1 TO "RATE". THE STARTING BIT    '),                              
+(' NUMBER FOR EACH SEPARATE ITERATION IS THEN:                     '),                              
+('       FSTBIT + BITS*(I-1)                                       '),                              
+('   IF ALL PACKED VALUES ARE UNPACKED AND PLACED IN AN ARRAY,     '),                              
+(' THE FOLLOWING EQUATION MAY BE USED TO OBTAIN THE STARTING       '),                              
+(' INDEX OF A GIVEN VARIABLE (IVAR) WITHIN THE UNPACKED ARRAY:     '),                              
+('       INDEX(IVAR) = ((FSTBIT(IVAR)-1)/BITS)+1                   ')                               
+/                                                                                                   
+HDROPT  = (HEADER,NOSPAN,ASCII)                                                                     
+TERM=1000.                                                                                          
+FACTOR=1000.                                                                                        
+/ INSERT TERMVARS FILE                                                                              
+/                                                                                                   
+/END TERMVARS FILE                                                                                  
+HDRLOG  = 10                                                                                        
+HDRSIZ  = 6400                                                                                      
+DATOPT  = (AUTO,LOGICAL)                                                                            
+DATLOG  = 3                                                                                         
+/ ATTENTION: insert OUTPUT VECVAR here                                                              
+RATE = %T                                                                                           
+TITLE = %T                                                                                          
+UNITS = %T                                                                                          
+BITS = 32                                                                                           
+ENDUD                                                                                               
+/                                                                                                   
+NOLIST                                                                                              
+/----------------------------------------------------------STATS PD01                               
+FETCH 585,628                                                                                       
+LIST                                                                                                
+BEGINUD                                                                                             
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/                    X      STATS   OPERATION       X                                               
+/                    X    USER DIRECTIVE FILE       X                                               
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/                                                                                                   
+NUMCYC = &STATCYC                                                                                   
+KOUT =(KPRINT),(KPROC),(KFILM)                                                                      
+/ ATTENTION: select statistical parameters                                                          
+LOUT = RATE,UNITS,NPTOT,XMEAN,XMAX,XMIN,SIGMA,SKEW,KURTOSIS,STOP                                    
+/      NDEL,DLMAX ,DLMIN ,DLMEN ,DELSIG, PTSAV,TMSAV,NUMGAP,STOP                                    
+/                                                                                                   
+PROJECT = %D                                                                                        
+BEGSNP  = &BEGSNP                                                                                   
+ENDSNP  = &ENDSNP                                                                                   
+FLUSHP =  &FLUSHP                                                                                   
+/ ATTENTION: insert PRSTAT VECVAR here                                                              
+/                                                                                                   
+RATE  = 1                                                                                           
+UNITS = %T                                                                                          
+ENDUD                                                                                               
+/                                                                                                   
+/                                                                                                   
+NOLIST                                                                                              
+/----------------------------------------------------------PRINTER PD01                             
+FETCH 476,516                                                                                       
+LIST                                                                                                
+BEGINUD                                                                                             
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+/                    X     PRINTER OPERATION        X                                               
+/                    X    USER DIRECTIVE FILE       X                                               
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                               
+NUMCYC = &PRTCYC                                                                                    
+MSGOPT=3                                                                                            
+PROJECT = %D                                                                                        
+NLINES = 60                                                                                         
+MAXCHR = 128                                                                                        
+NOPTIN = 1                                                                                          
+VCOEF = (3600.,60.,60.)                                                                             
+IVLAB = ('HR','MI','SEC')                                                                           
+/                                                                                                   
+FLUSHP  = &FLUSHP                                                                                   
+BEGSNP  = &BEGSNP                                                                                   
+ENDSNP  = &ENDSNP                                                                                   
+UNITS = %T                                                                                          
+/                                                                                                   
+/ ATTENTION: insert PRSTAT VECVAR                                                                   
+RATE  = 1                                                                                           
+/                                                                                                   
+FORMAT = 'F8.0' , %FOR ,TIME,TPTIME                                                                 
+FORMAT = 'F6.3' , %FOR ,TMLAG,FZV                                                                   
+FORMAT = 'F7.3' , %FOR ,ALAT                                                                        
+FORMAT = 'F8.3' , %FOR ,ALON,CLON                                                                   
+FORMAT = 'F8.2' , %FOR ,CLAT                                                                        
+ENDUD                                                                                               
+/                                                                                                   
+NOLIST                                                                                              
+/----------------------------------------------------------PLOTTER PD01                             
+FETCH 393,475                                                                                       
+LIST                                                                                                
+BEGINUD                                                                                             
+/               UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU                                                   
+/               U       PLOT  OPERATION         U                                                   
+/               U     USER DIRECTIVE FILE       U                                                   
+/               UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU                                                   
+NUMCYC = &PLTCYC                                                                                    
+FLUSHP  = &FLUSHP                                                                                   
+BEGSNP  = &BEGSNP                                                                                   
+ENDSNP  = &ENDSNP                                                                                   
+PROJECT = %D                                                                                        
+IVTITLE= &IVTITLE                                                                                   
+/                                                                                                   
+VECVAR  = %T                                                                                        
+KACCUM=(70,71)                                                                                      
+RATE    = 1                                                                                         
+IGRID   = 0                                                                                         
+TITLE   = %T                                                                                        
+UNITS   = %T                                                                                        
+SIMPLE  = NONE                                                                                      
+/ ATTENTION: insert PLOT VECFUN here                                                                
+/                                                                                                   
+/  ATTENTION:  to plot XMIN minute XY-plots, specify XMIN and VARS below                            
+/    and remove leading '/'                                                                         
+/PLTCYC=XMIN ,%FOR, VARS                                                                            
+/  ATTENTION: add YAXIS stmts for Rhola and Rflag vs IV if Rhola used                               
+/                                                                                                   
+/  ATTENTION: insert PLOT FUNCTS here                                                               
+/   -----------------------------------------------------------------                               
+/                                                                                                   
+ARROWS = YES       ,%FOR,PLALONI,PLALONC,DEN1,DEN2                                                  
+BRBTYP = VUV       ,%FOR,PLALONI,DEN1                                                               
+BRBVARS= (UI&WINDS,VI&WINDS) ,%FOR,PLALONI,DEN1                                                     
+REVERSE= Y         ,%FOR,PSB,PSW,PSBC,PSWC,PCAB,PSFD,PSFDC,PSF,PSFC                                 
+/                                                                                                   
+ENDUD                                                                                               
+/  ATTENTION: don't include this operation if PLTCYC2 is off                                        
+/----------------------------------------------------------PLOTTER PD01                             
+FETCH 393,475                                                                                       
+LIST                                                                                                
+BEGINUD                                                                                             
+/               UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU                                                   
+/               U       PLOT  OPERATION         U                                                   
+/               U     USER DIRECTIVE FILE       U                                                   
+/               UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU                                                   
+NUMCYC = &PLTCYC2                                                                                   
+FLUSHP  = 25200                                                                                     
+BEGSNP  =(&BEGIV)                                                                                   
+ENDSNP  =(&ENDIV)                                                                                   
+PROJECT = %D                                                                                        
+IVTITLE= &IVTITLE                                                                                   
+/                                                                                                   
+VECVAR  = %T                                                                                        
+KACCUM=(80,81)                                                                                      
+RATE    = 1                                                                                         
+IGRID   = 0                                                                                         
+TITLE   = %T                                                                                        
+UNITS   = %T                                                                                        
+SIMPLE  = NONE                                                                                      
+/ATTENTION: get PLOT VECFUN                                                                         
+/                                                                                                   
+/  ATTENTION:  to plot XMIN minute XY-plots, specify XMIN and VARS below                            
+/    and remove leading '/'                                                                         
+/PLTCYC=XMIN ,%FOR, VARS                                                                            
+/  ATTENTION: add YAXIS stmts for Rhola and Rflag vs IV if Rhola used                               
+/                                                                                                   
+/  ATTENTION: insert PLOT FUNCTS here                                                               
+/   -----------------------------------------------------------------                               
+/                                                                                                   
+ARROWS = YES       ,%FOR,PLALONI,PLALONC,DEN1,DEN2                                                  
+BRBTYP = VUV       ,%FOR,PLALONI,DEN1                                                               
+BRBVARS= (UI&WINDS,VI&WINDS) ,%FOR,PLALONI,DEN1                                                     
+REVERSE= Y         ,%FOR,PSB,PSW,PSBC,PSWC,PCAB,PSFD,PSFDC,PSF,PSFC                                 
+/                                                                                                   
+ENDUD                                                                                               
+/ ATTENTION: insert remainder of deck regardless of &PLTCYC2 value                                  
+ENDCASE                                                                                             
+ENDJOB                                                                                              
+ENDPROC.                                                                                            
+*.                                                                                                  
+ECHO,ON.                                                                                            
+*.  ATTENTION: now do a GET GPFLT DECK and edit as instructed in                                    
+*.  that file.                                                                                      

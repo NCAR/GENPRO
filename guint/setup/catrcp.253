@@ -1,0 +1,49 @@
+#! /bin/csh -f
+# Combines all GENPRO CALIB IFTRAN modification code into one file
+#  Must edit this file to suit a given project
+#  This version is generic for King Air N312D
+#  Must change xxx on next line to the 3-digit project number
+set proj = xxx
+onintr abort
+if ($proj == "xxx") then
+  echo " Must edit this file to insert the appropriate 3-digit project number."
+  echo "  Quitting."
+  exit 1
+endif
+set file = calif.$proj
+set ofile = temp$$
+if (-e $file) echo overwriting $file
+cat \
+ $GPREFCAL/repsav.x \
+ $GPREFCAL/actsv.kr \
+ $GPREFCAL/caladd \
+ $GPREFCAL/calsvblk \
+ $GPREFCAL/cals.kr \
+ $GPREFCAL/gusto \
+ $GPREFCAL/calib1 \
+ $GPREFCAL/input \
+ $GPREFCAL/spalt \
+ $GPREFCAL/stdlib \
+ $GPREFCAL/atkslp \
+ $GPREFCAL/new260x \
+ $GPREFCAL/newfssp \
+ $GPREFCAL/fxfsp.f \
+ $GPREFCAL/ethetae.if \
+ $GPREFCAL/newsefm \
+ $GPREFCAL/splwcc.if \
+ $GPREFCAL/slwccz.if \
+ $GPREFCAL/pmsplt \
+> $ofile
+if ($status != 0) goto abort
+if (-e $file) /bin/rm $file >& /dev/null
+mv $ofile $file
+if ($status != 0) goto abort
+exit 0
+abort:
+onintr -
+/bin/rm $ofile >& /dev/null
+exit 1
+# /users/computing/ron/scd/genpro/pr739/caladd \
+# $GPREFCAL/pms1d.if \
+# $GPREFCAL/newfssp \
+# $GPREFCAL/new260x \

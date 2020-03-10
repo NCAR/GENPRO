@@ -1,0 +1,38 @@
+#makefile for gpmkdeck
+FLAGSO = -g -c -v
+FLAGSD = -g -v
+#UTIL 	= /users/raf/source/guint/util
+#OBJECTS = gpmkrdbse.o ${UTIL}/gpcaps.o gpmkrdcal.o gpmkmemrd.o \
+#
+#
+OBJECTS = gpmkrdbse.o ${gutil}/gpcaps.o gpmkrdcal.o gpmkmemrd.o \
+gpmkprtck.o gpmkpmsck.o gpmktrpit.o
+#
+HEADER = gparc.h gpcalc.h gpder.h gpder2.h gpifile.h  \
+gpkey.h gppdata.h gpplrar.h gppms.h gprad.h gprat.h gpref.h  \
+gprfl.h gprfl2.h gpstd.h gpstv.h
+#
+mkdeck: gpmkdeck.f $(HEADER) ${OBJECTS}
+	f77 gpmkdeck.f ${OBJECTS} ${FLAGSD} -o gpmkdeck.out
+#
+MEMHD = gparc.h gprfl.h gpref.h gppms.h gpplrar.h gppdata.h \
+gpifile.h
+#
+gpmkmemrd.o:	gpmkmemrd.f $(MEMHD)
+	f77 gpmkmemrd.f ${FLAGSO}
+#
+gpmkpmsck.o:	gpmkpmsck.f gparc.h
+	f77 gpmkpmsck.f ${FLAGSO}
+#
+gpmkprtck.o:	gpmkprtck.f gprad.h
+	f77 gpmkprtck.f ${FLAGSO}
+#
+gpmkrdbse.o:	gpmkrdbse.f gparc.h gpstd.h
+	f77 gpmkrdbse.f ${FLAGSO}
+#
+gpmkrdcal.o:	gpmkrdcal.f gpcalc.h
+	f77 gpmkrdcal.f ${FLAGSO}
+#
+TERPHD = gppms.h gparc.h gprat.h gpder.h gpcalc.h gprad.h
+gpmktrpit.o:	gpmktrpit.f  $(TERPHD)
+	f77 gpmktrpit.f ${FLAGSO}

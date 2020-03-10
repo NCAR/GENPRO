@@ -1,0 +1,34 @@
+ECHO,OFF.                                                                                           
+SET,G0=0.                                                                                           
+*.                                                                                                  
+*.     SAVE LOGFILE FROM IO DISK TO MS AND FICHE                                                    
+*.        ...DIRECTORY ON MS STARTS WITH /RAF/                                                      
+PROC.                                                                                               
+GETFILE,FLNM,FLTY,FLMD,USER.                                                                        
+IF (G0.EQ.0)                                                                                        
+ DISPOSE,DN=$OUT,DF=CH,DC=ST,MF=IO,^                                                                
+ TEXT='USER=&USER,FLNM=SAVEFILE,FLTY=LOG',DEFER.                                                    
+SET,G0=G0+1.                                                                                        
+ENDIF.                                                                                              
+RELEASE,DN=INFILE.                                                                                  
+REMOVE,PDN=&FLNM,ID=&FLTY,DN=INFILE.                                                                
+ACQUIRE,DN=INFILE,PDN=&FLNM,ID=&FLTY,MF=IO,DF=CB,^                                                  
+TEXT='FLNM=&FLNM,FLTY=&FLTY,MINI=&FLMD,USER=&USER'.                                                 
+COPYD,I=INFILE,O=SAVFIL.                                                                            
+ENDPROC.                                                                                            
+PROC.                                                                                               
+FILE2D1,TITLE.                                                                                      
+DISPOSE,DN=SAVFIL,DC=PR,DF=CH,MF=D1,NRLS,^                                                          
+TEXT='CAMERA=FICHE,TITL=&TITLE'.                                                                    
+ENDPROC.                                                                                            
+PROC.                                                                                               
+FILE2MS,PATHNAME.                                                                                   
+DISPOSE,DN=SAVFIL,DC=ST,DF=CH,MF=MS,WAIT,^                                                          
+TEXT='FLNM=&PATHNAME',RT=4095.                                                                      
+ENDPROC.                                                                                            
+PROC.                                                                                               
+SAVEFILE,PATHNAME,TITLE.                                                                            
+FILE2D1,&TITLE.                                                                                     
+FILE2MS,&PATHNAME.                                                                                  
+ENDPROC.                                                                                            
+ECHO,ON.                                                                                            

@@ -1,0 +1,2 @@
+/FILENAME/ {$flnm = b "/" $2 "." $3;print "*" > $flnm}
+!/FILENAME/ {print >> $flnm}	

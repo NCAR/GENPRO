@@ -1,0 +1,3 @@
+ACQUIRE,MF=NG,DN=TDUMPN,DF=CH,UQ, ^                                     
+TEXT='HOST=spock.ucar.edu,FLNM=/users/computing/gary/guint/outdmp/gptdmpcx.f'.
+ASSIGN,DN=INPUT,A=FT05.                                                 

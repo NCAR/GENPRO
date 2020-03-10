@@ -1,0 +1,58 @@
+# QSUB -eo
+# q-class (premium-prem, regular-reg, economy-econ)
+# QSUB -q reg
+# To use c-shell
+# QSUB -s /bin/csh
+# To set time limit
+# QSUB -lt 600
+# QSUB -lT 600
+
+ja               # start accounting
+ 
+# Change to the working directory
+# Get relevant files from the MSS
+   cd $TMPDIR
+
+# Set default source/destination directories
+set SOURCE = "unicos/guint/adsraw"
+set DEST = "unicos/guint/adsraw"
+
+# Get relevant files from the MSS
+  lread local=$TAPENO remote=$MSSFILE format=tr options=retry
+
+# Get relevant files from spock
+   rcp "$USER@$HOST":"$SOURCE/$PROGM.f" $PROGM.f
+     if ($status != 0) exit 1
+   rcp "$USER@$HOST":"$SOURCE/$PGRDATA" $PGRDATA
+     if ($status != 0) exit 1
+
+# compile with 64-bit integer maximum option for INPUT code
+   cft77 -a static -i 64 $PROGM.f
+     if ($status != 0) exit 2
+# load the program
+   segldr -o $PROGM.exe $PROGM.o \
+                  -L /lib,/usr/lib,/usr/local/lib \
+                  -l ncaro
+     if ($status != 0) exit 3
+# map I/O units for FORTRAN
+    assign -a $TAPENO fort.9
+#   assign -a $USETAP fort.9
+     if ($status != 0) exit 4
+   assign -a $CALOUT fort.7
+     if ($status != 0) exit 4
+   assign -a $ADSUD fort.8
+     if ($status != 0) exit 4
+   assign -a $ADSDAT fort.10
+     if ($status != 0) exit 4
+# run the program
+   $PROGM.exe < $PGRDATA > $FILEFLT
+     if ($status != 0) exit 1
+
+# Send output back to spock
+   rcp "$FILEFLT $USER@$HOST":"$DEST/$ADSOUT"
+   rcp "$ADSDAT $USER@$HOST":"$DEST/$ADSDAT"
+   rcp "$CALOUT $USER@$HOST":"$DEST/$CALOUT" 
+   rcp "$ADSUD $USER@$HOST":"$DEST/$ADSUD" 
+
+# Done
+ja -cst

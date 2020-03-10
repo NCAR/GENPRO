@@ -1,0 +1,56 @@
+# makefile for gptp2ms program
+# usage: make [<target>]
+#
+# use to make the gptp2ms executable program --
+#
+# % make install
+#
+#      - will install new version on /users/raf/absolute
+#
+# define directory with utility object files for development:
+#
+#UTIL = /users/computing/gary/guint/gutil/
+LIBD = -lncarg -lncarg_gks
+#
+#
+# define installation directories
+#
+#INSTALL = /users/raf/absolute/
+#FILES = /users/raf/misc/
+#
+# set compile flags for development
+#
+## FLAGSD = -g -c -v
+FLAGSD = -c -v
+#
+# set compile flags for installation
+#
+#FLAGSI= -vO3
+FLAGSI= -v
+#
+# all header files, needed for gptp2ms.f
+#
+HEADERS = 
+#
+# object files that compose the development version
+#
+#OBJS = gptp2ms.o $(gutil)gpgtyear.o $(gutil)gpcaps.o $(gutil)gplcaps.o
+OBJS = gptp2ms.o gpgtyear.o gpcaps.o gplcaps.o
+#
+#  targets:
+#
+gptp2ms: 	$(OBJS)
+	f77 -v -o gptp2ms.out $(OBJS) $(LIBD) 
+gptp2ms.o: 	gptp2ms.f
+	f77 $(FLAGSD) -o gptp2ms.o gptp2ms.f
+gpgtyear.o: 	gpgtyear.f
+	f77 $(FLAGSD) -o gpgtyear.o gpgtyear.f
+gpcaps.o: 	gpcaps.c
+	cc $(FLAGSD) -o gpcaps.o gpcaps.c
+gplcaps.o: 	gplcaps.c
+	cc $(FLAGSD) -o gplcaps.o gplcaps.c
+#$(gutil)gpgtyear.o: 	$(gutil)gpgtyear.f
+#	f77 $(FLAGSD) -o $(gutil)gpgtyear.o $(gutil)gpgtyear.f
+#$(gutil)gpcaps.o: 	$(gutil)gpcaps.c
+#	cc $(FLAGSD) -o $(gutil)gpcaps.o $(gutil)gpcaps.c
+install:

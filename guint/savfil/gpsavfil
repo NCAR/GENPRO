@@ -1,0 +1,269 @@
+#  GPSAVFIL <project name> <project number> <workdisk> <2-digit year>
+#
+# NOTE: prior to 6/24/88 usage of GUINT development version:
+#
+#  Use to save all of the Log files, Flight Decks, Calib source files, or
+#
+#  The following files are saved to the corresponding MS pathnames:
+#
+# Logfiles:      /RAF/LOGFILE/<project number>/<flight number>/<year>
+# 2D Logfiles:   /RAF/2DLOGFILE/<project number>2D/<flight number>/<year>
+# Prod'n Deck:   /RAF/PRODUCTION/<project number>/<year>
+# 2D Prod'n:     /RAF/PRODUCTION2D/<project number>2D/<year>
+# Flight Decks:  /RAF/FLT_DECKS/<project name>/<project number>/<year>
+# 2D Flights:    /RAF/FLT_DECKS/<project name>2D/<project number>/<year>
+# Source files:  /RAF/CALIBS/<project number>/<year>
+# Summary file:  /RAF/<project no.>SMMRY/<project number>/<year>
+# Tape Log file: /RAF/<project no.>TPLOG/<project number>/<year>
+#
+#
+# AFTER 6/24/88 usage of GUINT development version:
+#
+#  The following files are saved to the corresponding MS pathnames:
+#
+# Logfile:       /RAF/LOGFILE/<project number>/<flight number>/<year>
+# 2D Logfiles:   /RAF/2D_LOGFILES/<project number>/<flight number>/<year>
+# Prod'n Deck:   /RAF/PRODUCTION/<project number>/<year>
+# 2D Prod'n:     /RAF/2D_PRODUCTION/<project number>/<year>
+# Source files:  /RAF/CALIBS/<project number>/<year>
+#
+#   ...and the following files are grouped in the following order:
+#
+# Summary, Compflt, Taplog, Segmnts, Adsud, Calcoe, Header, [Termvars,
+# Plot1, Plot2,] Flight Decks [,2D Flight Decks, Tdump,] Procssrs,Fltsav,
+# Setsav [,Special],Output < w/ assumed CMS filetype of <project number>>
+# [,Adsraw <project number>LOG]
+# ...and saved to /RAF/GUINT/<project name>/<project number>/<year>
+#
+#  The Special file is presently constructed manually (via editor) and
+# consists of any files not listed above.
+# Brackets indicate files that are optional and may not have been used.
+# Logfile are to be saved manually as part of Production processing, and
+# the remaining files can be saved in one fell swoop using this exec.
+#
+#
+#
+set prname = $1
+set prnum = $2
+set workpath = $3
+set year = '19'$4
+set all = 'f'
+while 1
+/bin/rm $workpath/tempxx
+set prnam = $prname
+clear
+echo " "
+echo "      Select Save Operation:"
+echo "  "
+echo " (1) Logfile (2) Prod'n Deck (3) Source Files (4) Misc. (5) All (6) Exit "
+echo " "
+set type = $<
+if (($type == 6) || ($type == "")) then
+   break
+endif
+if (($type == 2) || ($type == 5) || ($type == 1)) then
+   echo " Indicate (1) Slow processing (default) (2) 2-d processing"
+   set 2d = $<
+   if ($2d == 2) then
+      set prname = ${prname}2d
+   endif
+endif
+# each branch lists all fileids to a file, and determines the MS
+# pathname and MicroFiche title for the type of file
+if ($type == 1) then
+   # Save a Logfile  (Choice 1)
+   set logfile = 'logfile'
+   if ($2d == 2) then
+   # 2D logfiles: combine all into one
+      echo " "
+      echo "  Saving 2D logfiles"
+      echo " "
+      set logfile = '2d_logfiles'
+      # get all names, erase previous merged version
+      /bin/rm $workpath/$prnam.lgfls
+      ls $workpath/$prnum.*f*log > $workpath/$prnam.lgfls
+      # append name of merge file to listing, execute CMS with CMS COPY (APPEND
+      echo " (1) proceed  (2) abort"
+      set ok = $<
+      if ($ok == 2) then
+         break
+      endif
+      # prepare a new CMS EXEC file for GPSAVFILE FORTRAN to follow
+      set fltno = 'all_flights'
+      set jobtype = '2dlogs'
+      /bin/rm $workpath/tempxx
+      /bin/cp $workpath/$prnam.lgfls $workpath/tempxx
+   else
+      ls $workpath/$prnum.*f*log
+      echo " Choose flight number"
+      set fltno = $<
+      if ($fltno == "") then
+	 break
+      endif
+      set jobtype = ${fltno}log
+      echo ""
+      echo " Saving $prnum.$jobtype"
+      echo ""
+      /bin/rm $workpath/tempxx
+      echo "$workpath/$prnum.$jobtype" > $workpath/tempxx
+   endif
+   set mspath = '/RAF/'${year}'/'${prnum}'/TEMPOUT/LOG/'${fltno}
+   set title = 'P_'${prnum}'_'${fltno}'_'${logfile}
+   set upnam = $prnum.$jobtype
+   set upnam = `echo $upnam | dd conv=ucase`
+   /bin/cp $workpath/$prnum.$jobtype  /users/tpspool/$upnam
+   $savfil/gpsavfil.out $prnum $workpath $mspath $title 
+   /bin/cat $workpath/savefile.pre $savfil/gpsavfil.job $workpath/savefile.app > $workpath/rsave
+   /bin/mv $workpath/rsave $workpath/savefile.$jobtype
+   $savfil/gpcksub $jobtype $workpath
+endif
+if (($type == 2) || ($type == 5)) then
+   if ($2d == 2) then
+      set prnam = ${prname}2d
+      if (-r $workpath/$prnam.$prnum) then
+         echo " Saving 2d Production deck"
+         echo "$workpath/$prnam.$prnum" > $workpath/tempxx
+         set jobtype = "2d_deck"
+         set mspath = '/RAF/'${year}'/'${prnum}'/SOURCE/JOB/2D'
+         set title = 'project_deck_'${prnam}'_'$prnum
+         set upnam = $prnam.$prnum
+         set upnam = `echo $upnam | dd conv=ucase`
+         /bin/cp $workpath/$prnam.$prnum  /users/tpspool/$upnam
+         $savfil/gpsavfil.out $prnum $workpath $mspath $title 
+         /bin/cat $workpath/savefile.pre $savfil/gpsavfil.job $workpath/savefile.app > $workpath/rsave
+         /bin/mv $workpath/rsave $workpath/savefile.$jobtype
+         $savfil/gpcksub $jobtype $workpath
+      else
+         echo "$workpath/$prnam.$prnum  not found"
+         echo " hit <r> to continue"
+         line
+      endif
+   else
+      if (-r $workpath/$prnam.job) then
+         echo " Saving  Production deck"
+         echo "$workpath/$prnam.job" > $workpath/tempxx
+         set jobtype = "proddeck"
+         set mspath = '/RAF/'${year}'/'${prnum}'/SOURCE/JOB/PART1'
+         set title = 'project_deck_'${prnam}'_'$prnum
+         set upnam = $prnam.JOB
+         set upnam = `echo $upnam | dd conv=ucase`
+         /bin/cp $workpath/$prnam.job  /users/tpspool/$upnam
+         $savfil/gpsavfil.out $prnum $workpath $mspath $title 
+         /bin/cat $workpath/savefile.pre $savfil/gpsavfil.job $workpath/savefile.app > $workpath/rsave
+         /bin/mv $workpath/rsave $workpath/savefile.$jobtype
+         $savfil/gpcksub $jobtype $workpath
+      else
+         echo "$workpath/$prnam.job  not found"
+         echo " hit <r> to continue"
+         line
+      endif
+   endif
+endif
+# Calibration Source Files
+if (($type == 3) || ($type == 5)) then
+   echo " "
+   echo "  Saving Calibration Code ..."
+   echo " "
+   set mspath = '/RAF/'${year}'/'${prnum}'/SOURCE/CALIB'
+   set title = 'calibs_'$prnum
+   set jobtype = ${prnum}'calib'
+   $savfil/gpgetsrc.out $prnum $workpath $mspath $title 
+   /bin/cat $workpath/savefile.pre $savfil/gpsavfil.job $workpath/savefile.app > $workpath/rsave
+   /bin/mv $workpath/rsave $workpath/savefile.$jobtype
+   $savfil/gpcksub $jobtype $workpath
+endif
+if (($type == 4) || ($type == 5)) then
+   echo " "
+   echo "  Saving GUINT Files..."
+   echo " "
+   set mspath = '/RAF/'${year}'/'${prnum}'/SUMMARY/FILES'
+   set title = 'guint_files ('${prname}' - '${prnum}')'
+   set jobtype = 'guint'
+   echo "$workpath/summary.$prnum" > $workpath/tempxx
+   echo "$workpath/compflt.$prnum" >> $workpath/tempxx
+   echo "$workpath/taplog.$prnum" >> $workpath/tempxx
+   echo "$workpath/segmnts.$prnum" >> $workpath/tempxx
+   echo "$workpath/adsud.$prnum" >> $workpath/tempxx
+   echo "$workpath/calcoe.$prnum" >> $workpath/tempxx
+   echo "$workpath/header.$prnum" >> $workpath/tempxx
+   echo "$workpath/plot1.$prnum" >> $workpath/tempxx
+   echo "$workpath/plot2.$prnum" >> $workpath/tempxx
+   echo "$workpath/procssrs.$prnum" >> $workpath/tempxx
+   echo "$workpath/fltsav.$prnum" >> $workpath/tempxx
+   echo "$workpath/setsav.$prnum" >> $workpath/tempxx
+   echo "$workpath/special.$prnum" >> $workpath/tempxx
+   echo "$workpath/output.$prnum" >> $workpath/tempxx
+   foreach file (`ls $workpath/termvars.${prnum}*f*`)
+      if (-r $file) then
+      echo $file >> $workpath/tempxx
+      endif
+   end
+   foreach file (`ls $workpath/$prnum.*f*`)
+      if (-r $file) then
+      echo $file >> $workpath/tempxx
+      endif
+   end
+   set upnam = summary.$prnum
+   set upnam = `echo $upnam | dd conv=ucase`
+   /bin/cp $workpath/summary.$prnum      /users/tpspool/$upnam
+   set upnam = compflt.$prnum
+   set upnam = `echo $upnam | dd conv=ucase`
+   /bin/cp $workpath/compflt.$prnum      /users/tpspool/$upnam
+   set upnam = taplog.$prnum
+   set upnam = `echo $upnam | dd conv=ucase`
+   /bin/cp $workpath/taplog.$prnum      /users/tpspool/$upnam
+   set upnam = segmnts.$prnum
+   set upnam = `echo $upnam | dd conv=ucase`
+   /bin/cp $workpath/segmnts.$prnum      /users/tpspool/$upnam
+   set upnam = adsud.$prnum
+   set upnam = `echo $upnam | dd conv=ucase`
+   /bin/cp $workpath/adsud.$prnum      /users/tpspool/$upnam
+   set upnam = calcoe.$prnum
+   set upnam = `echo $upnam | dd conv=ucase`
+   /bin/cp $workpath/calcoe.$prnum      /users/tpspool/$upnam
+   set upnam = header.$prnum
+   set upnam = `echo $upnam | dd conv=ucase`
+   /bin/cp $workpath/header.$prnum      /users/tpspool/$upnam
+   set upnam = plot1.$prnum
+   set upnam = `echo $upnam | dd conv=ucase`
+   /bin/cp $workpath/plot1.$prnum      /users/tpspool/$upnam
+   set upnam = plot2.$prnum
+   set upnam = `echo $upnam | dd conv=ucase`
+   /bin/cp $workpath/plot2.$prnum      /users/tpspool/$upnam
+   set upnam = procssrs.$prnum
+   set upnam = `echo $upnam | dd conv=ucase`
+   /bin/cp $workpath/procssrs.$prnum      /users/tpspool/$upnam
+   set upnam = fltsav.$prnum
+   set upnam = `echo $upnam | dd conv=ucase`
+   /bin/cp $workpath/fltsav.$prnum      /users/tpspool/$upnam
+   set upnam = setsav.$prnum
+   set upnam = `echo $upnam | dd conv=ucase`
+   /bin/cp $workpath/setsav.$prnum      /users/tpspool/$upnam
+   set upnam = special.$prnum
+   set upnam = `echo $upnam | dd conv=ucase`
+   /bin/cp $workpath/special.$prnum      /users/tpspool/$upnam
+   set upnam = output.$prnum
+   set upnam = `echo $upnam | dd conv=ucase`
+   /bin/cp $workpath/output.$prnum      /users/tpspool/$upnam
+   foreach file (`ls $workpath/termvars.${prnum}*f*`)
+      if (-r $file) then
+      set upnam = `echo $file | dd conv=ucase`
+      /bin/cp $file /users/tpspool/$upnam
+      endif
+   end
+   pushd $workpath
+   foreach file (`ls ${prnum}.*f*`)
+      if (-r $file) then
+      set upnam = `echo $file | dd conv=ucase`
+      /bin/cp $file /users/tpspool/$upnam
+      endif
+   end
+   popd
+   more $workpath/tempxx
+   $savfil/gpsavfil.out $prnum $workpath $mspath $title 
+   /bin/cat $workpath/savefile.pre $savfil/gpsavfil.job $workpath/savefile.app > $workpath/rsave
+   /bin/mv $workpath/rsave $workpath/savefile.$jobtype
+   $savfil/gpcksub $jobtype $workpath
+endif
+end
+exit

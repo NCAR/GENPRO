@@ -1,0 +1,23 @@
+# set environment for developmental guint
+setenv  adsraw /users/raf/source/dguint/adsraw
+setenv  edtsum /users/raf/source/dguint/edtsum
+setenv  fltseg /users/raf/source/dguint/fltseg
+setenv  fltsum /users/raf/source/dguint/fltsum
+setenv  genset /users/raf/source/dguint/genset
+setenv  getuds /users/raf/source/dguint/getuds
+setenv  gtsegs /users/raf/source/dguint/gtsegs
+setenv  guint /users/raf/source/dguint
+setenv  dguint /users/raf/source/dguint
+setenv  jobchk /users/raf/source/dguint/jobchk
+setenv  ldads /users/raf/source/dguint/ldads
+setenv  gmisc /users/raf/source/dguint/misc
+setenv  outdmp /users/raf/source/dguint/outdmp
+setenv  rawdmp /users/raf/source/dguint/rawdmp
+setenv  savfil /users/raf/source/dguint/savfil
+setenv  scales /users/raf/source/dguint/scales
+setenv  gsetup /users/raf/source/dguint/setup
+setenv  submit /users/raf/source/dguint/submit
+setenv  taplog /users/raf/source/dguint/taplog
+setenv  tp2ms /users/raf/source/dguint/tp2ms
+setenv  gutil /users/raf/source/dguint/util
+alias guint '$gsetup/gpsetup'

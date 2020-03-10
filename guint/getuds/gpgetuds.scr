@@ -1,0 +1,101 @@
+# QSUB -eo
+# q-class (premium-prem, regular-reg, economy-econ)
+# QSUB -q reg
+# To use c-shell
+# QSUB -s /bin/csh
+# To set time limit
+# QSUB -lt 600
+# QSUB -lT 600
+
+# the set variables should be in place above this line
+ 
+# Change to the working directory
+   cd $TMPDIR
+
+
+# Get relevant files from spock
+   rcp "$USER@$HOST":"$SOURCE/$PROGM.f" $PROGM.f
+     set return = $status
+     if ($return != 0) then
+      echo "error acquiring $PROGM.f, code = $return"
+      goto Done 
+     endif
+   rcp "$USER@$HOST":"$SOURCE/$PGRDATA" $PGRDATA
+     set return = $status
+     if ($return != 0) then 
+      echo "error acquiring $PGRDATA, code = $return"
+      goto Done 
+     endif
+
+# compile with 64-bit integer maximum option for INPUT code
+   cft77 -a static -i 64 $PROGM.f
+     set return = $status
+     if ($return != 0) then
+	echo "error compiling $PROGM.f, code = $return"
+ 	goto Done
+     endif
+
+# load the program
+   segldr -o $PROGM.exe $PROGM.o \
+                  -L /lib,/usr/lib,/usr/local/lib \
+                  -l ncaro
+     set return = $status
+     if ($return != 0) then
+	echo "error loading $PROGM, code = $return"
+	goto Done
+     endif
+
+# Get relevant files from the MSS
+ lread local=$TAPENO remote=$MSSFILE format=tr options=retry
+     if ($return != 0) then
+       echo "error acquiring $MSSFILE from MSS, code = $return"
+       goto Done
+     endif
+
+# map I/O units for FORTRAN
+   assign -a $TAPENO fort.9
+     set return = $status
+     if ($return != 0) then
+      	echo "error assigning fortran unit 9, code = $return"
+       goto Done
+     endif
+   assign -a CALOUT fort.7
+     set return = $status
+     if ($return != 0) then
+      	echo "error assigning fortran unit 7, code = $return"
+       goto Done
+     endif
+   assign -a ADSUD fort.8
+     set return = $status
+     if ($return != 0) then
+      	echo "error assigning fortran unit 8, code = $return"
+       goto Done
+     endif
+   assign -a ADSDAT fort.10
+     set return = $status
+     if ($return != 0) then
+      	echo "error assigning fortran unit 10, code = $return"
+       goto Done
+     endif
+# run the program
+   $PROGM.exe < $PGRDATA 
+     set return = $status
+     if ($return != 0) then
+	echo "error executing $PROGM, code = $return"
+     endif
+
+# Send output back to spock
+  if (-e ADSDAT) then
+   rcp ADSDAT "$USER@$HOST":"$DEST/$ADSDAT"
+  endif
+  if (-e CALOUT) then
+   rcp CALOUT "$USER@$HOST":"$DEST/$CALOUT"
+  endif
+  if (-e ADSUD) then
+   rcp ADSUD "$USER@$HOST":"$DEST/$ADSUD"
+  endif
+
+  Done:
+# ls
+
+ja -cst

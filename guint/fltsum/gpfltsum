@@ -1,0 +1,79 @@
+#
+# Usage: GPFLTSUM <project number> <workdisk>
+#
+# -- get user input for flight summary file
+#
+set projno = $1
+set workpath = $2
+# if file already exists, notify fortran that project info is not needed
+set exists = "Y"
+if (! -r $workpath/summary.$projno) then
+   set exists = "N"
+endif
+clear
+echo "Welcome to the Research Flight Tapes Summary Log program. Here you are"
+echo "able to log as many flights as you like, including none. You may"
+echo "exit the program from the MAIN MENU with a carriage return <r>, and"
+echo "may generally cancel any prompt with <r> to return to the previous"
+echo "menu. You need not enter all data in one session. If you do not have"
+echo "the information requested at any one prompt, feel free to terminate the"
+echo "session and return to it when you have the data."
+echo " "
+echo "Please indicate: (1) continue (2) return to Setup Menu"
+echo " "
+unset choice
+set choice = $<
+if ($choice == 2) then
+   goto exit
+endif
+   (/bin/rm $workpath/summchgd.$projno > /dev/null) >& /dev/null
+   $fltsum/gpfltsum.out $projno $workpath $exists
+   # check if any entries were made or updated
+if ( -z $workpath/summchgd.$projno) then
+  goto exit
+else
+#   if (-r $workpath/summchgd.$projno) then
+      (/bin/rm $workpath/summchgd.$projno > /dev/null) >& /dev/null
+#      clear
+      echo " "
+      echo " "
+      echo " "
+      echo " "
+      echo " Processing data after update..."
+      echo " "
+      # sort the summary file by flight number
+      sed -n -e '1 w tempr' $workpath/summary.$projno
+      sed -n -e '2,$ w temp2' $workpath/summary.$projno
+      sort -fdib +0.16 -o$workpath/sumtmp.$projno $workpath/temp2
+      /bin/mv $workpath/tempr $workpath/summary.$projno
+      /bin/cat $workpath/sumtmp.$projno >> $workpath/summary.$projno
+      /bin/rm $workpath/sumtmp.$projno $workpath/temp2
+      # sort the summprt file by date
+      sort -fdib +0.16 -o$workpath/summprt.$projno $workpath/summprt.$projno
+      # create comprehensive flight file (Puts COMPFLT file in state 1)
+# 	echo "prior to edtsum"
+      $edtsum/gpedtsum $projno $workpath
+#	echo "after edtsum"
+      # if Segments file already exists, run also the FLTSEG routine (state 2)
+      if ( -r $workpath/segmnts.$projno) then
+	   echo "prior to calling fltseg/gpfltseg"
+         $fltseg/gpfltseg $projno $workpath
+	echo "did you make it back from fltseg?"
+         clear
+         echo " Would you like a printed copy of the Summary file (y/n) ?"
+         unset choice
+         set choice = $<
+         set choice = `echo $choice | dd conv=ucase`
+         if ($choice == "Y") then
+            print $workpath/summprt.$projno
+            echo " The summprt file is even now being printed in the computer room on"
+            echo " the line printer, you may fetch it forthwith"
+            echo " hit <cr> to continue"
+            line
+         endif  
+         #$nonstd/gpnonstd $workpath
+      endif
+#   endif
+endif
+exit:
+exit

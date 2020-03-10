@@ -1,0 +1,39 @@
+#
+#$1 is projno, $2 is prname $3 is workpath
+echo 'ignore' > cnt
+awk -f $genset/gpawkf2 b=$3 $3/fltdecks.$1
+@ counter = 1
+set ldex = `wc -l $3/cnt`
+#set index to number of flights
+@ index = $ldex[1] 
+set array = `cat $3/cnt`
+while 1 
+   awk -f $genset/gpawkf b=$3 $3/fltdecks.$1
+   @ total = 0
+   @ tcnt = $counter + 1
+   while 1
+      set fred = `wc -l $1.$array[$tcnt]`
+      @ total = $total + $fred[1]
+      if ($tcnt >= ($counter + 10)) then
+         break
+      endif
+      if ($tcnt >= $index) then
+         break
+      endif
+      @ tcnt = $tcnt + 1
+    end
+    @ counter = $tcnt
+    echo "1,$total d" > $3/sedf1
+    @ total = $total + 1
+    set limp = \$
+    echo "$total,$limp w tempx" >> $3/sedf1
+    sed -n -f $3/sedf1 $3/fltdecks.$1
+    /bin/mv tempx $3/fltdecks.$1
+    /bin/rm $3/sedf1
+    /bin/rm $3/cnt
+    set tds = `wc -l $3/fltdecks.$1`
+    if ($tds[1] <= 5) then
+      exit
+    endif
+end
+exit

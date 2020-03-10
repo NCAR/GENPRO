@@ -1,0 +1,13 @@
+# GPMKDECK <project name> <project #> <workdisk> <version>
+set projno = $2
+/bin/rm $workpath/gpvar.dba
+/bin/rm $workpath/gpgender.dba
+/bin/cp $genset/gpvar.dba $workpath/gpvar.dba
+/bin/cp $genset/gpgender.dba $workpath/gpgender.dba
+cat $workpath/gpvar.$projno >> $workpath/gpvar.dba
+cat $workpath/gpgender.$projno >> $workpath/gpgender.dba
+/bin/rm $workpath/gpvar.temp
+/bin/rm $workpath/gpgender.temp
+#mdb $genset/gpmkdeck.out
+$genset/gpmkdeck.out $2 $3 $1
+exit

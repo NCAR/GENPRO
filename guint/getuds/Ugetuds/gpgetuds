@@ -1,0 +1,97 @@
+#
+#  Usage: GPGETUDS <project number><workpath>
+#   -- set up a Cray job (ADSRAW JOB) to get user directives for
+#   Genpro deck
+#
+if ($#argv < 2) then
+   echo " "
+   echo " Usage: GPGETUDS <project number><workpath>"
+   echo " hit <cr> to continue"
+   line
+   exit
+endif
+clear  
+set projno = $1
+set workpath = $2
+# verify input file exists
+if ( ! -r $2/summary.$1) then
+   echo " "
+   echo "You must first use the 'L  Log Flight Tapes' option before this option"
+   echo "-- hit <r> to continue"
+   echo " "
+   line
+   exit
+endif
+echo " "
+echo "Genpro User files are generated from data on a"
+echo "flight tape whose number you entered via the 'Log Flight Tapes' option."
+echo "This need be done only once, and if you have already completed the"
+echo " A--All of the Above option in the Tape Staging Menu successfully, it"
+echo "has been done for you.  Using that option is a good way to accomplish"
+echo "everything you need to proceed with Processing. If, however, tapes were"
+echo "staged by some other means, you still need these User files; this"
+echo "option will facilitate that."
+echo " "
+echo "Please indicate: (1) continue (2) return to Tape Staging Menu"
+echo " "
+unset choice
+set choice = $<
+if ($choice == 2) then
+   exit
+endif
+clear  
+echo " A Job will now be created to get these User files. At the"
+echo " next menu, selecting 'Submit Job' is the usual choice if no"
+echo " strange messages appear and you wish to proceed ..."
+echo "  Hit <cr> to continue"
+echo " "
+line
+# fortran needs project number
+/bin/rm $workpath/command.file
+echo ""
+echo ""
+echo ""
+echo ""
+cat $workpath/summary.$projno
+$getuds/gpgetuds.out $projno $workpath
+# attach JOB stmt to body of JCL, append the command lines
+# offer submit of job
+if (-r $workpath/command.file) then
+   cat $workpath/adsraw.${projno}job $rawdmp/gpadsraw.job  > $workpath/temp.x
+   cat $workpath/temp.x $workpath/command.file  > $workpath/temp.xx
+   /bin/mv  $workpath/temp.xx $workpath/adsraw.${projno}job
+   set loop = "y"
+   while 1
+      echo "(1) Submit Job  (2) Examine Job  (3) Abandon Job"
+      unset choice
+      set choice = $<
+      switch ($choice)
+      case 1
+         cp $rawdmp/gpadsraw.f /users/tpspool
+         cp $gtsegs/gpgtsegs.f /users/tpspool
+         nrnet cxjob $2/adsraw.$1job
+         echo ""
+         echo " After the file ADSRAW $1job has returned to your migs directory"
+         echo " select the the C--------Complete Staging option from the Tape"
+         echo " Staging Menu. For now, wait for a mail message to indicate success."
+         echo " Hit <r> to continue"
+         line
+         set loop = "n"
+         breaksw
+      case 2
+         vi $2/adsraw.$1job
+         breaksw
+      case 3
+         set loop = "n"
+         breaksw
+      endsw  
+      if ($loop == "n") then
+         break
+      endif
+   end
+endif
+   /bin/rm  $2/temp.x
+   /bin/rm  $2/command.file
+   echo " Hit <cr> to continue"
+   line
+exit

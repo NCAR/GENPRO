@@ -1,0 +1,101 @@
+#
+#  Usage: GPGETUDS <project number><workpath>
+#   -- set up a Cray job (ADSRAW JOB) to get user directives for
+#   Genpro deck
+#
+if ($#argv < 2) then
+   echo " "
+   echo " Usage: GPGETUDS <project number><workpath>"
+   echo " hit <cr> to continue"
+   line
+   exit
+endif
+set projno = $1
+set workpath = $2
+set bob = "return"
+# verify input file exists
+if ( ! -r $2/summary.$1) then
+   echo " "
+   echo "You must first use the 'L  Log Flight Tapes' option before this option"
+   echo "-- hit <r> to continue"
+   echo " "
+   line
+   exit
+endif
+echo " "
+echo "			GET USER FILES"
+echo "Genpro User files are generated from data on a"
+echo "flight tape whose number you entered via the 'Log Flight Tapes' option."
+echo "This option need be done only once. If, however, tapes were"
+echo "staged by some other means, you still need these User files; this"
+echo "option will facilitate that."
+echo " "
+echo "Please indicate: (1) continue (2) return to Tape Staging Menu"
+echo " "
+unset choice
+set choice = $<
+if ($choice == 2) then
+   exit
+endif
+echo " A Job will now be created to get these User files. At the"
+echo " next menu, selecting 'Submit Job' is the usual choice if no"
+echo " strange messages appear and you wish to proceed ..."
+echo " "
+echo ""
+echo ""
+echo ""
+echo ""
+# fortran needs project number
+$getuds/gpgetuds.out $projno $workpath
+
+# offer submit of job
+if (-r $workpath/insert.$1) then
+   (/bin/rm $2/getuds.$1job > /dev/null) >& /dev/null
+# because read from user dir...
+cp $getuds/gpgetuds.scr $2/gpgetuds.scr
+# build job-submission script file
+sed "9 r insert.$1" $2/gpgetuds.scr > $2/getuds.$1job
+    /bin/rm insert.$1
+    /bin/rm $2/gpgetuds.scr
+
+   set loop = "y"
+   while 1
+echo "(1) Submit Job  (2) Examine Job  (3) Abandon Job"
+      unset choice
+      set choice = $<
+      switch ($choice)
+      case 1
+         set seq = `nrnet shjob $2/getuds.$1job`
+         echo $seq
+         if ($seq[1] == 'Sequence') then
+            set ngseq = $seq[4]
+#            (/bin/rm $2/getuds.seq > /dev/null) >& /dev/null
+#            echo $ngseq > $2/getuds.seq
+echo $ngseq " " `date '+ %m/%d/%y at %H:%M:%S'` "  user files" >>! $2/getuds.seq
+         else
+            echo Could not submit job
+            goto exit
+         endif
+         echo ""
+     echo " After the file SH$ngseq.#### has returned to your migs directory"
+     echo " select the the C--------Complete Staging option from the Tape"
+     echo " Staging Menu. For now, wait for a mail message to indicate success."
+         echo ""
+         echo ""
+         set loop = "n"
+         breaksw
+      case 2
+         vi $2/getuds.$1job
+         breaksw
+      case 3
+         set loop = "n"
+         breaksw
+      endsw  
+      if ($loop == "n") then
+         break
+      endif
+   end
+endif
+#      endif
+exit:
+exit

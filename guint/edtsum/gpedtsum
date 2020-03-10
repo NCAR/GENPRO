@@ -1,0 +1,20 @@
+# Usage: gpedtsum projectnumber workingpath
+#
+#   -- use to create a modified flight entries file that combines
+#      individual entries for different tapes in same flight into
+#      a single entry, with begin/end times adjusted and tape number
+#      field changed to read 'COMP n', where n is number of tapes for
+#      given flight, and comment reads 'MERGED flt', where flt is the
+#      flight number.
+#   -- intended for use after GPFLTSUM EXEC and before GPFLTSEG EXEC
+# verify input file exists
+if (! -r $2/summary.$1) then
+   echo	" " 
+   echo "You must first select the Log Flight Tapes option and enter SOME data"
+   echo "before using this program  -- hit <r> to continue"
+   echo " " 
+   line
+else
+# invoke fortran
+   $edtsum/gpedtsum.out $1 $2
+endif

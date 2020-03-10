@@ -1,0 +1,5 @@
+As of 9/19/90 rawdmp is not working.  So when you "f Get Raw Tape Dump,"
+it blows up.  rawback and rawback.f are the cos backup for rawdmp.
+rawdmp and rawdmp.f have been modified for unicos but not tested as of this date.
+
+gpadsraw.f is ron's modified version for unicos and ads.fold is original cos

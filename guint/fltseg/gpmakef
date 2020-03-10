@@ -1,0 +1,19 @@
+# makefile for fltseg
+# usage: Make <target>
+#
+# use to make the GUINT executable programs --
+#
+# define installation directories
+#
+#
+#
+# set compile flags, for driver
+#
+FLAGSD = -g -v
+#
+#
+#
+#
+# fltseg is an independant driver
+gpfltseg.out: gpfltseg.f
+	f77 $(FLAGSD) -o gpfltseg.out gpfltseg.f 

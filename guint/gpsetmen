@@ -1,0 +1,100 @@
+#
+# Usage: GPGUINT <project name> <proj. #> <working path> <version>
+#        Setup menu sub-driver
+########################################################################
+#                                                                      #
+#                        SETUP MENU                                    #
+#                                                                      #
+########################################################################
+# project/flight initiation, setup, tape staging
+    unset suplp
+    set suplp = "y"
+    while ($suplp == "y")
+      echo " $header $prname  Setup $trailer"
+      echo " " 
+      echo "              h   Help"
+      echo "              l   Log Flight Tapes"
+      echo "              t   Tape Staging Menu"
+      echo "              s   Project Parameters"
+      echo "              p   Processing Menu"
+      echo "              m   Miscellaneous Menu"
+      echo "             <cr> Main Menu"
+      unset achoice
+      set achoice = $<
+      set achoice = `echo $achoice | dd conv=lcase`
+      switch($achoice)
+         case ""
+            set suplp = "n"
+            breaksw
+         case h                         
+            echo " The Setup Menu offers the basic operations you need to prepare for"
+            echo " processing your project by Genpro. From this menu, the usual order of"
+            echo " selections is:"
+            echo "  "
+            echo "               L   Log Flight Tapes"
+            echo "               T   Tape Staging Menu"
+            echo "               S   Project Parameters"
+            echo "  "
+            echo " Additional Help and Suggestions are available under each of these."
+            echo "  "
+            echo " Once Project Parameters setup is done, select  P----Processing Menu"
+            echo " to actually begin processing the data. Various and sundry -- and often"
+            echo " unneeded  -- options are available under  M---Miscellaneous Menu"
+            echo "  "
+            echo " to return to the Setup Menu, hit <r> ...."
+            line
+            breaksw
+         case l
+         # enter research flight tape information -- see GPFLTSUM DOC for]
+         # complete documentation; online help available in following exec:
+            $fltsum/gpfltsum $prnum $workpath
+            breaksw
+##########################################################################
+         case t
+         # stage a tape to the Cray
+            $guint/gptpmen
+            breaksw 
+######################################################################
+         case s 
+         # invoke the deck setup program, GPGENSET...used to select variables,
+         # set constants, change output order, change calibration coefficients,
+         # designate primary sensors, etc., etc., etc.....
+         #
+            if ($preamble != "off") then
+              echo " You may now access the setup program, allowing you to select variables,"
+              echo " rearrange their output order, set calibration coefficients, and many"
+              echo " other wonderful options that facilitate the setup of your project. We"
+              echo " suggest modifying proccsrs.$prnum before doing this setup, if you"
+              echo " need to designate special proccessors.  Read that file for more info, If"
+              echo " you wish to do setup now, hit <r>; else, enter any other character to
+              echo " return to the Setup Menu ...
+              unset cchoice
+              set cchoice = $< 
+              if ($cchoice != "") then
+                 breaksw
+              endif
+            endif
+            /bin/rm $workpath/fltdecks.$prnum
+            /bin/rm $workpath/fltfile
+            $genset/gpgenset $prnum $prname $workpath 
+            #determine whether user wants to proceed with deck generation
+            set texx = `wc -c $workpath/direct.$prnum`
+            if ( $texx[1] < 12) then
+               breaksw
+            endif
+            #generate new deck from Genset's output file
+            $genset/gpmkdeck  $prname $prnum $workpath 
+            if (! -r $workpath/mod$prnum) then
+               breaksw
+            endif
+            chmod +x $workpath/mod$prnum
+            $workpath/mod$prnum
+            breaksw
+         case p
+            exit -2
+         case m
+            exit -3
+            breaksw
+         endsw 
+      end
+    exit 0

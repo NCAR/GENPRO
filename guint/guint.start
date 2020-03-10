@@ -1,0 +1,3 @@
+Following from Gary to search for "fetch" in a JCL file as first step in
+changing it to a UNICOS script.
+grep -i fetch IceNu.job | awk '{print $2}' | awk '{FS=","} {print $1}'

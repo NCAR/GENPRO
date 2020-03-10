@@ -1,0 +1,16 @@
+Tape staging:
+
+o1gptp2ms has old script
+o3gptp2ms.f has old FORTRAN file to go with o1gptp2ms
+These versions would send a script with multiple 'msimport' statememts as a
+batch job which would run on the Cray.  The job would submit a bunch of
+'msimport' requests to the MSCP.
+
+The current version runs a script on the local machine.  It submits individual
+staging jobs via MIGS instead of via a Cray job (which is discouraged by SCD).
+It means more email messages to a user but is much more frugal of resources.
+
+The current version must be verified.  No test has been made of the code since
+it was changed.
+
+Ron Ruth  11 February 1993

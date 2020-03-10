@@ -1,0 +1,30 @@
+There are many scripts which should be checked for hard-wires.  A list
+should follow this line.
+-----------------------------------------------------------------------
+
+
+Directories which have been compiled/loaded for GUINT to run on chinook
+ Ron Ruth
+-----------------------------------------------------------------------
+../
+adsraw/        <-- done
+edtsum/        <-- done
+fltseg/        <-- done
+fltsum/        <-- done
+genset/        <-- done
+getuds/        <-- done
+gtsegs/        <-- done
+jobchk/        <-- done
+ldads/         <-- done
+misc/          <-- done
+outdmp/        <-- done
+projects/                      <-- not required
+rawdmp/        <-- done
+savfil/        <-- done
+scales/        <-- done
+setup/         <-- done
+submit/        <-- done
+taplog/        <-- done   except for gptlghdr which isn't on the Masscomp either
+tp2ms/                    <--- program has bad FORTRAN format constructs
+                                (may not be needed anyway)
+util/          <-- done

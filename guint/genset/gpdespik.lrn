@@ -1,0 +1,24 @@
+NOLIST                                                                          
+/----------------------------------------------------------DESPIKE PD01         
+FETCH 139,177                                                                   
+LIST                                                                            
+BEGINUD                                                                         
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                           
+/                    X     DESPIKE  OPERATION       X                           
+/                    X    USER DIRECTIVE FILE       X                           
+/                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                           
+BEGSNP  = &BEGSNP                                                               
+ENDSNP  = &ENDSNP                                                               
+FLUSHP = %D                                                                     
+TRPTYP = 3                                                                      
+/                                                                               
+VECVAR = %T                                                                     
+UNITS = %T                                                                      
+DELTOL =    .0028  ,%FOR , CLAT                                                 
+DELTOL =    .0319  ,%FOR , CLON                                                 
+DELTOL =   1.0000  ,%FOR , CGS                                                  
+RATE  = %T                                                                      
+NWIDTH =20 , %FOR , CLAT,CLON,CGS                                               
+KOUT=(KPROC),(KPRINT)                                                           
+ENDUD                                                                           
+/                                                                               

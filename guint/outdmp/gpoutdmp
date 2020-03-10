@@ -1,0 +1,100 @@
+#
+# usage: GPOUTDMP <project number> <workdisk>
+#
+#  Set up and submit a Cray job (gpoutdmp[pr#].job) to obtain a dump of
+#  an output tape as specified via interaction with this script and
+#  the program(s) called by this script. The dump is returned in a
+#  separate file from the Cray to the user's working directory.
+#
+if ($#argv < 2) then
+  echo " usage: gpoutdmp <project number> <workdisk>"
+  echo " Contact a guint expert.
+  exit
+endif
+set gendisk = "F"
+set header = "T"
+set projno = $1
+set workdisk = $2
+# verify input file exists
+if (! -r $workdisk/output.$projno) then
+   set header = "F"
+endif
+if (! -r $workdisk/summary.$projno) then
+    echo " You must first log flight tapes before using this option"
+    echo " Hit <r> to continue"
+    line
+    exit
+endif
+echo "An output tape dump must first be done to prepare the production tape"
+echo "  log header information."
+echo " "
+echo "You will be asked to specify a flight for which an output tape has been"
+echo "  written. If you don't know one, use msls from shavano to determine one,"
+echo "  then return to this program. If you do know one, you will also be asked"
+echo "  other questions to set up the output dump. The dump will be written to"
+echo "  the file $workdisk/tdump.${projno}log"
+echo "  after the job has completed on the Cray. "
+echo " "
+echo "Please indicate: (1) continue (2) return to the previous Menu"
+echo " "
+unset choice
+set choice = $<
+if ($choice == 2) then
+ goto exit
+#   return -1
+endif
+#call fortran to get user's options for the dump program
+$outdmp/gpoutdmp.out $projno $workdisk $header
+if ($status. != 0) then
+  echo Problem running gpoutdmp.out program.  Contact a guint expert.
+  exit
+# existence of DATA file indicates whether input completed or not
+if (! -r $workdisk/tdump.$projno) then
+  echo Could not find file: tdump.$projno created by gpoutdmp.out
+  echo Contact a guint expert.
+  exit
+endif
+# build job-submission script file
+sed "13 r $workdisk/outdmp.$projno" $outdmp/gpoutdmp.scref > $workdisk/outdmp.$$
+if ($status != 0) then
+  echo Could not build $workdisk/outdmp.${projno}job
+  echo Consult a guint expert.
+  exit
+endif
+echo Successfully built $workdisk/outdmp.${projno}job
+while 1
+  echo "(1) Submit Job  (2) Examine Job  (3) Abandon Job"
+  unset choice
+  set choice = $<
+  switch ($choice)
+  case 1
+    (/bin/rm $workdisk/outdmp.${projno}job > /dev/null) >& /dev/null
+    /bin/mv $workdisk/outdmp.$$ $workdisk/outdmp.${projno}job
+    seq = `nrnet shjob $workdisk/outdmp.${projno}job`
+    echo $seq
+    if ($seq[1] = 'Sequence') then
+      set ngseq = $seq[4]
+      (/bin/rm $workpath/outdmp.seq > /dev/null) >& /dev/null
+      echo $ngseq > $workpath/outdmp.seq
+      echo " After this job completes, the file tdump.${projno}log will be"
+      echo "  returned to your $workdisk directory, and you will receive"
+      echo "  a MIGS email message."
+    else
+      echo Could not submit job.  Contact a guint expert.
+    endif
+    echo " "
+    echo "  Enter <r> to continue"
+    line
+    exit
+    breaksw
+  case 2
+    vi $workdisk/outdmp.$$
+    vi $workdisk/tdump.$projno
+    breaksw
+  case 3
+    (/bin/rm $workdisk/tdump.$projno > /dev/null) >& /dev/null
+    exit
+    breaksw
+  endsw  
+end
+exit:

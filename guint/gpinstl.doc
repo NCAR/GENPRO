@@ -1,0 +1,43 @@
+This is a list of all the hardwired directories in the guint routines,
+thus if an install is performed, these are the places where names must be
+changed.
+
+The envs file.
+envs:setenv edtsum  /users/raf/source/dguint/edtsum
+envs:setenv fltseg  /users/raf/source/dguint/fltseg
+envs:setenv fltsum  /users/raf/source/dguint/fltsum
+envs:setenv genset  /users/raf/source/dguint/genset
+envs:setenv getuds  /users/raf/source/dguint/getuds
+envs:setenv gtsegs  /users/raf/source/dguint/gtsegs
+envs:setenv guint   /users/raf/source/dguint
+envs:setenv jobchk  /users/raf/source/dguint/jobchk
+envs:setenv ldads   /users/raf/source/dguint/ldads
+envs:setenv misc    /users/raf/source/dguint/misc
+envs:setenv outdmp  /users/raf/source/dguint/outdmp
+envs:setenv rawdmp  /users/raf/source/dguint/rawdmp
+envs:setenv savfil  /users/raf/source/dguint/savfil
+envs:setenv scripts /users/raf/source/dguint/scripts
+envs:setenv scales  /users/raf/source/dguint/scales
+envs:setenv setup   /users/raf/source/dguint/setup
+envs:setenv src     /users/raf/source/dguint/src
+envs:setenv submit  /users/raf/source/dguint/submit
+envs:setenv taplog  /users/raf/source/dguint/taplog
+envs:setenv tp2ms   /users/raf/source/dguint/tp2ms
+envs:setenv util    /users/raf/source/dguint/util
+
+guint.doc:                source /users/raf/source/dguint/envs
+
+genset/makefile:DIRD = /users/raf/source/dguint/src
+ 
+outdmp/gpoutdmp.job:TEXT='HOST=spock.ucar.edu,FLNM=/users/raf/source/dguint/outdmp/gptdmpcx.f'.
+ 
+rawdmp/gpadsraw.job:TEXT='HOST=spock.ucar.edu,FLNM=/users/raf/source/dguint/util/gpadsraw.f'.
+rawdmp/gpadsraw.job:TEXT='HOST=spock.ucar.edu,FLNM=/users/raf/source/dguint/util/gpadsraw.f'.
+rawdmp/gpadsraw.job:TEXT='HOST=spock.ucar.edu,FLNM=/users/raf/source/dguint/compflt.&PROJNO'.
+rawdmp/gpadsraw.job:TEXT='HOST=spock.ucar.edu,FLNM=/users/raf/source/dguint/gtsegs/gpgtsegs.f'.
+rawdmp/gpoutdmp.job:TEXT='HOST=spock.ucar.edu,FLNM=/users/raf/source/dguint/outdmp/gptdmpcx.f'.
+ 
+
+setup/gpsetup:#cho " Example:  /users/raf/source/erica"
+ 
+tp2ms/makefile:UTIL = /users/raf/source/dguint/util/

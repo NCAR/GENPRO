@@ -1,0 +1,267 @@
+SOURCE VARIABLES                         NS NAMVAR NAMC                         
+                                                                                
+AFIXL   QCXC                             2 AKFXL                                
+AFIXR   QCXC                             2 AKFXR                                
+BFIXB   QCXC                             2 SSFXB                                
+BFIXT   QCXC                             2 SSFXT                                
+ADIFR   QCRC                             2 AKRD                                 
+ADIFR   QCRC    QCXC    PSXC             4 AKRD                                 
+ADIFR   QCFC    QCXC    PSXC             4 AKRD2                                
+AVOLF                                    1 AMASS                                
+TTR3    QCXC    PSXC                     3 ATR3                                 
+TTR6    QCXC    PSXC                     3 ATR6                                 
+TTR9    QCXC    PSXC                     3 ATR9                                 
+TTRF    QCXC    PSXC                     3 ATRF                                 
+TTB     QCXC    PSXC                     3 ATB                                  
+TTF     QCXC    PSXC                     3 ATF                                  
+TTKP    QCXC    PSXC                     3 ATKP                                 
+ADIFR   QCR                              2 ATK3                                 
+ATK3                                     1 ATK4                                 
+TTW     QCXC    PSXC                     3 ATW                                  
+TTBH    QCXC    PSXC                     3 ATBH                                 
+TTFH    QCXC    PSXC                     3 ATFH                                 
+TTWH    QCXC    PSXC                     3 ATWH                                 
+AFLOW   PSXC    ATRF                     3 AVOLF                                
+BDIFR   QCR                              2 BETA3                                
+QCRC    AKRD    SSRD    ADIFR            4 BRE                                  
+SPARE                                    1 COUNTS                               
+THF     TRK                              2 DA                                   
+DO3     PALT    PCAB                     2 DO3C                                 
+DPB                                      1 DPBC                                 
+DPT                                      1 DPTC                                 
+RICE    TASX                             2 DRICE                                
+RICE    TASX                             2 SCLWC                                
+XVI     YVI                              2 GSF                                  
+ADIF    BDIF                             2 WD                                   
+ADIF    BDIF                             2 WS                                   
+ADIF    BDIF                             2 UI                                   
+ADIF    BDIF                             2 VI                                   
+ADIF    BDIF                             2 WI                                   
+ADIF    BDIF                             2 UX                                   
+ADIF    BDIF                             2 VY                                   
+AFIXL   AFIXR   BFIXB   BFIXT            4 WD                                   
+AFIXL   AFIXR   BFIXB   BFIXT            4 WS                                   
+AFIXL   AFIXR   BFIXB   BFIXT            4 UI                                   
+AFIXL   AFIXR   BFIXB   BFIXT            4 VI                                   
+AFIXL   AFIXR   BFIXB   BFIXT            4 WI                                   
+AFIXL   AFIXR   BFIXB   BFIXT            4 UX                                   
+AFIXL   AFIXR   BFIXB   BFIXT            4 VY                                   
+ADIFR   BDIFR                            2 WDR                                  
+ADIFR   BDIFR                            2 WSR                                  
+ADIFR   BDIFR                            2 UIR                                  
+ADIFR   BDIFR                            2 VIR                                  
+ADIFR   BDIFR                            2 WIR                                  
+ADIFR   BDIFR                            2 UXR                                  
+ADIFR   BDIFR                            2 VYR                                  
+ACINS                                    1 HI3                                  
+VZI                                      1 ACINS                                
+PALT    VZI                              2 WP3                                  
+XVI     YVI     ALPHA                    3 VEW                                  
+XVI     YVI     ALPHA                    3 VNS                                  
+DTB     STB     IRB                      3 IRBC                                 
+DTT     STT     IRT                      3 IRTC                                 
+LWC     TASX                             2 LWCC                                 
+DPXC    PSXC                             2 MR                                   
+PSXC                                     1 PALT                                 
+PLWC    ATX     PSXC    TASX             4 PLWCC                                
+ATX     MR      PSXC    HGM              4 PSURF                                
+ATX     MR      HGM     PSXC             4 P210M                                
+QCRC    QCFC                             2 QRATIO                               
+DPSF    QCX                              2 RESERR                               
+DPBC    ATX     PSXC                     3 RHODB                                
+DPGEO   ATX     PSXC                     3 RHODG                                
+DPTC    ATX     PSXC                     3 RHODT                                
+DPXC    ATX     PSXC                     3 RHUM                                 
+DPXC    PSXC                             2 SPHUM                                
+BDIFR   QCRC                             2 SSRD                                 
+BDIFR   BREFR   BREFL                    3 SSRD1                                
+BDIFR   QCFC                             2 SSRD2                                
+TTX     QCFC    PSXC                     3 TASF                                 
+TTX     QCBC    PSXC                     3 TASB                                 
+TTX     QCGC    PSXC                     3 TASG                                 
+TTX     QCWC    PSXC                     3 TASW                                 
+TTX     QCRC    PSXC                     3 TASR                                 
+ATX     PSXC                             2 THETA                                
+DPXC    ATX     PSXC    MR               4 THETAE                               
+ATX     MR      PSXC                     3 THETAV                               
+ATKP    PSXC                             2 THETAK                               
+DPXC    ATX                              2 TLCL                                 
+QCF                                      1 QCFC                                 
+QCB                                      1 QCBC                                 
+QCG                                      1 QCGC                                 
+QCW                                      1 QCWC                                 
+QCD                                      1 QCDC                                 
+QCR     ADIFR   BDIFR                    3 QCRC                                 
+PSF     QCX                              2 PSFC                                 
+PSFD    QCX                              2 PSFDC                                
+PSW     QCX                              2 PSWC                                 
+PSB     QCX                              2 PSBC                                 
+VEW     VNS                              2 TRKI                                 
+ATX     MR                               2 TVIR                                 
+PSXC    QCBC                             2 BMACH                                
+PSXC    QCFC                             2 FMACH                                
+PSXC    QCGC                             2 GMACH                                
+PSXC    QCBC                             2 BMACH2                               
+PSXC    QCFC                             2 FMACH2                               
+PSXC    QCGC                             2 GMACH2                               
+ALAT    HGME                             2 ZPG                                  
+ADIF    QCXC    PSXC    QCX              4 AKDF                                 
+BDIF    QCXC    PSXC    QCX              4 SSDF                                 
+CO      PCAB                             2 COC                                  
+HGME    PALT                             2 DVALU                                
+DFLAT   DFLON                            2 DINSLR                               
+DO3     PALT    PSFDC                    3 DO3C                                 
+SDWRC   TASX                             2 CONC2C                               
+SDWRP   TASX                             2 CONC2P                               
+SDWRP2  TASX                             2 CONC2P2                              
+PHDG    ALPHA                            2 THF                                  
+ALON    ALAT                             2 DEI                                  
+ALAT                                     1 DNI                                  
+ALONC   ALATC                            2 RDIAL                                
+PLWC    ATRF    PSXC    TASX    CONCF    5 PLWCCZ                               
+LWC     TASX    CONCF                    3 LWCCZ                                
+PALT    RANG    FREQ    ALAT    ALON     5 ALATC                                
+PALT    RANG    FREQ    ALAT    ALON     5 ALONC                                
+PALT    RANG    FREQ    ALAT    ALON     5 XCORR                                
+PALT    RANG    FREQ    ALAT    ALON     5 YCORR                                
+PALT    RANG    FREQ    ALAT    ALON     5 DIST                                 
+PALT    RANG    FREQ    ALAT    ALON     5 RDIAL                                
+PALT    RANG    FREQ    ALAT    ALON     5 ELVANG                               
+VLA                                      1 RHOLA                                
+VLA                                      1 RFLAG                                
+VLA1                                     1 RHOLA1                               
+VLA1                                     1 RFLAG1                               
+DPGEO                                    1 DPGC                                 
+ALAT    ALON    CLAT    CLON             4 POSDF                                
+TEO3    TEP     TET                      3 TEO3C                                
+QCRC    QCFC                             2 QRATIO                               
+AKRD    AKDF                             2 DFAKRD                               
+AKFXL   PITCH                            2 DFAKLPH                              
+AKFXR   PITCH                            2 DFAKRPH                              
+AKFXL   AKFXR                            2 DFAKLR                               
+AKFXR   AKFXL                            2 DFAKRL                               
+AKRD    AKDF                             2 DFAKRF                               
+ATB     ATKP                             2 DFATBK                               
+ATB     ATBH                             2 DFATBBH                              
+ATB     ATF                              2 DFATBF                               
+ATB     ATFH                             2 DFATBFH                              
+ATB     ATOPH                            2 DFATBO                               
+ATB     ATRF                             2 DFATBR                               
+ATB     ATW                              2 DFATBW                               
+ATB     ATWH                             2 DFATBWH                              
+ATRF    ATWH                             2 DFATRH                               
+ATRF    ATOPH                            2 DFATRO                               
+ATWH    ATB                              2 DFATWHB                              
+ATWH    ATF                              2 DFATWHF                              
+ATWH    ATFH                             2 DFATWHFH                             
+ATWH    ATKP                             2 DFATWHK                              
+ATWH    ATRF                             2 DFATWHR                              
+ATWH    ATW                              2 DFATWHW                              
+ATF     ATB                              2 DFATFB                               
+ATF     ATBH                             2 DFATFBH                              
+ATF     ATFH                             2 DFATFH                               
+ATF     ATKP                             2 DFATFK                               
+ATF     ATRF                             2 DFATFR                               
+ATF     ATW                              2 DFATFW                               
+ATF     ATWH                             2 DFATFWH                              
+ATFH    ATB                              2 DFATFHB                              
+ATFH    ATBH                             2 DFATFHBH                             
+ATFH    ATF                              2 DFATFHF                              
+ATFH    ATKP                             2 DFATFHK                              
+ATFH    ATRF                             2 DFATFHR                              
+ATFH    ATW                              2 DFATFHW                              
+ATFH    ATWH                             2 DFATFHWH                             
+ATKP    ATB                              2 DFATKB                               
+ATKP    ATBH                             2 DFATKBH                              
+ATKP    ATF                              2 DFATKF                               
+ATKP    ATFH                             2 DFATKFH                              
+ATKP    ATRF                             2 DFATKR                               
+ATKP    ATW                              2 DFATKW                               
+ATKP    ATWH                             2 DFATKWH                              
+ATRF    ATB                              2 DFATRB                               
+ATRF    ATBH                             2 DFATRBH                              
+ATRF    ATF                              2 DFATRF                               
+ATRF    ATFH                             2 DFATRFH                              
+ATRF    ATKP                             2 DFATRK                               
+ATRF    ATW                              2 DFATRW                               
+ATRF    ATWH                             2 DFATRWH                              
+ATW     ATB                              2 DFATWB                               
+ATW     ATBH                             2 DFATWBH                              
+ATW     ATF                              2 DFATWF                               
+ATW     ATFH                             2 DFATWFH                              
+ATW     ATKP                             2 DFATWK                               
+ATW     ATR                              2 DFATWR                               
+ATW     ATWH                             2 DFATWWH                              
+ATWH    ATB                              2 DFATWHB                              
+ATWH    ATBH                             2 DFATWHBH                             
+ATWH    ATF                              2 DFATWHF                              
+ATWH    ATFH                             2 DFATWHFH                             
+ATWH    ATKP                             2 DFATWHK                              
+ATWH    ATRF                             2 DFATWHR                              
+ATWH    ATW                              2 DFATWHW                              
+DPBC    DPC                              2 DFDPBC                               
+DPBC    GEDPC                            2 DFDPBG                               
+DPBC    DPTC                             2 DFDPBTC                              
+DPT     DPB                              2 DFDPBT                               
+DPTC    DPBC                             2 DFDPTB                               
+DPTC    DPCRC                            2 DFDPTRC                              
+DPC     DPBC                             2 DFDPCB                               
+DPC     GEDPC                            2 DFDPCG                               
+DPC     DPTC                             2 DFDPCT                               
+GEDPC   DPBC                             2 DFDPGB                               
+GEDPC   DPC                              2 DFDPGC                               
+GEDPC   DPTC                             2 DFDPGT                               
+DPTC    DPC                              2 DFDPTC                               
+DPTC    GEDPC                            2 DFDPTG                               
+FMRL    FMRR                             2 DFFMLR                               
+FMRL    FMRB                             2 DFFMTB                               
+GSF     CGS                              2 DFGSFC                               
+GSF     CGS                              2 DFGSIC                               
+HGM     HGME                             2 DFHGHE                               
+PSFDC   PTC                              2 DFPSFTC                              
+PITCH   AKFXL                            2 DFPHAKL                              
+PITCH   AKFXR                            2 DFPHAKR                              
+PITCH   AKDF                             2 DFPHAKF                              
+PITCH   AKRD                             2 DFPHAKD                              
+PSBC    PSDF                             2 DFPSBD                               
+PSBC    PSWC                             2 DFPSBW                               
+PSBC    PSFC                             2 DFPSBF                               
+PSFC    PSFDC                            2 DFPSFD                               
+PSFDC   PSBC                             2 DFPSDB                               
+PSFDC   PSWC                             2 DFPSFW                               
+PSFDC   PSFC                             2 DFPSDF                               
+PSWC    PSBC                             2 DFPSWB                               
+PSWC    PSFDC                            2 DFPSWD                               
+QCBC    QCGC                             2 DFQCBG                               
+QCBC    QCWC                             2 DFQCBW                               
+QCBC    QCFC                             2 DFQCBF                               
+QCFC    QCBC                             2 DFQCFB                               
+QCFC    QCGC                             2 DFQCFG                               
+QCFC    QCWC                             2 DFQCFW                               
+QCFC    QCRC                             2 DFQCFR                               
+QCGC    QCBC                             2 DFQCGB                               
+QCGC    QCFC                             2 DFQCGF                               
+QCGC    QCWC                             2 DFQCGW                               
+QCRC    QCWC                             2 DFQCRW                               
+QCWC    QCBC                             2 DFQCWB                               
+QCWC    QCFC                             2 DFQCWF                               
+QCWC    QCGC                             2 DFQCWG                               
+RHOLA   RHOLA1                           2 DFRHA1                               
+SSFXB   SSFXT                            2 DFSSBT                               
+SSFXT   SSFXB                            2 DFSSTB                               
+SSRD    SSDF                             2 DFSSRD                               
+TASB    TASF                             2 DFTABF                               
+TASB    TASG                             2 DFTABG                               
+TASB    TASW                             2 DFTABW                               
+TASF    TASB                             2 DFTAFB                               
+TASF    TASG                             2 DFTAFG                               
+TASF    TASW                             2 DFTAFW                               
+TASF    TASR                             2 DFTAFR                               
+TASG    TASB                             2 DFTAGB                               
+TASG    TASF                             2 DFTAGF                               
+TASG    TASW                             2 DFTAGW                               
+TASW    TASB                             2 DFTAWB                               
+TASW    TASF                             2 DFTAWF                               
+TASW    TASG                             2 DFTAWG                               
+VLA     VLA2                             2 DFVLA12                              
+VCRH    PSXC    ATX     CRHT    CRHP     5 DPCRC                                

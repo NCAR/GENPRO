@@ -1,0 +1,20 @@
+# makefile for GUINT
+# usage: Make <target>
+#
+# use to make the GUINT executable programs --
+#
+# define installation directories
+#
+#
+#
+# set compile flags, for driver
+#
+FLAGSD = -g -v
+ofiles = $(gutil)/gplcaps.o $(gutil)/gpcaps.o
+#
+#
+#
+#
+# fltsum is an independant driver
+gpfltsum.out: gpfltsum.f
+	f77 $(FLAGSD)  -o gpfltsum.out gpfltsum.f $(ofiles)

@@ -1,0 +1,37 @@
+#
+#  GPSCALES <project name> <project #> <flight number> <workdisk> <disk>
+#
+#   created a file of TERM directives to preclude scaling errors
+#   for the given flight's output operation
+#
+#   --given input logfile must have the STATS operation display
+#
+#
+set prname = $1
+set projno = $2
+set fltno = $3
+set workpath = $4
+set flty = ${fltno}log
+/bin/rm $workpath/$prname.scle
+$scales/gpscales.out $flty $workpath $prname
+# if no scaling errors detected, done
+if (-r $workpath/$prname.scle) then
+   $scales/gpterms.out $fltno $workpath $prname
+   clear 
+   echo "  Scaling errors will not occur on next run of &FLTNO -- usually"
+   echo "  this logfile is expendable once this operation is done since"
+   echo "  you must re-run the production deck again."
+   echo " "
+   echo "   Do you wish to erase the logfile?  (Y/N)"
+   set  eras = $<
+   if (($eras == y) || ($eras == Y)) then
+      /bin/rm $workpath/${prname}.${fltno}log
+   endif
+   exit
+else
+   echo " Scaling errors will not occur on the next run of $fltno"
+   echo "         hit <r> to continue"
+   line
+   exit
+endif
+exit

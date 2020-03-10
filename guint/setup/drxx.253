@@ -1,0 +1,81 @@
+GENPRO  Reference Data file (drxx)    RLR  August 1991
+
+Instructions:
+  1)  Copy this file to your working directory with an extension of your
+        project number (e.g., drxx.739)
+  2)  Using the template's Xs as a guide, edit the new file (e.g., drxx.739):
+     a)  Add correct digit for project's fiscal year
+     b)  Add 3-digit project number
+     c)  Add project's title (21 characters, maximum)
+     d)  Add the desired plot interval (1800 seconds = 30 minutes)
+     e)  Change the desired time zone (e.g., EASTERN STANDARD TIME)
+     f)  Change the output dispositions (See instructions below.)
+
+project='y-ppp-xxss  <   project name    > ddmmyy '  <--- template for below
+PROJECT='1-739-xxss  CHEMICAL LAYERING    ddmmyy '                 
+XXXXXXXXX X   XXXXXXX                     XXXXXXXX  <---   WARNING
+  Warning:  Don't change columns marked with X.  This file is used as a
+             template when building a flight-specific file for the Cray.
+
+Plot interval (snapshot period)
+FLUSHP = 1800
+XXXXXXXXX             WARNING:
+  Warning:  Don't change columns marked with X.  This file is used as a
+             template when building a flight-specific file for the Cray.
+
+Reference time zone for the project
+TIMEZONE = MOUNTAIN STANDARD TIME
+XXXXXXXXXXX           WARNING:
+  Warning:  Don't change columns marked with X.  This file is used as a
+             template when building a flight-specific file for the Cray.
+ 
+==============================================================================
+
+==============================================================================
+               GENPRO Output Dispositions
+
+Instructions:  Change last word in the "set OPTION = yes/no" to the desired 
+                value.  Normal answers appear in the Preproduction and
+                Production columns.
+==============================================================================
+
+                              Preproduction    Production
+---------------------------------------------------------
+
+Archive output to Mass Store       no             yes !!
+set OUT2MSS = no
+
+Plotted data to host computer      yes/no         no
+set PLOT2HOST = yes
+
+Plotted data to ML laser printer   no             no
+set PLOT2PR = no
+
+Plotted data to Mass Store         no             yes
+set PLOT2MSS = no
+
+Plotted data to 35mm microfilm     yes/no         yes
+set PLOT2FILM = no
+
+Plotted data to microfiche         yes/no         yes/no
+set PLOT2FICHE = no
+
+Tabular list to host computer      no             no
+set PRINT2HOST = no
+
+Tabular list to ML Laser Printer   no             no
+set PRINT2PR = no
+
+Tabular list to Mass Store         no             yes
+set PRINT2MSS = no
+
+Tabular list to 35mm microfilm     no             no
+set PRINT2FILM = no
+
+Tabular list to microfiche         no             no
+set PRINT2FICHE = no
+
+Log file to the Mass Store         no             yes/no
+set LOG2MSS = no
+
+==============================================================================

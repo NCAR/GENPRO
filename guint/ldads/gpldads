@@ -1,0 +1,287 @@
+#
+# GPLDADS <project number> <workdisk>
+# this is a combination of the old ldads and tran
+#
+# Use after the file getuds.<projno>log returns, to perform following tasks:
+#
+#  --load SHSP####.##### file associated with getuds.<projno>log onto <workdisk>
+#  --create compflt.<projno> file from summary.<projno> and segmnts.<projno>
+#     files
+#
+# Use after tp2ms.<projno>job returns, to perform following tasks:
+#
+#  --load SHSP####.##### file associated with tp2ms.<projno>log onto <workdisk>
+#  --load all files named SHSP####.##### onto <workdisk>, appending each
+#     to file <workdisk>/tpstage.<projno>log
+#
+if ($#argv < 2) then
+  echo " Usage: gpldads <project #> <workdisk>"
+  echo "  Hit <r> to continue"
+  exit
+endif
+
+if ( ! -r $2/summary.$1) then
+   echo " "
+   echo "You must first use the 'L  Log Flight Tapes' option before this option"
+   echo "-- hit <r> to continue"
+   echo " "
+   line
+   exit
+endif
+
+
+set projno = $1
+set workpath = $2
+set HOST = spock.atd.ucar.edu
+set user = `head -1 $2/summary.$1`
+set USER = $user[1]
+#  Set first prefix to that of Cray.
+set prefixc = 'SH'
+#  Set next prefix to that of Mass Store.
+set prefixm = 'MS'
+
+# everyone who uses this must have a shavano logon
+
+echo  " "
+echo "Please enter sequence number for tape staging job you wish to complete"
+echo "(for example, SP1234) or <return> to continue to getuds completion."
+ if ( -r $2/tp2ms.seq ) then
+  cat $2/tp2ms.seq
+ endif
+echo  " "
+set seqtp2ms = $<
+if ( $seqtp2ms == "" ) then
+ goto cont
+endif
+echo  " "
+echo "Please enter your shavano log on name (usually last name and no capitals)"
+echo "(for example, smith) or <return> to continue to getuds completion."
+echo  " "
+set shname = $<
+if ( $shname == "" ) then
+ goto cont
+endif
+echo " "
+echo "Please wait ..."
+set shfiles = `rsh shavano -l $shname "grep -l $seqtp2ms rje/*print*"`
+set num = $#shfiles
+
+
+while ( $num )
+ rsh shavano -l $shname rcp $shfiles[1] "$USER"@"$HOST":$workpath
+ set result = $status
+ if ( $result != 0 ) then
+  echo "Could not rcp $shfiles[1] to your working directory"
+  echo "wait and try again later or see a Guint expert"
+ else
+  rsh shavano -l $shname rm $shfiles[1] 
+ endif
+
+shift shfiles
+@ num --
+end
+
+# now we check rcp'ed files to see if they are any good
+
+set num1 = `grep -l $seqtp2ms $workpath/*print* `
+
+set count = $#num1
+set bd = 0
+set gd = 0
+set quest = 0
+
+(/bin/rm good > /dev/null) >& /dev/null
+(/bin/rm bad > /dev/null) >& /dev/null
+(/bin/rm questn > /dev/null) >& /dev/null
+
+while ( $#num1 )
+
+# first, check for NORMAL TERMINAION.  If it is not present, place the file
+# in the "bad" file
+
+  set chk = `grep 'NORMAL TERMINATION' $num1[1]`
+   set result = $status
+   if ( $result != 0 ) then
+   @ bd ++
+   cat $num1[1] >>! bad
+   set result2 = $status
+      if ( $result2 == 0 ) then
+      (/bin/rm $num1[1] > /dev/null) >& /dev/null
+      else
+      echo $num1[1] did not cat properly into the bad file
+      endif
+   else
+
+# Second, if there is NORMAL TERMINATION, check to see if there is also a 
+# FATAL expression.  If there is, place the file into "questn."
+
+    set chk2 = `grep 'FATAL' $num1[1]`
+     set result3 = $status
+     if ( $result3 == 0 ) then
+      @ quest ++
+      cat $num1[1] >>! questn   
+	set result4 = $status
+        if ( $result4 == 0 ) then
+         (/bin/rm $num1[1] > /dev/null) >& /dev/null
+        else
+         echo $num1[1] did not cat properly into the questionable file
+        endif
+     else
+
+# Lastly, if there was NORMAL TERMINATION and no FATAL message, place the
+# file into "good" and condense it..
+
+      @ gd ++
+
+    set line = `grep -n "THIS JOB WILL IMPORT FILE:" $num1[1] | awk -F: '{print $1}'`
+    @ line2 = $line + 1
+    @ line3 = $line + 2
+    set string = `tail +$line $num1[1] | head -1`
+#    echo $string
+    echo $string >>! good
+    set string2 = `tail +$line2 $num1[1] | head -1`
+#    echo $string2
+    echo $string2 >> good
+    set string3 = `tail +$line3 $num1[1] | head -1`
+#    echo $string3
+    echo $string3 >> good
+
+    set string4 = `tail -10 $num1[1] | head -1`
+#    echo $string4
+    echo $string4 >> good
+    set string5 = `tail -9 $num1[1] | head -1`
+#    echo $string5
+    echo $string5 >> good
+    set string6 = `tail -8 $num1[1] | head -1`
+#    echo $string6
+    echo $string6 >> good
+    set string7 = `tail -7 $num1[1] | head -1`
+#    echo $string7
+    echo $string7 >> good
+    set string8 = `tail -6 $num1[1] | head -1`
+#    echo $string8
+    echo $string8 >> good
+    set string9 = `tail -5 $num1[1] | head -1`
+#    echo $string9
+    echo $string9 >> good
+    set string10 = `tail -4 $num1[1] | head -1`
+#    echo $string10
+    echo $string10 >> good
+    set string11 = `tail -3 $num1[1] | head -1`
+#    echo $string11
+    echo $string11 >> good
+    set string12 = `tail -2 $num1[1] | head -1`
+#    echo $string12
+    echo $string12 >> good
+    set string13 = `tail -1 $num1[1] | head -1`
+#    echo $string13
+    echo $string13 >> good
+    echo " " >> good
+
+     endif
+   endif
+  shift num1
+
+end
+
+# for both good and bad, if bd or gd is !=0 then, else rm file
+
+if ( $bd != 0 ) then
+echo " "
+echo " You have $bd bad file(s)."
+echo "They have been combined in a file named bad for your examination"
+echo " "
+echo "Would you like to peruse the bad file (y or n)?"
+set anw = $<
+  if ( $anw == 'y' ) then
+    vi bad
+  endif
+endif
+
+ if ( $gd != 0 ) then
+  echo " "
+  echo "Your staging log file is presently called -good-.  If you"
+  echo "plan to stage tapes more than once, you will want to move"
+  echo "the good file, in your project directory, to a different file"
+  echo "name (say, stage.<projno>)."
+  echo "This is due to the fact that during every staging, the good"
+  echo "file is removed, then rebuilt for that particular set of tapes."
+  echo " "
+  echo "Would you like to look at your good file now? (y or n)"
+  echo " "
+  set tum = $<
+  if ( $tum == 'y' ) then
+    vi good
+  endif
+ endif
+ 
+ if ( $quest != 0 ) then
+  echo "You have a file that may be either good or bad.  You will need to"
+  echo "take a look at the -questn- file and decide whether you need to"
+  echo "restage the tape."
+ endif
+
+# now to move the migs file over 
+if ( -r $migs/$prefixc$seqtp2ms.* ) then 
+ echo "Attempt to copy shavano's tp2ms job-summary migs file"
+ /bin/cp  $migs/$prefixc$seqtp2ms.* $workpath/.
+  if ($status != 0) then
+    echo "Could not copy $migs/$prefixc$seqtp2ms.*"
+    echo  "to your $workpath directory."
+    echo "Hit <r> to continue"
+    line
+  else
+    (/bin/rm $migs/$prefixc$seqtp2ms.* > /dev/null) >& /dev/null
+  endif
+endif
+
+# here we must do getuds and gtsegs completion
+
+ cont:
+echo "Please enter the sequence number for getuds completion (i.e. SP1234)."
+echo "You may also hit <return> to continue to gtsegs completion."
+echo "Here is a list of the sequence numbers."
+cat getuds.seq
+set seqgetuds = $<
+if ( $seqgetuds == "" ) then
+ goto cont2
+endif
+
+if ( -r $migs/$prefixc$seqgetuds.* ) then
+ echo "Attempt to copy shavano's getuds job-summary migs file"
+ /bin/cp  $migs/$prefixc$seqgetuds.* $workpath/.
+  if ($status != 0) then
+    echo "Could not copy $migs/$prefixc$seqgetuds.*"
+    echo  "to your $workpath directory."
+    echo "Hit <r> to continue"
+    line
+  else
+    (/bin/rm $migs/$prefixc$seqgetuds.* > /dev/null) >& /dev/null
+  endif
+endif
+
+ cont2:
+echo "Please enter the sequence number for gtsegs completion (i.e. SP1234)."
+echo "You may also hit <return> to exit."
+echo "Here is a list of the sequence numbers."
+cat gtsegs.seq
+set seqgtsegs = $<
+if ( $seqgtsegs == "" ) then
+ goto exit
+endif
+
+if ( -r $migs/$prefixc$seqgtsegs.* ) then
+ echo "Attempt to copy shavano's gtsegs job-summary migs file"
+ /bin/cp  $migs/$prefixc$seqgtsegs.* $workpath/.
+  if ($status != 0) then
+    echo "Could not copy $migs/$prefixc$seqgtsegs.*"
+    echo  "to your $workpath directory."
+    echo "Hit <r> to continue"
+    line
+  else
+    (/bin/rm $migs/$prefixc$seqgtsegs.* > /dev/null) >& /dev/null
+  endif
+endif
+
+ exit:
+exit

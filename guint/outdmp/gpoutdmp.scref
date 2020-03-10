@@ -1,0 +1,126 @@
+#! /bin/csh -f
+
+# QSUB -eo
+# q-class (premium-prem, regular-reg, economy-econ)
+# QSUB -q reg
+# To use c-shell
+# QSUB -s /bin/csh
+# To set time limit
+# QSUB -lt 600
+# QSUB -lT 600
+
+# Accounting stuff and environment variables get inserted here
+#
+#
+
+# Change to the working directory
+   cd $TMPDIR
+
+# Get remote FORTRAN program source code
+   rcp "$USER@$HOST":"$SOURCE/$PROGM.f" $PROGM.f
+     set return = $status
+     if ($return != "0") then
+       echo "error acquiring $PROGM.f, code = $return"
+       goto Done
+     endif
+# Get remote data file for program
+   rcp "$USER@$HOST":"$DATA/$PRGDATA" $PRGDATA
+     set return = $status
+     if ($return != "0") then
+       echo "error acquiring $PRGDATA, code = $return"
+       goto Done
+     endif
+
+# Compile with 64-bit integer maximum option for source code
+   cft77 -a static -i 64 $PROGM.f
+     set return = $status
+     if ($return != "0") then
+       echo "error compiling $PROGM.f, code = $return"
+       goto Done
+     endif
+
+# Load the program
+   segldr -o $PROGM $PROGM.o \
+                  -L /lib,/usr/lib,/usr/local/lib \
+                  -l ncaro
+     set return = $status
+     if ($return != "0") then
+       echo "error loading $PROGM, code = $return"
+       goto Done
+     endif
+
+# Get input file from the MSS
+   lread local=input remote=$MSSFILE format=tr options=retry
+     set return = $status
+     if ($return != 0) then
+       echo "error acquiring $MSSFILE from MSS, code = $return"
+       goto Done
+     endif
+
+# Map I/O units for FORTRAN
+   assign -a $DATOUT fort.7
+     set return = $status
+     if ($return != "0") then
+       echo "error assiging fortran unit 7, code = $return"
+       goto Done
+     endif
+   assign -a input fort.9
+     set return = $status
+     if ($return != "0") then
+       echo "error assiging fortran unit 9, code = $return"
+       goto Done
+     endif
+
+# Run the program (echo command since script won't echo stdin and stdout)
+   echo "$PROGM.exe < $PRGDATA > $LOGFILE"
+   $PROGM < $PRGDATA > $LOGFILE
+     set return = $status
+     if ($return != "0") then
+       echo "error executing $PROGM, code = $return"
+     endif
+
+# Return output
+   if (-e $DATOUT) then
+     rcp $DATOUT "$USER@$HOST":"$DEST/$DATOUT"
+     set return = $status
+     if ($return != "0") then
+#        if this copy fails, perhaps we should try the MSS next
+#        put file on shavano's scratch space for now
+       if (! -e /usr/tmp/$LOGNAME) then
+         mkdir /usr/tmp/$LOGNAME
+       endif
+       cp $DATOUT /usr/tmp/$LOGNAME/$DATOUT
+       if ($status == "0") then
+         echo "rcp failed. $DATOUT put on shavano:/usr/tmp/$LOGNAME/$DATOUT"
+       else
+         echo $DATOUT file created but lost
+       endif
+     endif
+   else
+     echo no $DATOUT file created by this run
+   endif
+
+# Return current directory info (temporarily)
+   echo " "
+   echo "list of all temporary files"
+   ls -al >> $LOGFILE
+
+# Return log file
+   rcp $LOGFILE "$USER@$HOST":"$DEST/$LOGFILE"
+     set return = $status
+     if ($return != "0") then
+#        if this copy fails, perhaps we should try the MSS next
+#        put file on shavano's scratch space for now
+       if (! -e /usr/tmp/$LOGNAME) then
+         mkdir /usr/tmp/$LOGNAME
+       endif
+       cp $LOGFILE /usr/tmp/$LOGNAME/$LOGFILE
+       if ($status == "0") then
+         echo "rcp failed. $LOGFILE put on shavano:/usr/tmp/$LOGNAME/$LOGFILE"
+       else
+         echo $LOGFILE file created but lost
+       endif
+     endif
+
+Done:
+ja -cst

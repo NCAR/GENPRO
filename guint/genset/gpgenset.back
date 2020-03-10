@@ -1,0 +1,52 @@
+&TRACE OFF
+*
+*  Usage: GPGENSET <project #> <project name> <workdisk> <version>
+*
+*  Run the setup program GPGENSET, given the project number, project
+*  name, user's workdisk letter, and requested version (either working
+*  version on Genpro2 or development version on Horton)
+*
+* save EXEC arguments
+&PROJNO = &LEFT OF &1 3
+&PRNAME = &2
+&WORKDISK = &3
+&VERSION = &4
+* setup file definitions
+EXEC GPFILES &PROJNO &WORKDISK &VERSION
+* GPFILES will return 0 if all is ok
+&READ VAR &ERROR
+&IF &ERROR NE 0 &EXIT
+&PROJECT = &LEFT OF &PRNAME 16
+&PROJ = &TRIM OF &PROJECT
+&PRINT
+&PRINT project name: &PROJ - &PROJNO disk: &WORKDISK
+&PRINT
+&PRINT Setup Program being loaded....
+&PRINT
+ERASE FLTDECKS &PROJNO &WORKDISK
+* tell fortran if Taplog exists (output tape length calc'n purposes)
+&EXISTS = F
+STATE TAPLOG &PROJNO &WORKDISK
+&IF &RETCODE NE 0 &GOTO -LOAD
+&EXISTS = T
+FILEDEF 51 DISK TAPLOG &PROJNO &WORKDISK
+-LOAD
+&STACK LIFO &PROJECT &PROJNO &EXISTS
+&IF &VERSION = D &GOTO -DEVELOP
+GPGENSET
+ &GOTO -DONE
+-DEVELOP
+EXEC GPLIBR
+LOAD GPGENSET (START NOMAP
+-DONE
+ERASE FILE SCRATCH &WORKDISK
+* if flight deck was created, break it up into correctly named files
+STATE FLTDECKS &PROJNO &WORKDISK
+&IF &RETCODE EQ 28 &EXIT
+&PRINT
+&PRINT Processing flight setups...
+SET CMSTYPE HT
+&STACK &WORKDISK
+XEDIT FLTDECKS &PROJNO &WORKDISK (PROF GPMKFLTS)
+SET CMSTYPE RT
+&EXIT

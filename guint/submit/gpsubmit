@@ -1,0 +1,83 @@
+#                  $1         $2       $3     $4
+#  GPSUBMIT <project name><project #><mode><version>
+#  ...<flight> is the concatentation *  of <project #> and <flt #>
+#  ...<job> is <machine> JOB if not a 2-d job, else is <machine> JOB2D
+#  ...this will take the job deck of filename=<project name> and
+#  filetype=<project #>, copy it to <flight> <job>, append the file with
+#  filename=<project name> and filetype=<flight>, and submit
+#  the job to the specified Cray, now only CX. All files are presumed
+#  to reside on the disk of <mode>. The deck is presumed to be derived
+#  from GPPROD DECK A, GENPRO2, and the appended file is presumed to be
+#  created via GPFLTGEN FORTRAN, GENPRO2, if not a 2-d job; <version> is
+#  D for Development or P for Production.
+#
+set prname = $1
+set projno = $2
+set workpath = $3
+# until the new Cray is available, the default machine is CX (2/7/89)
+set machine = 'CX'
+set lllp = 't'
+while  ($lllp == 't')
+   clear
+   echo "  For list of available flights, enter F ... else, enter <r> :"
+   set list = $<
+   set list =  `echo $list | dd conv=lcase`
+   if ($list == 'f') then
+      clear
+      ls $workpath/${projno}.*f*
+   endif
+   echo " "
+   echo "  Flight # ( <r> to exit ) :"
+   set fltno = $<
+   if ($fltno == "") then
+      exit
+   endif
+   set fltno = `echo $fltno | dd conv=lcase`
+   set flight = ${fltno}
+   set cray = 'CXJOB'
+   set filetype = 'job'
+# check if this is slow record (SLO) or 2-D (2D) processing
+   set job = ${cray}
+   echo $prname|grep 2d
+   set stat = $status
+   set word = 0
+   if ($stat == 0) then
+      set filetype = ${filetype}2d
+      set word = 2d
+      set job = 'CX2D'
+   endif
+# remove all previous versions to save disk space and make new copy
+   /bin/rm $workpath/*.CXJOB
+   /bin/rm $workpath/*.CX2D
+   /bin/cp $workpath/$prname.$filetype $workpath/${projno}${flight}.$job
+# scan flight file to determine resources needed in JOB statement
+   awk '/2D1/ {$flnm = b "/temp.resc";print > $flnm}' b=$workpath $workpath/$projno.$flight
+   if (-r $workpath/temp.resc) then
+      set resource = 1
+   else
+      set resource = 0
+   endif
+   /bin/rm $workpath/temp.resc
+   if ($resource == 1) then
+      sed -e '/JOB,/s/MS/MS,*D1/'  $workpath/${projno}${flight}.$job  > $workpath/temp.sed
+      /bin/mv $workpath/temp.sed $workpath/${projno}${flight}.$job
+   endif
+   cat $workpath/$projno.$flight >> ${projno}${flight}.$job
+   if ($word == 0) then
+      if (-r $workpath/termvars.$flight) then
+         sed '/INSERT TERMVARS/r $workpath/termvars.$flight' $workpath/${projno}${flight}.$job  > $workpath/temp.sed
+         /bin/mv $workpath/temp.sed $workpath/${projno}${flight}.$job 
+      endif
+   endif
+# submit the job
+   echo ${projno}${flight}.$job
+   set seq = `nrnet $cray $workpath/${projno}${flight}.$job`
+# get sequence # from stack and log via JobLog Fortran
+   set ngseq = $seq[4]
+   $submit/gpjoblog.out  $prname $workpath $fltno $machine $ngseq
+   echo " "
+   echo " hit <r> to continue..."
+   echo " "
+   line
+end
+exit

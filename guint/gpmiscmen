@@ -1,0 +1,246 @@
+#
+# Usage: GPGUINT <project name> <proj. #> <working path> <version>
+#  this is the miscellaneous menu sub-driver
+########################################################################
+#                      MISCELLANEOUS MENU                              #
+#                                                                      #
+########################################################################
+   unset misclp
+   set misclp = "y"
+   while ($misclp == "y")
+      # process: submit, download, examine, prepare for production
+      echo " $header $prname Miscellany $trailer"
+      echo " " 
+      echo "              h   Help"
+      echo "              l   Examine JOB LOG: file of submitted jobs"
+      echo "              c   Examine JOB CHECK: file of returned jobs"
+      echo "              b   Browse a LOG FILE"
+      echo "              d   Dispose a plot file"
+      echo "              e   Erase a Log file"
+      echo "              u   UNIX command"
+      echo "              s   Setup Menu"
+      echo "              p   Processing Menu"
+#     echo "              t   toggle preambles On/Off"
+      echo "             <cr> Main Menu"
+      unset lchoice
+      set lchoice = $<
+      set lchoice = `echo $lchoice | dd conv=lcase`
+      switch($lchoice)
+      case ""
+         set misclp = "n"
+         breaksw
+      case h
+         echo " The Miscellany Menu offers options that assist project processing. None"
+         echo " are essential, but all are helpful utilities designed to enhance the "
+         echo " functionality of GUINT. Available are:"
+         echo " "
+         echo "                  L   Examine JOB LOG: file of submitted jobs"
+         echo "                  C   Examine JOB CHECK: file of returned jobs"
+         echo "                  B   Browse a LOG FILE"
+         echo "                  D   Dispose a Plot File"
+         echo "                  E   Erase a Log File"
+         echo "                  I   IBM Command"
+         echo "                  S   Setup Menu"
+         echo "                  P   Processing Menu"
+         echo " "
+         echo " "
+         echo " Additional Help and Suggestions are available under each of these."
+         echo "  To change the project setup, select  S----Setup Menu. To continue with"
+         echo " processing, select  P---Processing Menu."
+         echo " "
+         echo " To return to the Miscellany Menu, hit <r> ...."
+         line
+         breaksw 
+      case l
+      # examine <prname> JOBLOG <workdisk>: list of jobs submitted from here
+         if ($preamble != "off") then
+            echo " This option offers you a review of all flights you have processed via"
+            echo " the  F--Process Flight option in the Process Menu, for either normal"
+            echo " or 2-D. Included for each flight is information on which Cray it was"
+            echo " run on, its  sequence #, date and time of processing, and the comment"
+            echo " you so thoughtfully provided when it was submitted."
+            echo " "
+            echo " If you wish to continue, enter <r>; else, enter any other character ..."
+            unset mchoice
+            set mchoice = $<
+            if ($mchoice != "") then
+              breaksw
+            endif
+         endif
+         unset prnam
+         set prnam = $prname
+         echo " Hit <Return> for normal, type 2 for two-d processing:"
+         unset twod
+         set twod = $<
+         if ($twod == 2)  then
+            set prnam = {$prname}2d
+         endif
+         more $workpath/$prnam.joblog
+         echo " Hit <cr> to continue"
+         line
+         breaksw
+      case c
+      # examine the JobChk file: summary information from logfiles
+      if ($preamble != "off") then
+            echo " This option offers you a review of all extracts created by the  C--Job"
+            echo " Check option in the Processing Menu.  You will find yourself in the"
+            echo " editor at the top of the Job Check file. In the  editor, use ^u/^d"
+            echo " to page, :# to go to a specific line, and :q to exit."
+            echo " "
+            echo " If you wish to continue, enter <r>; else, enter any other character ..."
+         endif
+         unset nchoice
+         set nchoice = $<
+         if ($nchoice != "")
+           breaksw
+         endif
+         vi -r $workpath/$prname.jobchk
+         breaksw
+      case b
+      # offer the Browse'ing of available logfiles
+         if ($preamble != "off") then
+            echo " Sometimes the Job Check operation doesn't tell you everything. If there"
+            echo " was not an indication of a SUCCESSFUL GENPRO TERMINATION for a given"
+            echo " flight, or for any other reason you wish to look at all the news, use"
+            echo " this option to Browse the logfile."
+            echo " "
+            echo " If you wish to continue, enter <r>; else, enter any other character ..."
+         endif
+         unset ochoice
+         set ochoice = $<
+         if ($ochoice != "")
+           breaksw
+         endif
+         set yes = "n"
+         foreach file ($workpath/$prnum.*f*log)
+            if (-r $file) then
+               set yes = "y"
+            endif
+         end
+         if ($yes != "y") then
+            break
+         endif
+         while 1
+            echo " Choose Flight #  for Browse"
+            unset fltno
+            set fltno = $<
+            if ($fltno == "") then
+               break
+            endif
+            set fltno = `echo $fltno | dd conv=lcase`
+            unset flty
+            set flty = {$fltno}log
+            vi -r $workpath/$prnum.$flty
+          end
+          breaksw
+       case d
+       # dispose metafile to D1 or MP
+          if ($preamble != "off") then
+            echo " If a run on Genpro was not successful, the plotfile for that flight will"
+            echo " return to your reader. This will also happen if you so requested via the"
+            echo " S--Project Parameters program. If you wish to get film or hardcopy"
+            echo " of the plotfile (filetype PLT<flight number>), download it with the"
+            echo " R--move from MIGS option under Processing Menu, making note of"
+            echo " the entire file ID on disk. Next, choose the medium here."
+            echo " "
+            echo " If you wish to continue, enter <r>; else, enter any other character ..."
+         endif
+         unset pchoice
+         set pchoice = $<
+         if ($pchoice != "")
+           breaksw
+         endif
+         while 1
+            echo " Specify Medium: (1) Film (2) Local Printer (3) Exit"
+            unset mf
+            set mf = $<
+            if ((mf == "") || (mf == 3)) then
+               break
+            endif
+            echo " " 
+            echo " Specify filename "
+            unset filnm
+            set filnm = $<
+            if ($filnm == "") then
+               break
+            endif
+            set filnm = `echo $filnm | dd conv=lcase`
+            echo "Specify Title ( {$filnm}_plt default):
+            unset titl
+            set titl = $<
+            if ($titl == "") then
+               set titl = {$filnm}_plt
+            endif
+            if ($mf == 2) then
+               echo "this option not available"
+            endif
+            if ($mf == 1) then
+            nrnet plotd1 $filnm
+            end
+            breaksw
+       case e
+          if ($preamble != "off") then
+            echo " After numerous logfiles have been downloaded to your IBM disk, and the"
+            echo " Job Check file has multitudes of extracts, your disk space will dwindle."
+            echo " If some of these logfiles are expendable (still in checkout mode) or"
+            echo " a logfile exists for a Successful run that has been logged AND saved,"
+            echo " use this operation to erase the logfile(s) in question from your disk."
+            echo " "
+            echo " If you wish to continue, enter <r>; else, enter any other character ..."
+         endif
+         unset qchoice
+         set qchoice = $<
+         if ($qchoice != "")
+           breaksw
+         endif
+         set yes = "n"
+         foreach file ($workpath/$prnum.*f*log)
+            if (-r $file) then
+               set yes = "y"
+            endif
+         end
+         if ($yes != "y") then
+            break
+         endif
+         while 1
+            echo " Choose Flight # for Erase
+            unset fltno
+            set fltno = $<
+            if ($fltno == "") then
+               break
+            endif
+             set fltno = `echo $fltno | dd conv=lcase`
+            /bin/rm $workpath/$prnum.{$fltno}log
+         end
+         breaksw
+      case u
+      # execute any system command
+      while 1
+         echo "Command?"
+         set comm = $<
+         echo $comm
+         if ("$comm" == "") then
+            break
+         endif
+         $comm
+      end
+      breaksw
+   case t
+   # toggle the preamble flag -- i.e., if preambles are being written to
+   # screen, turn them off, and vica versa
+      if ($preamble == "off") then
+         set preamble = "on"
+      else
+         set preamble = "off"
+      endif
+      breaksw
+   case p
+      exit -2		
+   case s
+      exit -1
+   default
+      set misclp = "n"
+      breaksw
+   endsw
+   end
+exit 0

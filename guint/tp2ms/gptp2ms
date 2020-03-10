@@ -1,0 +1,126 @@
+#
+#    Usage: GPTP2MS <projno> workpath
+#     -- set up multiple MIGS job file (gptp2ms.$projno) to stage in tape(s)
+#          from mag tape to Mass Store
+#      Revised version to use MIGS instead of the Cray by RLR  Feb 1993
+#  
+set workingpath = $2
+cd $workingpath
+set projno = $1
+(/bin/rm tapelist.$projno > /dev/null) >& /dev/null
+#  * verify input file exists
+if ( ! -r summary.$projno) then
+ echo " "
+ echo You must first use the 'L  Log Flight Tapes' option before this option
+ exit
+endif
+echo " "
+echo  You may now elect to stage in one or more tapes to the Mass Store, so
+echo  that your project data will be ready for processing by Genpro. Entries
+echo  made with 'Log Flight Tapes' option will be the basis for tapes you wish
+echo  to select for staging.
+echo " "   
+echo  Only those tapes listed in the Log Flight Tapes program that have also
+echo  been delivered to the tape operators are available for staging. At the
+echo  "next menu, you may elect to stage specific tapes (by flight number) or"
+echo  to automatically stage in all tapes entered in the Logging program.
+#   
+top:
+#  * fortran needs project number 
+$tp2ms/gptp2ms.out $projno 
+#  existence of tp2ms.$1job file is flag that at least one tape is to be staged
+(/bin/rm tp2ms.$1job > /dev/null) >& /dev/null
+(/bin/mv tp2ms.$1 tp2ms.$1job > /dev/null) >& /dev/null
+if (! -r tp2ms.$1job) then
+  echo " "
+  echo "no tapes selected"
+  echo " "
+  echo " "
+  goto cleanup
+endif
+set ft = $1{job}
+#  * offer options
+offer:
+echo  " "
+echo  Choose one: 
+echo  " "
+echo  " (1) Submit Job (2) Examine Job (3) Abandon "
+echo  " "
+set choice = $<
+switch ($choice)
+ case 1: 
+    goto submit
+ case 2: 
+     vi tp2ms.$1job
+    goto offer
+ case 3: 
+    goto cleanup
+ default: 
+    goto cleanup
+endsw
+submit:
+set fred = `wc tapelist`
+if ($fred[1] != 1) then
+   #  * sort tapelist input file by number
+   sort tapelist > sorted_list
+   set user = `whoami`
+   set bob = `finger $user`
+   #  * send tape list to operators and then submit job
+   echo " " > mail.note
+   echo "The following tapes are soon to be requested via MSIMPORT.">> mail.note
+   echo " " >> mail.note
+   set tpflag = `cat xom`
+   if ( $tpflag == "MT" ) then
+    echo "The following tapes are 1/2 in. magnetic..." >> mail.note
+   endif
+   if ( $tpflag == "EX" ) then
+    echo "The following tapes are Exabyte..." >> mail.note
+   endif
+   if ( $tpflag == "QD" ) then
+    echo "The following tapes are Exabyte..." >> mail.note
+   endif
+   cat mail.note sorted_list > tapelist.$projno
+   echo " " >> tapelist.$projno
+   echo "Thank you, $bob[7] $bob[8]." >> tapelist.$projno
+   echo "I can be reached at Foothills Lab 1, via x8815" >> tapelist.$projno
+
+#    echo "Would you like to edit the outgoing mail message (y or n)?"
+#    set var = $<
+#    if ( $var == 'y' ) then
+#       vi tapelist.$projno
+#    endif
+
+   elm tapelist@ncar.ucar.edu < tapelist.$projno
+#  the following line is a debugger or used as a check
+#   elm ron@spock.atd.ucar.edu < tapelist.$projno
+endif
+
+ (/bin/rm sorted_list > /dev/null) >& /dev/null
+ (/bin/rm tapelist.$projno > /dev/null) >& /dev/null
+ (/bin/rm mail.note > /dev/null) >& /dev/null
+ (/bin/rm xom > /dev/null) >& /dev/null
+
+# run MIGS script
+chmod +x tp2ms.$1job
+tp2ms.$1job
+
+# here one saves the seq #, date, and job performed into a summary file
+#echo $ngseq " " `date '+ %m/%d/%y at %H:%M:%S'` "  tape stage" >>! $2/tp2ms.seq
+
+echo " "
+echo "You will receive two mail messages per tape you staged.  One will come"
+echo "almost immediately from MIGS to let you know whether the msimport of"
+echo "a tape was successfully sent the the Mass Store Control Processor."
+echo "The second message will come after the MSCP completes staging.  It will"
+echo "read:  Batch output received from MS put in rje/NAMEprintX."
+echo "When one of these messages returns for *each* tape you staged,"
+echo "select 'C - Complete the Staging' option from the Tape Staging"
+echo "Menu."
+echo " "
+#
+echo " hit <r> to continue"
+echo  " "
+set wait = $<
+cleanup:
+ (/bin/rm $2/tapelist > /dev/null) >& /dev/null
+exit

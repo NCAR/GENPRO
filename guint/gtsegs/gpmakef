@@ -1,0 +1,21 @@
+# makefile for GUINT
+# usage: Make <target>
+#
+# use to make the GUINT executable programs --
+#
+# define installation directories
+#
+#
+#
+# set compile flags, for driver
+#
+FLAGSD = -g
+#
+# set list of object files
+ofiles = $(gutil)/gpgtyear.o $(gutil)/gpcaps.o 
+#
+#
+#
+# setads is an independent driver
+gpsetads.out: gpsetads.f $(ofiles)
+	f77 $(FLAGSD)   -o gpsetads.out gpsetads.f $(ofiles)

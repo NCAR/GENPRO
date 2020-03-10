@@ -1,0 +1,1 @@
+/FILENAME/ {$flnm = b "/cnt";print $3 >> $flnm}
