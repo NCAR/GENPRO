@@ -1,5 +1,23 @@
-This is the latest, greatest version of the EOL GENPRO-II to netcdf conversion 
-software.
+This is the latest, greatest version of the EOL GENPRO-II to netcdf conversion software.
+
+On Sept 21, 1998,  Ron Ruth released version 2.5 of `g2n,' the program which converts 
+GENPRO data files to netCDF.  This new version now handles COS-blocked files without a 
+need for conversion.
+
+As with the previous version (2.4), `g2n' converts the PMS-1D data, too.  It
+is possible that `g2n' won't recognize some obscure PMS-1D variable names and
+will convert them to netCDF in their original form (individual variable names
+for each cell).  If this happens to you, information about the data set, like 
+the aircraft, project, date, etc. and the offending variable name(s) will be 
+needed to update `g2n's known list.
+
+An updated man page (g2n.1) is available which gives run instructions and
+lists features and limitations.
+
+For those who plan to compile and load `g2n', three libraries are required:
+   raf    - general-purpose RAF C functions
+   ncaru  - C functions for handling COS-blocked files - available from  http://svn/svn/raf/trunk/nimbus/src/ncaru/utils
+   netcdf - netCDF software (this code used netcdf-2.4.3)
 
 Explanation of the files in g2n 
 -------------------------------------------------------------------------------
