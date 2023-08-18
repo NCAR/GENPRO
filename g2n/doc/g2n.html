@@ -1,0 +1,111 @@
+<head>
+<title>g2n User's Manual</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+<style type="text/css">
+<!--
+body { background: white; color: black; margin: 2em; margin-left: 3em; }
+h1,h2 { font-size: 1.5em }
+h3 { font-size: 1.3em }
+h4 { font-size: 1.2em }
+h1, h2, h3, h4 { font-style: normal; font-weight: normal; color: #3860B0; }
+span.runin { font-size: 1.1em; font-weight: bold; color: #3860B0; }
+a:link { color:navy; }
+a:visited { color:#386090; }
+li.toc { list-style: none; padding: .1em; }
+kbd.att { font-weight: normal; color: blue; }
+div.example { margin-left: 3em; margin-right: 3em; }
+div.definition { margin-left: 1em; }
+pre.CDL { color: brown; }
+table { padding: .25em; }
+span.new { background-color: #FF6666; }
+span.old { background-color: #FFFF88; text-decoration: line-through; }
+span.comment { background-color: #88FF88; font-style: italic; }
+-->
+</style>
+
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ ga('create', 'UA-2241808-1', 'ucar.edu');
+ ga('send', 'pageview');
+
+</script>
+</head>
+
+<body>
+
+<h1 align="center">g2n User's Guide</h1>
+<h3 align="center">GENPRO-II to netCDF converter</h3>
+<hr noshade>
+
+<dl>
+ <dt><h3>Synopsis</h3>
+ <dd>g2n [GENPRO_file netCDF_file [time_flag]]
+ <br>
+
+ <dt><h3>Description</h3>
+ <dd><b>g2n</b>
+ is a program to convert a GENPRO-II output data file to a netCDF file which
+ conforms to the
+ <a href="netCDF.html">NCAR-RAF netCDF conventions</a>.
+ <br>
+
+ <dt><h3>Command Line Options</h3>
+ g2n accepts three optional input arguments:  the input and output file names
+ and a time flag.  If only the input file name is provided on the command
+ line, g2n will query the user for all the information.  If both file names
+ are entered on the command line, environment variables, such as $MIGS can be
+ used.  If g2n asks for them, one must enter relative or absolute path names.
+ The time flag, if set, will output (to stdout) a continuous update of the
+ time being processed.  On the command line, any character string entered
+ after the two file names tells g2n to output continuous time; otherwise g2n
+ assumes that no time is to be output.
+ <br>
+ <br>
+
+ <dt><h3>Overview</h3>
+ <dd><b>g2n</b>
+ is a program for converting an RAF GENPRO-II data set to a netCDF file which
+ conforms to the
+ <a href="netCDF.html">NCAR-RAF netCDF conventions</a>.  It is command driven
+ and uses no GUI.
+ <br>
+ A few of its features are:
+ <ul>
+  <li>accepts command-line arguments or interactive input;</li>
+  <li>can convert stripped (via MIGS) or COS-blocked GENPRO data files;</li>
+  <li>converts all variables in a data set at their respective rates;</li>
+  <li>converts PMS-1D variables (whose names g2n recognizes) to its proper
+    netCDF form.</li>
+ </ul>
+
+ <dt><h3>Discussion</h3>
+ <dd><b>g2n</b>
+
+ <dt><h3>Requirements</h3>
+ <dd><b>g2n</b>
+ requires 
+ <a href="http://www.unidata.ucar.edu/packages/netcdf/index.html">netCDF</a> 3.0 or later to compile.
+</dl>
+
+<hr noshade>
+<h3>Author</h3>
+Ronald L. Ruth
+<br>National Center for Atmospheric Research
+<br>Research Aviation Facility.
+<br>(303) 497-1084
+<p>
+<address><a href="mail&#116;&#111;:raf&#064;ucar.edu?Subject=from_RAF_Web_Software_Page_g2n">email</a></address>
+<hr noshade>
+<font size="2">
+Last update:
+Fri Jan  6 15:58:30 MST 2006
+</font>
+
+</body>
+</html>

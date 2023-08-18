@@ -1,0 +1,54 @@
+<html>
+<head>
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ ga('create', 'UA-2241808-1', 'ucar.edu');
+ ga('send', 'pageview');
+
+</script>
+</head>
+
+    <body>
+	<pre>
+#!/bin/sh
+#
+# convert HARP90 COS-blocked GENPROII files to netCDF
+#
+#
+# Software is now available for download online at:
+#</pre>
+#<a href="http://www.eol.ucar.edu/data/software/downloadcenter">
+	http://www.eol.ucar.edu/data/software/downloadcenter</a>
+
+<pre>
+#
+# HARP90 files are cos-blocked, so before converting from GENPROII to netCDF
+# remove the cos-blocking using code from CISL specific to the platform
+# this script is being run on. The aircraft files are in three blocks and
+# cosconvert seems to only convert the first block, so the technique I had to
+# use was to run "cossplit" to split the aircraft file into three files, 
+# then run "cosconvert" on each subfile, then finally use "cat" to combine 
+# the three files back into one. Then I could use g2n to convert the
+# file to netCDF. E.G.:
+
+# Split the aircraft file into three files
+cossplit 1990.876.HRT.RF01
+
+# remove cos-blocking from heac subfile
+cosconvert -b T0O1
+cosconvert -b T0O2
+cosconvert -b T0O3
+
+# combine the three fiels back into one
+cat T0O1 T0O2 T0O3 > RF01
+
+# comvert the combined file to netCDF
+g2n RF01 RF01.nc
+</pre>
+
+</body>
+</html>
